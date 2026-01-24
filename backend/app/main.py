@@ -8,7 +8,7 @@ from app.core.config import settings
 from app.core.database import AsyncSessionLocal
 from app.core.security import hash_password
 from app.models.user import User
-from app.api.routes import health, documents, chat, auth, users, admin
+from app.api.routes import health, documents, chat, auth, users, admin, faq
 
 
 async def seed_admin_user():
@@ -76,4 +76,5 @@ app.include_router(users.router, prefix="/api", tags=["Users"])
 app.include_router(admin.router, prefix="/api", tags=["Admin"])
 app.include_router(documents.router, prefix="/api/documents", tags=["Documents"])
 app.include_router(chat.router, prefix="/api/chat", tags=["Chat"])
+app.include_router(faq.router, tags=["FAQ"])
 

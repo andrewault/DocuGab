@@ -57,7 +57,8 @@ export default function Register() {
             sx={{
                 minHeight: '100vh',
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'flex-start',
+                pt: 8,
                 background: isDark
                     ? 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)'
                     : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)',

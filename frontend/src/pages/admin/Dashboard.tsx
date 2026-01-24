@@ -173,6 +173,22 @@ export default function AdminDashboard() {
                     </Box>
                 )}
 
+                {/* Quick Actions */}
+                <Paper sx={{ p: 2, mb: 3, bgcolor: isDark ? 'rgba(30, 41, 59, 0.8)' : 'background.paper' }}>
+                    <Typography variant="subtitle2" color="text.secondary" mb={1}>
+                        Quick Actions
+                    </Typography>
+                    <Stack direction="row" spacing={2}>
+                        <Chip
+                            label="Manage FAQs"
+                            onClick={() => navigate('/admin/faq')}
+                            clickable
+                            color="primary"
+                            variant="outlined"
+                        />
+                    </Stack>
+                </Paper>
+
                 {/* Filters */}
                 <Paper sx={{ p: 2, mb: 2, bgcolor: isDark ? 'rgba(30, 41, 59, 0.8)' : 'background.paper' }}>
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
