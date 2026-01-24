@@ -1,14 +1,31 @@
-import { useState } from 'react';
-import { Box, Container, Typography, Button, Stack, Paper, Divider, useTheme } from '@mui/material';
-import { Upload, Chat, Search, Forum } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import DocumentUpload from '../components/DocumentUpload';
+import { Box, Container, Typography, Paper, Stack, useTheme } from '@mui/material';
+import { Person, Upload, Chat, ArrowForward } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
 
 export default function Home() {
-    const [showUpload, setShowUpload] = useState(false);
-    const navigate = useNavigate();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+
+    const steps = [
+        {
+            icon: <Person sx={{ fontSize: 48 }} />,
+            title: 'Create an account',
+            description: 'Sign up to get started',
+            link: '/register',
+        },
+        {
+            icon: <Upload sx={{ fontSize: 48 }} />,
+            title: 'Upload documents',
+            description: 'PDF, DOCX, TXT, Markdown',
+            link: '/documents',
+        },
+        {
+            icon: <Chat sx={{ fontSize: 48 }} />,
+            title: 'Chat with your documents',
+            description: 'Ask questions, get cited answers',
+            link: '/chat',
+        },
+    ];
 
     return (
         <Box
@@ -23,7 +40,7 @@ export default function Home() {
         >
             <Container maxWidth="lg" sx={{ flex: 1, py: 8 }}>
                 {/* Hero Section */}
-                <Box textAlign="center" mb={6}>
+                <Box textAlign="center" mb={8}>
                     <Typography
                         variant="h1"
                         sx={{
@@ -36,94 +53,93 @@ export default function Home() {
                     >
                         DocuGab
                     </Typography>
-                    <Typography variant="h5" color="text.secondary" mb={4}>
+                    <Typography variant="h5" color="text.secondary" mb={2}>
                         Transform your documents into intelligent conversations
                     </Typography>
-                    <Stack direction="row" spacing={2} justifyContent="center">
-                        <Button
-                            variant="contained"
-                            size="large"
-                            startIcon={<Upload />}
-                            onClick={() => setShowUpload(!showUpload)}
-                            sx={{ px: 4, py: 1.5 }}
-                        >
-                            Upload Document
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            size="large"
-                            startIcon={<Forum />}
-                            onClick={() => navigate('/chat')}
-                            sx={{ px: 4, py: 1.5 }}
-                        >
-                            Start Chatting
-                        </Button>
-                    </Stack>
                 </Box>
 
-                {/* Upload Section */}
-                {showUpload && (
-                    <Box maxWidth="md" mx="auto" mb={6}>
-                        <DocumentUpload />
-                    </Box>
-                )}
+                {/* Flowchart Steps */}
+                <Stack
+                    direction={{ xs: 'column', md: 'row' }}
+                    spacing={{ xs: 2, md: 0 }}
+                    justifyContent="center"
+                    alignItems="center"
+                    sx={{ mb: 6 }}
+                >
+                    {steps.map((step, index) => (
+                        <Stack
+                            key={step.title}
+                            direction={{ xs: 'column', md: 'row' }}
+                            alignItems="center"
+                            spacing={{ xs: 1, md: 2 }}
+                        >
+                            <Paper
+                                component={Link}
+                                to={step.link}
+                                elevation={0}
+                                sx={{
+                                    p: 4,
+                                    textAlign: 'center',
+                                    textDecoration: 'none',
+                                    color: 'inherit',
+                                    background: isDark
+                                        ? 'rgba(255, 255, 255, 0.05)'
+                                        : 'rgba(0, 0, 0, 0.02)',
+                                    backdropFilter: 'blur(10px)',
+                                    border: isDark
+                                        ? '1px solid rgba(255, 255, 255, 0.1)'
+                                        : '1px solid rgba(0, 0, 0, 0.08)',
+                                    borderRadius: 3,
+                                    minWidth: 220,
+                                    transition: 'transform 0.2s, box-shadow 0.2s',
+                                    '&:hover': {
+                                        transform: 'translateY(-4px)',
+                                        boxShadow: isDark
+                                            ? '0 12px 40px rgba(99, 102, 241, 0.2)'
+                                            : '0 12px 40px rgba(99, 102, 241, 0.15)',
+                                    },
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        color: 'primary.main',
+                                        mb: 2,
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    {step.icon}
+                                </Box>
+                                <Typography variant="h6" fontWeight={600} gutterBottom>
+                                    {step.title}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {step.description}
+                                </Typography>
+                            </Paper>
 
-                <Divider sx={{ my: 4, borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }} />
-
-                {/* Feature Cards */}
-                <Stack direction={{ xs: 'column', md: 'row' }} spacing={4} justifyContent="center">
-                    <FeatureCard
-                        icon={<Upload sx={{ fontSize: 40 }} />}
-                        title="Multi-Format Upload"
-                        description="PDF, DOCX, TXT, and Markdown files supported"
-                    />
-                    <FeatureCard
-                        icon={<Chat sx={{ fontSize: 40 }} />}
-                        title="Natural Conversations"
-                        description="Ask questions in plain English, get cited answers"
-                    />
-                    <FeatureCard
-                        icon={<Search sx={{ fontSize: 40 }} />}
-                        title="Source Citations"
-                        description="Every answer links back to the exact source"
-                    />
+                            {/* Arrow between steps */}
+                            {index < steps.length - 1 && (
+                                <Box
+                                    sx={{
+                                        color: 'primary.main',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        transform: {
+                                            xs: 'rotate(90deg)',
+                                            md: 'rotate(0deg)',
+                                        },
+                                        mx: { md: 2 },
+                                        my: { xs: 1, md: 0 },
+                                    }}
+                                >
+                                    <ArrowForward sx={{ fontSize: 32 }} />
+                                </Box>
+                            )}
+                        </Stack>
+                    ))}
                 </Stack>
             </Container>
         </Box>
-    );
-}
-
-function FeatureCard({ icon, title, description }: {
-    icon: React.ReactNode;
-    title: string;
-    description: string;
-}) {
-    const theme = useTheme();
-    const isDark = theme.palette.mode === 'dark';
-
-    return (
-        <Paper
-            elevation={0}
-            sx={{
-                p: 4,
-                textAlign: 'center',
-                background: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)',
-                backdropFilter: 'blur(10px)',
-                border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.08)',
-                flex: 1,
-                maxWidth: 300,
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: isDark
-                        ? '0 12px 40px rgba(99, 102, 241, 0.2)'
-                        : '0 12px 40px rgba(99, 102, 241, 0.15)',
-                },
-            }}
-        >
-            <Box color="primary.main" mb={2}>{icon}</Box>
-            <Typography variant="h6" mb={1}>{title}</Typography>
-            <Typography variant="body2" color="text.secondary">{description}</Typography>
-        </Paper>
     );
 }
