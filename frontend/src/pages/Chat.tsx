@@ -105,7 +105,7 @@ export default function Chat() {
     };
 
     return (
-        <Container maxWidth="md" sx={{ height: '100vh', py: 2 }}>
+        <Container maxWidth="md" sx={{ height: 'calc(100vh - 64px)', py: 2, display: 'flex', flexDirection: 'column' }}>
             <Paper
                 elevation={3}
                 sx={{

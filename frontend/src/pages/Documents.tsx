@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import {
     Box,
     Container,
@@ -118,6 +118,11 @@ export default function Documents() {
             default: return 'default';
         }
     };
+
+    // Scroll to top on mount
+    useLayoutEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     useEffect(() => {
         fetchDocuments();
