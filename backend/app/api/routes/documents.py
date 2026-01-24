@@ -29,6 +29,7 @@ async def list_documents(db: AsyncSession = Depends(get_db)):
                 "id": doc.id,
                 "filename": doc.original_filename,
                 "status": doc.status,
+                "error_message": doc.error_message,
                 "file_size": doc.file_size,
                 "created_at": doc.created_at.isoformat() if doc.created_at else None,
             }
@@ -48,9 +49,11 @@ async def get_document(document_id: int, db: AsyncSession = Depends(get_db)):
         "id": document.id,
         "filename": document.original_filename,
         "status": document.status,
+        "error_message": document.error_message,
         "file_size": document.file_size,
         "content_type": document.content_type,
         "created_at": document.created_at.isoformat() if document.created_at else None,
+        "updated_at": document.updated_at.isoformat() if document.updated_at else None,
     }
 
 
@@ -117,11 +120,17 @@ async def process_document_background(document_id: int):
 
 @router.delete("/{document_id}")
 async def delete_document(document_id: int, db: AsyncSession = Depends(get_db)):
-    """Delete a document and its chunks."""
+    """Delete a document, its chunks, and the physical file."""
     document = await db.get(Document, document_id)
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
     
+    # Delete physical file
+    file_path = get_file_path(document.filename)
+    if file_path.exists():
+        file_path.unlink()
+    
+    # Delete from database (cascades to chunks)
     await db.delete(document)
     await db.commit()
     

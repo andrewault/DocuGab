@@ -19,6 +19,7 @@ class Document(Base):
     content_type: Mapped[str] = mapped_column(String(100))
     file_size: Mapped[int]
     status: Mapped[str] = mapped_column(String(50), default="pending")
+    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     
     # Owner (nullable for migration compatibility)
     user_id: Mapped[Optional[int]] = mapped_column(

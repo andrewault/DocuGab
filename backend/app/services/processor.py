@@ -60,5 +60,6 @@ async def process_document(document_id: int, db: AsyncSession):
         
     except Exception as e:
         document.status = "error"
+        document.error_message = str(e)
         await db.commit()
         raise

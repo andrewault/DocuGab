@@ -16,17 +16,24 @@ import {
     CircularProgress,
     Alert,
     useTheme,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Stack,
 } from '@mui/material';
-import { Delete, Refresh, CloudUpload } from '@mui/icons-material';
+import { Delete, Refresh, CloudUpload, Close } from '@mui/icons-material';
 import DocumentUpload from '../components/DocumentUpload';
 
 interface Document {
     id: number;
     filename: string;
     status: 'pending' | 'processing' | 'ready' | 'error';
+    error_message?: string | null;
     file_size: number;
-    content_type: string;
+    content_type?: string;
     created_at: string;
+    updated_at?: string;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
@@ -37,6 +44,7 @@ export default function Documents() {
     const [error, setError] = useState<string | null>(null);
     const [showUpload, setShowUpload] = useState(false);
     const [deleting, setDeleting] = useState<number | null>(null);
+    const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
 
@@ -56,6 +64,17 @@ export default function Documents() {
         }
     };
 
+    const fetchDocumentDetail = async (id: number) => {
+        try {
+            const response = await fetch(`${API_BASE}/api/documents/${id}`);
+            if (!response.ok) throw new Error('Failed to fetch document details');
+            const data = await response.json();
+            setSelectedDoc(data);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to load document details');
+        }
+    };
+
     const handleDelete = async (id: number) => {
         if (!confirm('Are you sure you want to delete this document?')) return;
 
@@ -66,6 +85,7 @@ export default function Documents() {
             });
             if (!response.ok) throw new Error('Failed to delete document');
             setDocuments(docs => docs.filter(d => d.id !== id));
+            if (selectedDoc?.id === id) setSelectedDoc(null);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to delete document');
         } finally {
@@ -207,7 +227,12 @@ export default function Documents() {
                                 </TableRow>
                             ) : (
                                 documents.map((doc) => (
-                                    <TableRow key={doc.id} hover>
+                                    <TableRow
+                                        key={doc.id}
+                                        hover
+                                        onClick={() => fetchDocumentDetail(doc.id)}
+                                        sx={{ cursor: 'pointer' }}
+                                    >
                                         <TableCell>{doc.filename}</TableCell>
                                         <TableCell>
                                             <Chip
@@ -220,7 +245,10 @@ export default function Documents() {
                                         <TableCell>{formatDate(doc.created_at)}</TableCell>
                                         <TableCell align="right">
                                             <IconButton
-                                                onClick={() => handleDelete(doc.id)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDelete(doc.id);
+                                                }}
                                                 disabled={deleting === doc.id}
                                                 color="error"
                                                 size="small"
@@ -245,6 +273,84 @@ export default function Documents() {
                         {documents.length} document{documents.length !== 1 ? 's' : ''}
                     </Typography>
                 )}
+
+                {/* Document Detail Dialog */}
+                <Dialog
+                    open={!!selectedDoc}
+                    onClose={() => setSelectedDoc(null)}
+                    maxWidth="sm"
+                    fullWidth
+                >
+                    {selectedDoc && (
+                        <>
+                            <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Typography variant="h6" component="span" noWrap sx={{ flex: 1, mr: 2 }}>
+                                    {selectedDoc.filename}
+                                </Typography>
+                                <IconButton onClick={() => setSelectedDoc(null)} size="small">
+                                    <Close />
+                                </IconButton>
+                            </DialogTitle>
+                            <DialogContent dividers>
+                                <Stack spacing={2}>
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary">Status</Typography>
+                                        <Box>
+                                            <Chip
+                                                label={selectedDoc.status}
+                                                color={getStatusColor(selectedDoc.status) as any}
+                                                size="small"
+                                            />
+                                        </Box>
+                                    </Box>
+
+                                    {selectedDoc.error_message && (
+                                        <Box>
+                                            <Typography variant="caption" color="text.secondary">Error</Typography>
+                                            <Alert severity="error" sx={{ mt: 0.5 }}>
+                                                {selectedDoc.error_message}
+                                            </Alert>
+                                        </Box>
+                                    )}
+
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary">File Size</Typography>
+                                        <Typography>{formatFileSize(selectedDoc.file_size)}</Typography>
+                                    </Box>
+
+                                    {selectedDoc.content_type && (
+                                        <Box>
+                                            <Typography variant="caption" color="text.secondary">Content Type</Typography>
+                                            <Typography>{selectedDoc.content_type}</Typography>
+                                        </Box>
+                                    )}
+
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary">Uploaded</Typography>
+                                        <Typography>{formatDate(selectedDoc.created_at)}</Typography>
+                                    </Box>
+
+                                    {selectedDoc.updated_at && (
+                                        <Box>
+                                            <Typography variant="caption" color="text.secondary">Last Updated</Typography>
+                                            <Typography>{formatDate(selectedDoc.updated_at)}</Typography>
+                                        </Box>
+                                    )}
+                                </Stack>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button
+                                    color="error"
+                                    onClick={() => handleDelete(selectedDoc.id)}
+                                    disabled={deleting === selectedDoc.id}
+                                >
+                                    Delete
+                                </Button>
+                                <Button onClick={() => setSelectedDoc(null)}>Close</Button>
+                            </DialogActions>
+                        </>
+                    )}
+                </Dialog>
             </Container>
         </Box>
     );
