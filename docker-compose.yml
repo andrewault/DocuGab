@@ -1,7 +1,7 @@
 services:
   db:
     image: pgvector/pgvector:pg16
-    container_name: docutalk-db
+    container_name: docugab-db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -18,7 +18,7 @@ services:
 
   ollama:
     image: ollama/ollama:latest
-    container_name: docutalk-ollama
+    container_name: docugab-ollama
     ports:
       - "11434:11434"
     volumes:
@@ -42,7 +42,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: docutalk-backend
+    container_name: docugab-backend
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     environment:
@@ -69,7 +69,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: docutalk-frontend
+    container_name: docugab-frontend
     ports:
       - "${VITE_PORT}:${VITE_PORT}"
     environment:

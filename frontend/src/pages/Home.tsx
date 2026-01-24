@@ -30,7 +30,7 @@ export default function Home() {
                             mb: 2,
                         }}
                     >
-                        DocuTalk
+                        DocuGab
                     </Typography>
                     <Typography variant="h5" color="text.secondary" mb={4}>
                         Transform your documents into intelligent conversations
