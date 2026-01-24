@@ -1,7 +1,13 @@
-import { Box, Container, Typography, Button, Stack, Paper } from '@mui/material';
-import { Upload, Chat, Search } from '@mui/icons-material';
+import { useState } from 'react';
+import { Box, Container, Typography, Button, Stack, Paper, Divider } from '@mui/material';
+import { Upload, Chat, Search, Forum } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import DocumentUpload from '../components/DocumentUpload';
 
 export default function Home() {
+    const [showUpload, setShowUpload] = useState(false);
+    const navigate = useNavigate();
+
     return (
         <Box
             sx={{
@@ -13,7 +19,7 @@ export default function Home() {
         >
             <Container maxWidth="lg" sx={{ flex: 1, py: 8 }}>
                 {/* Hero Section */}
-                <Box textAlign="center" mb={8}>
+                <Box textAlign="center" mb={6}>
                     <Typography
                         variant="h1"
                         sx={{
@@ -29,15 +35,36 @@ export default function Home() {
                     <Typography variant="h5" color="text.secondary" mb={4}>
                         Transform your documents into intelligent conversations
                     </Typography>
-                    <Button
-                        variant="contained"
-                        size="large"
-                        startIcon={<Upload />}
-                        sx={{ px: 4, py: 1.5 }}
-                    >
-                        Upload Document
-                    </Button>
+                    <Stack direction="row" spacing={2} justifyContent="center">
+                        <Button
+                            variant="contained"
+                            size="large"
+                            startIcon={<Upload />}
+                            onClick={() => setShowUpload(!showUpload)}
+                            sx={{ px: 4, py: 1.5 }}
+                        >
+                            Upload Document
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            startIcon={<Forum />}
+                            onClick={() => navigate('/chat')}
+                            sx={{ px: 4, py: 1.5 }}
+                        >
+                            Start Chatting
+                        </Button>
+                    </Stack>
                 </Box>
+
+                {/* Upload Section */}
+                {showUpload && (
+                    <Box maxWidth="md" mx="auto" mb={6}>
+                        <DocumentUpload />
+                    </Box>
+                )}
+
+                <Divider sx={{ my: 4, borderColor: 'rgba(255,255,255,0.1)' }} />
 
                 {/* Feature Cards */}
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={4} justifyContent="center">

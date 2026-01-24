@@ -1,0 +1,87 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: docutalk-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: docutalk-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # Uncomment for GPU support (requires nvidia-docker)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: docutalk-backend
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      BACKEND_PORT: ${BACKEND_PORT}
+      CORS_ORIGINS: http://localhost:${VITE_PORT},http://frontend:${VITE_PORT}
+      DEBUG: ${DEBUG}
+      OLLAMA_BASE_URL: http://ollama:11434
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL}
+      LLM_MODEL: ${LLM_MODEL}
+      CHUNK_SIZE: ${CHUNK_SIZE}
+      CHUNK_OVERLAP: ${CHUNK_OVERLAP}
+    depends_on:
+      db:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ./uploads:/app/uploads
+    command: uv run uvicorn app.main:app --host 0.0.0.0 --port ${BACKEND_PORT} --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: docutalk-frontend
+    ports:
+      - "${VITE_PORT}:${VITE_PORT}"
+    environment:
+      VITE_API_BASE_URL: http://localhost:${BACKEND_PORT}
+      VITE_PORT: ${VITE_PORT}
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  # Exclude node_modules from bind mount
+    command: npm run dev -- --host 0.0.0.0 --port ${VITE_PORT}
+
+volumes:
+  postgres_data:
+  ollama_data:
