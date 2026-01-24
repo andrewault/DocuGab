@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Documents from './pages/Documents';
 import Chat from './pages/Chat';
+import Settings from './pages/Settings';
 
 export default function App() {
   return (
@@ -15,8 +16,10 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/documents" element={<Documents />} />
           <Route path="/chat" element={<Chat />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
       </Box>
     </Box>
   );
 }
+
