@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 
 from app.core.database import get_db
-from app.core.deps import get_current_user, require_admin
+from app.core.deps import get_admin_user
 from app.models.faq import FAQ
 from app.models.user import User
 
@@ -57,7 +57,7 @@ async def list_faqs(
 async def create_faq(
     data: FAQCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(get_admin_user),
 ):
     """Create a new FAQ (admin only)."""
     faq = FAQ(
@@ -77,7 +77,7 @@ async def update_faq(
     faq_id: int,
     data: FAQUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(get_admin_user),
 ):
     """Update an FAQ (admin only)."""
     result = await db.execute(select(FAQ).where(FAQ.id == faq_id))
@@ -99,7 +99,7 @@ async def update_faq(
 async def delete_faq(
     faq_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(get_admin_user),
 ):
     """Delete an FAQ (admin only)."""
     result = await db.execute(select(FAQ).where(FAQ.id == faq_id))

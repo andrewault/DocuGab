@@ -19,8 +19,9 @@ import {
     Divider,
     useTheme,
 } from '@mui/material';
-import { ArrowBack, Save, Delete } from '@mui/icons-material';
+import { Save, Delete } from '@mui/icons-material';
 import { getAuthHeader } from '../../context/AuthContext';
+import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
 interface User {
     id: number;
@@ -197,13 +198,10 @@ export default function UserDetail() {
             }}
         >
             <Container maxWidth="sm">
-                <Button
-                    startIcon={<ArrowBack />}
-                    onClick={() => navigate('/admin')}
-                    sx={{ mb: 3 }}
-                >
-                    Back to Dashboard
-                </Button>
+                <AdminBreadcrumbs items={[
+                    { label: 'Users', path: '/admin/users' },
+                    { label: user.email }
+                ]} />
 
                 <Paper
                     elevation={3}

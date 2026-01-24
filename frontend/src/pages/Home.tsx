@@ -135,7 +135,7 @@ export default function Home() {
                 }}
             />
 
-            <Container maxWidth="lg" sx={{ flex: 1, py: 8, position: 'relative', zIndex: 1 }}>
+            <Container maxWidth="lg" sx={{ flex: 1, py: 4, position: 'relative', zIndex: 1 }}>
                 {/* Hero Section */}
                 <Box
                     textAlign="center"

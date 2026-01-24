@@ -25,6 +25,7 @@ import {
 } from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
 import { getAuthHeader } from '../../context/AuthContext';
+import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
 interface FAQItem {
     id: number;
@@ -150,9 +151,10 @@ export default function FAQManagement() {
             }}
         >
             <Container maxWidth="lg">
+                <AdminBreadcrumbs items={[{ label: 'FAQs' }]} />
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
                     <Typography variant="h4" fontWeight={700}>
-                        FAQ Management
+                        FAQs
                     </Typography>
                     <Button
                         variant="contained"

@@ -12,6 +12,7 @@ import Register from './pages/Register';
 import FAQ from './pages/FAQ';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import AdminHome from './pages/admin/AdminHome';
 import AdminDashboard from './pages/admin/Dashboard';
 import UserDetail from './pages/admin/UserDetail';
 import FAQManagement from './pages/admin/FAQManagement';
@@ -45,6 +46,11 @@ export default function App() {
             </ProtectedRoute>
           } />
           <Route path="/admin" element={
+            <ProtectedRoute requireAdmin>
+              <AdminHome />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/users" element={
             <ProtectedRoute requireAdmin>
               <AdminDashboard />
             </ProtectedRoute>

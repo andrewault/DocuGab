@@ -12,7 +12,6 @@ import {
     TableRow,
     TablePagination,
     Chip,
-    IconButton,
     TextField,
     Select,
     MenuItem,
@@ -25,9 +24,10 @@ import {
     Alert,
     useTheme,
 } from '@mui/material';
-import { Edit, Group, PersonAdd, Description, Pending } from '@mui/icons-material';
+import { Group, PersonAdd, Description, Pending } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { getAuthHeader } from '../../context/AuthContext';
+import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
 interface Stats {
     total_users: number;
@@ -136,6 +136,7 @@ export default function AdminDashboard() {
             }}
         >
             <Container maxWidth="lg">
+                <AdminBreadcrumbs items={[{ label: 'Users' }]} />
                 <Typography
                     variant="h4"
                     mb={4}
@@ -147,7 +148,7 @@ export default function AdminDashboard() {
                         WebkitTextFillColor: 'transparent',
                     }}
                 >
-                    Admin Dashboard
+                    Users
                 </Typography>
 
                 {error && (
@@ -172,22 +173,6 @@ export default function AdminDashboard() {
                         <StatCard title="Documents" value={stats.total_documents} icon={<Description sx={{ fontSize: 40 }} />} />
                     </Box>
                 )}
-
-                {/* Quick Actions */}
-                <Paper sx={{ p: 2, mb: 3, bgcolor: isDark ? 'rgba(30, 41, 59, 0.8)' : 'background.paper' }}>
-                    <Typography variant="subtitle2" color="text.secondary" mb={1}>
-                        Quick Actions
-                    </Typography>
-                    <Stack direction="row" spacing={2}>
-                        <Chip
-                            label="Manage FAQs"
-                            onClick={() => navigate('/admin/faq')}
-                            clickable
-                            color="primary"
-                            variant="outlined"
-                        />
-                    </Stack>
-                </Paper>
 
                 {/* Filters */}
                 <Paper sx={{ p: 2, mb: 2, bgcolor: isDark ? 'rgba(30, 41, 59, 0.8)' : 'background.paper' }}>
@@ -224,25 +209,29 @@ export default function AdminDashboard() {
                                 <TableCell>Name</TableCell>
                                 <TableCell>Role</TableCell>
                                 <TableCell>Status</TableCell>
-                                <TableCell align="right">Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {loading ? (
                                 <TableRow>
-                                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                                    <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
                                         <CircularProgress />
                                     </TableCell>
                                 </TableRow>
                             ) : users.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                                    <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
                                         No users found
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 users.map((user) => (
-                                    <TableRow key={user.id} hover>
+                                    <TableRow
+                                        key={user.id}
+                                        hover
+                                        onClick={() => navigate(`/admin/users/${user.id}`)}
+                                        sx={{ cursor: 'pointer' }}
+                                    >
                                         <TableCell>{user.email}</TableCell>
                                         <TableCell>{user.full_name || '-'}</TableCell>
                                         <TableCell>
@@ -264,14 +253,6 @@ export default function AdminDashboard() {
                                                 size="small"
                                                 color={user.is_active ? 'success' : 'default'}
                                             />
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => navigate(`/admin/users/${user.id}`)}
-                                            >
-                                                <Edit />
-                                            </IconButton>
                                         </TableCell>
                                     </TableRow>
                                 ))
