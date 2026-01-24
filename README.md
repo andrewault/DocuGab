@@ -1,10 +1,10 @@
-# DocuTalk
+# DocuGab
 
 Transform your documents into intelligent conversations using local AI.
 
-DocuTalk is a RAG (Retrieval-Augmented Generation) application that lets you upload documents and ask questions about them. All AI processing runs locally using Ollama—no API keys required, your data stays private.
+DocuGab is a RAG (Retrieval-Augmented Generation) application that lets you upload documents and ask questions about them. All AI processing runs locally using Ollama—no API keys required, your data stays private.
 
-![DocuTalk](docs/screenshot.png)
+![DocuGab](docs/screenshot.png)
 
 ## Features
 
@@ -99,9 +99,13 @@ BACKEND_PORT=8007
 VITE_PORT=5177
 
 # Database
-POSTGRES_USER=docutalk
-POSTGRES_PASSWORD=docutalk_secret
-POSTGRES_DB=docutalk
+POSTGRES_USER=docugab
+POSTGRES_PASSWORD=docugab_secret
+POSTGRES_DB=docugab
+
+# Initial Admin User
+ADMIN_USERNAME=admin@example.com
+ADMIN_PASSWORD=admin123
 
 # AI Models
 EMBEDDING_MODEL=nomic-embed-text
@@ -165,6 +169,42 @@ docker compose down
 docker compose up -d --build
 ```
 
+## Database Access
+
+Connect to the PostgreSQL database for debugging or data inspection:
+
+```bash
+# Access psql shell inside container
+docker exec -it docugab-db psql -U docugab -d docugab
+
+# Common queries
+\dt                          # List all tables
+\d users                     # Describe users table
+SELECT * FROM users;         # View all users
+SELECT * FROM documents;     # View all documents
+SELECT COUNT(*) FROM chunks; # Count embedded chunks
+\q                           # Quit
+```
+
+### Direct Connection
+
+Connect from your host machine (requires PostgreSQL client):
+
+```bash
+psql -h localhost -p 5432 -U docugab -d docugab
+```
+
+### Reset Database
+
+```bash
+# Stop services and delete volume (⚠️ destroys all data)
+docker compose down -v
+docker compose up -d
+
+# Re-run migrations
+docker exec docugab-backend uv run alembic upgrade head
+```
+
 ## Troubleshooting
 
 ### Ollama models not loading
@@ -174,8 +214,8 @@ docker compose up -d --build
 curl http://localhost:11434/
 
 # Re-pull models
-docker exec docutalk-ollama ollama pull nomic-embed-text
-docker exec docutalk-ollama ollama pull llama3.2
+docker exec docugab-ollama ollama pull nomic-embed-text
+docker exec docugab-ollama ollama pull llama3.2
 ```
 
 ### Database connection issues

@@ -33,6 +33,15 @@ class Settings(BaseSettings):
     chunk_size: int = 500
     chunk_overlap: int = 50
 
+    # Auth Configuration
+    secret_key: str = "change-me-in-production-min-32-chars"
+    access_token_expire_minutes: int = 15
+    refresh_token_expire_days: int = 7
+
+    # Initial Admin User (optional)
+    admin_username: str | None = None
+    admin_password: str | None = None
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",")]

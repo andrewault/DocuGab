@@ -10,6 +10,7 @@ import '@fontsource/roboto/700.css';
 import App from './App';
 import { darkTheme, lightTheme } from './theme';
 import { ThemeProvider, useThemeMode } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
 
 const queryClient = new QueryClient();
 
@@ -30,9 +31,12 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <ThemeProvider>
-          <ThemedApp />
+          <AuthProvider>
+            <ThemedApp />
+          </AuthProvider>
         </ThemeProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>
 );
+
