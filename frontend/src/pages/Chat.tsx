@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import {
     Box, Container, Paper, TextField, IconButton,
     Typography, CircularProgress, Stack, Divider,
-    Select, MenuItem, FormControl, InputLabel
+    Select, MenuItem, FormControl, InputLabel, useTheme
 } from '@mui/material';
 import { Send, ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -28,6 +28,8 @@ export default function Chat() {
     const [selectedDoc, setSelectedDoc] = useState<number | ''>('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
 
     // Fetch available documents
     useEffect(() => {
@@ -166,7 +168,9 @@ export default function Chat() {
                                 sx={{
                                     p: 2,
                                     maxWidth: '80%',
-                                    bgcolor: msg.role === 'user' ? 'primary.dark' : 'grey.800',
+                                    bgcolor: msg.role === 'user'
+                                        ? 'primary.dark'
+                                        : isDark ? 'grey.800' : 'grey.100',
                                     borderRadius: 2,
                                 }}
                             >

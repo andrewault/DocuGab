@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Container, Typography, Button, Stack, Paper, Divider } from '@mui/material';
+import { Box, Container, Typography, Button, Stack, Paper, Divider, useTheme } from '@mui/material';
 import { Upload, Chat, Search, Forum } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import DocumentUpload from '../components/DocumentUpload';
@@ -7,6 +7,8 @@ import DocumentUpload from '../components/DocumentUpload';
 export default function Home() {
     const [showUpload, setShowUpload] = useState(false);
     const navigate = useNavigate();
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
 
     return (
         <Box
@@ -14,7 +16,9 @@ export default function Home() {
                 minHeight: '100vh',
                 display: 'flex',
                 flexDirection: 'column',
-                background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
+                background: isDark
+                    ? 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)'
+                    : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)',
             }}
         >
             <Container maxWidth="lg" sx={{ flex: 1, py: 8 }}>
@@ -64,7 +68,7 @@ export default function Home() {
                     </Box>
                 )}
 
-                <Divider sx={{ my: 4, borderColor: 'rgba(255,255,255,0.1)' }} />
+                <Divider sx={{ my: 4, borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }} />
 
                 {/* Feature Cards */}
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={4} justifyContent="center">
@@ -94,21 +98,26 @@ function FeatureCard({ icon, title, description }: {
     title: string;
     description: string;
 }) {
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
+
     return (
         <Paper
             elevation={0}
             sx={{
                 p: 4,
                 textAlign: 'center',
-                background: 'rgba(255, 255, 255, 0.05)',
+                background: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)',
                 backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.08)',
                 flex: 1,
                 maxWidth: 300,
                 transition: 'transform 0.2s, box-shadow 0.2s',
                 '&:hover': {
                     transform: 'translateY(-4px)',
-                    boxShadow: '0 12px 40px rgba(99, 102, 241, 0.2)',
+                    boxShadow: isDark
+                        ? '0 12px 40px rgba(99, 102, 241, 0.2)'
+                        : '0 12px 40px rgba(99, 102, 241, 0.15)',
                 },
             }}
         >

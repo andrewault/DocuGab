@@ -15,6 +15,7 @@ import {
     Button,
     CircularProgress,
     Alert,
+    useTheme,
 } from '@mui/material';
 import { Delete, Refresh, CloudUpload } from '@mui/icons-material';
 import DocumentUpload from '../components/DocumentUpload';
@@ -36,6 +37,8 @@ export default function Documents() {
     const [error, setError] = useState<string | null>(null);
     const [showUpload, setShowUpload] = useState(false);
     const [deleting, setDeleting] = useState<number | null>(null);
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
 
     const fetchDocuments = async () => {
         try {
@@ -104,7 +107,9 @@ export default function Documents() {
         <Box
             sx={{
                 minHeight: '100vh',
-                background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
+                background: isDark
+                    ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
+                    : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
                 py: 4,
             }}
         >
@@ -166,7 +171,7 @@ export default function Documents() {
                 )}
 
                 {/* Documents Table */}
-                <TableContainer component={Paper} sx={{ bgcolor: 'rgba(30, 41, 59, 0.8)' }}>
+                <TableContainer component={Paper} sx={{ bgcolor: isDark ? 'rgba(30, 41, 59, 0.8)' : 'background.paper' }}>
                     <Table>
                         <TableHead>
                             <TableRow>

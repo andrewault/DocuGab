@@ -1,19 +1,21 @@
-import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
-import { Description, Forum } from '@mui/icons-material';
+import { AppBar, Toolbar, Typography, Button, Box, IconButton, useTheme } from '@mui/material';
+import { Description, Forum, Settings } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Navbar() {
     const navigate = useNavigate();
     const location = useLocation();
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
 
     return (
         <AppBar
             position="fixed"
             elevation={0}
             sx={{
-                bgcolor: 'rgba(15, 23, 42, 0.8)',
+                bgcolor: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)',
                 backdropFilter: 'blur(10px)',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
             }}
         >
             <Toolbar>
@@ -62,6 +64,19 @@ export default function Navbar() {
                 >
                     Chat
                 </Button>
+
+                {/* Settings Icon */}
+                <IconButton
+                    color="inherit"
+                    onClick={() => navigate('/settings')}
+                    sx={{
+                        ml: 2,
+                        opacity: location.pathname === '/settings' ? 1 : 0.7,
+                        '&:hover': { opacity: 1 },
+                    }}
+                >
+                    <Settings />
+                </IconButton>
             </Toolbar>
         </AppBar>
     );

@@ -1,6 +1,20 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, type Theme } from '@mui/material/styles';
 
-export const theme = createTheme({
+const baseTheme = {
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    h1: {
+      fontSize: '2.5rem',
+      fontWeight: 700,
+    },
+  },
+  shape: {
+    borderRadius: 12,
+  },
+};
+
+export const darkTheme: Theme = createTheme({
+  ...baseTheme,
   palette: {
     mode: 'dark',
     primary: {
@@ -14,14 +28,24 @@ export const theme = createTheme({
       paper: '#1e293b',
     },
   },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    h1: {
-      fontSize: '2.5rem',
-      fontWeight: 700,
+});
+
+export const lightTheme: Theme = createTheme({
+  ...baseTheme,
+  palette: {
+    mode: 'light',
+    primary: {
+      main: '#4f46e5', // Indigo
+    },
+    secondary: {
+      main: '#059669', // Emerald
+    },
+    background: {
+      default: '#f8fafc',
+      paper: '#ffffff',
     },
   },
-  shape: {
-    borderRadius: 12,
-  },
 });
+
+// Default export for backwards compatibility
+export const theme = darkTheme;
