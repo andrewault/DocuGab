@@ -8,6 +8,7 @@ import {
 import { Send, Forum, Delete } from '@mui/icons-material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import { useAuth } from '../context/AuthContext';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -22,23 +23,29 @@ interface Document {
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 const CHAT_STORAGE_KEY = 'docutok_chat_messages';
-const OLD_CHAT_STORAGE_KEY = 'docugab_chat_messages'; // For migration
+const SESSION_ID_KEY = 'docutok_chat_session_id';
+
+// Generate or retrieve a persistent session ID
+function getSessionId(): string {
+    let sessionId = localStorage.getItem(SESSION_ID_KEY);
+    if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        localStorage.setItem(SESSION_ID_KEY, sessionId);
+    }
+    return sessionId;
+}
+
+// Get auth token from localStorage
+function getToken(): string | null {
+    return localStorage.getItem('access_token');
+}
 
 export default function Chat() {
-    const [messages, setMessages] = useState<Message[]>(() => {
-        // Migrate from old key if exists
-        const oldSaved = localStorage.getItem(OLD_CHAT_STORAGE_KEY);
-        if (oldSaved) {
-            localStorage.setItem(CHAT_STORAGE_KEY, oldSaved);
-            localStorage.removeItem(OLD_CHAT_STORAGE_KEY);
-            return JSON.parse(oldSaved);
-        }
-        // Initialize from localStorage
-        const saved = localStorage.getItem(CHAT_STORAGE_KEY);
-        return saved ? JSON.parse(saved) : [];
-    });
+    const { user } = useAuth();
+    const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingHistory, setIsLoadingHistory] = useState(true);
     const [documents, setDocuments] = useState<Document[]>([]);
     const [selectedDoc, setSelectedDoc] = useState<number | ''>('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -46,16 +53,97 @@ export default function Chat() {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
     const [showClearConfirm, setShowClearConfirm] = useState(false);
+    const sessionId = getSessionId();
 
-    const handleClearChat = () => {
+    // Load messages - from API if authenticated, localStorage otherwise
+    useEffect(() => {
+        const loadMessages = async () => {
+            setIsLoadingHistory(true);
+            const token = getToken();
+
+            if (user && token) {
+                // Authenticated user - load from API
+                try {
+                    const res = await fetch(`${API_BASE}/api/chat/history`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        setMessages(data.messages.map((m: any) => ({
+                            role: m.role,
+                            content: m.content
+                        })));
+                    }
+                } catch (e) {
+                    console.error('Failed to load chat history:', e);
+                    // Fallback to localStorage
+                    const saved = localStorage.getItem(CHAT_STORAGE_KEY);
+                    if (saved) setMessages(JSON.parse(saved));
+                }
+            } else {
+                // Not authenticated - load from localStorage
+                const saved = localStorage.getItem(CHAT_STORAGE_KEY);
+                if (saved) setMessages(JSON.parse(saved));
+            }
+
+            setIsLoadingHistory(false);
+        };
+
+        loadMessages();
+    }, [user]);
+
+    // Save message to API
+    const saveMessageToApi = async (role: string, content: string) => {
+        const token = getToken();
+        if (!user || !token) {
+            // Not authenticated - messages saved to localStorage only
+            return;
+        }
+
+        try {
+            await fetch(`${API_BASE}/api/chat/history`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    role,
+                    content,
+                    session_id: sessionId,
+                    document_filter_id: selectedDoc || null
+                })
+            });
+        } catch (e) {
+            console.error('Failed to save message:', e);
+        }
+    };
+
+    const handleClearChat = async () => {
+        const token = getToken();
+        if (user && token) {
+            // Clear from API
+            try {
+                await fetch(`${API_BASE}/api/chat/history`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+            } catch (e) {
+                console.error('Failed to clear chat history:', e);
+            }
+        }
+
+        // Also clear localStorage
         setMessages([]);
         localStorage.removeItem(CHAT_STORAGE_KEY);
         setShowClearConfirm(false);
     };
 
-    // Persist messages to localStorage
+    // Persist messages to localStorage (as backup)
     useEffect(() => {
-        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+        if (messages.length > 0) {
+            localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+        }
     }, [messages]);
 
     // Fetch available documents
@@ -83,9 +171,13 @@ export default function Chat() {
         if (!input.trim() || isLoading) return;
 
         const userMessage: Message = { role: 'user', content: input };
+        const userContent = input;
         setMessages(prev => [...prev, userMessage]);
         setInput('');
         setIsLoading(true);
+
+        // Save user message to API
+        saveMessageToApi('user', userContent);
 
         // Add placeholder for assistant response
         setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
@@ -95,7 +187,7 @@ export default function Chat() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    query: input,
+                    query: userContent,
                     document_id: selectedDoc || null
                 })
             });
@@ -120,12 +212,17 @@ export default function Chat() {
                     { role: 'assistant', content: assistantContent }
                 ]);
             }
+
+            // Save assistant message to API
+            saveMessageToApi('assistant', assistantContent);
         } catch (error) {
             console.error('Chat error:', error);
+            const errorMessage = 'Sorry, an error occurred. Please try again.';
             setMessages(prev => [
                 ...prev.slice(0, -1),
-                { role: 'assistant', content: 'Sorry, an error occurred. Please try again.' }
+                { role: 'assistant', content: errorMessage }
             ]);
+            saveMessageToApi('assistant', errorMessage);
         } finally {
             setIsLoading(false);
         }
