@@ -1,11 +1,13 @@
 from pathlib import Path
+from uuid import UUID
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, BackgroundTasks
+from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.models import Document
-from app.services.storage import save_uploaded_file
+from app.services.storage import save_uploaded_file, get_file_path
 from app.services.processor import process_document
 
 
@@ -13,6 +15,21 @@ router = APIRouter()
 
 # Allowed file extensions
 ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md"}
+
+
+def document_to_dict(doc: Document) -> dict:
+    """Convert document to API response dict."""
+    return {
+        "id": doc.id,
+        "uuid": str(doc.uuid),
+        "filename": doc.original_filename,
+        "status": doc.status,
+        "error_message": doc.error_message,
+        "file_size": doc.file_size,
+        "content_type": doc.content_type,
+        "created_at": doc.created_at.isoformat() if doc.created_at else None,
+        "updated_at": doc.updated_at.isoformat() if doc.updated_at else None,
+    }
 
 
 @router.get("/")
@@ -24,18 +41,42 @@ async def list_documents(db: AsyncSession = Depends(get_db)):
     documents = result.scalars().all()
     
     return {
-        "documents": [
-            {
-                "id": doc.id,
-                "filename": doc.original_filename,
-                "status": doc.status,
-                "error_message": doc.error_message,
-                "file_size": doc.file_size,
-                "created_at": doc.created_at.isoformat() if doc.created_at else None,
-            }
-            for doc in documents
-        ]
+        "documents": [document_to_dict(doc) for doc in documents]
     }
+
+
+@router.get("/by-uuid/{uuid}")
+async def get_document_by_uuid(uuid: UUID, db: AsyncSession = Depends(get_db)):
+    """Get a specific document by UUID."""
+    result = await db.execute(
+        select(Document).where(Document.uuid == uuid)
+    )
+    document = result.scalar_one_or_none()
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    return document_to_dict(document)
+
+
+@router.get("/by-uuid/{uuid}/content")
+async def get_document_content(uuid: UUID, db: AsyncSession = Depends(get_db)):
+    """Serve the document file by UUID."""
+    result = await db.execute(
+        select(Document).where(Document.uuid == uuid)
+    )
+    document = result.scalar_one_or_none()
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    file_path = get_file_path(document.filename)
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Document file not found")
+    
+    return FileResponse(
+        path=str(file_path),
+        filename=document.original_filename,
+        media_type=document.content_type,
+    )
 
 
 @router.get("/{document_id}")
@@ -45,16 +86,7 @@ async def get_document(document_id: int, db: AsyncSession = Depends(get_db)):
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
     
-    return {
-        "id": document.id,
-        "filename": document.original_filename,
-        "status": document.status,
-        "error_message": document.error_message,
-        "file_size": document.file_size,
-        "content_type": document.content_type,
-        "created_at": document.created_at.isoformat() if document.created_at else None,
-        "updated_at": document.updated_at.isoformat() if document.updated_at else None,
-    }
+    return document_to_dict(document)
 
 
 @router.post("/upload")
@@ -100,6 +132,7 @@ async def upload_document(
     
     return {
         "id": document.id,
+        "uuid": str(document.uuid),
         "filename": original_filename,
         "status": "pending",
         "message": "Document uploaded. Processing started."

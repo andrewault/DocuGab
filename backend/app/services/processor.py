@@ -36,7 +36,7 @@ async def process_document(document_id: int, db: AsyncSession):
         
         # Generate embeddings (batch for efficiency)
         texts = [c["content"] for c in chunks]
-        embeddings = generate_embeddings(texts)
+        embeddings = await generate_embeddings(texts)
         
         # Store chunks with embeddings
         for chunk_data, embedding in zip(chunks, embeddings):

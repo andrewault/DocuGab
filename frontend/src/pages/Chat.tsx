@@ -2,10 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import {
     Box, Container, Paper, TextField, IconButton,
     Typography, CircularProgress, Stack, Divider,
-    Select, MenuItem, FormControl, InputLabel, useTheme
+    Select, MenuItem, FormControl, InputLabel, useTheme, Link
 } from '@mui/material';
 import { Send, ArrowBack } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -19,9 +20,14 @@ interface Document {
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+const CHAT_STORAGE_KEY = 'docugab_chat_messages';
 
 export default function Chat() {
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [messages, setMessages] = useState<Message[]>(() => {
+        // Initialize from localStorage
+        const saved = localStorage.getItem(CHAT_STORAGE_KEY);
+        return saved ? JSON.parse(saved) : [];
+    });
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [documents, setDocuments] = useState<Document[]>([]);
@@ -30,6 +36,11 @@ export default function Chat() {
     const navigate = useNavigate();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+
+    // Persist messages to localStorage
+    useEffect(() => {
+        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+    }, [messages]);
 
     // Fetch available documents
     useEffect(() => {
@@ -105,7 +116,7 @@ export default function Chat() {
     };
 
     return (
-        <Container maxWidth="md" sx={{ height: 'calc(100vh - 64px)', py: 2, display: 'flex', flexDirection: 'column' }}>
+        <Container maxWidth="md" sx={{ height: 'calc(100vh - 64px - 60px)', py: 2, pb: 10, display: 'flex', flexDirection: 'column' }}>
             <Paper
                 elevation={3}
                 sx={{
@@ -119,10 +130,7 @@ export default function Chat() {
             >
                 {/* Header */}
                 <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <IconButton onClick={() => navigate('/')} size="small">
-                        <ArrowBack />
-                    </IconButton>
-                    <Typography variant="h6" sx={{ flex: 1 }}>Chat with Documents</Typography>
+                    <Typography variant="h6" sx={{ flex: 1 }}>Document Chat</Typography>
 
                     <FormControl size="small" sx={{ minWidth: 200 }}>
                         <InputLabel>Filter by document</InputLabel>
@@ -174,15 +182,58 @@ export default function Chat() {
                                     borderRadius: 2,
                                 }}
                             >
-                                <Typography
-                                    variant="body1"
-                                    sx={{
-                                        whiteSpace: 'pre-wrap',
-                                        '& strong': { fontWeight: 600 }
-                                    }}
-                                >
-                                    {msg.content || (isLoading && i === messages.length - 1 ? '...' : '')}
-                                </Typography>
+                                {msg.role === 'user' ? (
+                                    <Typography
+                                        variant="body1"
+                                        sx={{ whiteSpace: 'pre-wrap', color: '#fff' }}
+                                    >
+                                        {msg.content}
+                                    </Typography>
+                                ) : (
+                                    <Box
+                                        sx={{
+                                            '& p': { m: 0, mb: 1 },
+                                            '& p:last-child': { mb: 0 },
+                                            '& a': { color: '#2563eb', textDecoration: 'underline', cursor: 'pointer' },
+                                            '& strong': { fontWeight: 600 },
+                                            '& ul, & ol': { pl: 3, my: 1 },
+                                            '& code': {
+                                                bgcolor: isDark ? 'grey.900' : 'grey.200',
+                                                px: 0.5,
+                                                borderRadius: 0.5,
+                                                fontFamily: 'monospace',
+                                            },
+                                            '& pre': {
+                                                bgcolor: isDark ? 'grey.900' : 'grey.200',
+                                                p: 1,
+                                                borderRadius: 1,
+                                                overflow: 'auto',
+                                            },
+                                        }}
+                                    >
+                                        <ReactMarkdown
+                                            components={{
+                                                a: ({ href, children }) => {
+                                                    // Check if it's an internal document link
+                                                    if (href?.startsWith('/documents/')) {
+                                                        return (
+                                                            <Link
+                                                                component={RouterLink}
+                                                                to={href}
+                                                                sx={{ cursor: 'pointer' }}
+                                                            >
+                                                                {children}
+                                                            </Link>
+                                                        );
+                                                    }
+                                                    return <a href={href}>{children}</a>;
+                                                },
+                                            }}
+                                        >
+                                            {msg.content || (isLoading && i === messages.length - 1 ? '...' : '')}
+                                        </ReactMarkdown>
+                                    </Box>
+                                )}
                             </Paper>
                         </Box>
                     ))}
@@ -199,35 +250,39 @@ export default function Chat() {
                 {/* Input */}
                 <Divider />
                 <Box sx={{ p: 2 }}>
-                    <Stack direction="row" spacing={1}>
-                        <TextField
-                            fullWidth
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                            placeholder="Ask a question about your documents..."
-                            disabled={isLoading}
-                            multiline
-                            maxRows={4}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: 2,
-                                }
-                            }}
-                        />
-                        <IconButton
-                            onClick={sendMessage}
-                            disabled={isLoading || !input.trim()}
-                            color="primary"
-                            sx={{
-                                bgcolor: 'primary.main',
-                                '&:hover': { bgcolor: 'primary.dark' },
-                                '&.Mui-disabled': { bgcolor: 'grey.700' }
-                            }}
-                        >
-                            <Send />
-                        </IconButton>
-                    </Stack>
+                    <TextField
+                        fullWidth
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                        placeholder="Ask a question about your documents..."
+                        disabled={isLoading}
+                        multiline
+                        maxRows={4}
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: 3,
+                                pr: 1,
+                            }
+                        }}
+                        InputProps={{
+                            endAdornment: (
+                                <IconButton
+                                    onClick={sendMessage}
+                                    disabled={isLoading || !input.trim()}
+                                    sx={{
+                                        bgcolor: isDark ? '#1e3a5f' : 'primary.main',
+                                        color: isDark ? '#fff' : '#fff',
+                                        '&:hover': { bgcolor: isDark ? '#2d4a6f' : 'primary.dark' },
+                                        '&.Mui-disabled': { bgcolor: 'grey.700', color: 'grey.500' },
+                                        ml: 1,
+                                    }}
+                                >
+                                    <Send />
+                                </IconButton>
+                            ),
+                        }}
+                    />
                 </Box>
             </Paper>
         </Container>

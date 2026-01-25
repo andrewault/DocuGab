@@ -57,7 +57,12 @@ async def generate_response(
         if chunk.content:
             yield chunk.content
     
-    # Append sources
+    # Append sources with UUIDs for linking
     yield "\n\n**Sources:**\n"
+    seen_docs = set()
     for c in chunks:
-        yield f"- {c['filename']}, Page {c['page']}\n"
+        doc_key = c['document_uuid']
+        if doc_key not in seen_docs:
+            seen_docs.add(doc_key)
+            yield f"- [{c['filename']}](/documents/{c['document_uuid']}), Page {c['page']}\n"
+

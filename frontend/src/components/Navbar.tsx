@@ -69,7 +69,8 @@ export default function Navbar() {
                 position="fixed"
                 elevation={0}
                 sx={{
-                    bgcolor: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+                    bgcolor: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.95)',
+                    color: isDark ? '#fff' : '#1e293b',
                     backdropFilter: 'blur(10px)',
                     borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
                 }}

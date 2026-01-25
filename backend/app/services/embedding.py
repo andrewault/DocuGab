@@ -1,3 +1,4 @@
+import asyncio
 from langchain_ollama import OllamaEmbeddings
 from app.core.config import settings
 
@@ -16,13 +17,24 @@ def get_embeddings_model() -> OllamaEmbeddings:
     return _embeddings_model
 
 
-def generate_embeddings(texts: list[str]) -> list[list[float]]:
-    """Generate embeddings for a list of texts using Ollama."""
+def _generate_embeddings_sync(texts: list[str]) -> list[list[float]]:
+    """Synchronous embedding generation."""
     model = get_embeddings_model()
     return model.embed_documents(texts)
 
 
-def generate_embedding(text: str) -> list[float]:
-    """Generate embedding for a single text."""
+def _generate_embedding_sync(text: str) -> list[float]:
+    """Synchronous single embedding generation."""
     model = get_embeddings_model()
     return model.embed_query(text)
+
+
+async def generate_embeddings(texts: list[str]) -> list[list[float]]:
+    """Generate embeddings for a list of texts using Ollama (async wrapper)."""
+    return await asyncio.to_thread(_generate_embeddings_sync, texts)
+
+
+async def generate_embedding(text: str) -> list[float]:
+    """Generate embedding for a single text (async wrapper)."""
+    return await asyncio.to_thread(_generate_embedding_sync, text)
+

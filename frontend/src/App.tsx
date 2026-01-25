@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Documents from './pages/Documents';
+import DocumentViewer from './pages/DocumentViewer';
 import Chat from './pages/Chat';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
@@ -33,6 +34,11 @@ export default function App() {
           <Route path="/documents" element={
             <ProtectedRoute>
               <Documents />
+            </ProtectedRoute>
+          } />
+          <Route path="/documents/:uuid" element={
+            <ProtectedRoute>
+              <DocumentViewer />
             </ProtectedRoute>
           } />
           <Route path="/chat" element={

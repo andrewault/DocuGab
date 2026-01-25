@@ -11,9 +11,9 @@ async def search_similar_chunks(
 ) -> list[dict]:
     """
     Find chunks most similar to the query using pgvector.
-    Returns list of {id, content, page, document_id, filename, similarity}.
+    Returns list of {id, content, page, document_id, document_uuid, filename, similarity}.
     """
-    query_embedding = generate_embedding(query)
+    query_embedding = await generate_embedding(query)
     
     # Convert embedding to pgvector format string
     embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
@@ -27,6 +27,7 @@ async def search_similar_chunks(
                 c.content,
                 c.page_number,
                 c.document_id,
+                d.uuid as document_uuid,
                 d.original_filename,
                 1 - (c.embedding <=> '{embedding_str}'::vector) as similarity
             FROM chunks c
@@ -44,6 +45,7 @@ async def search_similar_chunks(
                 c.content,
                 c.page_number,
                 c.document_id,
+                d.uuid as document_uuid,
                 d.original_filename,
                 1 - (c.embedding <=> '{embedding_str}'::vector) as similarity
             FROM chunks c
@@ -60,6 +62,7 @@ async def search_similar_chunks(
             "content": row.content,
             "page": row.page_number,
             "document_id": row.document_id,
+            "document_uuid": str(row.document_uuid),
             "filename": row.original_filename,
             "similarity": float(row.similarity) if row.similarity else 0.0
         }

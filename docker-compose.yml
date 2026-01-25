@@ -16,27 +16,21 @@ services:
       timeout: 5s
       retries: 5
 
-  ollama:
-    image: ollama/ollama:latest
-    container_name: docugab-ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    # Uncomment for GPU support (requires nvidia-docker)
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: all
-    #           capabilities: [gpu]
-    healthcheck:
-      test: ["CMD", "ollama", "list"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
+  # Ollama service - commented out, using native Ollama for GPU acceleration on Mac
+  # To use Docker Ollama instead, uncomment and add 'ollama: condition: service_healthy' to backend depends_on
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: docugab-ollama
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   healthcheck:
+  #     test: ["CMD", "ollama", "list"]
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 5
+  #     start_period: 30s
 
   backend:
     build:
@@ -50,7 +44,8 @@ services:
       BACKEND_PORT: ${BACKEND_PORT}
       CORS_ORIGINS: http://localhost:${VITE_PORT},http://frontend:${VITE_PORT}
       DEBUG: ${DEBUG}
-      OLLAMA_BASE_URL: http://ollama:11434
+      # Use native Ollama on host for GPU acceleration (Mac Metal)
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
       EMBEDDING_MODEL: ${EMBEDDING_MODEL}
       LLM_MODEL: ${LLM_MODEL}
       CHUNK_SIZE: ${CHUNK_SIZE}
@@ -60,8 +55,6 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     depends_on:
       db:
-        condition: service_healthy
-      ollama:
         condition: service_healthy
     volumes:
       - ./backend:/app
@@ -87,4 +80,4 @@ services:
 
 volumes:
   postgres_data:
-  ollama_data:
+  # ollama_data:  # Commented out - using native Ollama

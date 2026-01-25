@@ -1,4 +1,5 @@
-import { useState, useEffect, useLayoutEffect } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Container,
@@ -27,6 +28,7 @@ import DocumentUpload from '../components/DocumentUpload';
 
 interface Document {
     id: number;
+    uuid: string;
     filename: string;
     status: 'pending' | 'processing' | 'ready' | 'error';
     error_message?: string | null;
@@ -37,6 +39,7 @@ interface Document {
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+const POLL_INTERVAL = 3000; // Poll every 3 seconds when documents are processing
 
 export default function Documents() {
     const [documents, setDocuments] = useState<Document[]>([]);
@@ -44,25 +47,34 @@ export default function Documents() {
     const [error, setError] = useState<string | null>(null);
     const [showUpload, setShowUpload] = useState(false);
     const [deleting, setDeleting] = useState<number | null>(null);
+    const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
     const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    const navigate = useNavigate();
+    const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    const fetchDocuments = async () => {
+    const fetchDocuments = useCallback(async (silent = false) => {
         try {
-            setLoading(true);
-            setError(null);
+            if (!silent) {
+                setLoading(true);
+                setError(null);
+            }
             const response = await fetch(`${API_BASE}/api/documents/`);
             if (!response.ok) throw new Error('Failed to fetch documents');
             const data = await response.json();
             // Handle both array and object with documents key
             setDocuments(Array.isArray(data) ? data : data.documents || []);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to load documents');
+            if (!silent) {
+                setError(err instanceof Error ? err.message : 'Failed to load documents');
+            }
         } finally {
-            setLoading(false);
+            if (!silent) {
+                setLoading(false);
+            }
         }
-    };
+    }, []);
 
     const fetchDocumentDetail = async (id: number) => {
         try {
@@ -76,7 +88,7 @@ export default function Documents() {
     };
 
     const handleDelete = async (id: number) => {
-        if (!confirm('Are you sure you want to delete this document?')) return;
+        setDeleteConfirmId(null); // Close modal
 
         try {
             setDeleting(id);
@@ -124,9 +136,36 @@ export default function Documents() {
         window.scrollTo(0, 0);
     }, []);
 
+    // Initial fetch
     useEffect(() => {
         fetchDocuments();
-    }, []);
+    }, [fetchDocuments]);
+
+    // Auto-poll when there are processing documents
+    useEffect(() => {
+        const hasProcessingDocs = documents.some(
+            doc => doc.status === 'pending' || doc.status === 'processing'
+        );
+
+        if (hasProcessingDocs) {
+            // Start polling
+            pollIntervalRef.current = setInterval(() => {
+                fetchDocuments(true); // Silent refresh
+            }, POLL_INTERVAL);
+        } else {
+            // Stop polling
+            if (pollIntervalRef.current) {
+                clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = null;
+            }
+        }
+
+        return () => {
+            if (pollIntervalRef.current) {
+                clearInterval(pollIntervalRef.current);
+            }
+        };
+    }, [documents, fetchDocuments]);
 
     return (
         <Box
@@ -157,7 +196,7 @@ export default function Documents() {
                         <Button
                             variant="outlined"
                             startIcon={<Refresh />}
-                            onClick={fetchDocuments}
+                            onClick={() => fetchDocuments()}
                             disabled={loading}
                         >
                             Refresh
@@ -235,7 +274,7 @@ export default function Documents() {
                                     <TableRow
                                         key={doc.id}
                                         hover
-                                        onClick={() => fetchDocumentDetail(doc.id)}
+                                        onClick={() => navigate(`/documents/${doc.uuid}`)}
                                         sx={{ cursor: 'pointer' }}
                                     >
                                         <TableCell>{doc.filename}</TableCell>
@@ -252,7 +291,7 @@ export default function Documents() {
                                             <IconButton
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    handleDelete(doc.id);
+                                                    setDeleteConfirmId(doc.id);
                                                 }}
                                                 disabled={deleting === doc.id}
                                                 color="error"
@@ -355,6 +394,31 @@ export default function Documents() {
                             </DialogActions>
                         </>
                     )}
+                </Dialog>
+
+                {/* Delete Confirmation Modal */}
+                <Dialog
+                    open={deleteConfirmId !== null}
+                    onClose={() => setDeleteConfirmId(null)}
+                >
+                    <DialogTitle>Delete Document</DialogTitle>
+                    <DialogContent>
+                        <Typography>
+                            Are you sure you want to delete this document? This action cannot be undone.
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setDeleteConfirmId(null)}>
+                            Cancel
+                        </Button>
+                        <Button
+                            color="error"
+                            variant="contained"
+                            onClick={() => deleteConfirmId && handleDelete(deleteConfirmId)}
+                        >
+                            Delete
+                        </Button>
+                    </DialogActions>
                 </Dialog>
             </Container>
         </Box>

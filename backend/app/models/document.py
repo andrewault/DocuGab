@@ -1,5 +1,7 @@
+import uuid as uuid_lib
 from datetime import datetime
 from sqlalchemy import DateTime, String, Text, func, ForeignKey, Integer
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING, Optional
 
@@ -14,6 +16,9 @@ class Document(Base):
     __tablename__ = "documents"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    uuid: Mapped[uuid_lib.UUID] = mapped_column(
+        UUID(as_uuid=True), default=uuid_lib.uuid4, unique=True, index=True
+    )
     filename: Mapped[str] = mapped_column(String(255))
     original_filename: Mapped[str] = mapped_column(String(255))
     content_type: Mapped[str] = mapped_column(String(100))
@@ -36,3 +41,4 @@ class Document(Base):
     # Relationships
     chunks: Mapped[list["Chunk"]] = relationship(back_populates="document", cascade="all, delete-orphan")
     owner: Mapped[Optional["User"]] = relationship(back_populates="documents")
+

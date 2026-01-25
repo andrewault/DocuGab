@@ -5,6 +5,17 @@ set -e
 
 cd "$(dirname "$0")/../.."
 
+# Start Ollama if not already running
+echo "🦙 Starting Ollama..."
+if pgrep -x "ollama" > /dev/null; then
+    echo "   Ollama already running"
+else
+    ollama serve > /dev/null 2>&1 &
+    sleep 2
+    echo "   Ollama started"
+fi
+
+echo ""
 echo "🚀 Starting DocuGab..."
 docker compose up -d
 
@@ -26,4 +37,5 @@ echo ""
 echo "   Frontend:  http://localhost:5177"
 echo "   API:       http://localhost:8007"
 echo "   API Docs:  http://localhost:8007/docs"
+echo "   Ollama:    http://localhost:11434"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
