@@ -1,6 +1,6 @@
 # Component Specifications
 
-This directory contains detailed specifications for DocuGab's major components.
+This directory contains detailed specifications for DocuTok's major components.
 
 ## Index
 

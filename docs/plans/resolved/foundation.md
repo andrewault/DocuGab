@@ -26,7 +26,7 @@ This plan establishes the foundation for the DocuTalk webapp frontend. It covers
 Create a new React project using Vite for fast build times and modern tooling.
 
 ```bash
-cd /Users/andrewault/dev/ault/DocuGab
+cd /Users/andrewault/dev/ault/DocuTok
 npx -y create-vite@latest frontend --template react-ts
 cd frontend
 npm install

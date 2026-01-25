@@ -1,11 +1,11 @@
 #!/bin/bash
-# Check health of DocuGab services
+# Check health of DocuTok services
 
 set -e
 
 cd "$(dirname "$0")/../.."
 
-echo "🩺 Checking DocuGab health..."
+echo "🩺 Checking DocuTok health..."
 echo ""
 
 # Container status
@@ -26,11 +26,11 @@ echo ""
 
 # Ollama models
 echo "🤖 Ollama models:"
-docker exec docugab-ollama ollama list 2>/dev/null || echo "❌ Ollama not responding"
+docker exec docutok-ollama ollama list 2>/dev/null || echo "❌ Ollama not responding"
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🌐 DocuGab URLs"
+echo "🌐 DocuTok URLs"
 echo ""
 echo "   Frontend:  http://localhost:5177"
 echo "   API:       http://localhost:8007"

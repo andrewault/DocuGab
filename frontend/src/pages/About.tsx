@@ -28,7 +28,7 @@ export default function About() {
                         WebkitTextFillColor: 'transparent',
                     }}
                 >
-                    About DocuGab
+                    About DocuTok
                 </Typography>
                 <Typography variant="body1" color="text.secondary" textAlign="center" mb={6}>
                     Your intelligent document assistant
@@ -49,10 +49,10 @@ export default function About() {
                     }}
                 >
                     <Typography variant="h5" fontWeight={600} mb={2}>
-                        What is DocuGab?
+                        What is DocuTok?
                     </Typography>
                     <Typography color="text.secondary" paragraph>
-                        DocuGab is a RAG (Retrieval-Augmented Generation) powered document intelligence
+                        DocuTok is a RAG (Retrieval-Augmented Generation) powered document intelligence
                         platform that lets you have natural conversations with your documents. Upload
                         PDFs, Word documents, text files, or Markdown, and start asking questions
                         in plain English.
@@ -76,7 +76,7 @@ export default function About() {
                     </Typography>
                     <Typography color="text.secondary" paragraph>
                         Built with FastAPI, React, PostgreSQL with pgvector, and Ollama for local
-                        LLM inference. DocuGab uses advanced chunking and embedding strategies to
+                        LLM inference. DocuTok uses advanced chunking and embedding strategies to
                         provide accurate, contextual answers from your documents.
                     </Typography>
                 </Paper>

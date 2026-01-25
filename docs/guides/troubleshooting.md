@@ -24,7 +24,7 @@ docker compose logs backend
 
 2. **Missing migrations**
    ```bash
-   docker exec docugab-backend uv run alembic upgrade head
+   docker exec docutok-backend uv run alembic upgrade head
    ```
 
 3. **Invalid SECRET_KEY**
@@ -38,13 +38,13 @@ docker compose logs backend
 **Check**:
 ```bash
 docker compose logs ollama
-docker exec docugab-ollama ollama list
+docker exec docutok-ollama ollama list
 ```
 
 **Solution**: Pull models manually
 ```bash
-docker exec docugab-ollama ollama pull llama3.2
-docker exec docugab-ollama ollama pull nomic-embed-text
+docker exec docutok-ollama ollama pull llama3.2
+docker exec docutok-ollama ollama pull nomic-embed-text
 ```
 
 ### Database connection refused
@@ -103,7 +103,7 @@ docker compose logs backend | grep -i error
 
 3. Check if user exists:
    ```bash
-   docker exec -it docugab-db psql -U docugab -c "SELECT email, role FROM users;"
+   docker exec -it docutok-db psql -U docutok -c "SELECT email, role FROM users;"
    ```
 
 ### Token expired errors
@@ -130,7 +130,7 @@ docker compose logs backend | grep -i error
 
 **Check for missing indexes**:
 ```bash
-docker exec -it docugab-db psql -U docugab -c "\di"
+docker exec -it docutok-db psql -U docutok -c "\di"
 ```
 
 ## Reset Everything

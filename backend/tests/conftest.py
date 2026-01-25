@@ -1,5 +1,5 @@
 """
-Pytest fixtures for DocuGab backend tests.
+Pytest fixtures for DocuTok backend tests.
 """
 import asyncio
 from typing import AsyncGenerator, Generator

@@ -1,6 +1,6 @@
 # Deployment Guide
 
-Deploy DocuGab to production.
+Deploy DocuTok to production.
 
 ## Requirements
 
@@ -21,9 +21,9 @@ ADMIN_USERNAME=admin@yourcompany.com
 ADMIN_PASSWORD=secure-password-here
 
 # Database
-POSTGRES_USER=docugab
+POSTGRES_USER=docutok
 POSTGRES_PASSWORD=strong-db-password
-POSTGRES_DB=docugab
+POSTGRES_DB=docutok
 
 # API URL (for frontend)
 VITE_API_BASE_URL=https://api.yourdomain.com
@@ -46,7 +46,7 @@ docker compose -f docker-compose.yml up -d
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name docugab.yourdomain.com;
+    server_name docutok.yourdomain.com;
 
     ssl_certificate /path/to/cert.pem;
     ssl_certificate_key /path/to/key.pem;
@@ -76,13 +76,13 @@ server {
 ### Database
 
 ```bash
-docker exec docugab-db pg_dump -U docugab docugab > backup.sql
+docker exec docutok-db pg_dump -U docutok docutok > backup.sql
 ```
 
 ### Restore
 
 ```bash
-cat backup.sql | docker exec -i docugab-db psql -U docugab docugab
+cat backup.sql | docker exec -i docutok-db psql -U docutok docutok
 ```
 
 ### Uploaded Files
@@ -112,7 +112,7 @@ docker compose build
 docker compose up -d
 
 # Run new migrations
-docker exec docugab-backend uv run alembic upgrade head
+docker exec docutok-backend uv run alembic upgrade head
 ```
 
 ## Security Checklist

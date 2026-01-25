@@ -74,7 +74,7 @@ export default function FAQ() {
                     Frequently Asked Questions
                 </Typography>
                 <Typography variant="body1" color="text.secondary" textAlign="center" mb={6}>
-                    Find answers to common questions about DocuGab
+                    Find answers to common questions about DocuTok
                 </Typography>
 
                 {loading ? (

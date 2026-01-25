@@ -1,6 +1,6 @@
 # Webapp Scripts
 
-Scripts for managing the DocuGab Docker application.
+Scripts for managing the DocuTok Docker application.
 
 ## Usage
 

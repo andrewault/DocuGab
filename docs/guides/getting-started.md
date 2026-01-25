@@ -1,6 +1,6 @@
 # Getting Started
 
-Get DocuGab running and upload your first document.
+Get DocuTok running and upload your first document.
 
 ## Prerequisites
 
@@ -11,8 +11,8 @@ Get DocuGab running and upload your first document.
 
 ```bash
 # Clone repository
-git clone https://github.com/your-org/docugab.git
-cd docugab
+git clone https://github.com/your-org/docutok.git
+cd docutok
 
 # Copy environment file
 cp .env.example .env

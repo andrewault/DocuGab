@@ -1,6 +1,6 @@
 # Authentication & User Management Plan
 
-A complete authentication system for DocuGab with user login, registration, role-based access, and admin UI.
+A complete authentication system for DocuTok with user login, registration, role-based access, and admin UI.
 
 ## Overview
 
@@ -281,7 +281,7 @@ interface AuthContextType {
 ### Admin UI Mockup
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ DocuGab Admin                          [User ▼] [Logout]    │
+│ DocuTok Admin                          [User ▼] [Logout]    │
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
@@ -341,7 +341,7 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your-email@gmail.com
 SMTP_PASSWORD=app-password
-EMAIL_FROM=noreply@docugab.com
+EMAIL_FROM=noreply@docutok.com
 ```
 
 ---

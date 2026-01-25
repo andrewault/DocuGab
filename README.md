@@ -1,10 +1,10 @@
-# DocuGab
+# DocuTok
 
 Transform your documents into intelligent conversations using local AI.
 
-DocuGab is a RAG (Retrieval-Augmented Generation) application that lets you upload documents and ask questions about them. All AI processing runs locally using Ollama—no API keys required, your data stays private.
+DocuTok is a RAG (Retrieval-Augmented Generation) application that lets you upload documents and ask questions about them. All AI processing runs locally using Ollama—no API keys required, your data stays private.
 
-![DocuGab](docs/screenshot.png)
+![DocuTok](docs/screenshot.png)
 
 ## Features
 
@@ -37,8 +37,8 @@ DocuGab is a RAG (Retrieval-Augmented Generation) application that lets you uplo
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/DocuGab.git
-cd DocuGab
+git clone https://github.com/YOUR_USERNAME/DocuTok.git
+cd DocuTok
 
 # Start all services
 docker compose up -d
@@ -70,7 +70,7 @@ docker compose up -d
 ## Project Structure
 
 ```
-DocuGab/
+DocuTok/
 ├── backend/
 │   ├── app/
 │   │   ├── api/routes/      # API endpoints
@@ -99,9 +99,9 @@ BACKEND_PORT=8007
 VITE_PORT=5177
 
 # Database
-POSTGRES_USER=docugab
-POSTGRES_PASSWORD=docugab_secret
-POSTGRES_DB=docugab
+POSTGRES_USER=docutok
+POSTGRES_PASSWORD=docutok_secret
+POSTGRES_DB=docutok
 
 # Initial Admin User
 ADMIN_USERNAME=admin@example.com
@@ -175,7 +175,7 @@ Connect to the PostgreSQL database for debugging or data inspection:
 
 ```bash
 # Access psql shell inside container
-docker exec -it docugab-db psql -U docugab -d docugab
+docker exec -it docutok-db psql -U docutok -d docutok
 
 # Common queries
 \dt                          # List all tables
@@ -191,7 +191,7 @@ SELECT COUNT(*) FROM chunks; # Count embedded chunks
 Connect from your host machine (requires PostgreSQL client):
 
 ```bash
-psql -h localhost -p 5432 -U docugab -d docugab
+psql -h localhost -p 5432 -U docutok -d docutok
 ```
 
 ### Reset Database
@@ -202,7 +202,7 @@ docker compose down -v
 docker compose up -d
 
 # Re-run migrations
-docker exec docugab-backend uv run alembic upgrade head
+docker exec docutok-backend uv run alembic upgrade head
 ```
 
 ## Troubleshooting
@@ -214,8 +214,8 @@ docker exec docugab-backend uv run alembic upgrade head
 curl http://localhost:11434/
 
 # Re-pull models
-docker exec docugab-ollama ollama pull nomic-embed-text
-docker exec docugab-ollama ollama pull llama3.2
+docker exec docutok-ollama ollama pull nomic-embed-text
+docker exec docutok-ollama ollama pull llama3.2
 ```
 
 ### Database connection issues

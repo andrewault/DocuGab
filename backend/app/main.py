@@ -54,7 +54,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="DocuGab API",
+    title="DocuTok API",
     description="RAG-based document intelligence platform",
     version="0.1.0",
     lifespan=lifespan,

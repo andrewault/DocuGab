@@ -1,6 +1,6 @@
 # Testing Scripts
 
-Scripts for running tests across the DocuGab project.
+Scripts for running tests across the DocuTok project.
 
 ## Quick Start
 

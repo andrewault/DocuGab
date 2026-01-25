@@ -12,7 +12,7 @@ describe('Home', () => {
 
     it('renders the app title', () => {
         render(<Home />);
-        expect(screen.getByText(/DocuGab/i)).toBeInTheDocument();
+        expect(screen.getByText(/DocuTok/i)).toBeInTheDocument();
     });
 
     it('renders a heading', () => {
@@ -23,6 +23,6 @@ describe('Home', () => {
     it('renders the home page container', () => {
         render(<Home />);
         // Just verify the page renders without error
-        expect(document.body.textContent).toContain('DocuGab');
+        expect(document.body.textContent).toContain('DocuTok');
     });
 });

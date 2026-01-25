@@ -14,7 +14,7 @@ vi.mock('react-router-dom', async () => {
 describe('Navbar', () => {
     it('renders app title', () => {
         render(<Navbar />);
-        expect(screen.getByText('DocuGab')).toBeInTheDocument();
+        expect(screen.getByText('DocuTok')).toBeInTheDocument();
     });
 
     it('renders the navbar component', () => {

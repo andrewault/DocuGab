@@ -1,7 +1,7 @@
 services:
   db:
     image: pgvector/pgvector:pg16
-    container_name: docugab-db
+    container_name: docutok-db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -20,7 +20,7 @@ services:
   # To use Docker Ollama instead, uncomment and add 'ollama: condition: service_healthy' to backend depends_on
   # ollama:
   #   image: ollama/ollama:latest
-  #   container_name: docugab-ollama
+  #   container_name: docutok-ollama
   #   ports:
   #     - "11434:11434"
   #   volumes:
@@ -36,7 +36,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: docugab-backend
+    container_name: docutok-backend
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     environment:
@@ -65,7 +65,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: docugab-frontend
+    container_name: docutok-frontend
     ports:
       - "${VITE_PORT}:${VITE_PORT}"
     environment:

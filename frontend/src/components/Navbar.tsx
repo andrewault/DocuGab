@@ -101,7 +101,7 @@ export default function Navbar() {
                             mr: 4,
                         }}
                     >
-                        DocuGab
+                        DocuTok
                     </Typography>
 
                     {/* Spacer */}

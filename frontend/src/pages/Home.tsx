@@ -156,7 +156,7 @@ export default function Home() {
                             mb: 2,
                         }}
                     >
-                        DocuGab
+                        DocuTok
                     </Typography>
                     <Typography variant="h5" color="text.secondary" mb={2}>
                         Transform your documents into intelligent conversations

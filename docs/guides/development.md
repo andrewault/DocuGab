@@ -1,6 +1,6 @@
 # Development Guide
 
-Set up a local development environment for DocuGab.
+Set up a local development environment for DocuTok.
 
 ## Prerequisites
 
@@ -77,7 +77,7 @@ Copy `.env.example` to `.env` and configure:
 ```env
 # Required
 SECRET_KEY=minimum-32-character-string-here
-DATABASE_URL=postgresql+asyncpg://docugab:docugab@localhost:5432/docugab
+DATABASE_URL=postgresql+asyncpg://docutok:docutok@localhost:5432/docutok
 
 # Optional
 ADMIN_USERNAME=admin@example.com
@@ -105,9 +105,9 @@ npm run type-check
 docker compose logs -f backend
 
 # Access database
-docker exec -it docugab-db psql -U docugab
+docker exec -it docutok-db psql -U docutok
 
 # Pull latest AI models
-docker exec docugab-ollama ollama pull llama3.2
-docker exec docugab-ollama ollama pull nomic-embed-text
+docker exec docutok-ollama ollama pull llama3.2
+docker exec docutok-ollama ollama pull nomic-embed-text
 ```

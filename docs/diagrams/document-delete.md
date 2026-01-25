@@ -1,6 +1,6 @@
 # Document Delete Flow
 
-This document details what happens when a document is deleted in DocuGab.
+This document details what happens when a document is deleted in DocuTok.
 
 ## Delete Sequence
 

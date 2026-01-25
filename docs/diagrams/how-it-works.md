@@ -1,6 +1,6 @@
-# How DocuGab Works
+# How DocuTok Works
 
-This document explains the core architecture and data flows in DocuGab.
+This document explains the core architecture and data flows in DocuTok.
 
 ## System Architecture
 

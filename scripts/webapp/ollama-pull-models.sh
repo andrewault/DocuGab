@@ -1,5 +1,5 @@
 #!/bin/bash
-# Pull required Ollama models for DocuGab
+# Pull required Ollama models for DocuTok
 
 set -e
 

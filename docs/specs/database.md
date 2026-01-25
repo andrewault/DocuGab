@@ -92,8 +92,8 @@ CREATE EXTENSION IF NOT EXISTS vector;
 
 ```bash
 # Via Docker
-docker exec -it docugab-db psql -U docugab -d docugab
+docker exec -it docutok-db psql -U docutok -d docutok
 
 # Direct connection
-psql -h localhost -p 5433 -U docugab -d docugab
+psql -h localhost -p 5433 -U docutok -d docutok
 ```

@@ -78,7 +78,7 @@ export default function Login() {
                         Welcome Back
                     </Typography>
                     <Typography variant="body2" color="text.secondary" textAlign="center" mb={4}>
-                        Sign in to your DocuGab account
+                        Sign in to your DocuTok account
                     </Typography>
 
                     {error && (

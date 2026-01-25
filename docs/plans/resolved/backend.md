@@ -28,7 +28,7 @@ This plan establishes the backend infrastructure for DocuTalk using FastAPI with
 Create the backend directory with `uv` for fast, reliable Python package management.
 
 ```bash
-cd /Users/andrewault/dev/ault/DocuGab
+cd /Users/andrewault/dev/ault/DocuTok
 mkdir backend && cd backend
 uv init --python 3.12
 ```

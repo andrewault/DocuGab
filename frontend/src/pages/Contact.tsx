@@ -32,7 +32,7 @@ export default function Contact() {
                     Contact Us
                 </Typography>
                 <Typography variant="body1" color="text.secondary" textAlign="center" mb={6}>
-                    Get in touch with the DocuGab team
+                    Get in touch with the DocuTok team
                 </Typography>
 
                 <Paper
@@ -51,11 +51,11 @@ export default function Contact() {
                 >
                     <Box display="flex" alignItems="center" gap={2} mb={3}>
                         <Email color="primary" />
-                        <Typography>support@docugab.example.com</Typography>
+                        <Typography>support@docutok.example.com</Typography>
                     </Box>
                     <Box display="flex" alignItems="center" gap={2} mb={4}>
                         <GitHub color="primary" />
-                        <Typography>github.com/docugab</Typography>
+                        <Typography>github.com/docutok</Typography>
                     </Box>
 
                     <Typography variant="h6" fontWeight={600} mb={2}>

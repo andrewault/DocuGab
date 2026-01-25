@@ -1,5 +1,5 @@
 #!/bin/bash
-# Start the DocuGab application
+# Start the DocuTok application
 
 set -e
 
@@ -16,7 +16,7 @@ else
 fi
 
 echo ""
-echo "🚀 Starting DocuGab..."
+echo "🚀 Starting DocuTok..."
 docker compose up -d
 
 echo ""
@@ -32,7 +32,7 @@ fi
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🌐 DocuGab is running!"
+echo "🌐 DocuTok is running!"
 echo ""
 echo "   Frontend:  http://localhost:5177"
 echo "   API:       http://localhost:8007"

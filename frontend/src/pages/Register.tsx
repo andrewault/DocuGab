@@ -88,7 +88,7 @@ export default function Register() {
                         Create Account
                     </Typography>
                     <Typography variant="body2" color="text.secondary" textAlign="center" mb={4}>
-                        Join DocuGab to chat with your documents
+                        Join DocuTok to chat with your documents
                     </Typography>
 
                     {error && (

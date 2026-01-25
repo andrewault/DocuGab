@@ -1,11 +1,11 @@
 #!/bin/bash
-# Restart the DocuGab application
+# Restart the DocuTok application
 
 set -e
 
 cd "$(dirname "$0")/../.."
 
-echo "🔄 Restarting DocuGab..."
+echo "🔄 Restarting DocuTok..."
 
 # Stop Docker services
 docker compose down
@@ -23,7 +23,7 @@ echo "   Ollama started"
 
 # Start Docker services
 echo ""
-echo "🚀 Starting DocuGab..."
+echo "🚀 Starting DocuTok..."
 docker compose up -d
 
 echo ""
@@ -39,7 +39,7 @@ fi
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🌐 DocuGab is running!"
+echo "🌐 DocuTok is running!"
 echo ""
 echo "   Frontend:  http://localhost:5177"
 echo "   API:       http://localhost:8007"

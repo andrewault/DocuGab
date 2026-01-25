@@ -20,10 +20,18 @@ interface Document {
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
-const CHAT_STORAGE_KEY = 'docugab_chat_messages';
+const CHAT_STORAGE_KEY = 'docutok_chat_messages';
+const OLD_CHAT_STORAGE_KEY = 'docugab_chat_messages'; // For migration
 
 export default function Chat() {
     const [messages, setMessages] = useState<Message[]>(() => {
+        // Migrate from old key if exists
+        const oldSaved = localStorage.getItem(OLD_CHAT_STORAGE_KEY);
+        if (oldSaved) {
+            localStorage.setItem(CHAT_STORAGE_KEY, oldSaved);
+            localStorage.removeItem(OLD_CHAT_STORAGE_KEY);
+            return JSON.parse(oldSaved);
+        }
         // Initialize from localStorage
         const saved = localStorage.getItem(CHAT_STORAGE_KEY);
         return saved ? JSON.parse(saved) : [];

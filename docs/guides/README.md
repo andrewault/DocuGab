@@ -1,6 +1,6 @@
 # Guides
 
-Practical how-to guides for DocuGab.
+Practical how-to guides for DocuTok.
 
 ## Index
 

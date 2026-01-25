@@ -1,11 +1,11 @@
 #!/bin/bash
-# Stop the DocuGab application
+# Stop the DocuTok application
 
 set -e
 
 cd "$(dirname "$0")/../.."
 
-echo "🛑 Stopping DocuGab..."
+echo "🛑 Stopping DocuTok..."
 docker compose down
 
 echo ""
@@ -18,4 +18,4 @@ else
 fi
 
 echo ""
-echo "✅ DocuGab stopped"
+echo "✅ DocuTok stopped"
