@@ -1,5 +1,5 @@
 """Auth service for registration, login, and token management."""
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -92,7 +92,7 @@ async def refresh_access_token(
     
     if session is None:
         return None
-    if session.expires_at < datetime.utcnow():
+    if session.expires_at < datetime.now(timezone.utc):
         # Clean up expired session
         await db.delete(session)
         await db.commit()
@@ -137,5 +137,5 @@ async def invalidate_all_sessions(db: AsyncSession, user_id: int) -> int:
 
 async def update_last_login(db: AsyncSession, user: User) -> None:
     """Update the user's last login timestamp."""
-    user.last_login_at = datetime.utcnow()
+    user.last_login_at = datetime.now(timezone.utc)
     await db.commit()

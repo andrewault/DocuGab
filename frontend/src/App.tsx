@@ -8,6 +8,7 @@ import Documents from './pages/Documents';
 import DocumentViewer from './pages/DocumentViewer';
 import Chat from './pages/Chat';
 import Settings from './pages/Settings';
+import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import FAQ from './pages/FAQ';
@@ -49,6 +50,11 @@ export default function App() {
           <Route path="/settings" element={
             <ProtectedRoute>
               <Settings />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           } />
           <Route path="/admin" element={

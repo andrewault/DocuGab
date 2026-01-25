@@ -4,7 +4,7 @@ import {
     Typography, CircularProgress, Stack, Divider,
     Select, MenuItem, FormControl, InputLabel, useTheme, Link
 } from '@mui/material';
-import { Send, ArrowBack } from '@mui/icons-material';
+import { Send, Forum } from '@mui/icons-material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 
@@ -124,175 +124,187 @@ export default function Chat() {
     };
 
     return (
-        <Container maxWidth="md" sx={{ height: 'calc(100vh - 64px - 60px)', py: 2, pb: 10, display: 'flex', flexDirection: 'column' }}>
-            <Paper
-                elevation={3}
-                sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    bgcolor: 'background.paper',
-                    borderRadius: 2,
-                    overflow: 'hidden'
-                }}
-            >
-                {/* Header */}
-                <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Typography variant="h6" sx={{ flex: 1 }}>Document Chat</Typography>
+        <Box
+            sx={{
+                minHeight: '100vh',
+                background: isDark
+                    ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
+                    : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
+                pt: 8,
+                pb: 4,
+            }}
+        >
+            <Container maxWidth="lg" sx={{ height: 'calc(100vh - 64px - 60px)', py: 2, pb: 10, display: 'flex', flexDirection: 'column' }}>
+                <Paper
+                    elevation={3}
+                    sx={{
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        bgcolor: isDark ? '#2A3445' : 'background.paper',
+                        borderRadius: 2,
+                        overflow: 'hidden'
+                    }}
+                >
+                    {/* Header */}
+                    <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Forum />
+                        <Typography variant="h6" sx={{ flex: 1 }}>Chat</Typography>
 
-                    <FormControl size="small" sx={{ minWidth: 200 }}>
-                        <InputLabel>Filter by document</InputLabel>
-                        <Select
-                            value={selectedDoc}
-                            label="Filter by document"
-                            onChange={(e) => setSelectedDoc(e.target.value as number | '')}
-                        >
-                            <MenuItem value="">All documents</MenuItem>
-                            {documents.map((doc) => (
-                                <MenuItem key={doc.id} value={doc.id}>
-                                    {doc.filename}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </Box>
+                        <FormControl size="small" sx={{ minWidth: 200 }}>
+                            <InputLabel>Filter by document</InputLabel>
+                            <Select
+                                value={selectedDoc}
+                                label="Filter by document"
+                                onChange={(e) => setSelectedDoc(e.target.value as number | '')}
+                            >
+                                <MenuItem value="">All documents</MenuItem>
+                                {documents.map((doc) => (
+                                    <MenuItem key={doc.id} value={doc.id}>
+                                        {doc.filename}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
 
-                {/* Messages */}
-                <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
-                    {messages.length === 0 && (
-                        <Box sx={{ textAlign: 'center', color: 'text.secondary', mt: 4 }}>
-                            <Typography variant="h6" gutterBottom>
-                                Ask a question about your documents
-                            </Typography>
-                            <Typography variant="body2">
-                                Upload documents first, then ask questions here.
-                            </Typography>
-                        </Box>
-                    )}
+                    {/* Messages */}
+                    <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+                        {messages.length === 0 && (
+                            <Box sx={{ textAlign: 'center', color: 'text.secondary', mt: 4 }}>
+                                <Typography variant="h6" gutterBottom>
+                                    Ask a question about your documents
+                                </Typography>
+                                <Typography variant="body2">
+                                    Upload documents first, then ask questions here.
+                                </Typography>
+                            </Box>
+                        )}
 
-                    {messages.map((msg, i) => (
-                        <Box
-                            key={i}
-                            sx={{
-                                mb: 2,
-                                display: 'flex',
-                                justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start'
-                            }}
-                        >
-                            <Paper
-                                elevation={1}
+                        {messages.map((msg, i) => (
+                            <Box
+                                key={i}
                                 sx={{
-                                    p: 2,
-                                    maxWidth: '80%',
-                                    bgcolor: msg.role === 'user'
-                                        ? 'primary.dark'
-                                        : isDark ? 'grey.800' : 'grey.100',
-                                    borderRadius: 2,
+                                    mb: 2,
+                                    display: 'flex',
+                                    justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start'
                                 }}
                             >
-                                {msg.role === 'user' ? (
-                                    <Typography
-                                        variant="body1"
-                                        sx={{ whiteSpace: 'pre-wrap', color: '#fff' }}
-                                    >
-                                        {msg.content}
-                                    </Typography>
-                                ) : (
-                                    <Box
-                                        sx={{
-                                            '& p': { m: 0, mb: 1 },
-                                            '& p:last-child': { mb: 0 },
-                                            '& a': { color: '#2563eb', textDecoration: 'underline', cursor: 'pointer' },
-                                            '& strong': { fontWeight: 600 },
-                                            '& ul, & ol': { pl: 3, my: 1 },
-                                            '& code': {
-                                                bgcolor: isDark ? 'grey.900' : 'grey.200',
-                                                px: 0.5,
-                                                borderRadius: 0.5,
-                                                fontFamily: 'monospace',
-                                            },
-                                            '& pre': {
-                                                bgcolor: isDark ? 'grey.900' : 'grey.200',
-                                                p: 1,
-                                                borderRadius: 1,
-                                                overflow: 'auto',
-                                            },
-                                        }}
-                                    >
-                                        <ReactMarkdown
-                                            components={{
-                                                a: ({ href, children }) => {
-                                                    // Check if it's an internal document link
-                                                    if (href?.startsWith('/documents/')) {
-                                                        return (
-                                                            <Link
-                                                                component={RouterLink}
-                                                                to={href}
-                                                                sx={{ cursor: 'pointer' }}
-                                                            >
-                                                                {children}
-                                                            </Link>
-                                                        );
-                                                    }
-                                                    return <a href={href}>{children}</a>;
+                                <Paper
+                                    elevation={1}
+                                    sx={{
+                                        p: 2,
+                                        maxWidth: '80%',
+                                        bgcolor: msg.role === 'user'
+                                            ? 'primary.dark'
+                                            : isDark ? 'grey.800' : 'grey.100',
+                                        borderRadius: 2,
+                                    }}
+                                >
+                                    {msg.role === 'user' ? (
+                                        <Typography
+                                            variant="body1"
+                                            sx={{ whiteSpace: 'pre-wrap', color: '#fff' }}
+                                        >
+                                            {msg.content}
+                                        </Typography>
+                                    ) : (
+                                        <Box
+                                            sx={{
+                                                '& p': { m: 0, mb: 1 },
+                                                '& p:last-child': { mb: 0 },
+                                                '& a': { color: isDark ? '#f97316' : '#2563eb', textDecoration: 'underline', cursor: 'pointer' },
+                                                '& strong': { fontWeight: 600 },
+                                                '& ul, & ol': { pl: 3, my: 1 },
+                                                '& code': {
+                                                    bgcolor: isDark ? 'grey.900' : 'grey.200',
+                                                    px: 0.5,
+                                                    borderRadius: 0.5,
+                                                    fontFamily: 'monospace',
+                                                },
+                                                '& pre': {
+                                                    bgcolor: isDark ? 'grey.900' : 'grey.200',
+                                                    p: 1,
+                                                    borderRadius: 1,
+                                                    overflow: 'auto',
                                                 },
                                             }}
                                         >
-                                            {msg.content || (isLoading && i === messages.length - 1 ? '...' : '')}
-                                        </ReactMarkdown>
-                                    </Box>
-                                )}
-                            </Paper>
-                        </Box>
-                    ))}
+                                            <ReactMarkdown
+                                                components={{
+                                                    a: ({ href, children }) => {
+                                                        // Check if it's an internal document link
+                                                        if (href?.startsWith('/documents/')) {
+                                                            return (
+                                                                <Link
+                                                                    component={RouterLink}
+                                                                    to={href}
+                                                                    sx={{ cursor: 'pointer' }}
+                                                                >
+                                                                    {children}
+                                                                </Link>
+                                                            );
+                                                        }
+                                                        return <a href={href}>{children}</a>;
+                                                    },
+                                                }}
+                                            >
+                                                {msg.content || (isLoading && i === messages.length - 1 ? '...' : '')}
+                                            </ReactMarkdown>
+                                        </Box>
+                                    )}
+                                </Paper>
+                            </Box>
+                        ))}
 
-                    {isLoading && messages[messages.length - 1]?.content === '' && (
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
-                            <CircularProgress size={24} />
-                        </Box>
-                    )}
+                        {isLoading && messages[messages.length - 1]?.content === '' && (
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
+                                <CircularProgress size={24} />
+                            </Box>
+                        )}
 
-                    <div ref={messagesEndRef} />
-                </Box>
+                        <div ref={messagesEndRef} />
+                    </Box>
 
-                {/* Input */}
-                <Divider />
-                <Box sx={{ p: 2 }}>
-                    <TextField
-                        fullWidth
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                        placeholder="Ask a question about your documents..."
-                        disabled={isLoading}
-                        multiline
-                        maxRows={4}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                borderRadius: 3,
-                                pr: 1,
-                            }
-                        }}
-                        InputProps={{
-                            endAdornment: (
-                                <IconButton
-                                    onClick={sendMessage}
-                                    disabled={isLoading || !input.trim()}
-                                    sx={{
-                                        bgcolor: isDark ? '#1e3a5f' : 'primary.main',
-                                        color: isDark ? '#fff' : '#fff',
-                                        '&:hover': { bgcolor: isDark ? '#2d4a6f' : 'primary.dark' },
-                                        '&.Mui-disabled': { bgcolor: 'grey.700', color: 'grey.500' },
-                                        ml: 1,
-                                    }}
-                                >
-                                    <Send />
-                                </IconButton>
-                            ),
-                        }}
-                    />
-                </Box>
-            </Paper>
-        </Container>
+                    {/* Input */}
+                    <Divider />
+                    <Box sx={{ p: 2 }}>
+                        <TextField
+                            fullWidth
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                            placeholder="Ask a question about your documents..."
+                            disabled={isLoading}
+                            multiline
+                            maxRows={4}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 3,
+                                    pr: 1,
+                                }
+                            }}
+                            InputProps={{
+                                endAdornment: (
+                                    <IconButton
+                                        onClick={sendMessage}
+                                        disabled={isLoading || !input.trim()}
+                                        sx={{
+                                            bgcolor: isDark ? '#1e3a5f' : 'primary.main',
+                                            color: isDark ? '#fff' : '#fff',
+                                            '&:hover': { bgcolor: isDark ? '#2d4a6f' : 'primary.dark' },
+                                            '&.Mui-disabled': { bgcolor: 'grey.700', color: 'grey.500' },
+                                            ml: 1,
+                                        }}
+                                    >
+                                        <Send />
+                                    </IconButton>
+                                ),
+                            }}
+                        />
+                    </Box>
+                </Paper>
+            </Container>
+        </Box>
     );
 }

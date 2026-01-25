@@ -98,16 +98,15 @@ export default function Navbar() {
                             backgroundClip: 'text',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
-                            mr: 4,
                         }}
                     >
                         DocuTok
                     </Typography>
 
-                    {/* Spacer */}
+                    {/* Left Spacer */}
                     <Box sx={{ flexGrow: 1 }} />
 
-                    {/* Navigation Links - Only show when authenticated */}
+                    {/* Navigation Links - Centered */}
                     {isAuthenticated && (
                         <>
                             <Button
@@ -134,7 +133,15 @@ export default function Navbar() {
                             >
                                 Chat
                             </Button>
+                        </>
+                    )}
 
+                    {/* Right Spacer */}
+                    <Box sx={{ flexGrow: 1 }} />
+
+                    {/* Right side icons - only when authenticated */}
+                    {isAuthenticated && (
+                        <>
                             {/* Settings Icon */}
                             <IconButton
                                 color="inherit"
@@ -169,6 +176,9 @@ export default function Navbar() {
                                     </Typography>
                                 </MenuItem>
                                 <Divider />
+                                <MenuItem onClick={() => { handleClose(); navigate('/profile'); }}>
+                                    Profile
+                                </MenuItem>
                                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
                             </Menu>
                         </>

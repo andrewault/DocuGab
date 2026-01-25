@@ -72,10 +72,16 @@ async def get_document_content(uuid: UUID, db: AsyncSession = Depends(get_db)):
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Document file not found")
     
+    # For PDFs, use inline disposition to allow rendering in browser
+    headers = {}
+    if document.content_type == "application/pdf":
+        headers["Content-Disposition"] = f'inline; filename="{document.original_filename}"'
+    
     return FileResponse(
         path=str(file_path),
         filename=document.original_filename,
         media_type=document.content_type,
+        headers=headers,
     )
 
 

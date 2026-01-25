@@ -23,7 +23,7 @@ import {
     DialogActions,
     Stack,
 } from '@mui/material';
-import { Delete, Refresh, CloudUpload, Close } from '@mui/icons-material';
+import { Delete, Refresh, CloudUpload, Close, Description } from '@mui/icons-material';
 import DocumentUpload from '../components/DocumentUpload';
 
 interface Document {
@@ -180,18 +180,21 @@ export default function Documents() {
             <Container maxWidth="lg">
                 {/* Header */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                    <Typography
-                        variant="h4"
-                        sx={{
-                            fontWeight: 700,
-                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                            backgroundClip: 'text',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                        }}
-                    >
-                        Documents
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Description sx={{ fontSize: 32, color: '#6366f1' }} />
+                        <Typography
+                            variant="h4"
+                            sx={{
+                                fontWeight: 700,
+                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}
+                        >
+                            Documents
+                        </Typography>
+                    </Box>
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         <Button
                             variant="outlined"
