@@ -130,43 +130,75 @@ export default function Chat() {
                 background: isDark
                     ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
                     : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
-                pt: 8,
-                pb: 4,
+                pt: 1,
+                pb: 2,
             }}
         >
-            <Container maxWidth="lg" sx={{ height: 'calc(100vh - 64px - 60px)', py: 2, pb: 10, display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ display: 'flex', px: 3, gap: 3, height: 'calc(100vh - 100px)' }}>
+                {/* Left Sidebar */}
                 <Paper
-                    elevation={3}
                     sx={{
-                        height: '100%',
+                        width: 280,
+                        flexShrink: 0,
+                        p: 3,
+                        bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
                         display: 'flex',
                         flexDirection: 'column',
-                        bgcolor: isDark ? '#2A3445' : 'background.paper',
+                        gap: 2,
                         borderRadius: 2,
+                    }}
+                >
+                    {/* Title */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Forum sx={{ fontSize: 28, color: '#6366f1' }} />
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                fontWeight: 700,
+                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}
+                        >
+                            Chat
+                        </Typography>
+                    </Box>
+
+                    {/* Document Filter */}
+                    <FormControl size="small" fullWidth>
+                        <InputLabel>Filter by document</InputLabel>
+                        <Select
+                            value={selectedDoc}
+                            label="Filter by document"
+                            onChange={(e) => setSelectedDoc(e.target.value as number | '')}
+                        >
+                            <MenuItem value="">All documents</MenuItem>
+                            {documents.map((doc) => (
+                                <MenuItem key={doc.id} value={doc.id}>
+                                    {doc.filename}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <Box sx={{ flexGrow: 1 }} />
+
+                    {/* Message count */}
+                    <Typography variant="body2" color="text.secondary">
+                        {messages.length} message{messages.length !== 1 ? 's' : ''}
+                    </Typography>
+                </Paper>
+
+                {/* Chat Content - directly on background */}
+                <Box
+                    sx={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
                         overflow: 'hidden'
                     }}
                 >
-                    {/* Header */}
-                    <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Forum />
-                        <Typography variant="h6" sx={{ flex: 1 }}>Chat</Typography>
-
-                        <FormControl size="small" sx={{ minWidth: 200 }}>
-                            <InputLabel>Filter by document</InputLabel>
-                            <Select
-                                value={selectedDoc}
-                                label="Filter by document"
-                                onChange={(e) => setSelectedDoc(e.target.value as number | '')}
-                            >
-                                <MenuItem value="">All documents</MenuItem>
-                                {documents.map((doc) => (
-                                    <MenuItem key={doc.id} value={doc.id}>
-                                        {doc.filename}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Box>
 
                     {/* Messages */}
                     <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
@@ -303,8 +335,8 @@ export default function Chat() {
                             }}
                         />
                     </Box>
-                </Paper>
-            </Container>
+                </Box>
+            </Box>
         </Box>
     );
 }

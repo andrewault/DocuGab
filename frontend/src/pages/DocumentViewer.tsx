@@ -98,7 +98,7 @@ export default function DocumentViewer() {
 
         if (isPdf) {
             return (
-                <Box sx={{ height: 'calc(100vh - 300px)', minHeight: 500 }}>
+                <Box sx={{ height: '100%' }}>
                     <iframe
                         src={`${API_BASE}/api/documents/by-uuid/${uuid}/content`}
                         style={{
@@ -224,58 +224,71 @@ export default function DocumentViewer() {
         <Box
             sx={{
                 minHeight: '100vh',
-                py: 4,
+                pt: 1,
+                pb: 2,
                 background: isDark
                     ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
                     : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
             }}
         >
-            <Container maxWidth="lg">
-                {/* Header */}
-                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
+            <Box sx={{ display: 'flex', px: 3, gap: 3, height: 'calc(100vh - 100px)' }}>
+                {/* Left Sidebar */}
+                <Paper
+                    sx={{
+                        width: 280,
+                        flexShrink: 0,
+                        p: 3,
+                        bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 2,
+                        borderRadius: 2,
+                    }}
+                >
                     <Button
                         startIcon={<ArrowBack />}
                         onClick={() => navigate('/documents')}
+                        sx={{ justifyContent: 'flex-start' }}
                     >
                         Back to Documents
                     </Button>
+
+                    <Box sx={{ my: 2 }}>
+                        <Typography variant="h6" fontWeight={700} sx={{ wordBreak: 'break-word' }}>
+                            {document?.filename}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                            {document && formatFileSize(document.file_size)}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            {document?.content_type}
+                        </Typography>
+                    </Box>
+
+                    <Chip
+                        label={document?.status}
+                        color={document?.status === 'ready' ? 'success' : 'warning'}
+                        size="small"
+                        sx={{ alignSelf: 'flex-start' }}
+                    />
+
+                    <Box sx={{ flexGrow: 1 }} />
+
                     <Button
                         variant="outlined"
                         startIcon={<Download />}
                         onClick={handleDownload}
+                        fullWidth
                     >
                         Download
                     </Button>
-                </Stack>
-
-                {/* Document Info */}
-                <Paper
-                    sx={{
-                        p: 3,
-                        mb: 3,
-                        bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
-                    }}
-                >
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2}>
-                        <Box>
-                            <Typography variant="h5" fontWeight={700}>
-                                {document?.filename}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                {document && formatFileSize(document.file_size)} • {document?.content_type}
-                            </Typography>
-                        </Box>
-                        <Chip
-                            label={document?.status}
-                            color={document?.status === 'ready' ? 'success' : 'warning'}
-                            size="small"
-                        />
-                    </Stack>
                 </Paper>
 
-                {/* Document Content */}
-                {renderContent()}
-            </Container>
+                {/* Document Content - takes remaining width */}
+                <Box sx={{ flex: 1, minWidth: 0, overflow: 'auto' }}>
+                    {renderContent()}
+                </Box>
+            </Box>
         </Box>
     );
 }
