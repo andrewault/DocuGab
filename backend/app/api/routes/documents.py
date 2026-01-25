@@ -61,6 +61,8 @@ async def get_document_by_uuid(uuid: UUID, db: AsyncSession = Depends(get_db)):
 @router.get("/by-uuid/{uuid}/content")
 async def get_document_content(uuid: UUID, db: AsyncSession = Depends(get_db)):
     """Serve the document file by UUID."""
+    from fastapi.responses import Response
+    
     result = await db.execute(
         select(Document).where(Document.uuid == uuid)
     )
@@ -72,14 +74,19 @@ async def get_document_content(uuid: UUID, db: AsyncSession = Depends(get_db)):
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Document file not found")
     
-    # For PDFs, use inline disposition to allow rendering in browser
-    headers = {}
-    if document.content_type == "application/pdf":
-        headers["Content-Disposition"] = f'inline; filename="{document.original_filename}"'
+    # Read file content
+    with open(file_path, "rb") as f:
+        content = f.read()
     
-    return FileResponse(
-        path=str(file_path),
-        filename=document.original_filename,
+    # Build headers with CORS
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true",
+        "Content-Disposition": f'inline; filename="{document.original_filename}"',
+    }
+    
+    return Response(
+        content=content,
         media_type=document.content_type,
         headers=headers,
     )
