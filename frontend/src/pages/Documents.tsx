@@ -170,15 +170,16 @@ export default function Documents() {
     return (
         <Box
             sx={{
-                minHeight: '100vh',
+                height: 'calc(100vh - 64px)',
+                overflow: 'hidden',
                 background: isDark
                     ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
                     : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
                 pt: 1,
-                pb: 2,
+                pb: 1,
             }}
         >
-            <Box sx={{ display: 'flex', px: 3, gap: 3, height: 'calc(100vh - 100px)' }}>
+            <Box sx={{ display: 'flex', px: 3, gap: 3, height: 'calc(100% - 76px)' }}>
                 {/* Left Sidebar */}
                 <Paper
                     sx={{

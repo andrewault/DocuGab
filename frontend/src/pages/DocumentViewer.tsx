@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     Box,
@@ -14,6 +14,52 @@ import {
 } from '@mui/material';
 import { ArrowBack, Download } from '@mui/icons-material';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import mermaid from 'mermaid';
+
+// Mermaid diagram component
+function MermaidDiagram({ chart }: { chart: string }) {
+    const [svg, setSvg] = useState<string>('');
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
+
+    useEffect(() => {
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: isDark ? 'dark' : 'default',
+        });
+
+        const renderChart = async () => {
+            try {
+                const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+                const { svg } = await mermaid.render(id, chart);
+                setSvg(svg);
+            } catch (e) {
+                console.error('Mermaid rendering error:', e);
+                setSvg(`<pre style="color: red;">Mermaid diagram error</pre>`);
+            }
+        };
+        renderChart();
+    }, [chart, isDark]);
+
+    return <div dangerouslySetInnerHTML={{ __html: svg }} />;
+}
+
+// Custom code component for mermaid
+function CodeBlock({ className, children, ...props }: any) {
+    const match = /language-(\w+)/.exec(className || '');
+    const language = match ? match[1] : '';
+
+    if (language === 'mermaid') {
+        return <MermaidDiagram chart={String(children).replace(/\n$/, '')} />;
+    }
+
+    return (
+        <code className={className} {...props}>
+            {children}
+        </code>
+    );
+}
 
 interface DocumentData {
     id: number;
@@ -118,6 +164,8 @@ export default function DocumentViewer() {
                 <Paper
                     sx={{
                         p: 3,
+                        height: '100%',
+                        overflow: 'auto',
                         bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
                         '& pre': {
                             bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'grey.100',
@@ -132,9 +180,33 @@ export default function DocumentViewer() {
                             mt: 3,
                             mb: 1,
                         },
+                        '& table': {
+                            borderCollapse: 'collapse',
+                            width: '100%',
+                            my: 2,
+                        },
+                        '& th, & td': {
+                            border: isDark ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.2)',
+                            p: 1,
+                            textAlign: 'left',
+                        },
+                        '& th': {
+                            bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'grey.100',
+                            fontWeight: 600,
+                        },
+                        '& a': {
+                            color: isDark ? '#f97316' : 'primary.main',
+                        },
                     }}
                 >
-                    <ReactMarkdown>{content}</ReactMarkdown>
+                    <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                            code: CodeBlock,
+                        }}
+                    >
+                        {content}
+                    </ReactMarkdown>
                 </Paper>
             );
         }
@@ -223,15 +295,16 @@ export default function DocumentViewer() {
     return (
         <Box
             sx={{
-                minHeight: '100vh',
+                height: 'calc(100vh - 64px)',
+                overflow: 'hidden',
                 pt: 1,
-                pb: 2,
+                pb: 1,
                 background: isDark
                     ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
                     : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
             }}
         >
-            <Box sx={{ display: 'flex', px: 3, gap: 3, height: 'calc(100vh - 100px)' }}>
+            <Box sx={{ display: 'flex', px: 3, gap: 3, height: 'calc(100% - 76px)' }}>
                 {/* Left Sidebar */}
                 <Paper
                     sx={{

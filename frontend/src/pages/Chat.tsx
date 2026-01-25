@@ -2,9 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import {
     Box, Container, Paper, TextField, IconButton,
     Typography, CircularProgress, Stack, Divider,
-    Select, MenuItem, FormControl, InputLabel, useTheme, Link
+    Select, MenuItem, FormControl, InputLabel, useTheme, Link,
+    Button, Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
-import { Send, Forum } from '@mui/icons-material';
+import { Send, Forum, Delete } from '@mui/icons-material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 
@@ -44,6 +45,13 @@ export default function Chat() {
     const navigate = useNavigate();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+    const handleClearChat = () => {
+        setMessages([]);
+        localStorage.removeItem(CHAT_STORAGE_KEY);
+        setShowClearConfirm(false);
+    };
 
     // Persist messages to localStorage
     useEffect(() => {
@@ -124,219 +132,259 @@ export default function Chat() {
     };
 
     return (
-        <Box
-            sx={{
-                minHeight: '100vh',
-                background: isDark
-                    ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
-                    : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
-                pt: 1,
-                pb: 2,
-            }}
-        >
-            <Box sx={{ display: 'flex', px: 3, gap: 3, height: 'calc(100vh - 100px)' }}>
-                {/* Left Sidebar */}
-                <Paper
-                    sx={{
-                        width: 280,
-                        flexShrink: 0,
-                        p: 3,
-                        bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 2,
-                        borderRadius: 2,
-                    }}
-                >
-                    {/* Title */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Forum sx={{ fontSize: 28, color: '#6366f1' }} />
-                        <Typography
-                            variant="h6"
-                            sx={{
-                                fontWeight: 700,
-                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                                backgroundClip: 'text',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                            }}
-                        >
-                            Chat
-                        </Typography>
-                    </Box>
-
-                    {/* Document Filter */}
-                    <FormControl size="small" fullWidth>
-                        <InputLabel>Filter by document</InputLabel>
-                        <Select
-                            value={selectedDoc}
-                            label="Filter by document"
-                            onChange={(e) => setSelectedDoc(e.target.value as number | '')}
-                        >
-                            <MenuItem value="">All documents</MenuItem>
-                            {documents.map((doc) => (
-                                <MenuItem key={doc.id} value={doc.id}>
-                                    {doc.filename}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-
-                    <Box sx={{ flexGrow: 1 }} />
-
-                    {/* Message count */}
-                    <Typography variant="body2" color="text.secondary">
-                        {messages.length} message{messages.length !== 1 ? 's' : ''}
-                    </Typography>
-                </Paper>
-
-                {/* Chat Content - directly on background */}
-                <Box
-                    sx={{
-                        flex: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        overflow: 'hidden'
-                    }}
-                >
-
-                    {/* Messages */}
-                    <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
-                        {messages.length === 0 && (
-                            <Box sx={{ textAlign: 'center', color: 'text.secondary', mt: 4 }}>
-                                <Typography variant="h6" gutterBottom>
-                                    Ask a question about your documents
-                                </Typography>
-                                <Typography variant="body2">
-                                    Upload documents first, then ask questions here.
-                                </Typography>
-                            </Box>
-                        )}
-
-                        {messages.map((msg, i) => (
-                            <Box
-                                key={i}
+        <>
+            <Box
+                sx={{
+                    height: 'calc(100vh - 64px)',
+                    overflow: 'hidden',
+                    background: isDark
+                        ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
+                        : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
+                    pt: 1,
+                    pb: 1,
+                }}
+            >
+                <Box sx={{ display: 'flex', px: 3, gap: 3, height: 'calc(100% - 76px)' }}>
+                    {/* Left Sidebar */}
+                    <Paper
+                        sx={{
+                            width: 280,
+                            flexShrink: 0,
+                            p: 3,
+                            bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                            borderRadius: 2,
+                            overflow: 'hidden',
+                        }}
+                    >
+                        {/* Title */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Forum sx={{ fontSize: 28, color: '#6366f1' }} />
+                            <Typography
+                                variant="h6"
                                 sx={{
-                                    mb: 2,
-                                    display: 'flex',
-                                    justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start'
+                                    fontWeight: 700,
+                                    background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                    backgroundClip: 'text',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
                                 }}
                             >
-                                <Paper
-                                    elevation={1}
+                                Chat
+                            </Typography>
+                        </Box>
+
+                        {/* Message count */}
+                        <Typography variant="body2" color="text.secondary">
+                            {messages.length} message{messages.length !== 1 ? 's' : ''}
+                        </Typography>
+
+                        {/* Document Filter */}
+                        <FormControl size="small" fullWidth>
+                            <InputLabel>Filter by document</InputLabel>
+                            <Select
+                                value={selectedDoc}
+                                label="Filter by document"
+                                onChange={(e) => setSelectedDoc(e.target.value as number | '')}
+                            >
+                                <MenuItem value="">All documents</MenuItem>
+                                {documents.map((doc) => (
+                                    <MenuItem key={doc.id} value={doc.id}>
+                                        {doc.filename}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
+                        <Box sx={{ flexGrow: 1 }} />
+
+                        <Button
+                            variant="outlined"
+                            color="error"
+                            startIcon={<Delete />}
+                            onClick={() => setShowClearConfirm(true)}
+                            fullWidth
+                            disabled={messages.length === 0}
+                        >
+                            Clear Chat
+                        </Button>
+                    </Paper>
+
+                    {/* Chat Content - directly on background */}
+                    <Box
+                        sx={{
+                            flex: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            overflow: 'hidden'
+                        }}
+                    >
+
+                        {/* Messages */}
+                        <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+                            {messages.length === 0 && (
+                                <Box sx={{ textAlign: 'center', color: 'text.secondary', mt: 4 }}>
+                                    <Typography variant="h6" gutterBottom>
+                                        Ask a question about your documents
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        Upload documents first, then ask questions here.
+                                    </Typography>
+                                </Box>
+                            )}
+
+                            {messages.map((msg, i) => (
+                                <Box
+                                    key={i}
                                     sx={{
-                                        p: 2,
-                                        maxWidth: '80%',
-                                        bgcolor: msg.role === 'user'
-                                            ? 'primary.dark'
-                                            : isDark ? 'grey.800' : 'grey.100',
-                                        borderRadius: 2,
+                                        mb: 2,
+                                        display: 'flex',
+                                        justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start'
                                     }}
                                 >
-                                    {msg.role === 'user' ? (
-                                        <Typography
-                                            variant="body1"
-                                            sx={{ whiteSpace: 'pre-wrap', color: '#fff' }}
-                                        >
-                                            {msg.content}
-                                        </Typography>
-                                    ) : (
-                                        <Box
-                                            sx={{
-                                                '& p': { m: 0, mb: 1 },
-                                                '& p:last-child': { mb: 0 },
-                                                '& a': { color: isDark ? '#f97316' : '#2563eb', textDecoration: 'underline', cursor: 'pointer' },
-                                                '& strong': { fontWeight: 600 },
-                                                '& ul, & ol': { pl: 3, my: 1 },
-                                                '& code': {
-                                                    bgcolor: isDark ? 'grey.900' : 'grey.200',
-                                                    px: 0.5,
-                                                    borderRadius: 0.5,
-                                                    fontFamily: 'monospace',
-                                                },
-                                                '& pre': {
-                                                    bgcolor: isDark ? 'grey.900' : 'grey.200',
-                                                    p: 1,
-                                                    borderRadius: 1,
-                                                    overflow: 'auto',
-                                                },
-                                            }}
-                                        >
-                                            <ReactMarkdown
-                                                components={{
-                                                    a: ({ href, children }) => {
-                                                        // Check if it's an internal document link
-                                                        if (href?.startsWith('/documents/')) {
-                                                            return (
-                                                                <Link
-                                                                    component={RouterLink}
-                                                                    to={href}
-                                                                    sx={{ cursor: 'pointer' }}
-                                                                >
-                                                                    {children}
-                                                                </Link>
-                                                            );
-                                                        }
-                                                        return <a href={href}>{children}</a>;
+                                    <Paper
+                                        elevation={1}
+                                        sx={{
+                                            p: 2,
+                                            maxWidth: '80%',
+                                            bgcolor: msg.role === 'user'
+                                                ? 'primary.dark'
+                                                : isDark ? 'grey.800' : 'grey.100',
+                                            borderRadius: 2,
+                                        }}
+                                    >
+                                        {msg.role === 'user' ? (
+                                            <Typography
+                                                variant="body1"
+                                                sx={{ whiteSpace: 'pre-wrap', color: '#fff' }}
+                                            >
+                                                {msg.content}
+                                            </Typography>
+                                        ) : (
+                                            <Box
+                                                sx={{
+                                                    '& p': { m: 0, mb: 1 },
+                                                    '& p:last-child': { mb: 0 },
+                                                    '& a': { color: isDark ? '#f97316' : '#2563eb', textDecoration: 'underline', cursor: 'pointer' },
+                                                    '& strong': { fontWeight: 600 },
+                                                    '& ul, & ol': { pl: 3, my: 1 },
+                                                    '& code': {
+                                                        bgcolor: isDark ? 'grey.900' : 'grey.200',
+                                                        px: 0.5,
+                                                        borderRadius: 0.5,
+                                                        fontFamily: 'monospace',
+                                                    },
+                                                    '& pre': {
+                                                        bgcolor: isDark ? 'grey.900' : 'grey.200',
+                                                        p: 1,
+                                                        borderRadius: 1,
+                                                        overflow: 'auto',
                                                     },
                                                 }}
                                             >
-                                                {msg.content || (isLoading && i === messages.length - 1 ? '...' : '')}
-                                            </ReactMarkdown>
-                                        </Box>
-                                    )}
-                                </Paper>
-                            </Box>
-                        ))}
+                                                <ReactMarkdown
+                                                    components={{
+                                                        a: ({ href, children }) => {
+                                                            // Check if it's an internal document link
+                                                            if (href?.startsWith('/documents/')) {
+                                                                return (
+                                                                    <Link
+                                                                        component={RouterLink}
+                                                                        to={href}
+                                                                        sx={{ cursor: 'pointer' }}
+                                                                    >
+                                                                        {children}
+                                                                    </Link>
+                                                                );
+                                                            }
+                                                            return <a href={href}>{children}</a>;
+                                                        },
+                                                    }}
+                                                >
+                                                    {msg.content || (isLoading && i === messages.length - 1 ? '...' : '')}
+                                                </ReactMarkdown>
+                                            </Box>
+                                        )}
+                                    </Paper>
+                                </Box>
+                            ))}
 
-                        {isLoading && messages[messages.length - 1]?.content === '' && (
-                            <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
-                                <CircularProgress size={24} />
-                            </Box>
-                        )}
+                            {isLoading && messages[messages.length - 1]?.content === '' && (
+                                <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
+                                    <CircularProgress size={24} />
+                                </Box>
+                            )}
 
-                        <div ref={messagesEndRef} />
-                    </Box>
+                            <div ref={messagesEndRef} />
+                        </Box>
 
-                    {/* Input */}
-                    <Divider />
-                    <Box sx={{ p: 2 }}>
-                        <TextField
-                            fullWidth
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                            placeholder="Ask a question about your documents..."
-                            disabled={isLoading}
-                            multiline
-                            maxRows={4}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: 3,
-                                    pr: 1,
-                                }
-                            }}
-                            InputProps={{
-                                endAdornment: (
-                                    <IconButton
-                                        onClick={sendMessage}
-                                        disabled={isLoading || !input.trim()}
-                                        sx={{
-                                            bgcolor: isDark ? '#1e3a5f' : 'primary.main',
-                                            color: isDark ? '#fff' : '#fff',
-                                            '&:hover': { bgcolor: isDark ? '#2d4a6f' : 'primary.dark' },
-                                            '&.Mui-disabled': { bgcolor: 'grey.700', color: 'grey.500' },
-                                            ml: 1,
-                                        }}
-                                    >
-                                        <Send />
-                                    </IconButton>
-                                ),
-                            }}
-                        />
+                        {/* Input */}
+                        <Divider />
+                        <Box sx={{ p: 2 }}>
+                            <TextField
+                                fullWidth
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                                placeholder="Ask a question about your documents..."
+                                disabled={isLoading}
+                                multiline
+                                maxRows={4}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: 3,
+                                        pr: 1,
+                                    }
+                                }}
+                                InputProps={{
+                                    endAdornment: (
+                                        <IconButton
+                                            onClick={sendMessage}
+                                            disabled={isLoading || !input.trim()}
+                                            sx={{
+                                                bgcolor: isDark ? '#1e3a5f' : 'primary.main',
+                                                color: isDark ? '#fff' : '#fff',
+                                                '&:hover': { bgcolor: isDark ? '#2d4a6f' : 'primary.dark' },
+                                                '&.Mui-disabled': { bgcolor: 'grey.700', color: 'grey.500' },
+                                                ml: 1,
+                                            }}
+                                        >
+                                            <Send />
+                                        </IconButton>
+                                    ),
+                                }}
+                            />
+                        </Box>
                     </Box>
                 </Box>
             </Box>
-        </Box>
+
+            {/* Clear Chat Confirmation Dialog */}
+            <Dialog
+                open={showClearConfirm}
+                onClose={() => setShowClearConfirm(false)}
+            >
+                <DialogTitle>Clear Chat History</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Are you sure you want to clear all chat messages? This action cannot be undone.
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setShowClearConfirm(false)}>
+                        Cancel
+                    </Button>
+                    <Button
+                        color="error"
+                        variant="contained"
+                        onClick={handleClearChat}
+                    >
+                        Clear
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </>
     );
 }

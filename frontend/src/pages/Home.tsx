@@ -259,11 +259,11 @@ export default function Home() {
 
                 {/* Feature Highlights */}
                 <Stack
-                    direction="column"
+                    direction={{ xs: 'column', md: 'row' }}
                     spacing={3}
-                    alignItems="center"
+                    justifyContent="center"
                     sx={{
-                        mt: 4,
+                        mt: 8,
                         animation: `${fadeInUp} 0.8s ease-out`,
                         animationDelay: '0.5s',
                         animationFillMode: 'backwards',
