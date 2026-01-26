@@ -74,7 +74,7 @@ export default function Home() {
     return (
         <Box
             sx={{
-                minHeight: '100vh',
+                height: '100vh',
                 display: 'flex',
                 flexDirection: 'column',
                 background: isDark
@@ -135,29 +135,45 @@ export default function Home() {
                 }}
             />
 
-            <Container maxWidth="lg" sx={{ flex: 1, py: 4, position: 'relative', zIndex: 1 }}>
+            <Container maxWidth="lg" sx={{ flex: 1, pt: 2, pb: 30, position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 {/* Hero Section */}
                 <Box
                     textAlign="center"
-                    mb={8}
                     sx={{
                         animation: `${fadeInUp} 0.8s ease-out`,
                     }}
                 >
-                    <Typography
-                        variant="h1"
-                        sx={{
-                            background: 'linear-gradient(90deg, #6366f1, #10b981, #6366f1)',
-                            backgroundSize: '200% 100%',
-                            backgroundClip: 'text',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                            animation: `${gradientShift} 5s ease infinite`,
-                            mb: 2,
-                        }}
+                    <Stack
+                        direction="row"
+                        justifyContent="center"
+                        alignItems="center"
+                        spacing={2}
+                        sx={{ mb: 2 }}
                     >
-                        DocuTok
-                    </Typography>
+                        <Box
+                            component="img"
+                            src="/assets/images/DocuTokLogo.png"
+                            alt="DocuTok Logo"
+                            sx={{
+                                height: { xs: 60, md: 80 },
+                                width: 'auto',
+                                animation: `${pulse} 3s ease-in-out infinite`,
+                            }}
+                        />
+                        <Typography
+                            variant="h1"
+                            sx={{
+                                background: 'linear-gradient(90deg, #6366f1, #10b981, #6366f1)',
+                                backgroundSize: '200% 100%',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                animation: `${gradientShift} 5s ease infinite`,
+                            }}
+                        >
+                            DocuTok
+                        </Typography>
+                    </Stack>
                     <Typography variant="h5" color="text.secondary" mb={2}>
                         Transform your documents into intelligent conversations
                     </Typography>
@@ -169,7 +185,7 @@ export default function Home() {
                     spacing={{ xs: 2, md: 0 }}
                     justifyContent="center"
                     alignItems="center"
-                    sx={{ mb: 6 }}
+                    sx={{ mt: -12.5 }}
                 >
                     {steps.map((step, index) => (
                         <Stack
@@ -263,7 +279,6 @@ export default function Home() {
                     spacing={3}
                     justifyContent="center"
                     sx={{
-                        mt: 8,
                         animation: `${fadeInUp} 0.8s ease-out`,
                         animationDelay: '0.5s',
                         animationFillMode: 'backwards',
@@ -326,16 +341,16 @@ function FeatureCard({
                 '&:hover': {
                     transform: 'translateY(-4px)',
                     boxShadow: isDark
-                        ? '0 12px 40px rgba(99, 102, 241, 0.2)'
-                        : '0 12px 40px rgba(99, 102, 241, 0.15)',
+                        ? '0 12px 40px rgba(249, 115, 22, 0.2)'
+                        : '0 12px 40px rgba(249, 115, 22, 0.15)',
                 },
             }}
         >
-            <Box color="primary.main" sx={{ flexShrink: 0 }}>
+            <Box sx={{ color: '#f97316', flexShrink: 0 }}>
                 {icon}
             </Box>
             <Box>
-                <Typography variant="h6" fontWeight={600} component="span">
+                <Typography variant="h6" fontWeight={600} component="span" sx={{ color: '#f97316' }}>
                     {title}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" component="span" sx={{ ml: 1 }}>

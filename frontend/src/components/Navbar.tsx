@@ -88,20 +88,40 @@ export default function Navbar() {
                     )}
 
                     {/* Logo / Brand */}
-                    <Typography
-                        variant="h6"
+                    {/* Logo / Brand */}
+                    <Box
+                        component="div"
                         onClick={() => navigate('/')}
                         sx={{
+                            display: 'flex',
+                            alignItems: 'center',
                             cursor: 'pointer',
-                            fontWeight: 700,
-                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                            backgroundClip: 'text',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
+                            gap: 1.5,
+                            mr: 2,
                         }}
                     >
-                        DocuTok
-                    </Typography>
+                        <Box
+                            component="img"
+                            src="/assets/images/DocuTokLogo.png"
+                            alt="DocuTok Logo"
+                            sx={{
+                                height: 32,
+                                width: 'auto',
+                            }}
+                        />
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                fontWeight: 700,
+                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}
+                        >
+                            DocuTok
+                        </Typography>
+                    </Box>
 
                     {/* Left Spacer */}
                     <Box sx={{ flexGrow: 1 }} />

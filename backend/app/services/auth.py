@@ -92,7 +92,13 @@ async def refresh_access_token(
     
     if session is None:
         return None
-    if session.expires_at < datetime.now(timezone.utc):
+    
+    # Handle naive/aware datetimes (SQLite stored as naive)
+    expires_at = session.expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+        
+    if expires_at < datetime.now(timezone.utc):
         # Clean up expired session
         await db.delete(session)
         await db.commit()
