@@ -22,7 +22,7 @@ export default function DocumentUpload({ onUploadComplete }: DocumentUploadProps
     const [documents, setDocuments] = useState<UploadedDoc[]>([]);
     const [dragOver, setDragOver] = useState(false);
 
-    const uploadFile = async (file: File) => {
+    const uploadFile = useCallback(async (file: File) => {
         const formData = new FormData();
         formData.append('file', file);
 
@@ -56,7 +56,7 @@ export default function DocumentUpload({ onUploadComplete }: DocumentUploadProps
                 status: 'error'
             }]);
         }
-    };
+    }, [onUploadComplete]);
 
     const pollStatus = async (docId: number) => {
         const checkStatus = async () => {
@@ -92,7 +92,8 @@ export default function DocumentUpload({ onUploadComplete }: DocumentUploadProps
         }
 
         setUploading(false);
-    }, []);
+        setUploading(false);
+    }, [uploadFile]);
 
     const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
@@ -114,7 +115,7 @@ export default function DocumentUpload({ onUploadComplete }: DocumentUploadProps
         }
     };
 
-    const getStatusColor = (status: string) => {
+    const getStatusColor = (status: string): "default" | "success" | "error" | "warning" => {
         switch (status) {
             case 'ready': return 'success';
             case 'error': return 'error';
@@ -181,7 +182,7 @@ export default function DocumentUpload({ onUploadComplete }: DocumentUploadProps
                                 <Chip
                                     size="small"
                                     label={doc.status}
-                                    color={getStatusColor(doc.status) as any}
+                                    color={getStatusColor(doc.status)}
                                     icon={getStatusIcon(doc.status)}
                                 />
                             }

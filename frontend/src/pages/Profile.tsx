@@ -1,5 +1,5 @@
+
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Container,
@@ -21,7 +21,6 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function Profile() {
     const { user, refreshAuth } = useAuth();
-    const navigate = useNavigate();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
 

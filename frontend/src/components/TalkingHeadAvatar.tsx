@@ -46,7 +46,7 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
 
             try {
                 // Dynamically import TalkingHead
-                // @ts-ignore
+                // @ts-expect-error TalkingHead is loaded dynamically
                 const module = await import('../libs/talkinghead.mjs');
                 const TalkingHead: TalkingHeadClass = module.TalkingHead;
 
@@ -82,10 +82,10 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
                 if (mounted) {
                     setIsLoading(false);
                 }
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('Failed to initialize TalkingHead:', err);
                 if (mounted) {
-                    setError(err.message || 'Failed to load avatar');
+                    setError(err instanceof Error ? err.message : 'Failed to load avatar');
                     setIsLoading(false);
                 }
             }
@@ -99,7 +99,7 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
                 headRef.current.stop();
             }
         };
-    }, []);
+    }, [avatarUrl]);
 
     // Handle avatar change
     useEffect(() => {
@@ -108,15 +108,15 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
         const loadNewAvatar = async () => {
             setIsLoading(true);
             try {
-                // @ts-ignore
+                // @ts-expect-error TalkingHead method
                 await headRef.current.showAvatar({
                     url: avatarUrl,
                     body: 'M',
                     lipsyncLang: 'en',
                 });
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('Failed to change avatar:', err);
-                setError(err.message || 'Failed to change avatar');
+                setError(err instanceof Error ? err.message : 'Failed to change avatar');
             } finally {
                 setIsLoading(false);
             }
@@ -144,9 +144,9 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
                 headRef.current.stopSpeaking();
                 lastTextRef.current = '';
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('TalkingHead lip-sync error:', err);
-            setError(err.message || 'Speech synthesis failed');
+            setError(err instanceof Error ? err.message : 'Speech synthesis failed');
         }
     }, [text, voice, isPlaying]);
 

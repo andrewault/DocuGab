@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
     Box,
     Container,
@@ -26,7 +26,7 @@ import {
 } from '@mui/material';
 import { Group, PersonAdd, Description, Pending } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { getAuthHeader } from '../../context/AuthContext';
+import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
 interface Stats {
@@ -75,7 +75,7 @@ export default function AdminDashboard() {
         }
     };
 
-    const fetchUsers = async () => {
+    const fetchUsers = useCallback(async () => {
         try {
             setLoading(true);
             const params = new URLSearchParams({
@@ -97,7 +97,7 @@ export default function AdminDashboard() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [page, rowsPerPage, search, roleFilter]);
 
     useEffect(() => {
         fetchStats();
@@ -105,7 +105,7 @@ export default function AdminDashboard() {
 
     useEffect(() => {
         fetchUsers();
-    }, [page, rowsPerPage, search, roleFilter]);
+    }, [page, rowsPerPage, search, roleFilter, fetchUsers]);
 
     const StatCard = ({ title, value, icon }: { title: string; value: number; icon: React.ReactNode }) => (
         <Card sx={{ bgcolor: isDark ? 'rgba(30, 41, 59, 0.8)' : 'background.paper' }}>

@@ -24,7 +24,7 @@ import {
     Alert,
 } from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
-import { getAuthHeader } from '../../context/AuthContext';
+import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
 interface FAQItem {

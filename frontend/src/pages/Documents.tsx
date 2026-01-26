@@ -2,7 +2,6 @@ import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react
 import { useNavigate } from 'react-router-dom';
 import {
     Box,
-    Container,
     Typography,
     Paper,
     Table,
@@ -76,16 +75,7 @@ export default function Documents() {
         }
     }, []);
 
-    const fetchDocumentDetail = async (id: number) => {
-        try {
-            const response = await fetch(`${API_BASE}/api/documents/${id}`);
-            if (!response.ok) throw new Error('Failed to fetch document details');
-            const data = await response.json();
-            setSelectedDoc(data);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to load document details');
-        }
-    };
+
 
     const handleDelete = async (id: number) => {
         setDeleteConfirmId(null); // Close modal
@@ -121,7 +111,7 @@ export default function Documents() {
         });
     };
 
-    const getStatusColor = (status: string) => {
+    const getStatusColor = (status: string): "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" => {
         switch (status) {
             case 'ready': return 'success';
             case 'processing': return 'warning';
@@ -313,7 +303,7 @@ export default function Documents() {
                                             <TableCell>
                                                 <Chip
                                                     label={doc.status}
-                                                    color={getStatusColor(doc.status) as any}
+                                                    color={getStatusColor(doc.status)}
                                                     size="small"
                                                 />
                                             </TableCell>
@@ -369,7 +359,7 @@ export default function Documents() {
                                     <Box>
                                         <Chip
                                             label={selectedDoc.status}
-                                            color={getStatusColor(selectedDoc.status) as any}
+                                            color={getStatusColor(selectedDoc.status)}
                                             size="small"
                                         />
                                     </Box>

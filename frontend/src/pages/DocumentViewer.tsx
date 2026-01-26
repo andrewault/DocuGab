@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     Box,
@@ -9,7 +9,6 @@ import {
     Alert,
     Button,
     Chip,
-    Stack,
     useTheme,
 } from '@mui/material';
 import { ArrowBack, Download } from '@mui/icons-material';
@@ -46,7 +45,8 @@ function MermaidDiagram({ chart }: { chart: string }) {
 }
 
 // Custom code component for mermaid
-function CodeBlock({ className, children, ...props }: any) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function CodeBlock({ children, className, ...props }: any) {
     const match = /language-(\w+)/.exec(className || '');
     const language = match ? match[1] : '';
 

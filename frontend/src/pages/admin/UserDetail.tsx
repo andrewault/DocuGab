@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     Box,
@@ -20,7 +20,7 @@ import {
     useTheme,
 } from '@mui/material';
 import { Save, Delete } from '@mui/icons-material';
-import { getAuthHeader } from '../../context/AuthContext';
+import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
 interface User {
@@ -52,10 +52,6 @@ export default function UserDetail() {
     const [isActive, setIsActive] = useState(true);
     const [isVerified, setIsVerified] = useState(false);
 
-    useEffect(() => {
-        fetchUser();
-    }, [id]);
-
     // Escape key to go back
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -67,7 +63,7 @@ export default function UserDetail() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [navigate]);
 
-    const fetchUser = async () => {
+    const fetchUser = useCallback(async () => {
         try {
             setLoading(true);
             const response = await fetch(`${API_BASE}/api/admin/users/${id}`, {
@@ -90,7 +86,11 @@ export default function UserDetail() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id]);
+
+    useEffect(() => {
+        fetchUser();
+    }, [fetchUser]);
 
     const handleSave = async () => {
         try {

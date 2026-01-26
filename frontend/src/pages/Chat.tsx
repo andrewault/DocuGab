@@ -7,7 +7,7 @@ import {
     Checkbox, FormControlLabel
 } from '@mui/material';
 import { Send, Forum, Delete, Mic, Stop, VolumeUp } from '@mui/icons-material';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../context/AuthContext';
 import TalkingHeadAvatar from '../components/TalkingHeadAvatar';
@@ -47,11 +47,9 @@ export default function Chat() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [isLoadingHistory, setIsLoadingHistory] = useState(true);
     const [documents, setDocuments] = useState<Document[]>([]);
     const [selectedDoc, setSelectedDoc] = useState<number | ''>('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const navigate = useNavigate();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
     const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -60,7 +58,6 @@ export default function Chat() {
     // Load messages - from API if authenticated, localStorage otherwise
     useEffect(() => {
         const loadMessages = async () => {
-            setIsLoadingHistory(true);
             const token = getToken();
 
             if (user && token) {
@@ -71,7 +68,7 @@ export default function Chat() {
                     });
                     if (res.ok) {
                         const data = await res.json();
-                        setMessages(data.messages.map((m: any) => ({
+                        setMessages(data.messages.map((m: { role: 'user' | 'assistant'; content: string }) => ({
                             role: m.role,
                             content: m.content
                         })));
@@ -87,8 +84,6 @@ export default function Chat() {
                 const saved = localStorage.getItem(CHAT_STORAGE_KEY);
                 if (saved) setMessages(JSON.parse(saved));
             }
-
-            setIsLoadingHistory(false);
         };
 
         loadMessages();
