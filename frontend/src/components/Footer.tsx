@@ -1,9 +1,16 @@
-import { Box, Container, Stack, Link, Typography, useTheme } from '@mui/material';
+import { Box, Container, Stack, Link, Typography, useTheme, IconButton, Tooltip } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
+import { DarkMode, LightMode } from '@mui/icons-material';
+import { useThemeMode } from '../context/ThemeContext';
 
 export default function Footer() {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    const { effectiveTheme, setThemeMode } = useThemeMode();
+
+    const toggleTheme = () => {
+        setThemeMode(effectiveTheme === 'dark' ? 'light' : 'dark');
+    };
 
     return (
         <Box
@@ -35,7 +42,7 @@ export default function Footer() {
                     <Typography variant="body2" color="text.secondary">
                         © {new Date().getFullYear()} DocuTok
                     </Typography>
-                    <Stack direction="row" spacing={3}>
+                    <Stack direction="row" spacing={3} alignItems="center">
                         <Link
                             component={RouterLink}
                             to="/about"
@@ -63,6 +70,15 @@ export default function Footer() {
                         >
                             FAQ
                         </Link>
+                        <Tooltip title={effectiveTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+                            <IconButton
+                                onClick={toggleTheme}
+                                size="small"
+                                sx={{ color: 'text.secondary' }}
+                            >
+                                {effectiveTheme === 'dark' ? <LightMode fontSize="small" /> : <DarkMode fontSize="small" />}
+                            </IconButton>
+                        </Tooltip>
                     </Stack>
                     <Typography variant="caption" color="text.disabled">
                         v0.1.0
