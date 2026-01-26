@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import {
-    Box, Container, Paper, TextField, IconButton,
-    Typography, CircularProgress, Stack, Divider,
+    Box, Paper, TextField, IconButton,
+    Typography, CircularProgress, Divider,
     Select, MenuItem, FormControl, InputLabel, useTheme, Link,
     Button, Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
-import { Send, Forum, Delete } from '@mui/icons-material';
+import { Send, Forum, Delete, Mic, Stop, VolumeUp } from '@mui/icons-material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../context/AuthContext';
@@ -166,6 +166,151 @@ export default function Chat() {
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
+
+    // Speech-to-Text state
+    const [isRecording, setIsRecording] = useState(false);
+    const [isTranscribing, setIsTranscribing] = useState(false);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<Blob[]>([]);
+
+    // Text-to-Speech state
+    const [playingMessageIndex, setPlayingMessageIndex] = useState<number | null>(null);
+    const [isSynthesizing, setIsSynthesizing] = useState(false);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    // Start recording audio
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+            // Try different mimeTypes for compatibility
+            let mimeType = 'audio/webm';
+            if (!MediaRecorder.isTypeSupported('audio/webm')) {
+                if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                    mimeType = 'audio/mp4';
+                } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
+                    mimeType = 'audio/ogg';
+                }
+            }
+
+            const mediaRecorder = new MediaRecorder(stream, { mimeType });
+            mediaRecorderRef.current = mediaRecorder;
+            audioChunksRef.current = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                console.log('Audio data available:', event.data.size, 'bytes');
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = async () => {
+                console.log('Recording stopped, chunks:', audioChunksRef.current.length);
+                const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+                console.log('Audio blob size:', audioBlob.size);
+                stream.getTracks().forEach(track => track.stop());
+                if (audioBlob.size > 0) {
+                    await transcribeAudio(audioBlob);
+                } else {
+                    console.error('No audio data recorded');
+                }
+            };
+
+            // Start recording with timeslice to get data periodically
+            mediaRecorder.start(1000);  // Get data every second
+            setIsRecording(true);
+            console.log('Recording started with mimeType:', mimeType);
+        } catch (error) {
+            console.error('Failed to start recording:', error);
+            alert('Failed to access microphone. Please check permissions.');
+        }
+    };
+
+    // Stop recording and transcribe
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && isRecording) {
+            // Request any remaining data before stopping
+            if (mediaRecorderRef.current.state === 'recording') {
+                mediaRecorderRef.current.requestData();
+            }
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
+        }
+    };
+
+    // Send audio to backend for transcription
+    const transcribeAudio = async (audioBlob: Blob) => {
+        setIsTranscribing(true);
+        try {
+            const formData = new FormData();
+            formData.append('audio', audioBlob, 'recording.webm');
+
+            const res = await fetch(`${API_BASE}/api/speech/transcribe`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (data.text) {
+                    setInput(prev => prev + (prev ? ' ' : '') + data.text);
+                }
+            } else {
+                console.error('Transcription failed:', await res.text());
+            }
+        } catch (error) {
+            console.error('Transcription error:', error);
+        } finally {
+            setIsTranscribing(false);
+        }
+    };
+
+    // Play assistant message as audio
+    const playAssistantAudio = async (text: string, messageIndex: number) => {
+        // Stop any currently playing audio
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current = null;
+        }
+
+        if (playingMessageIndex === messageIndex && !isSynthesizing) {
+            setPlayingMessageIndex(null);
+            return;
+        }
+
+        setPlayingMessageIndex(messageIndex);
+        setIsSynthesizing(true);
+
+        try {
+            const res = await fetch(`${API_BASE}/api/speech/synthesize`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text }),
+            });
+
+            if (res.ok) {
+                const audioBlob = await res.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                audioRef.current = audio;
+
+                audio.onended = () => {
+                    setPlayingMessageIndex(null);
+                    URL.revokeObjectURL(audioUrl);
+                };
+
+                setIsSynthesizing(false);
+                audio.play();
+            } else {
+                setIsSynthesizing(false);
+                setPlayingMessageIndex(null);
+            }
+        } catch (error) {
+            console.error('TTS error:', error);
+            setIsSynthesizing(false);
+            setPlayingMessageIndex(null);
+        }
+    };
 
     const sendMessage = async () => {
         if (!input.trim() || isLoading) return;
@@ -362,6 +507,7 @@ export default function Chat() {
                                         ) : (
                                             <Box
                                                 sx={{
+                                                    position: 'relative',  // Needed for speaker button positioning
                                                     '& p': { m: 0, mb: 1 },
                                                     '& p:last-child': { mb: 0 },
                                                     '& a': { color: isDark ? '#f97316' : '#2563eb', textDecoration: 'underline', cursor: 'pointer' },
@@ -402,6 +548,37 @@ export default function Chat() {
                                                 >
                                                     {msg.content || (isLoading && i === messages.length - 1 ? '...' : '')}
                                                 </ReactMarkdown>
+                                                {/* Speaker button for TTS */}
+                                                {msg.content && !isLoading && (
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => playAssistantAudio(msg.content, i)}
+                                                        disabled={isSynthesizing && playingMessageIndex === i}
+                                                        sx={{
+                                                            position: 'absolute',
+                                                            bottom: 4,
+                                                            right: 4,
+                                                            opacity: playingMessageIndex === i ? 1 : 0.6,
+                                                            '&:hover': { opacity: 1 },
+                                                            color: playingMessageIndex === i && !isSynthesizing ? 'error.main' : 'inherit',
+                                                        }}
+                                                        title={
+                                                            isSynthesizing && playingMessageIndex === i
+                                                                ? 'Loading...'
+                                                                : playingMessageIndex === i
+                                                                    ? 'Stop playback'
+                                                                    : 'Listen to response'
+                                                        }
+                                                    >
+                                                        {isSynthesizing && playingMessageIndex === i ? (
+                                                            <CircularProgress size={18} color="inherit" />
+                                                        ) : playingMessageIndex === i ? (
+                                                            <Stop fontSize="small" />
+                                                        ) : (
+                                                            <VolumeUp fontSize="small" />
+                                                        )}
+                                                    </IconButton>
+                                                )}
                                             </Box>
                                         )}
                                     </Paper>
@@ -437,19 +614,45 @@ export default function Chat() {
                                 }}
                                 InputProps={{
                                     endAdornment: (
-                                        <IconButton
-                                            onClick={sendMessage}
-                                            disabled={isLoading || !input.trim()}
-                                            sx={{
-                                                bgcolor: isDark ? '#1e3a5f' : 'primary.main',
-                                                color: isDark ? '#fff' : '#fff',
-                                                '&:hover': { bgcolor: isDark ? '#2d4a6f' : 'primary.dark' },
-                                                '&.Mui-disabled': { bgcolor: 'grey.700', color: 'grey.500' },
-                                                ml: 1,
-                                            }}
-                                        >
-                                            <Send />
-                                        </IconButton>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            {/* Microphone button */}
+                                            <IconButton
+                                                onClick={isRecording ? stopRecording : startRecording}
+                                                disabled={isTranscribing}
+                                                sx={{
+                                                    color: isRecording ? 'error.main' : (isDark ? '#aaa' : 'grey.600'),
+                                                    animation: isRecording ? 'pulse 1.5s infinite' : 'none',
+                                                    '@keyframes pulse': {
+                                                        '0%': { opacity: 1 },
+                                                        '50%': { opacity: 0.5 },
+                                                        '100%': { opacity: 1 },
+                                                    },
+                                                }}
+                                                title={isRecording ? 'Stop recording' : 'Start voice input'}
+                                            >
+                                                {isTranscribing ? (
+                                                    <CircularProgress size={24} />
+                                                ) : isRecording ? (
+                                                    <Stop />
+                                                ) : (
+                                                    <Mic />
+                                                )}
+                                            </IconButton>
+                                            {/* Send button */}
+                                            <IconButton
+                                                onClick={sendMessage}
+                                                disabled={isLoading || !input.trim()}
+                                                sx={{
+                                                    bgcolor: isDark ? '#1e3a5f' : 'primary.main',
+                                                    color: isDark ? '#fff' : '#fff',
+                                                    '&:hover': { bgcolor: isDark ? '#2d4a6f' : 'primary.dark' },
+                                                    '&.Mui-disabled': { bgcolor: 'grey.700', color: 'grey.500' },
+                                                    ml: 1,
+                                                }}
+                                            >
+                                                <Send />
+                                            </IconButton>
+                                        </Box>
                                     ),
                                 }}
                             />

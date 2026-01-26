@@ -42,6 +42,9 @@ class Settings(BaseSettings):
     admin_username: str | None = None
     admin_password: str | None = None
 
+    # Speech Configuration
+    tts_voice: str = "en-US-Neural2-F"  # Google Cloud TTS voice
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",")]

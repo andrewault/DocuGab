@@ -112,3 +112,9 @@ alembic/versions/__pycache__/
 .Python
 *.manifest
 *.spec
+
+# Credentials
+credentials
+
+# Google Cloud credentials
+credentials/
