@@ -100,15 +100,12 @@ async def synthesize_for_avatar(text: str, voice: Optional[str] = None) -> dict:
     # Use configured voice or default  
     voice_name = voice or getattr(settings, 'tts_voice', 'en-US-Neural2-F')
     
-    # Create SSML with word marks for timing
     words = text.split()
-    ssml_parts = ['<speak>']
-    for i, word in enumerate(words):
-        ssml_parts.append(f'<mark name="{i}"/>{word} ')
-    ssml_parts.append('</speak>')
-    ssml_text = ''.join(ssml_parts)
-    
-    synthesis_input = texttospeech.SynthesisInput(ssml=ssml_text)
+
+    # Create SSML with word marks for timing
+    # Use plain text for synthesis (Studio voices don't support SSML marks)
+    # We estimate timepoints manually below anyway
+    synthesis_input = texttospeech.SynthesisInput(text=text)
     
     voice_params = texttospeech.VoiceSelectionParams(
         language_code="en-US",
