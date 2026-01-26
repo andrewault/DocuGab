@@ -119,3 +119,6 @@ credentials
 
 # Google Cloud credentials
 credentials/
+
+# Screenshots
+screenshots/
