@@ -55,7 +55,7 @@ async def generate_response(
     llm = get_llm()
     async for chunk in llm.astream(messages):
         if chunk.content:
-            yield chunk.content
+            yield str(chunk.content)
     
     # Append sources with UUIDs for linking
     yield "\n\n**Sources:**\n"

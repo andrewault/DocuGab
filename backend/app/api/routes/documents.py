@@ -1,7 +1,6 @@
 from pathlib import Path
 from uuid import UUID
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, BackgroundTasks
-from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

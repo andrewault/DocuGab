@@ -8,7 +8,7 @@ Create Date: 2026-01-25
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
-from pgvector.sqlalchemy import Vector
+from pgvector.sqlalchemy import Vector  # type: ignore
 
 
 # revision identifiers, used by Alembic.

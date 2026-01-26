@@ -50,4 +50,4 @@ class Settings(BaseSettings):
         return [origin.strip() for origin in self.cors_origins.split(",")]
 
 
-settings = Settings()
+settings = Settings()  # type: ignore

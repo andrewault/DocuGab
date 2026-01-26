@@ -1,7 +1,6 @@
 """
 Tests for admin endpoints.
 """
-import pytest
 from httpx import AsyncClient
 
 

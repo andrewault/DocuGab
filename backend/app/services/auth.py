@@ -138,7 +138,7 @@ async def invalidate_all_sessions(db: AsyncSession, user_id: int) -> int:
         delete(Session).where(Session.user_id == user_id)
     )
     await db.commit()
-    return result.rowcount
+    return result.rowcount  # type: ignore
 
 
 async def update_last_login(db: AsyncSession, user: User) -> None:

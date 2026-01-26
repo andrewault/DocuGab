@@ -2,7 +2,6 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Request
 from fastapi.responses import Response, JSONResponse
 from pydantic import BaseModel
-from typing import Optional, Any
 
 from app.services.speech import transcribe_audio, synthesize_speech, synthesize_for_avatar
 

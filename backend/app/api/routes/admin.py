@@ -1,5 +1,5 @@
 """Admin API routes for user management."""
-from typing import Optional
+from typing import Optional, Any
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
@@ -93,7 +93,7 @@ async def list_users(
     count_query = select(func.count(User.id))
     
     # Apply filters
-    filters = []
+    filters: list[Any] = []
     if search:
         search_filter = User.email.ilike(f"%{search}%") | User.full_name.ilike(f"%{search}%")
         filters.append(search_filter)
@@ -118,7 +118,7 @@ async def list_users(
     users = result.scalars().all()
     
     return UserListResponse(
-        users=users,
+        users=[UserResponse.model_validate(u) for u in users],
         total=total,
         page=page,
         per_page=per_page,

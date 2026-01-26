@@ -1,7 +1,6 @@
 """
 Tests for document endpoints.
 """
-import pytest
 from httpx import AsyncClient
 
 

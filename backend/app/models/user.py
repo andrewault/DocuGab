@@ -1,26 +1,33 @@
 """User model for authentication."""
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, func
-from sqlalchemy.orm import relationship
+from datetime import datetime
+from typing import TYPE_CHECKING
+from sqlalchemy import Integer, String, Boolean, DateTime, func
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.database import Base
+
+if TYPE_CHECKING:
+    from app.models.document import Document
+    from app.models.session import Session
+    from app.models.chat_message import ChatMessage
 
 
 class User(Base):
     """User account model."""
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(255), unique=True, index=True, nullable=False)
-    password_hash = Column(String(255), nullable=False)
-    full_name = Column(String(255), nullable=True)
-    avatar_url = Column(String(500), nullable=True)
-    role = Column(String(50), default="user", nullable=False)  # user, admin, superadmin
-    is_active = Column(Boolean, default=True, nullable=False)
-    is_verified = Column(Boolean, default=False, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-    last_login_at = Column(DateTime(timezone=True), nullable=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    full_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    avatar_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    role: Mapped[str] = mapped_column(String(50), default="user", nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
-    documents = relationship("Document", back_populates="owner", cascade="all, delete-orphan")
-    sessions = relationship("Session", back_populates="user", cascade="all, delete-orphan")
-    chat_messages = relationship("ChatMessage", back_populates="user", cascade="all, delete-orphan")
+    documents: Mapped[list["Document"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
+    sessions: Mapped[list["Session"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    chat_messages: Mapped[list["ChatMessage"]] = relationship(back_populates="user", cascade="all, delete-orphan")

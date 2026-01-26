@@ -19,7 +19,7 @@ def extract_text(file_path: Path) -> list[dict]:
 
 def extract_pdf(file_path: Path) -> list[dict]:
     """Extract text from PDF, page by page."""
-    reader = PdfReader(file_path)
+    reader = PdfReader(str(file_path))
     pages = []
     for i, page in enumerate(reader.pages, 1):
         text = page.extract_text() or ""
@@ -30,7 +30,7 @@ def extract_pdf(file_path: Path) -> list[dict]:
 
 def extract_docx(file_path: Path) -> list[dict]:
     """Extract text from DOCX document."""
-    doc = DocxDocument(file_path)
+    doc = DocxDocument(str(file_path))
     text = "\n".join(p.text for p in doc.paragraphs)
     return [{"page": 1, "content": text}]
 

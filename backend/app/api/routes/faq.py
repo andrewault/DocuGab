@@ -46,7 +46,7 @@ async def list_faqs(
     """List FAQs (public endpoint)."""
     query = select(FAQ).order_by(FAQ.order, FAQ.id)
     if not include_inactive:
-        query = query.where(FAQ.is_active == True)
+        query = query.where(FAQ.is_active)
     
     result = await db.execute(query)
     faqs = result.scalars().all()
