@@ -211,6 +211,33 @@ export default function Chat() {
         localStorage.setItem('docutok_tts_voice', voice);
     };
 
+    // Avatar selection
+    const AVATAR_OPTIONS = [
+        { value: '/assets/avatar.glb', label: 'Default (Business)' },
+        { value: 'custom', label: 'Custom URL' }
+    ];
+
+    const [selectedAvatar, setSelectedAvatar] = useState(() => {
+        return localStorage.getItem('docutok_avatar_selection') || '/assets/avatar.glb';
+    });
+
+    const [customAvatarUrl, setCustomAvatarUrl] = useState(() => {
+        return localStorage.getItem('docutok_custom_avatar_url') || '';
+    });
+
+    const handleAvatarChange = (value: string) => {
+        setSelectedAvatar(value);
+        localStorage.setItem('docutok_avatar_selection', value);
+    };
+
+    const handleCustomUrlChange = (url: string) => {
+        setCustomAvatarUrl(url);
+        localStorage.setItem('docutok_custom_avatar_url', url);
+    };
+
+    // Determine actual URL to pass to component
+    const activeAvatarUrl = selectedAvatar === 'custom' ? customAvatarUrl : selectedAvatar;
+
     // Start recording audio
     const startRecording = async () => {
         try {
@@ -328,7 +355,7 @@ export default function Chat() {
             const res = await fetch(`${API_BASE}/api/speech/synthesize`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text }),
+                body: JSON.stringify({ text, voice: selectedVoice }),
             });
 
             if (res.ok) {
@@ -497,22 +524,52 @@ export default function Chat() {
                             sx={{ mt: 1 }}
                         />
 
-                        {/* Voice Selection - shown when animation enabled */}
+                        {/* Voice Selection - Always visible */}
+                        <FormControl size="small" fullWidth sx={{ mt: 1 }}>
+                            <InputLabel>Voice</InputLabel>
+                            <Select
+                                value={selectedVoice}
+                                label="Voice"
+                                onChange={(e) => handleVoiceChange(e.target.value)}
+                            >
+                                {VOICE_OPTIONS.map((voice) => (
+                                    <MenuItem key={voice.value} value={voice.value}>
+                                        {voice.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
+                        {/* Avatar Selection - shown when animation enabled */}
                         {animationEnabled && (
-                            <FormControl size="small" fullWidth sx={{ mt: 1 }}>
-                                <InputLabel>Voice</InputLabel>
-                                <Select
-                                    value={selectedVoice}
-                                    label="Voice"
-                                    onChange={(e) => handleVoiceChange(e.target.value)}
-                                >
-                                    {VOICE_OPTIONS.map((voice) => (
-                                        <MenuItem key={voice.value} value={voice.value}>
-                                            {voice.label}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
+                            <>
+                                <FormControl size="small" fullWidth sx={{ mt: 2 }}>
+                                    <InputLabel>Avatar</InputLabel>
+                                    <Select
+                                        value={selectedAvatar}
+                                        label="Avatar"
+                                        onChange={(e) => handleAvatarChange(e.target.value)}
+                                    >
+                                        {AVATAR_OPTIONS.map((avatar) => (
+                                            <MenuItem key={avatar.value} value={avatar.value}>
+                                                {avatar.label}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+
+                                {selectedAvatar === 'custom' && (
+                                    <TextField
+                                        size="small"
+                                        fullWidth
+                                        sx={{ mt: 2 }}
+                                        label="Ready Player Me URL"
+                                        value={customAvatarUrl}
+                                        onChange={(e) => handleCustomUrlChange(e.target.value)}
+                                        placeholder="https://models.readyplayer.me/..."
+                                    />
+                                )}
+                            </>
                         )}
 
                         <Box sx={{ flexGrow: 1 }} />
@@ -561,6 +618,7 @@ export default function Chat() {
                                     <TalkingHeadAvatar
                                         text={playingMessageText}
                                         voice={selectedVoice}
+                                        avatarUrl={activeAvatarUrl}
                                         isPlaying={playingMessageIndex !== null && !isSynthesizing}
                                     />
                                 </Paper>

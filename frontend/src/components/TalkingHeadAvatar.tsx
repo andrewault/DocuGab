@@ -12,6 +12,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 interface TalkingHeadAvatarProps {
     text?: string;  // Text to speak and lip-sync
     voice?: string; // TTS voice name
+    avatarUrl?: string; // URL of the GLB model
     isPlaying?: boolean;
 }
 
@@ -29,7 +30,7 @@ interface TalkingHeadInstance {
     audioCtx: AudioContext;
 }
 
-export default function TalkingHeadAvatar({ text, voice, isPlaying }: TalkingHeadAvatarProps) {
+export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }: TalkingHeadAvatarProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const headRef = useRef<TalkingHeadInstance | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -70,7 +71,7 @@ export default function TalkingHeadAvatar({ text, voice, isPlaying }: TalkingHea
 
                 // Load avatar
                 await head.showAvatar({
-                    url: '/assets/avatar.glb',
+                    url: avatarUrl || '/assets/avatar.glb',
                     body: 'M',
                     lipsyncLang: 'en',
                 });
@@ -99,6 +100,30 @@ export default function TalkingHeadAvatar({ text, voice, isPlaying }: TalkingHea
             }
         };
     }, []);
+
+    // Handle avatar change
+    useEffect(() => {
+        if (!headRef.current || !avatarUrl) return;
+
+        const loadNewAvatar = async () => {
+            setIsLoading(true);
+            try {
+                // @ts-ignore
+                await headRef.current.showAvatar({
+                    url: avatarUrl,
+                    body: 'M',
+                    lipsyncLang: 'en',
+                });
+            } catch (err: any) {
+                console.error('Failed to change avatar:', err);
+                setError(err.message || 'Failed to change avatar');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadNewAvatar();
+    }, [avatarUrl]);
 
     // Handle lip-sync when text changes and isPlaying is true
     useEffect(() => {
