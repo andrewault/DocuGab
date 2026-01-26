@@ -20,11 +20,11 @@ class Settings(BaseSettings):
 
     # API
     api_host: str = "0.0.0.0"
-    backend_port: int = 8000
+    backend_port: int = 8007  # Match .env default
     debug: bool = False
 
     # CORS
-    cors_origins: str = "http://localhost:5173"
+    cors_origins: str = "http://localhost:5177"  # Match .env default
 
     # Ollama Configuration
     ollama_base_url: str = "http://localhost:11434"
