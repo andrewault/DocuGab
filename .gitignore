@@ -74,6 +74,7 @@ logs/
 *.db
 *.sqlite
 *.sqlite3
+dbbackups/
 
 # Uploads (generated content)
 uploads/
