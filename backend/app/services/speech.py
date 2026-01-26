@@ -1,4 +1,5 @@
 """Speech services for STT and TTS using Google Cloud APIs."""
+import base64
 from typing import Optional
 
 from app.core.config import settings
@@ -75,3 +76,70 @@ async def synthesize_speech(text: str, voice: Optional[str] = None) -> bytes:
     )
     
     return response.audio_content
+
+
+async def synthesize_for_avatar(text: str, voice: Optional[str] = None) -> dict:
+    """
+    Convert text to speech and return in TalkingHead compatible format.
+    
+    Returns JSON with:
+    - audioContent: base64 encoded MP3 audio
+    - timepoints: estimated word timing markers
+    
+    Args:
+        text: Text to convert to speech
+        voice: Voice name (optional)
+    
+    Returns:
+        Dict with audioContent and timepoints for TalkingHead
+    """
+    from google.cloud import texttospeech
+    
+    client = texttospeech.TextToSpeechClient()
+    
+    # Use configured voice or default  
+    voice_name = voice or getattr(settings, 'tts_voice', 'en-US-Neural2-F')
+    
+    # Create SSML with word marks for timing
+    words = text.split()
+    ssml_parts = ['<speak>']
+    for i, word in enumerate(words):
+        ssml_parts.append(f'<mark name="{i}"/>{word} ')
+    ssml_parts.append('</speak>')
+    ssml_text = ''.join(ssml_parts)
+    
+    synthesis_input = texttospeech.SynthesisInput(ssml=ssml_text)
+    
+    voice_params = texttospeech.VoiceSelectionParams(
+        language_code="en-US",
+        name=voice_name,
+    )
+    
+    audio_config = texttospeech.AudioConfig(
+        audio_encoding=texttospeech.AudioEncoding.MP3,
+        speaking_rate=1.0,
+    )
+    
+    response = client.synthesize_speech(
+        input=synthesis_input,
+        voice=voice_params,
+        audio_config=audio_config,
+    )
+    
+    # Calculate estimated timepoints (Google doesn't always return them)
+    # Estimate ~150ms per word on average
+    timepoints = []
+    estimated_time = 0.0
+    for i, word in enumerate(words):
+        timepoints.append({
+            "markName": str(i),
+            "timeSeconds": estimated_time
+        })
+        # Estimate duration based on word length
+        word_duration = max(0.15, len(word) * 0.06)
+        estimated_time += word_duration
+    
+    return {
+        "audioContent": base64.b64encode(response.audio_content).decode('utf-8'),
+        "timepoints": timepoints
+    }

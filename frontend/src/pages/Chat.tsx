@@ -3,12 +3,14 @@ import {
     Box, Paper, TextField, IconButton,
     Typography, CircularProgress, Divider,
     Select, MenuItem, FormControl, InputLabel, useTheme, Link,
-    Button, Dialog, DialogTitle, DialogContent, DialogActions
+    Button, Dialog, DialogTitle, DialogContent, DialogActions,
+    Checkbox, FormControlLabel
 } from '@mui/material';
 import { Send, Forum, Delete, Mic, Stop, VolumeUp } from '@mui/icons-material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../context/AuthContext';
+import TalkingHeadAvatar from '../components/TalkingHeadAvatar';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -175,8 +177,39 @@ export default function Chat() {
 
     // Text-to-Speech state
     const [playingMessageIndex, setPlayingMessageIndex] = useState<number | null>(null);
+    const [playingMessageText, setPlayingMessageText] = useState<string>('');
     const [isSynthesizing, setIsSynthesizing] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    // Animation state (talking head avatar)
+    const [animationEnabled, setAnimationEnabled] = useState(() => {
+        return localStorage.getItem('docutok_animation_enabled') === 'true';
+    });
+
+    const toggleAnimation = () => {
+        const newValue = !animationEnabled;
+        setAnimationEnabled(newValue);
+        localStorage.setItem('docutok_animation_enabled', String(newValue));
+    };
+
+    // Voice selection for TTS
+    const VOICE_OPTIONS = [
+        { value: 'en-US-Neural2-F', label: 'Female (Neural)' },
+        { value: 'en-US-Neural2-D', label: 'Male (Neural)' },
+        { value: 'en-US-Wavenet-F', label: 'Female (Wavenet)' },
+        { value: 'en-US-Wavenet-D', label: 'Male (Wavenet)' },
+        { value: 'en-US-Studio-O', label: 'Female (Studio)' },
+        { value: 'en-US-Studio-M', label: 'Male (Studio)' },
+    ];
+
+    const [selectedVoice, setSelectedVoice] = useState(() => {
+        return localStorage.getItem('docutok_tts_voice') || 'en-US-Neural2-F';
+    });
+
+    const handleVoiceChange = (voice: string) => {
+        setSelectedVoice(voice);
+        localStorage.setItem('docutok_tts_voice', voice);
+    };
 
     // Start recording audio
     const startRecording = async () => {
@@ -275,10 +308,20 @@ export default function Chat() {
 
         if (playingMessageIndex === messageIndex && !isSynthesizing) {
             setPlayingMessageIndex(null);
+            setPlayingMessageText('');
             return;
         }
 
         setPlayingMessageIndex(messageIndex);
+        setPlayingMessageText(text);
+
+        // If animation is enabled, TalkingHead handles audio via speakText
+        if (animationEnabled) {
+            setIsSynthesizing(false);
+            return;
+        }
+
+        // Otherwise, play audio externally
         setIsSynthesizing(true);
 
         try {
@@ -296,6 +339,7 @@ export default function Chat() {
 
                 audio.onended = () => {
                     setPlayingMessageIndex(null);
+                    setPlayingMessageText('');
                     URL.revokeObjectURL(audioUrl);
                 };
 
@@ -440,6 +484,37 @@ export default function Chat() {
                             </Select>
                         </FormControl>
 
+                        {/* Animation Toggle */}
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={animationEnabled}
+                                    onChange={toggleAnimation}
+                                    size="small"
+                                />
+                            }
+                            label="Animation"
+                            sx={{ mt: 1 }}
+                        />
+
+                        {/* Voice Selection - shown when animation enabled */}
+                        {animationEnabled && (
+                            <FormControl size="small" fullWidth sx={{ mt: 1 }}>
+                                <InputLabel>Voice</InputLabel>
+                                <Select
+                                    value={selectedVoice}
+                                    label="Voice"
+                                    onChange={(e) => handleVoiceChange(e.target.value)}
+                                >
+                                    {VOICE_OPTIONS.map((voice) => (
+                                        <MenuItem key={voice.value} value={voice.value}>
+                                            {voice.label}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        )}
+
                         <Box sx={{ flexGrow: 1 }} />
 
                         <Button
@@ -454,209 +529,250 @@ export default function Chat() {
                         </Button>
                     </Paper>
 
-                    {/* Chat Content - directly on background */}
+                    {/* Main Content Area - Avatar Panel + Chat */}
                     <Box
                         sx={{
                             flex: 1,
                             display: 'flex',
-                            flexDirection: 'column',
-                            overflow: 'hidden'
+                            flexDirection: 'row',
+                            overflow: 'hidden',
+                            gap: 2,
                         }}
                     >
-
-                        {/* Messages */}
-                        <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
-                            {messages.length === 0 && (
-                                <Box sx={{ textAlign: 'center', color: 'text.secondary', mt: 4 }}>
-                                    <Typography variant="h6" gutterBottom>
-                                        Ask a question about your documents
-                                    </Typography>
-                                    <Typography variant="body2">
-                                        Upload documents first, then ask questions here.
-                                    </Typography>
-                                </Box>
-                            )}
-
-                            {messages.map((msg, i) => (
-                                <Box
-                                    key={i}
+                        {/* Avatar Panel - shown when animation enabled */}
+                        {animationEnabled && (
+                            <Box
+                                sx={{
+                                    width: { xs: '100%', md: '28%' },
+                                    display: { xs: 'none', md: 'flex' },
+                                    flexDirection: 'column',
+                                    p: 2,
+                                }}
+                            >
+                                <Paper
+                                    elevation={0}
                                     sx={{
-                                        mb: 2,
-                                        display: 'flex',
-                                        justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start'
+                                        flex: 1,
+                                        bgcolor: isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(248, 250, 252, 0.8)',
+                                        borderRadius: 3,
+                                        overflow: 'hidden',
                                     }}
                                 >
-                                    <Paper
-                                        elevation={1}
+                                    <TalkingHeadAvatar
+                                        text={playingMessageText}
+                                        voice={selectedVoice}
+                                        isPlaying={playingMessageIndex !== null && !isSynthesizing}
+                                    />
+                                </Paper>
+                            </Box>
+                        )}
+
+                        {/* Chat Content */}
+                        <Box
+                            sx={{
+                                flex: 1,
+                                width: animationEnabled ? { xs: '100%', md: '72%' } : '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                overflow: 'hidden'
+                            }}
+                        >
+
+                            {/* Messages */}
+                            <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+                                {messages.length === 0 && (
+                                    <Box sx={{ textAlign: 'center', color: 'text.secondary', mt: 4 }}>
+                                        <Typography variant="h6" gutterBottom>
+                                            Ask a question about your documents
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            Upload documents first, then ask questions here.
+                                        </Typography>
+                                    </Box>
+                                )}
+
+                                {messages.map((msg, i) => (
+                                    <Box
+                                        key={i}
                                         sx={{
-                                            p: 2,
-                                            maxWidth: '80%',
-                                            bgcolor: msg.role === 'user'
-                                                ? 'primary.dark'
-                                                : isDark ? 'grey.800' : 'grey.100',
-                                            borderRadius: 2,
+                                            mb: 2,
+                                            display: 'flex',
+                                            justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start'
                                         }}
                                     >
-                                        {msg.role === 'user' ? (
-                                            <Typography
-                                                variant="body1"
-                                                sx={{ whiteSpace: 'pre-wrap', color: '#fff' }}
-                                            >
-                                                {msg.content}
-                                            </Typography>
-                                        ) : (
-                                            <Box
-                                                sx={{
-                                                    position: 'relative',  // Needed for speaker button positioning
-                                                    '& p': { m: 0, mb: 1 },
-                                                    '& p:last-child': { mb: 0 },
-                                                    '& a': { color: isDark ? '#f97316' : '#2563eb', textDecoration: 'underline', cursor: 'pointer' },
-                                                    '& strong': { fontWeight: 600 },
-                                                    '& ul, & ol': { pl: 3, my: 1 },
-                                                    '& code': {
-                                                        bgcolor: isDark ? 'grey.900' : 'grey.200',
-                                                        px: 0.5,
-                                                        borderRadius: 0.5,
-                                                        fontFamily: 'monospace',
-                                                    },
-                                                    '& pre': {
-                                                        bgcolor: isDark ? 'grey.900' : 'grey.200',
-                                                        p: 1,
-                                                        borderRadius: 1,
-                                                        overflow: 'auto',
-                                                    },
-                                                }}
-                                            >
-                                                <ReactMarkdown
-                                                    components={{
-                                                        a: ({ href, children }) => {
-                                                            // Check if it's an internal document link
-                                                            if (href?.startsWith('/documents/')) {
-                                                                return (
-                                                                    <Link
-                                                                        component={RouterLink}
-                                                                        to={href}
-                                                                        sx={{ cursor: 'pointer' }}
-                                                                    >
-                                                                        {children}
-                                                                    </Link>
-                                                                );
-                                                            }
-                                                            return <a href={href}>{children}</a>;
+                                        <Paper
+                                            elevation={1}
+                                            sx={{
+                                                p: 2,
+                                                maxWidth: '80%',
+                                                bgcolor: msg.role === 'user'
+                                                    ? 'primary.dark'
+                                                    : isDark ? 'grey.800' : 'grey.100',
+                                                borderRadius: 2,
+                                            }}
+                                        >
+                                            {msg.role === 'user' ? (
+                                                <Typography
+                                                    variant="body1"
+                                                    sx={{ whiteSpace: 'pre-wrap', color: '#fff' }}
+                                                >
+                                                    {msg.content}
+                                                </Typography>
+                                            ) : (
+                                                <Box
+                                                    sx={{
+                                                        position: 'relative',  // Needed for speaker button positioning
+                                                        '& p': { m: 0, mb: 1 },
+                                                        '& p:last-child': { mb: 0 },
+                                                        '& a': { color: isDark ? '#f97316' : '#2563eb', textDecoration: 'underline', cursor: 'pointer' },
+                                                        '& strong': { fontWeight: 600 },
+                                                        '& ul, & ol': { pl: 3, my: 1 },
+                                                        '& code': {
+                                                            bgcolor: isDark ? 'grey.900' : 'grey.200',
+                                                            px: 0.5,
+                                                            borderRadius: 0.5,
+                                                            fontFamily: 'monospace',
+                                                        },
+                                                        '& pre': {
+                                                            bgcolor: isDark ? 'grey.900' : 'grey.200',
+                                                            p: 1,
+                                                            borderRadius: 1,
+                                                            overflow: 'auto',
                                                         },
                                                     }}
                                                 >
-                                                    {msg.content || (isLoading && i === messages.length - 1 ? '...' : '')}
-                                                </ReactMarkdown>
-                                                {/* Speaker button for TTS */}
-                                                {msg.content && !isLoading && (
-                                                    <IconButton
-                                                        size="small"
-                                                        onClick={() => playAssistantAudio(msg.content, i)}
-                                                        disabled={isSynthesizing && playingMessageIndex === i}
-                                                        sx={{
-                                                            position: 'absolute',
-                                                            bottom: 4,
-                                                            right: 4,
-                                                            opacity: playingMessageIndex === i ? 1 : 0.6,
-                                                            '&:hover': { opacity: 1 },
-                                                            color: playingMessageIndex === i && !isSynthesizing ? 'error.main' : 'inherit',
+                                                    <ReactMarkdown
+                                                        components={{
+                                                            a: ({ href, children }) => {
+                                                                // Check if it's an internal document link
+                                                                if (href?.startsWith('/documents/')) {
+                                                                    return (
+                                                                        <Link
+                                                                            component={RouterLink}
+                                                                            to={href}
+                                                                            sx={{ cursor: 'pointer' }}
+                                                                        >
+                                                                            {children}
+                                                                        </Link>
+                                                                    );
+                                                                }
+                                                                return <a href={href}>{children}</a>;
+                                                            },
                                                         }}
-                                                        title={
-                                                            isSynthesizing && playingMessageIndex === i
-                                                                ? 'Loading...'
-                                                                : playingMessageIndex === i
-                                                                    ? 'Stop playback'
-                                                                    : 'Listen to response'
-                                                        }
                                                     >
-                                                        {isSynthesizing && playingMessageIndex === i ? (
-                                                            <CircularProgress size={18} color="inherit" />
-                                                        ) : playingMessageIndex === i ? (
-                                                            <Stop fontSize="small" />
-                                                        ) : (
-                                                            <VolumeUp fontSize="small" />
-                                                        )}
-                                                    </IconButton>
-                                                )}
+                                                        {msg.content || (isLoading && i === messages.length - 1 ? '...' : '')}
+                                                    </ReactMarkdown>
+                                                    {/* Speaker button for TTS */}
+                                                    {msg.content && !isLoading && (
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={() => playAssistantAudio(msg.content, i)}
+                                                            disabled={isSynthesizing && playingMessageIndex === i}
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                bottom: 4,
+                                                                right: 4,
+                                                                opacity: playingMessageIndex === i ? 1 : 0.6,
+                                                                '&:hover': { opacity: 1 },
+                                                                color: playingMessageIndex === i && !isSynthesizing ? 'error.main' : 'inherit',
+                                                            }}
+                                                            title={
+                                                                isSynthesizing && playingMessageIndex === i
+                                                                    ? 'Loading...'
+                                                                    : playingMessageIndex === i
+                                                                        ? 'Stop playback'
+                                                                        : 'Listen to response'
+                                                            }
+                                                        >
+                                                            {isSynthesizing && playingMessageIndex === i ? (
+                                                                <CircularProgress size={18} color="inherit" />
+                                                            ) : playingMessageIndex === i ? (
+                                                                <Stop fontSize="small" />
+                                                            ) : (
+                                                                <VolumeUp fontSize="small" />
+                                                            )}
+                                                        </IconButton>
+                                                    )}
+                                                </Box>
+                                            )}
+                                        </Paper>
+                                    </Box>
+                                ))}
+
+                                {isLoading && messages[messages.length - 1]?.content === '' && (
+                                    <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
+                                        <CircularProgress size={24} />
+                                    </Box>
+                                )}
+
+                                <div ref={messagesEndRef} />
+                            </Box>
+
+                            {/* Input */}
+                            <Divider />
+                            <Box sx={{ p: 2 }}>
+                                <TextField
+                                    fullWidth
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                                    placeholder="Ask a question about your documents..."
+                                    disabled={isLoading}
+                                    multiline
+                                    maxRows={4}
+                                    sx={{
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 3,
+                                            pr: 1,
+                                        }
+                                    }}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                {/* Microphone button */}
+                                                <IconButton
+                                                    onClick={isRecording ? stopRecording : startRecording}
+                                                    disabled={isTranscribing}
+                                                    sx={{
+                                                        color: isRecording ? 'error.main' : (isDark ? '#aaa' : 'grey.600'),
+                                                        animation: isRecording ? 'pulse 1.5s infinite' : 'none',
+                                                        '@keyframes pulse': {
+                                                            '0%': { opacity: 1 },
+                                                            '50%': { opacity: 0.5 },
+                                                            '100%': { opacity: 1 },
+                                                        },
+                                                    }}
+                                                    title={isRecording ? 'Stop recording' : 'Start voice input'}
+                                                >
+                                                    {isTranscribing ? (
+                                                        <CircularProgress size={24} />
+                                                    ) : isRecording ? (
+                                                        <Stop />
+                                                    ) : (
+                                                        <Mic />
+                                                    )}
+                                                </IconButton>
+                                                {/* Send button */}
+                                                <IconButton
+                                                    onClick={sendMessage}
+                                                    disabled={isLoading || !input.trim()}
+                                                    sx={{
+                                                        bgcolor: isDark ? '#1e3a5f' : 'primary.main',
+                                                        color: isDark ? '#fff' : '#fff',
+                                                        '&:hover': { bgcolor: isDark ? '#2d4a6f' : 'primary.dark' },
+                                                        '&.Mui-disabled': { bgcolor: 'grey.700', color: 'grey.500' },
+                                                        ml: 1,
+                                                    }}
+                                                >
+                                                    <Send />
+                                                </IconButton>
                                             </Box>
-                                        )}
-                                    </Paper>
-                                </Box>
-                            ))}
-
-                            {isLoading && messages[messages.length - 1]?.content === '' && (
-                                <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
-                                    <CircularProgress size={24} />
-                                </Box>
-                            )}
-
-                            <div ref={messagesEndRef} />
+                                        ),
+                                    }}
+                                />
+                            </Box>
                         </Box>
-
-                        {/* Input */}
-                        <Divider />
-                        <Box sx={{ p: 2 }}>
-                            <TextField
-                                fullWidth
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                                placeholder="Ask a question about your documents..."
-                                disabled={isLoading}
-                                multiline
-                                maxRows={4}
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        borderRadius: 3,
-                                        pr: 1,
-                                    }
-                                }}
-                                InputProps={{
-                                    endAdornment: (
-                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                            {/* Microphone button */}
-                                            <IconButton
-                                                onClick={isRecording ? stopRecording : startRecording}
-                                                disabled={isTranscribing}
-                                                sx={{
-                                                    color: isRecording ? 'error.main' : (isDark ? '#aaa' : 'grey.600'),
-                                                    animation: isRecording ? 'pulse 1.5s infinite' : 'none',
-                                                    '@keyframes pulse': {
-                                                        '0%': { opacity: 1 },
-                                                        '50%': { opacity: 0.5 },
-                                                        '100%': { opacity: 1 },
-                                                    },
-                                                }}
-                                                title={isRecording ? 'Stop recording' : 'Start voice input'}
-                                            >
-                                                {isTranscribing ? (
-                                                    <CircularProgress size={24} />
-                                                ) : isRecording ? (
-                                                    <Stop />
-                                                ) : (
-                                                    <Mic />
-                                                )}
-                                            </IconButton>
-                                            {/* Send button */}
-                                            <IconButton
-                                                onClick={sendMessage}
-                                                disabled={isLoading || !input.trim()}
-                                                sx={{
-                                                    bgcolor: isDark ? '#1e3a5f' : 'primary.main',
-                                                    color: isDark ? '#fff' : '#fff',
-                                                    '&:hover': { bgcolor: isDark ? '#2d4a6f' : 'primary.dark' },
-                                                    '&.Mui-disabled': { bgcolor: 'grey.700', color: 'grey.500' },
-                                                    ml: 1,
-                                                }}
-                                            >
-                                                <Send />
-                                            </IconButton>
-                                        </Box>
-                                    ),
-                                }}
-                            />
-                        </Box>
+                        {/* End Chat Content */}
                     </Box>
                 </Box>
             </Box>
