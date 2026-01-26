@@ -9,9 +9,11 @@ afterEach(() => {
 
 // Mock window.scrollTo
 Object.defineProperty(window, 'scrollTo', {
-    value: vi.fn(),
     writable: true,
 });
+
+// Mock Element.prototype.scrollIntoView
+Element.prototype.scrollIntoView = vi.fn();
 
 // Mock matchMedia for theme detection
 Object.defineProperty(window, 'matchMedia', {

@@ -808,6 +808,7 @@ export default function Chat() {
                                                 {/* Send button */}
                                                 <IconButton
                                                     onClick={sendMessage}
+                                                    aria-label="Send message"
                                                     disabled={isLoading || !input.trim()}
                                                     sx={{
                                                         bgcolor: isDark ? '#1e3a5f' : 'primary.main',
