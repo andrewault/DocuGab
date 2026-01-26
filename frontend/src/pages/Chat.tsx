@@ -609,7 +609,7 @@ export default function Chat() {
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        flex: 1,
+                                        height: '75%',
                                         bgcolor: isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(248, 250, 252, 0.8)',
                                         borderRadius: 3,
                                         overflow: 'hidden',
