@@ -32,11 +32,21 @@ def document_to_dict(doc: Document) -> dict:
 
 
 @router.get("/")
-async def list_documents(db: AsyncSession = Depends(get_db)):
-    """List all uploaded documents with their status."""
-    result = await db.execute(
-        select(Document).order_by(Document.created_at.desc())
-    )
+async def list_documents(
+    project_id: int | None = None,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    List all uploaded documents with their status.
+    
+    For multi-tenant security, pass project_id to filter documents.
+    """
+    query = select(Document).order_by(Document.created_at.desc())
+    
+    if project_id is not None:
+        query = query.where(Document.project_id == project_id)
+    
+    result = await db.execute(query)
     documents = result.scalars().all()
     
     return {
@@ -104,10 +114,25 @@ async def get_document(document_id: int, db: AsyncSession = Depends(get_db)):
 @router.post("/upload")
 async def upload_document(
     background_tasks: BackgroundTasks,
+    project_id: int,
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
 ):
-    """Upload a document and trigger async processing."""
+    """
+    Upload a document and trigger async processing.
+    
+    IMPORTANT: project_id is required for multi-tenant content isolation.
+    All documents must be associated with a project.
+    """
+    
+    # Validate project exists
+    from app.models.project import Project
+    from sqlalchemy import select
+    
+    result = await db.execute(select(Project).where(Project.id == project_id))
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail=f"Project {project_id} not found")
     
     # Validate file type
     if not file.filename:
@@ -126,13 +151,14 @@ async def upload_document(
     # Get file size
     file_size = file.size or 0
     
-    # Create document record
+    # Create document record with project_id
     document = Document(
         filename=stored_filename,
         original_filename=original_filename,
         content_type=file.content_type or "application/octet-stream",
         file_size=file_size,
-        status="pending"
+        status="pending",
+        project_id=project_id  # Associate with project
     )
     db.add(document)
     await db.commit()
@@ -147,6 +173,7 @@ async def upload_document(
         "uuid": str(document.uuid),
         "filename": original_filename,
         "status": "pending",
+        "project_id": project_id,
         "message": "Document uploaded. Processing started."
     }
 

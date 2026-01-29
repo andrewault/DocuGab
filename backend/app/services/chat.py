@@ -28,12 +28,23 @@ Always cite your sources using [Source: filename, Page X] format."""
 async def generate_response(
     query: str,
     db: AsyncSession,
+    project_id: int | None = None,
     document_id: int | None = None
 ) -> AsyncGenerator[str, None]:
-    """Generate a streaming response with RAG context using Ollama."""
+    """
+    Generate a streaming response with RAG context using Ollama.
     
-    # Retrieve relevant chunks
-    chunks = await search_similar_chunks(query, db, document_id, limit=5)
+    For multi-tenant security, pass project_id to scope retrieval to project documents.
+    """
+    
+    # Retrieve relevant chunks (filtered by project_id for isolation)
+    chunks = await search_similar_chunks(
+        query, 
+        db, 
+        project_id=project_id,
+        document_id=document_id,
+        limit=5
+    )
     
     if not chunks:
         yield "I don't have any documents to search. Please upload some documents first."

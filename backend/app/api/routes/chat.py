@@ -18,6 +18,7 @@ router = APIRouter()
 
 class ChatRequest(BaseModel):
     query: str
+    project_id: int | None = None  # For multi-tenant isolation
     document_id: int | None = None
     session_id: str | None = None  # Optional session grouping
 
@@ -127,11 +128,17 @@ async def chat(
     """
     Chat with your documents using RAG.
     
+    For multi-tenant security, pass project_id to scope retrieval.
     Retrieves relevant chunks from uploaded documents and generates
     a response using the local LLM (Ollama).
     """
     return StreamingResponse(
-        generate_response(request.query, db, request.document_id),
+        generate_response(
+            request.query, 
+            db, 
+            project_id=request.project_id,
+            document_id=request.document_id
+        ),
         media_type="text/event-stream"
     )
 
@@ -144,10 +151,16 @@ async def chat_query(
     """
     Non-streaming chat endpoint.
     
+    For multi-tenant security, pass project_id to scope retrieval.
     Returns the complete response after generation.
     """
     response_parts = []
-    async for chunk in generate_response(request.query, db, request.document_id):
+    async for chunk in generate_response(
+        request.query, 
+        db, 
+        project_id=request.project_id,
+        document_id=request.document_id
+    ):
         response_parts.append(chunk)
     
     return {"response": "".join(response_parts)}
