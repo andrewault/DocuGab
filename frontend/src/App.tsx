@@ -19,6 +19,7 @@ import AdminDashboard from './pages/admin/Dashboard';
 import UserDetail from './pages/admin/UserDetail';
 import FAQManagement from './pages/admin/FAQManagement';
 import Customers from './pages/admin/Customers';
+import Projects from './pages/admin/Projects';
 
 export default function App() {
   return (
@@ -76,6 +77,11 @@ export default function App() {
           <Route path="/admin/customers" element={
             <ProtectedRoute requireAdmin>
               <Customers />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/projects" element={
+            <ProtectedRoute requireAdmin>
+              <Projects />
             </ProtectedRoute>
           } />
           <Route path="/admin/faq" element={
