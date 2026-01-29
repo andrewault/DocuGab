@@ -1,5 +1,5 @@
 import { Box, Container, Typography, Paper, Stack, useTheme } from '@mui/material';
-import { Group, QuestionAnswer } from '@mui/icons-material';
+import { Group, QuestionAnswer, Business } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 
 export default function AdminHome() {
@@ -12,6 +12,12 @@ export default function AdminHome() {
             description: 'Manage user accounts, roles, and permissions',
             icon: <Group sx={{ fontSize: 48 }} />,
             path: '/admin/users',
+        },
+        {
+            title: 'Customers',
+            description: 'Manage customer organizations and their projects',
+            icon: <Business sx={{ fontSize: 48 }} />,
+            path: '/admin/customers',
         },
         {
             title: 'FAQs',

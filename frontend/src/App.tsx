@@ -18,6 +18,7 @@ import AdminHome from './pages/admin/AdminHome';
 import AdminDashboard from './pages/admin/Dashboard';
 import UserDetail from './pages/admin/UserDetail';
 import FAQManagement from './pages/admin/FAQManagement';
+import Customers from './pages/admin/Customers';
 
 export default function App() {
   return (
@@ -70,6 +71,11 @@ export default function App() {
           <Route path="/admin/users/:id" element={
             <ProtectedRoute requireAdmin>
               <UserDetail />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customers" element={
+            <ProtectedRoute requireAdmin>
+              <Customers />
             </ProtectedRoute>
           } />
           <Route path="/admin/faq" element={
