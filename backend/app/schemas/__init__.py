@@ -14,6 +14,12 @@ from app.schemas.customer import (
     CustomerResponse,
     CustomerListResponse,
 )
+from app.schemas.project import (
+    ProjectCreate,
+    ProjectUpdate,
+    ProjectResponse,
+    ProjectListResponse,
+)
 
 __all__ = [
     "UserRegister",
@@ -27,4 +33,8 @@ __all__ = [
     "CustomerUpdate",
     "CustomerResponse",
     "CustomerListResponse",
+    "ProjectCreate",
+    "ProjectUpdate",
+    "ProjectResponse",
+    "ProjectListResponse",
 ]
