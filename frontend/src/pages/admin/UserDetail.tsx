@@ -197,7 +197,7 @@ export default function UserDetail() {
                 py: 4,
             }}
         >
-            <Container maxWidth="sm">
+            <Container maxWidth={false} sx={{ px: 3 }}>
                 <AdminBreadcrumbs items={[
                     { label: 'Users', path: '/admin/users' },
                     { label: user.email }

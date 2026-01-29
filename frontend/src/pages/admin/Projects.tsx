@@ -28,8 +28,12 @@ import {
     InputLabel,
     Tabs,
     Tab,
+    Card,
+    CardContent,
+    useTheme,
 } from '@mui/material';
 import { Add, Edit, Delete, Folder, Palette } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
@@ -118,6 +122,7 @@ const DEFAULT_FORM_DATA: ProjectFormData = {
 };
 
 export default function Projects() {
+    const navigate = useNavigate();
     const [projects, setProjects] = useState<Project[]>([]);
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [total, setTotal] = useState(0);
@@ -286,19 +291,52 @@ export default function Projects() {
         );
     };
 
-    return (
-        <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-            <AdminBreadcrumbs
-                items={[
-                    { label: 'Admin', path: '/admin' },
-                    { label: 'Projects' },
-                ]}
-            />
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
 
-            <Box sx={{ mb: 4 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-                    <Typography variant="h4" component="h1">
-                        <Folder sx={{ mr: 1, verticalAlign: 'bottom' }} />
+    const StatCard = ({ title, value, icon }: { title: string; value: number; icon: React.ReactNode }) => (
+        <Card sx={{ bgcolor: isDark ? 'rgba(30, 41, 59, 0.8)' : 'background.paper' }}>
+            <CardContent>
+                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                    <Box>
+                        <Typography color="text.secondary" variant="body2">
+                            {title}
+                        </Typography>
+                        <Typography variant="h4" fontWeight={700}>
+                            {value}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ color: 'primary.main', opacity: 0.7 }}>{icon}</Box>
+                </Stack>
+            </CardContent>
+        </Card>
+    );
+
+    return (
+        <Box
+            sx={{
+                minHeight: '100vh',
+                background: isDark
+                    ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
+                    : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
+                py: 4,
+            }}
+        >
+            <Container maxWidth={false} sx={{ px: 3 }}>
+                <AdminBreadcrumbs items={[{ label: 'Projects' }]} />
+
+                {/* Header with Title and Add Button */}
+                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+                    <Typography
+                        variant="h4"
+                        sx={{
+                            fontWeight: 700,
+                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}
+                    >
                         Projects
                     </Typography>
                     <Button
@@ -310,338 +348,369 @@ export default function Projects() {
                     </Button>
                 </Stack>
 
-                <Stack direction="row" spacing={2} mb={3}>
-                    <TextField
-                        fullWidth
-                        label="Search projects"
-                        variant="outlined"
-                        value={search}
-                        onChange={(e) => {
-                            setSearch(e.target.value);
-                            setPage(0);
-                        }}
+                {/* Stats Cards */}
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(3, 1fr)' },
+                        gap: 3,
+                        mb: 4,
+                    }}
+                >
+                    <StatCard title="Total Projects" value={total} icon={<Folder sx={{ fontSize: 40 }} />} />
+                    <StatCard
+                        title="Active Projects"
+                        value={projects.filter(p => p.is_active).length}
+                        icon={<Folder sx={{ fontSize: 40 }} />}
                     />
-                    <FormControl sx={{ minWidth: 200 }}>
-                        <InputLabel>Filter by Customer</InputLabel>
-                        <Select
-                            value={customerFilter}
-                            label="Filter by Customer"
+                    <StatCard
+                        title="Documents"
+                        value={projects.reduce((sum, p) => sum + p.documents_count, 0)}
+                        icon={<Folder sx={{ fontSize: 40 }} />}
+                    />
+                </Box>
+
+                <Box sx={{ mb: 4 }}>
+                    <Stack direction="row" spacing={2} mb={3}>
+                        <TextField
+                            fullWidth
+                            label="Search projects"
+                            variant="outlined"
+                            value={search}
                             onChange={(e) => {
-                                setCustomerFilter(e.target.value as number | '');
+                                setSearch(e.target.value);
                                 setPage(0);
                             }}
-                        >
-                            <MenuItem value="">All Customers</MenuItem>
-                            {customers.map((customer) => (
-                                <MenuItem key={customer.id} value={customer.id}>
-                                    {customer.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </Stack>
+                        />
+                        <FormControl sx={{ minWidth: 200 }}>
+                            <InputLabel>Filter by Customer</InputLabel>
+                            <Select
+                                value={customerFilter}
+                                label="Filter by Customer"
+                                onChange={(e) => {
+                                    setCustomerFilter(e.target.value as number | '');
+                                    setPage(0);
+                                }}
+                            >
+                                <MenuItem value="">All Customers</MenuItem>
+                                {customers.map((customer) => (
+                                    <MenuItem key={customer.id} value={customer.id}>
+                                        {customer.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Stack>
 
-                {error && (
-                    <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
-                        {error}
-                    </Alert>
-                )}
+                    {error && (
+                        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
+                            {error}
+                        </Alert>
+                    )}
 
-                {loading ? (
-                    <Box display="flex" justifyContent="center" py={8}>
-                        <CircularProgress />
-                    </Box>
-                ) : (
-                    <Paper elevation={2}>
-                        <TableContainer>
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>Name</TableCell>
-                                        <TableCell>Customer</TableCell>
-                                        <TableCell>Subdomain</TableCell>
-                                        <TableCell>Title</TableCell>
-                                        <TableCell>Documents</TableCell>
-                                        <TableCell>Status</TableCell>
-                                        <TableCell align="right">Actions</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {projects.length === 0 ? (
+                    {loading ? (
+                        <Box display="flex" justifyContent="center" py={8}>
+                            <CircularProgress />
+                        </Box>
+                    ) : (
+                        <Paper elevation={2}>
+                            <TableContainer>
+                                <Table>
+                                    <TableHead>
                                         <TableRow>
-                                            <TableCell colSpan={7} align="center">
-                                                <Typography color="textSecondary" py={4}>
-                                                    No projects found
-                                                </Typography>
-                                            </TableCell>
+                                            <TableCell>Name</TableCell>
+                                            <TableCell>Customer</TableCell>
+                                            <TableCell>Subdomain</TableCell>
+                                            <TableCell>Title</TableCell>
+                                            <TableCell>Documents</TableCell>
+                                            <TableCell>Status</TableCell>
+                                            <TableCell align="right">Actions</TableCell>
                                         </TableRow>
-                                    ) : (
-                                        projects.map((project) => (
-                                            <TableRow
-                                                key={project.id}
-                                                hover
-                                                sx={{ cursor: 'pointer' }}
-                                            >
-                                                <TableCell>
-                                                    <Typography fontWeight={500}>
-                                                        {project.name}
+                                    </TableHead>
+                                    <TableBody>
+                                        {projects.length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={7} align="center">
+                                                    <Typography color="textSecondary" py={4}>
+                                                        No projects found
                                                     </Typography>
-                                                    <Typography variant="caption" color="textSecondary">
-                                                        {project.slug}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {project.customer_name || '—'}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Chip
-                                                        label={project.subdomain}
-                                                        size="small"
-                                                        variant="outlined"
-                                                        sx={{
-                                                            fontFamily: 'monospace',
-                                                            fontSize: '0.75rem',
-                                                        }}
-                                                    />
-                                                </TableCell>
-                                                <TableCell>
-                                                    {project.title}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Chip
-                                                        label={project.documents_count}
-                                                        size="small"
-                                                        color="primary"
-                                                        variant="outlined"
-                                                    />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Chip
-                                                        label={project.is_active ? 'Active' : 'Inactive'}
-                                                        color={project.is_active ? 'success' : 'default'}
-                                                        size="small"
-                                                    />
-                                                </TableCell>
-                                                <TableCell align="right">
-                                                    <IconButton
-                                                        size="small"
-                                                        onClick={() => handleOpenDialog(project)}
-                                                        color="primary"
-                                                    >
-                                                        <Edit />
-                                                    </IconButton>
-                                                    <IconButton
-                                                        size="small"
-                                                        onClick={() => handleDelete(project.id)}
-                                                        color="error"
-                                                    >
-                                                        <Delete />
-                                                    </IconButton>
                                                 </TableCell>
                                             </TableRow>
-                                        ))
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                        <TablePagination
-                            component="div"
-                            count={total}
-                            page={page}
-                            onPageChange={handlePageChange}
-                            rowsPerPage={rowsPerPage}
-                            onRowsPerPageChange={handleRowsPerPageChange}
-                            rowsPerPageOptions={[5, 10, 25, 50]}
-                        />
-                    </Paper>
-                )}
-            </Box>
-
-            {/* Create/Edit Dialog */}
-            <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-                <DialogTitle>
-                    {editingProject ? 'Edit Project' : 'Add Project'}
-                </DialogTitle>
-                <DialogContent>
-                    <Tabs value={tabValue} onChange={(_e, newValue) => setTabValue(newValue)} sx={{ mb: 2 }}>
-                        <Tab label="Basic Info" />
-                        <Tab label="Branding" icon={<Palette />} iconPosition="start" />
-                        <Tab label="Advanced" />
-                    </Tabs>
-
-                    {/* Tab 0: Basic Info */}
-                    <TabPanel value={tabValue} index={0}>
-                        <Stack spacing={3}>
-                            <FormControl fullWidth required>
-                                <InputLabel>Customer</InputLabel>
-                                <Select
-                                    value={formData.customer_id}
-                                    label="Customer"
-                                    onChange={(e) => setFormData({ ...formData, customer_id: e.target.value as number })}
-                                >
-                                    {customers.map((customer) => (
-                                        <MenuItem key={customer.id} value={customer.id}>
-                                            {customer.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-
-                            <TextField
-                                fullWidth
-                                label="Project Name"
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                required
-                                helperText="e.g., Employee Handbook"
+                                        ) : (
+                                            projects.map((project) => (
+                                                <TableRow
+                                                    key={project.id}
+                                                    hover
+                                                    sx={{ cursor: 'pointer' }}
+                                                    onClick={() => navigate(`/admin/projects/${project.id}`)}
+                                                >
+                                                    <TableCell>
+                                                        <Typography fontWeight={500}>
+                                                            {project.name}
+                                                        </Typography>
+                                                        <Typography variant="caption" color="textSecondary">
+                                                            {project.slug}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {project.customer_name || '—'}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Chip
+                                                            label={project.subdomain}
+                                                            size="small"
+                                                            variant="outlined"
+                                                            sx={{
+                                                                fontFamily: 'monospace',
+                                                                fontSize: '0.75rem',
+                                                            }}
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {project.title}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Chip
+                                                            label={project.documents_count}
+                                                            size="small"
+                                                            color="primary"
+                                                            variant="outlined"
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Chip
+                                                            label={project.is_active ? 'Active' : 'Inactive'}
+                                                            color={project.is_active ? 'success' : 'default'}
+                                                            size="small"
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell align="right">
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleOpenDialog(project);
+                                                            }}
+                                                            color="primary"
+                                                        >
+                                                            <Edit />
+                                                        </IconButton>
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDelete(project.id);
+                                                            }}
+                                                            color="error"
+                                                        >
+                                                            <Delete />
+                                                        </IconButton>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                            <TablePagination
+                                component="div"
+                                count={total}
+                                page={page}
+                                onPageChange={handlePageChange}
+                                rowsPerPage={rowsPerPage}
+                                onRowsPerPageChange={handleRowsPerPageChange}
+                                rowsPerPageOptions={[5, 10, 25, 50]}
                             />
+                        </Paper>
+                    )}
+                </Box>
 
-                            <TextField
-                                fullWidth
-                                label="Slug"
-                                value={formData.slug}
-                                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                                required
-                                helperText="URL-friendly identifier (lowercase, hyphens only)"
-                            />
+                {/* Create/Edit Dialog */}
+                <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
+                    <DialogTitle>
+                        {editingProject ? 'Edit Project' : 'Add Project'}
+                    </DialogTitle>
+                    <DialogContent>
+                        <Tabs value={tabValue} onChange={(_e, newValue) => setTabValue(newValue)} sx={{ mb: 2 }}>
+                            <Tab label="Basic Info" />
+                            <Tab label="Branding" icon={<Palette />} iconPosition="start" />
+                            <Tab label="Advanced" />
+                        </Tabs>
 
-                            <TextField
-                                fullWidth
-                                label="Subdomain"
-                                value={formData.subdomain}
-                                onChange={(e) => setFormData({ ...formData, subdomain: e.target.value })}
-                                required
-                                helperText="Unique subdomain (lowercase, hyphens only)"
-                            />
+                        {/* Tab 0: Basic Info */}
+                        <TabPanel value={tabValue} index={0}>
+                            <Stack spacing={3}>
+                                <FormControl fullWidth required>
+                                    <InputLabel>Customer</InputLabel>
+                                    <Select
+                                        value={formData.customer_id}
+                                        label="Customer"
+                                        onChange={(e) => setFormData({ ...formData, customer_id: e.target.value as number })}
+                                    >
+                                        {customers.map((customer) => (
+                                            <MenuItem key={customer.id} value={customer.id}>
+                                                {customer.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
 
-                            <TextField
-                                fullWidth
-                                label="Description"
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                multiline
-                                rows={2}
-                            />
-                        </Stack>
-                    </TabPanel>
-
-                    {/* Tab 1: Branding */}
-                    <TabPanel value={tabValue} index={1}>
-                        <Stack spacing={3}>
-                            <TextField
-                                fullWidth
-                                label="Title"
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                required
-                                helperText="Chat interface title"
-                            />
-
-                            <TextField
-                                fullWidth
-                                label="Subtitle"
-                                value={formData.subtitle}
-                                onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                                helperText="Optional subtitle"
-                            />
-
-                            <TextField
-                                fullWidth
-                                label="Body Text"
-                                value={formData.body}
-                                onChange={(e) => setFormData({ ...formData, body: e.target.value })}
-                                multiline
-                                rows={3}
-                                helperText="Additional instructions or information"
-                            />
-
-                            <Stack direction="row" spacing={2}>
                                 <TextField
                                     fullWidth
-                                    type="color"
-                                    label="Primary Color"
-                                    value={formData.color_primary}
-                                    onChange={(e) => setFormData({ ...formData, color_primary: e.target.value })}
+                                    label="Project Name"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     required
+                                    helperText="e.g., Employee Handbook"
                                 />
+
                                 <TextField
                                     fullWidth
-                                    type="color"
-                                    label="Secondary Color"
-                                    value={formData.color_secondary}
-                                    onChange={(e) => setFormData({ ...formData, color_secondary: e.target.value })}
+                                    label="Slug"
+                                    value={formData.slug}
+                                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                     required
+                                    helperText="URL-friendly identifier (lowercase, hyphens only)"
                                 />
+
                                 <TextField
                                     fullWidth
-                                    type="color"
-                                    label="Background Color"
-                                    value={formData.color_background}
-                                    onChange={(e) => setFormData({ ...formData, color_background: e.target.value })}
+                                    label="Subdomain"
+                                    value={formData.subdomain}
+                                    onChange={(e) => setFormData({ ...formData, subdomain: e.target.value })}
                                     required
+                                    helperText="Unique subdomain (lowercase, hyphens only)"
+                                />
+
+                                <TextField
+                                    fullWidth
+                                    label="Description"
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    multiline
+                                    rows={2}
                                 />
                             </Stack>
+                        </TabPanel>
 
-                            <TextField
-                                fullWidth
-                                label="Logo Path"
-                                value={formData.logo}
-                                onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-                                helperText="Path to logo file (optional)"
-                            />
-                        </Stack>
-                    </TabPanel>
+                        {/* Tab 1: Branding */}
+                        <TabPanel value={tabValue} index={1}>
+                            <Stack spacing={3}>
+                                <TextField
+                                    fullWidth
+                                    label="Title"
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    required
+                                    helperText="Chat interface title"
+                                />
 
-                    {/* Tab 2: Advanced */}
-                    <TabPanel value={tabValue} index={2}>
-                        <Stack spacing={3}>
-                            <TextField
-                                fullWidth
-                                label="Avatar Path"
-                                value={formData.avatar}
-                                onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
-                                required
-                                helperText="Path to GLB avatar file"
-                            />
+                                <TextField
+                                    fullWidth
+                                    label="Subtitle"
+                                    value={formData.subtitle}
+                                    onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                                    helperText="Optional subtitle"
+                                />
 
-                            <TextField
-                                fullWidth
-                                label="Voice ID"
-                                value={formData.voice}
-                                onChange={(e) => setFormData({ ...formData, voice: e.target.value })}
-                                required
-                                helperText="Google TTS voice ID (e.g., en-US-Neural2-F)"
-                            />
+                                <TextField
+                                    fullWidth
+                                    label="Body Text"
+                                    value={formData.body}
+                                    onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+                                    multiline
+                                    rows={3}
+                                    helperText="Additional instructions or information"
+                                />
 
-                            <TextField
-                                fullWidth
-                                label="Return Link URL"
-                                value={formData.return_link}
-                                onChange={(e) => setFormData({ ...formData, return_link: e.target.value })}
-                                helperText="Optional return link override"
-                            />
+                                <Stack direction="row" spacing={2}>
+                                    <TextField
+                                        fullWidth
+                                        type="color"
+                                        label="Primary Color"
+                                        value={formData.color_primary}
+                                        onChange={(e) => setFormData({ ...formData, color_primary: e.target.value })}
+                                        required
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        type="color"
+                                        label="Secondary Color"
+                                        value={formData.color_secondary}
+                                        onChange={(e) => setFormData({ ...formData, color_secondary: e.target.value })}
+                                        required
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        type="color"
+                                        label="Background Color"
+                                        value={formData.color_background}
+                                        onChange={(e) => setFormData({ ...formData, color_background: e.target.value })}
+                                        required
+                                    />
+                                </Stack>
 
-                            <TextField
-                                fullWidth
-                                label="Return Link Text"
-                                value={formData.return_link_text}
-                                onChange={(e) => setFormData({ ...formData, return_link_text: e.target.value })}
-                                helperText="Text for return link button"
-                            />
-                        </Stack>
-                    </TabPanel>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDialog}>Cancel</Button>
-                    <Button
-                        onClick={handleSubmit}
-                        variant="contained"
-                        disabled={!isFormValid()}
-                    >
-                        {editingProject ? 'Update' : 'Create'}
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </Container>
+                                <TextField
+                                    fullWidth
+                                    label="Logo Path"
+                                    value={formData.logo}
+                                    onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+                                    helperText="Path to logo file (optional)"
+                                />
+                            </Stack>
+                        </TabPanel>
+
+                        {/* Tab 2: Advanced */}
+                        <TabPanel value={tabValue} index={2}>
+                            <Stack spacing={3}>
+                                <TextField
+                                    fullWidth
+                                    label="Avatar Path"
+                                    value={formData.avatar}
+                                    onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
+                                    required
+                                    helperText="Path to GLB avatar file"
+                                />
+
+                                <TextField
+                                    fullWidth
+                                    label="Voice ID"
+                                    value={formData.voice}
+                                    onChange={(e) => setFormData({ ...formData, voice: e.target.value })}
+                                    required
+                                    helperText="Google TTS voice ID (e.g., en-US-Neural2-F)"
+                                />
+
+                                <TextField
+                                    fullWidth
+                                    label="Return Link URL"
+                                    value={formData.return_link}
+                                    onChange={(e) => setFormData({ ...formData, return_link: e.target.value })}
+                                    helperText="Optional return link override"
+                                />
+
+                                <TextField
+                                    fullWidth
+                                    label="Return Link Text"
+                                    value={formData.return_link_text}
+                                    onChange={(e) => setFormData({ ...formData, return_link_text: e.target.value })}
+                                    helperText="Text for return link button"
+                                />
+                            </Stack>
+                        </TabPanel>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseDialog}>Cancel</Button>
+                        <Button
+                            onClick={handleSubmit}
+                            variant="contained"
+                            disabled={!isFormValid()}
+                        >
+                            {editingProject ? 'Update' : 'Create'}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </Container >
+        </Box >
     );
 }

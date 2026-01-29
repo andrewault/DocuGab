@@ -43,7 +43,7 @@ export default function AdminHome() {
                     : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)',
             }}
         >
-            <Container maxWidth="md">
+            <Container maxWidth={false} sx={{ px: 3 }}>
                 <Typography
                     variant="h4"
                     mb={4}

@@ -135,7 +135,7 @@ export default function AdminDashboard() {
                 py: 4,
             }}
         >
-            <Container maxWidth="lg">
+            <Container maxWidth={false} sx={{ px: 3 }}>
                 <AdminBreadcrumbs items={[{ label: 'Users' }]} />
                 <Typography
                     variant="h4"

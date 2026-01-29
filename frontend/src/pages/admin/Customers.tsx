@@ -22,8 +22,12 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
+    Card,
+    CardContent,
+    useTheme,
 } from '@mui/material';
 import { Add, Edit, Delete, Business } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
@@ -46,6 +50,7 @@ interface CustomerFormData {
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function Customers() {
+    const navigate = useNavigate();
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [total, setTotal] = useState(0);
     const [page, setPage] = useState(0);
@@ -170,19 +175,52 @@ export default function Customers() {
         }
     };
 
-    return (
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <AdminBreadcrumbs
-                items={[
-                    { label: 'Admin', path: '/admin' },
-                    { label: 'Customers' },
-                ]}
-            />
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
 
-            <Box sx={{ mb: 4 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-                    <Typography variant="h4" component="h1">
-                        <Business sx={{ mr: 1, verticalAlign: 'bottom' }} />
+    const StatCard = ({ title, value, icon }: { title: string; value: number; icon: React.ReactNode }) => (
+        <Card sx={{ bgcolor: isDark ? 'rgba(30, 41, 59, 0.8)' : 'background.paper' }}>
+            <CardContent>
+                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                    <Box>
+                        <Typography color="text.secondary" variant="body2">
+                            {title}
+                        </Typography>
+                        <Typography variant="h4" fontWeight={700}>
+                            {value}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ color: 'primary.main', opacity: 0.7 }}>{icon}</Box>
+                </Stack>
+            </CardContent>
+        </Card>
+    );
+
+    return (
+        <Box
+            sx={{
+                minHeight: '100vh',
+                background: isDark
+                    ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
+                    : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
+                py: 4,
+            }}
+        >
+            <Container maxWidth={false} sx={{ px: 3 }}>
+                <AdminBreadcrumbs items={[{ label: 'Customers' }]} />
+
+                {/* Header with Title and Add Button */}
+                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+                    <Typography
+                        variant="h4"
+                        sx={{
+                            fontWeight: 700,
+                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}
+                    >
                         Customers
                     </Typography>
                     <Button
@@ -193,6 +231,28 @@ export default function Customers() {
                         Add Customer
                     </Button>
                 </Stack>
+
+                {/* Stats Cards */}
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(3, 1fr)' },
+                        gap: 3,
+                        mb: 4,
+                    }}
+                >
+                    <StatCard title="Total Customers" value={total} icon={<Business sx={{ fontSize: 40 }} />} />
+                    <StatCard
+                        title="Active Customers"
+                        value={customers.filter(c => c.is_active).length}
+                        icon={<Business sx={{ fontSize: 40 }} />}
+                    />
+                    <StatCard
+                        title="Projects"
+                        value={customers.reduce((sum, c) => sum + c.projects_count, 0)}
+                        icon={<Business sx={{ fontSize: 40 }} />}
+                    />
+                </Box>
 
                 <TextField
                     fullWidth
@@ -245,6 +305,7 @@ export default function Customers() {
                                                 key={customer.id}
                                                 hover
                                                 sx={{ cursor: 'pointer' }}
+                                                onClick={() => navigate(`/admin/customers/${customer.id}`)}
                                             >
                                                 <TableCell>
                                                     <Typography fontWeight={500}>
@@ -275,14 +336,20 @@ export default function Customers() {
                                                 <TableCell align="right">
                                                     <IconButton
                                                         size="small"
-                                                        onClick={() => handleOpenDialog(customer)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleOpenDialog(customer);
+                                                        }}
                                                         color="primary"
                                                     >
                                                         <Edit />
                                                     </IconButton>
                                                     <IconButton
                                                         size="small"
-                                                        onClick={() => handleDelete(customer.id)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDelete(customer.id);
+                                                        }}
                                                         color="error"
                                                     >
                                                         <Delete />
@@ -305,47 +372,47 @@ export default function Customers() {
                         />
                     </Paper>
                 )}
-            </Box>
 
-            {/* Create/Edit Dialog */}
-            <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-                <DialogTitle>
-                    {editingCustomer ? 'Edit Customer' : 'Add Customer'}
-                </DialogTitle>
-                <DialogContent>
-                    <Stack spacing={3} sx={{ mt: 2 }}>
-                        <TextField
-                            fullWidth
-                            label="Customer Name"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            required
-                        />
-                        <TextField
-                            fullWidth
-                            label="Contact Name"
-                            value={formData.contact_name}
-                            onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })}
-                        />
-                        <TextField
-                            fullWidth
-                            label="Contact Phone"
-                            value={formData.contact_phone}
-                            onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
-                        />
-                    </Stack>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDialog}>Cancel</Button>
-                    <Button
-                        onClick={handleSubmit}
-                        variant="contained"
-                        disabled={!formData.name}
-                    >
-                        {editingCustomer ? 'Update' : 'Create'}
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </Container>
+                {/* Create/Edit Dialog */}
+                <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+                    <DialogTitle>
+                        {editingCustomer ? 'Edit Customer' : 'Add Customer'}
+                    </DialogTitle>
+                    <DialogContent>
+                        <Stack spacing={3} sx={{ mt: 2 }}>
+                            <TextField
+                                fullWidth
+                                label="Customer Name"
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                required
+                            />
+                            <TextField
+                                fullWidth
+                                label="Contact Name"
+                                value={formData.contact_name}
+                                onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })}
+                            />
+                            <TextField
+                                fullWidth
+                                label="Contact Phone"
+                                value={formData.contact_phone}
+                                onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
+                            />
+                        </Stack>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseDialog}>Cancel</Button>
+                        <Button
+                            onClick={handleSubmit}
+                            variant="contained"
+                            disabled={!formData.name}
+                        >
+                            {editingCustomer ? 'Update' : 'Create'}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </Container>
+        </Box>
     );
 }

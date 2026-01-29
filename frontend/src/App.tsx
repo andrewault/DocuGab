@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Box, Toolbar } from '@mui/material';
 import Navbar from './components/Navbar';
+import AdminSidebar from './components/AdminSidebar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
@@ -20,11 +22,20 @@ import AdminDashboard from './pages/admin/Dashboard';
 import UserDetail from './pages/admin/UserDetail';
 import FAQManagement from './pages/admin/FAQManagement';
 import Customers from './pages/admin/Customers';
+import CustomerDetail from './pages/admin/CustomerDetail';
 import Projects from './pages/admin/Projects';
+import ProjectDetail from './pages/admin/ProjectDetail';
 import { isBrandedRoute } from './utils/subdomainUtils';
+import { useAuth } from './context/AuthContext';
 
 export default function App() {
   const isPublicBranded = isBrandedRoute();
+  const { isAdmin } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const handleToggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
   // For branded subdomains, show minimal UI with public chat
   if (isPublicBranded) {
@@ -41,73 +52,101 @@ export default function App() {
   // Normal app routes for main domain
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Navbar />
+      {/* Full-width Navbar */}
+      <Navbar sidebarOpen={sidebarOpen} onToggleSidebar={handleToggleSidebar} />
       <Toolbar /> {/* Spacer for fixed navbar */}
-      <Box component="main" sx={{ flex: 1 }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/documents" element={
-            <ProtectedRoute>
-              <Documents />
-            </ProtectedRoute>
-          } />
-          <Route path="/documents/:uuid" element={
-            <ProtectedRoute>
-              <DocumentViewer />
-            </ProtectedRoute>
-          } />
-          <Route path="/chat" element={
-            <ProtectedRoute>
-              <Chat />
-            </ProtectedRoute>
-          } />
-          <Route path="/settings" element={
-            <ProtectedRoute>
-              <Settings />
-            </ProtectedRoute>
-          } />
-          <Route path="/profile" element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin" element={
-            <ProtectedRoute requireAdmin>
-              <AdminHome />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/users" element={
-            <ProtectedRoute requireAdmin>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/users/:id" element={
-            <ProtectedRoute requireAdmin>
-              <UserDetail />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/customers" element={
-            <ProtectedRoute requireAdmin>
-              <Customers />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/projects" element={
-            <ProtectedRoute requireAdmin>
-              <Projects />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/faq" element={
-            <ProtectedRoute requireAdmin>
-              <FAQManagement />
-            </ProtectedRoute>
-          } />
-        </Routes>
+
+      {/* Content area with optional sidebar */}
+      <Box sx={{ display: 'flex', flex: 1 }}>
+        {/* Admin sidebar column (only for admins) */}
+        {isAdmin && <AdminSidebar isOpen={sidebarOpen} />}
+
+        {/* Main content area */}
+        <Box
+          component="main"
+          sx={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/documents" element={
+              <ProtectedRoute>
+                <Documents />
+              </ProtectedRoute>
+            } />
+            <Route path="/documents/:uuid" element={
+              <ProtectedRoute>
+                <DocumentViewer />
+              </ProtectedRoute>
+            } />
+            <Route path="/chat" element={
+              <ProtectedRoute>
+                <Chat />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <ProtectedRoute requireAdmin>
+                <AdminHome />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/users" element={
+              <ProtectedRoute requireAdmin>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/users/:id" element={
+              <ProtectedRoute requireAdmin>
+                <UserDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/customers" element={
+              <ProtectedRoute requireAdmin>
+                <Customers />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/customers/:id" element={
+              <ProtectedRoute requireAdmin>
+                <CustomerDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/projects" element={
+              <ProtectedRoute requireAdmin>
+                <Projects />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/projects/:id" element={
+              <ProtectedRoute requireAdmin>
+                <ProjectDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/faq" element={
+              <ProtectedRoute requireAdmin>
+                <FAQManagement />
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </Box>
       </Box>
+
+      {/* Full-width Footer */}
       <Footer />
     </Box>
   );

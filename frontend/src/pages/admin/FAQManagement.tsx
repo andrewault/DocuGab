@@ -150,7 +150,7 @@ export default function FAQManagement() {
                     : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)',
             }}
         >
-            <Container maxWidth="lg">
+            <Container maxWidth={false} sx={{ px: 3 }}>
                 <AdminBreadcrumbs items={[{ label: 'FAQs' }]} />
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
                     <Typography variant="h4" fontWeight={700}>
