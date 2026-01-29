@@ -8,7 +8,8 @@ from app.core.config import settings
 from app.core.database import AsyncSessionLocal
 from app.core.security import hash_password
 from app.models.user import User
-from app.api.routes import health, documents, chat, auth, users, admin, faq, speech, customers, projects
+from app.api.routes import health, documents, chat, auth, users, admin, faq, speech, customers, projects, public
+from app.middleware import SubdomainMiddleware
 
 
 async def seed_admin_user():
@@ -69,8 +70,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Subdomain middleware
+app.add_middleware(SubdomainMiddleware)
+
 # Routes
 app.include_router(health.router, tags=["Health"])
+app.include_router(public.router, tags=["Public"])
 app.include_router(auth.router, prefix="/api", tags=["Auth"])
 app.include_router(users.router, prefix="/api", tags=["Users"])
 app.include_router(admin.router, prefix="/api", tags=["Admin"])
