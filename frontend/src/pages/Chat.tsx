@@ -207,31 +207,20 @@ export default function Chat() {
     };
 
     // Avatar selection
+    // Available avatars in /assets/avatars/ directory
     const AVATAR_OPTIONS = [
-        { value: '/assets/avatar.glb', label: 'Default (Business)' },
-        { value: 'custom', label: 'Custom URL' }
+        { value: '/assets/avatars/avatar.glb', label: 'Default Avatar' },
+        { value: '/assets/avatars/character.glb', label: 'Character' }
     ];
 
     const [selectedAvatar, setSelectedAvatar] = useState(() => {
-        return localStorage.getItem('docutok_avatar_selection') || '/assets/avatar.glb';
-    });
-
-    const [customAvatarUrl, setCustomAvatarUrl] = useState(() => {
-        return localStorage.getItem('docutok_custom_avatar_url') || '';
+        return localStorage.getItem('docutok_avatar_selection') || '/assets/avatars/avatar.glb';
     });
 
     const handleAvatarChange = (value: string) => {
         setSelectedAvatar(value);
         localStorage.setItem('docutok_avatar_selection', value);
     };
-
-    const handleCustomUrlChange = (url: string) => {
-        setCustomAvatarUrl(url);
-        localStorage.setItem('docutok_custom_avatar_url', url);
-    };
-
-    // Determine actual URL to pass to component
-    const activeAvatarUrl = selectedAvatar === 'custom' ? customAvatarUrl : selectedAvatar;
 
     // Start recording audio
     const startRecording = async () => {
@@ -537,34 +526,20 @@ export default function Chat() {
 
                         {/* Avatar Selection - shown when animation enabled */}
                         {animationEnabled && (
-                            <>
-                                <FormControl size="small" fullWidth sx={{ mt: 2 }}>
-                                    <InputLabel>Avatar</InputLabel>
-                                    <Select
-                                        value={selectedAvatar}
-                                        label="Avatar"
-                                        onChange={(e) => handleAvatarChange(e.target.value)}
-                                    >
-                                        {AVATAR_OPTIONS.map((avatar) => (
-                                            <MenuItem key={avatar.value} value={avatar.value}>
-                                                {avatar.label}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-
-                                {selectedAvatar === 'custom' && (
-                                    <TextField
-                                        size="small"
-                                        fullWidth
-                                        sx={{ mt: 2 }}
-                                        label="Ready Player Me URL"
-                                        value={customAvatarUrl}
-                                        onChange={(e) => handleCustomUrlChange(e.target.value)}
-                                        placeholder="https://models.readyplayer.me/..."
-                                    />
-                                )}
-                            </>
+                            <FormControl size="small" fullWidth sx={{ mt: 2 }}>
+                                <InputLabel>Avatar</InputLabel>
+                                <Select
+                                    value={selectedAvatar}
+                                    label="Avatar"
+                                    onChange={(e) => handleAvatarChange(e.target.value)}
+                                >
+                                    {AVATAR_OPTIONS.map((avatar) => (
+                                        <MenuItem key={avatar.value} value={avatar.value}>
+                                            {avatar.label}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         )}
 
                         <Box sx={{ flexGrow: 1 }} />
@@ -613,7 +588,7 @@ export default function Chat() {
                                     <TalkingHeadAvatar
                                         text={playingMessageText}
                                         voice={selectedVoice}
-                                        avatarUrl={activeAvatarUrl}
+                                        avatarUrl={selectedAvatar}
                                         isPlaying={playingMessageIndex !== null && !isSynthesizing}
                                     />
                                 </Paper>

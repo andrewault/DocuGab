@@ -10,6 +10,7 @@ from app.core.database import Base
 if TYPE_CHECKING:
     from app.models.chunk import Chunk
     from app.models.user import User
+    from app.models.project import Project
 
 
 class Document(Base):
@@ -31,6 +32,11 @@ class Document(Base):
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True
     )
     
+    # Project (nullable for backward compatibility)
+    project_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+    
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -41,4 +47,5 @@ class Document(Base):
     # Relationships
     chunks: Mapped[list["Chunk"]] = relationship(back_populates="document", cascade="all, delete-orphan")
     owner: Mapped[Optional["User"]] = relationship(back_populates="documents")
+    project: Mapped[Optional["Project"]] = relationship(back_populates="documents")
 
