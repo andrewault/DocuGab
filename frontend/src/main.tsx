@@ -9,6 +9,8 @@ import '@fontsource/roboto/700.css';
 import ThemedApp from './ThemedApp';
 import { ThemeProvider } from './context/ThemeProvider';
 import { AuthProvider } from './context/AuthProvider';
+import { ProjectProvider } from './context/ProjectContext';
+import { getSubdomain } from './utils/subdomainUtils';
 
 const queryClient = new QueryClient();
 
@@ -16,11 +18,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <ThemeProvider>
-          <AuthProvider>
-            <ThemedApp />
-          </AuthProvider>
-        </ThemeProvider>
+        <ProjectProvider subdomain={getSubdomain() || undefined}>
+          <ThemeProvider>
+            <AuthProvider>
+              <ThemedApp />
+            </AuthProvider>
+          </ThemeProvider>
+        </ProjectProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>

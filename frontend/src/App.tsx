@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Documents from './pages/Documents';
 import DocumentViewer from './pages/DocumentViewer';
 import Chat from './pages/Chat';
+import PublicChat from './pages/PublicChat';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
@@ -20,8 +21,24 @@ import UserDetail from './pages/admin/UserDetail';
 import FAQManagement from './pages/admin/FAQManagement';
 import Customers from './pages/admin/Customers';
 import Projects from './pages/admin/Projects';
+import { isBrandedRoute } from './utils/subdomainUtils';
 
 export default function App() {
+  const isPublicBranded = isBrandedRoute();
+
+  // For branded subdomains, show minimal UI with public chat
+  if (isPublicBranded) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <Routes>
+          <Route path="/" element={<PublicChat />} />
+          <Route path="*" element={<PublicChat />} />
+        </Routes>
+      </Box>
+    );
+  }
+
+  // Normal app routes for main domain
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Navbar />
