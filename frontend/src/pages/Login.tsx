@@ -38,6 +38,27 @@ export default function Login() {
 
         try {
             await login(email, password);
+
+            // Get the user data from localStorage to determine role
+            const accessToken = localStorage.getItem('access_token');
+            if (accessToken) {
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007'}/api/auth/me`, {
+                    headers: { Authorization: `Bearer ${accessToken}` },
+                });
+                if (response.ok) {
+                    const userData = await response.json();
+                    // Role-based redirect
+                    if (userData.role === 'admin' || userData.role === 'superadmin') {
+                        navigate('/admin', { replace: true });
+                    } else if (userData.role === 'customer') {
+                        navigate('/customer', { replace: true });
+                    } else {
+                        navigate(from, { replace: true });
+                    }
+                    return;
+                }
+            }
+            // Fallback to original behavior
             navigate(from, { replace: true });
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Login failed');
