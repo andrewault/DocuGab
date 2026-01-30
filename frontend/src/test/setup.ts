@@ -8,9 +8,7 @@ afterEach(() => {
 });
 
 // Mock window.scrollTo
-Object.defineProperty(window, 'scrollTo', {
-    writable: true,
-});
+window.scrollTo = vi.fn();
 
 // Mock Element.prototype.scrollIntoView
 Element.prototype.scrollIntoView = vi.fn();

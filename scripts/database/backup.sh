@@ -16,8 +16,8 @@ fi
 
 # Configuration
 CONTAINER_NAME="docutok-db"
-DB_NAME="${POSTGRES_DB:-docugab}"
-DB_USER="${POSTGRES_USER:-docugab}"
+DB_NAME="${POSTGRES_DB:-docutok}"
+DB_USER="${POSTGRES_USER:-docutok}"
 BACKUP_DIR="$PROJECT_ROOT/dbbackups"
 TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
 BACKUP_FILE="docutok-backup-${TIMESTAMP}.sql.gz"
