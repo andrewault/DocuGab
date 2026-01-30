@@ -2,6 +2,7 @@
 
 from typing import Optional, Any
 from datetime import datetime, timedelta
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -131,14 +132,15 @@ async def list_users(
     )
 
 
-@router.get("/users/{user_id}", response_model=UserResponse)
+@router.get("/users/{user_uuid}", response_model=UserResponse)
 async def get_user(
-    user_id: int,
+    user_uuid: UUID,
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Get a specific user by ID."""
-    user = await db.get(User, user_id)
+    """Get a specific user by UUID."""
+    result = await db.execute(select(User).where(User.uuid == user_uuid))
+    user = result.scalar_one_or_none()
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -147,15 +149,16 @@ async def get_user(
     return user
 
 
-@router.patch("/users/{user_id}", response_model=UserResponse)
+@router.patch("/users/{user_uuid}", response_model=UserResponse)
 async def update_user(
-    user_id: int,
+    user_uuid: UUID,
     data: AdminUserUpdate,
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Update a user (admin only)."""
-    user = await db.get(User, user_id)
+    result = await db.execute(select(User).where(User.uuid == user_uuid))
+    user = result.scalar_one_or_none()
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -195,14 +198,15 @@ async def update_user(
     return user
 
 
-@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/users/{user_uuid}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
-    user_id: int,
+    user_uuid: UUID,
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Delete a user (admin only)."""
-    user = await db.get(User, user_id)
+    result = await db.execute(select(User).where(User.uuid == user_uuid))
+    user = result.scalar_one_or_none()
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

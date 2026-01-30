@@ -17,6 +17,11 @@ import {
     CircularProgress,
     Stack,
     Divider,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
     useTheme,
 } from '@mui/material';
 import { Save, Delete } from '@mui/icons-material';
@@ -35,7 +40,7 @@ interface User {
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function UserDetail() {
-    const { id } = useParams<{ id: string }>();
+    const { uuid } = useParams<{ uuid: string }>();
     const navigate = useNavigate();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
@@ -51,6 +56,7 @@ export default function UserDetail() {
     const [role, setRole] = useState('user');
     const [isActive, setIsActive] = useState(true);
     const [isVerified, setIsVerified] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
     // Escape key to go back
     useEffect(() => {
@@ -66,7 +72,7 @@ export default function UserDetail() {
     const fetchUser = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${API_BASE}/api/admin/users/${id}`, {
+            const response = await fetch(`${API_BASE}/api/admin/users/${uuid}`, {
                 headers: getAuthHeader(),
             });
             if (!response.ok) {
@@ -86,21 +92,21 @@ export default function UserDetail() {
         } finally {
             setLoading(false);
         }
-    }, [id]);
+    }, [uuid]);
 
-    // Validate ID and redirect if invalid
+    // Validate UUID and redirect if invalid
     useEffect(() => {
-        if (!id || isNaN(Number(id))) {
+        if (!uuid) {
             navigate('/admin/users');
             return;
         }
-    }, [id, navigate]);
+    }, [uuid, navigate]);
 
     useEffect(() => {
-        if (id && !isNaN(Number(id))) {
+        if (uuid) {
             fetchUser();
         }
-    }, [fetchUser, id]);
+    }, [fetchUser, uuid]);
 
     const handleSave = async () => {
         try {
@@ -108,7 +114,7 @@ export default function UserDetail() {
             setError(null);
             setSuccess(null);
 
-            const response = await fetch(`${API_BASE}/api/admin/users/${id}`, {
+            const response = await fetch(`${API_BASE}/api/admin/users/${uuid}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -137,14 +143,16 @@ export default function UserDetail() {
         }
     };
 
-    const handleDelete = async () => {
-        if (!confirm('Are you sure you want to delete this user? This cannot be undone.')) {
-            return;
-        }
+    const handleDeleteClick = () => {
+        setDeleteDialogOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        setDeleteDialogOpen(false);
 
         try {
             setSaving(true);
-            const response = await fetch(`${API_BASE}/api/admin/users/${id}`, {
+            const response = await fetch(`${API_BASE}/api/admin/users/${uuid}`, {
                 method: 'DELETE',
                 headers: getAuthHeader(),
             });
@@ -159,6 +167,10 @@ export default function UserDetail() {
             setError(err instanceof Error ? err.message : 'Failed to delete user');
             setSaving(false);
         }
+    };
+
+    const handleDeleteCancel = () => {
+        setDeleteDialogOpen(false);
     };
 
     if (loading) {
@@ -315,13 +327,36 @@ export default function UserDetail() {
                             variant="outlined"
                             color="error"
                             startIcon={<Delete />}
-                            onClick={handleDelete}
+                            onClick={handleDeleteClick}
                             disabled={saving}
                         >
                             Delete User
                         </Button>
                     </Stack>
                 </Paper>
+
+                {/* Delete Confirmation Dialog */}
+                <Dialog
+                    open={deleteDialogOpen}
+                    onClose={handleDeleteCancel}
+                    maxWidth="sm"
+                    fullWidth
+                >
+                    <DialogTitle>Delete User</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Are you sure you want to delete this user? This action cannot be undone.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleDeleteCancel} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Container>
         </Box>
     );

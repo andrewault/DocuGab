@@ -40,6 +40,7 @@ interface Stats {
 
 interface User {
     id: number;
+    uuid: string;
     email: string;
     full_name: string | null;
     role: string;
@@ -242,7 +243,7 @@ export default function AdminDashboard() {
                                     <TableRow
                                         key={user.id}
                                         hover
-                                        onClick={() => navigate(`/admin/users/${user.id}`)}
+                                        onClick={() => navigate(`/admin/users/${user.uuid}`)}
                                         sx={{ cursor: 'pointer' }}
                                     >
                                         <TableCell>{user.email}</TableCell>
@@ -273,7 +274,7 @@ export default function AdminDashboard() {
                                                 color="primary"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    navigate(`/admin/users/${user.id}`);
+                                                    navigate(`/admin/users/${user.uuid}`);
                                                 }}
                                             >
                                                 <Edit />

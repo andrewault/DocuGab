@@ -2,6 +2,7 @@
 
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
+from uuid import UUID
 
 
 class UserRegister(BaseModel):
@@ -37,6 +38,7 @@ class UserResponse(BaseModel):
     """Schema for user response."""
 
     id: int
+    uuid: UUID
     email: str
     full_name: Optional[str]
     avatar_url: Optional[str]

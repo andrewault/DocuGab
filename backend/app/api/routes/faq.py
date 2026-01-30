@@ -1,6 +1,7 @@
 """FAQ API routes."""
 
 from typing import Optional
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,6 +31,7 @@ class FAQUpdate(BaseModel):
 
 class FAQResponse(BaseModel):
     id: int
+    uuid: UUID
     question: str
     answer: str
     order: int
@@ -73,15 +75,15 @@ async def create_faq(
     return FAQResponse.model_validate(faq)
 
 
-@router.patch("/{faq_id}")
+@router.patch("/{faq_uuid}")
 async def update_faq(
-    faq_id: int,
+    faq_uuid: UUID,
     data: FAQUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_admin_user),
 ):
     """Update an FAQ (admin only)."""
-    result = await db.execute(select(FAQ).where(FAQ.id == faq_id))
+    result = await db.execute(select(FAQ).where(FAQ.uuid == faq_uuid))
     faq = result.scalar_one_or_none()
 
     if not faq:
@@ -96,14 +98,14 @@ async def update_faq(
     return FAQResponse.model_validate(faq)
 
 
-@router.delete("/{faq_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{faq_uuid}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_faq(
-    faq_id: int,
+    faq_uuid: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_admin_user),
 ):
     """Delete an FAQ (admin only)."""
-    result = await db.execute(select(FAQ).where(FAQ.id == faq_id))
+    result = await db.execute(select(FAQ).where(FAQ.uuid == faq_uuid))
     faq = result.scalar_one_or_none()
 
     if not faq:

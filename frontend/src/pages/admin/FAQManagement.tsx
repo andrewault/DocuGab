@@ -29,6 +29,7 @@ import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
 interface FAQItem {
     id: number;
+    uuid: string;
     question: string;
     answer: string;
     order: number;
@@ -98,7 +99,7 @@ export default function FAQManagement() {
     const handleSave = async () => {
         try {
             const url = editingFaq
-                ? `${API_BASE}/api/faq/${editingFaq.id}`
+                ? `${API_BASE}/api/faq/${editingFaq.uuid}`
                 : `${API_BASE}/api/faq/`;
             const method = editingFaq ? 'PATCH' : 'POST';
 
@@ -123,11 +124,11 @@ export default function FAQManagement() {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!confirm('Are you sure you want to delete this FAQ?')) return;
+    const handleDelete = async (uuid: string) => {
+        if (!window.confirm('Are you sure you want to delete this FAQ?')) return;
 
         try {
-            const res = await fetch(`${API_BASE}/api/faq/${id}`, {
+            const res = await fetch(`${API_BASE}/api/faq/${uuid}`, {
                 method: 'DELETE',
                 headers: getAuthHeader(),
             });
@@ -219,7 +220,7 @@ export default function FAQManagement() {
                                                 <IconButton
                                                     size="small"
                                                     color="error"
-                                                    onClick={() => handleDelete(faq.id)}
+                                                    onClick={() => handleDelete(faq.uuid)}
                                                 >
                                                     <Delete />
                                                 </IconButton>

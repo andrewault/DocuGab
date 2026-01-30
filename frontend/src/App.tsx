@@ -120,7 +120,7 @@ export default function App() {
                 <NewUser />
               </ProtectedRoute>
             } />
-            <Route path="/admin/users/:id" element={
+            <Route path="/admin/users/:uuid" element={
               <ProtectedRoute requireAdmin>
                 <UserDetail />
               </ProtectedRoute>
