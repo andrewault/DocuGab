@@ -3,6 +3,7 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from uuid import UUID
+from datetime import datetime
 
 
 class UserRegister(BaseModel):
@@ -47,6 +48,8 @@ class UserResponse(BaseModel):
     is_verified: bool
     theme: str
     timezone: str
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True

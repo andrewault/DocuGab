@@ -30,6 +30,8 @@ import { Add, Edit, Delete, Business } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { useAuth } from '../../context/AuthContext';
+import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface Customer {
     id: number;
@@ -39,6 +41,7 @@ interface Customer {
     contact_phone: string | null;
     is_active: boolean;
     created_at: string;
+    updated_at: string;
     projects_count: number;
 }
 
@@ -51,6 +54,7 @@ interface CustomerFormData {
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function Customers() {
+    const { user: currentUser } = useAuth();
     const navigate = useNavigate();
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [total, setTotal] = useState(0);
@@ -287,6 +291,8 @@ export default function Customers() {
                                         <TableCell>Contact Name</TableCell>
                                         <TableCell>Contact Phone</TableCell>
                                         <TableCell>Projects</TableCell>
+                                        <TableCell>Created at</TableCell>
+                                        <TableCell>Updated at</TableCell>
                                         <TableCell>Status</TableCell>
                                         <TableCell align="right">Actions</TableCell>
                                     </TableRow>
@@ -294,7 +300,7 @@ export default function Customers() {
                                 <TableBody>
                                     {customers.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={6} align="center">
+                                            <TableCell colSpan={8} align="center">
                                                 <Typography color="textSecondary" py={4}>
                                                     No customers found
                                                 </Typography>
@@ -326,6 +332,24 @@ export default function Customers() {
                                                         color="primary"
                                                         variant="outlined"
                                                     />
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Typography variant="body2">
+                                                        {formatInUserTimezone(
+                                                            customer.created_at,
+                                                            currentUser?.timezone || 'America/Los_Angeles',
+                                                            'PP'
+                                                        )}
+                                                    </Typography>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Typography variant="body2">
+                                                        {formatInUserTimezone(
+                                                            customer.updated_at,
+                                                            currentUser?.timezone || 'America/Los_Angeles',
+                                                            'PP'
+                                                        )}
+                                                    </Typography>
                                                 </TableCell>
                                                 <TableCell>
                                                     <Chip

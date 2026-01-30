@@ -48,6 +48,7 @@ interface User {
     is_active: boolean;
     is_verified: boolean;
     created_at: string;
+    updated_at: string;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
@@ -232,7 +233,8 @@ export default function AdminDashboard() {
                                 <TableCell>Email</TableCell>
                                 <TableCell>Name</TableCell>
                                 <TableCell>Role</TableCell>
-                                <TableCell>Joined</TableCell>
+                                <TableCell>Created at</TableCell>
+                                <TableCell>Updated at</TableCell>
                                 <TableCell>Status</TableCell>
                                 <TableCell align="right">Actions</TableCell>
                             </TableRow>
@@ -240,13 +242,13 @@ export default function AdminDashboard() {
                         <TableBody>
                             {loading ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                                         <CircularProgress />
                                     </TableCell>
                                 </TableRow>
                             ) : users.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                                         No users found
                                     </TableCell>
                                 </TableRow>
@@ -277,6 +279,15 @@ export default function AdminDashboard() {
                                             <Typography variant="body2">
                                                 {formatInUserTimezone(
                                                     user.created_at,
+                                                    currentUser?.timezone || 'America/Los_Angeles',
+                                                    'PP'
+                                                )}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Typography variant="body2">
+                                                {formatInUserTimezone(
+                                                    user.updated_at,
                                                     currentUser?.timezone || 'America/Los_Angeles',
                                                     'PP'
                                                 )}

@@ -36,6 +36,8 @@ import { Add, Edit, Delete, Folder, Palette } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { useAuth } from '../../context/AuthContext';
+import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface Project {
     id: number;
@@ -58,6 +60,7 @@ interface Project {
     return_link_text: string | null;
     is_active: boolean;
     created_at: string;
+    updated_at: string;
     documents_count: number;
     customer_name: string | null;
 }
@@ -123,6 +126,7 @@ const DEFAULT_FORM_DATA: ProjectFormData = {
 };
 
 export default function Projects() {
+    const { user: currentUser } = useAuth();
     const navigate = useNavigate();
     const [projects, setProjects] = useState<Project[]>([]);
     const [customers, setCustomers] = useState<Customer[]>([]);
@@ -424,6 +428,8 @@ export default function Projects() {
                                             <TableCell>Subdomain</TableCell>
                                             <TableCell>Title</TableCell>
                                             <TableCell>Documents</TableCell>
+                                            <TableCell>Created at</TableCell>
+                                            <TableCell>Updated at</TableCell>
                                             <TableCell>Status</TableCell>
                                             <TableCell align="right">Actions</TableCell>
                                         </TableRow>
@@ -431,7 +437,7 @@ export default function Projects() {
                                     <TableBody>
                                         {projects.length === 0 ? (
                                             <TableRow>
-                                                <TableCell colSpan={7} align="center">
+                                                <TableCell colSpan={9} align="center">
                                                     <Typography color="textSecondary" py={4}>
                                                         No projects found
                                                     </Typography>
@@ -477,6 +483,24 @@ export default function Projects() {
                                                             color="primary"
                                                             variant="outlined"
                                                         />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography variant="body2">
+                                                            {formatInUserTimezone(
+                                                                project.created_at,
+                                                                currentUser?.timezone || 'America/Los_Angeles',
+                                                                'PP'
+                                                            )}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography variant="body2">
+                                                            {formatInUserTimezone(
+                                                                project.updated_at,
+                                                                currentUser?.timezone || 'America/Los_Angeles',
+                                                                'PP'
+                                                            )}
+                                                        </Typography>
                                                     </TableCell>
                                                     <TableCell>
                                                         <Chip

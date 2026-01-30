@@ -24,6 +24,8 @@ import {
 } from '@mui/material';
 import { Delete, Refresh, CloudUpload, Close, Description } from '@mui/icons-material';
 import DocumentUpload from '../components/DocumentUpload';
+import { formatInUserTimezone } from '../utils/timezoneUtils';
+import { useAuth } from '../context/AuthContext';
 
 interface Document {
     id: number;
@@ -48,6 +50,7 @@ export default function Documents() {
     const [deleting, setDeleting] = useState<number | null>(null);
     const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
     const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
+    const { user: currentUser } = useAuth();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
     const navigate = useNavigate();
@@ -102,13 +105,11 @@ export default function Documents() {
     };
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
+        return formatInUserTimezone(
+            dateString,
+            currentUser?.timezone || 'America/Los_Angeles',
+            'PP'
+        );
     };
 
     const getStatusColor = (status: string): "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" => {
@@ -264,20 +265,21 @@ export default function Documents() {
                                     <TableCell sx={{ fontWeight: 600 }}>Filename</TableCell>
                                     <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                                     <TableCell sx={{ fontWeight: 600 }}>Size</TableCell>
-                                    <TableCell sx={{ fontWeight: 600 }}>Uploaded</TableCell>
+                                    <TableCell sx={{ fontWeight: 600 }}>Created at</TableCell>
+                                    <TableCell sx={{ fontWeight: 600 }}>Updated at</TableCell>
                                     <TableCell sx={{ fontWeight: 600 }} align="right">Actions</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {loading ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
+                                        <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
                                             <CircularProgress />
                                         </TableCell>
                                     </TableRow>
                                 ) : documents.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
+                                        <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
                                             <Typography color="text.secondary">
                                                 No documents uploaded yet
                                             </Typography>
@@ -309,6 +311,7 @@ export default function Documents() {
                                             </TableCell>
                                             <TableCell>{formatFileSize(doc.file_size)}</TableCell>
                                             <TableCell>{formatDate(doc.created_at)}</TableCell>
+                                            <TableCell>{doc.updated_at ? formatDate(doc.updated_at) : '-'}</TableCell>
                                             <TableCell align="right">
                                                 <IconButton
                                                     onClick={(e) => {
@@ -387,7 +390,7 @@ export default function Documents() {
                                 )}
 
                                 <Box>
-                                    <Typography variant="caption" color="text.secondary">Uploaded</Typography>
+                                    <Typography variant="caption" color="text.secondary">Created at</Typography>
                                     <Typography>{formatDate(selectedDoc.created_at)}</Typography>
                                 </Box>
 
