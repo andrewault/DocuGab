@@ -147,10 +147,10 @@ export default function CustomerDetail() {
             }
         };
 
-        if (uuid && currentUser) {
+        if (uuid) {
             fetchData();
         }
-    }, [uuid, currentUser, location.key]); // Re-fetch when navigating back to this page
+    }, [uuid, location.key]); // Re-fetch when navigating back to this page
 
     if (loading) {
         return (
@@ -188,8 +188,17 @@ export default function CustomerDetail() {
 
             {/* Header */}
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-                <Typography variant="h4" component="h1">
-                    <Business sx={{ mr: 1, verticalAlign: 'bottom' }} />
+                <Typography
+                    variant="h4"
+                    component="h1"
+                    sx={{
+                        fontWeight: 700,
+                        background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                        backgroundClip: 'text',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                    }}
+                >
                     {customer.name}
                 </Typography>
                 <Stack direction="row" spacing={2}>

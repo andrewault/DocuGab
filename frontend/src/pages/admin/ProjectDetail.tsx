@@ -296,8 +296,17 @@ export default function ProjectDetail() {
 
                 {/* Header */}
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-                    <Typography variant="h4" component="h1">
-                        <Folder sx={{ mr: 1, verticalAlign: 'bottom' }} />
+                    <Typography
+                        variant="h4"
+                        component="h1"
+                        sx={{
+                            fontWeight: 700,
+                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}
+                    >
                         {project.name}
                     </Typography>
                     <Button

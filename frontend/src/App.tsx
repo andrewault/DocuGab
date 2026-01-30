@@ -20,6 +20,7 @@ import Contact from './pages/Contact';
 import AdminHome from './pages/admin/AdminHome';
 import Users from './pages/admin/Users';
 import UserDetail from './pages/admin/UserDetail';
+import UserEdit from './pages/admin/UserEdit';
 import NewUser from './pages/admin/NewUser';
 import FAQManagement from './pages/admin/FAQManagement';
 import Customers from './pages/admin/Customers';
@@ -123,6 +124,11 @@ export default function App() {
             <Route path="/admin/users/:uuid" element={
               <ProtectedRoute requireAdmin>
                 <UserDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/users/:uuid/edit" element={
+              <ProtectedRoute requireAdmin>
+                <UserEdit />
               </ProtectedRoute>
             } />
             <Route path="/admin/customers" element={

@@ -1,20 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
     Box,
     Container,
     Typography,
     Paper,
-    TextField,
-    Button,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Switch,
-    FormControlLabel,
-    Alert,
+    Chip,
     CircularProgress,
+    Alert,
+    Button,
     Stack,
     Divider,
     Dialog,
@@ -22,9 +16,18 @@ import {
     DialogContent,
     DialogContentText,
     DialogActions,
-    useTheme,
 } from '@mui/material';
-import { Save, Delete } from '@mui/icons-material';
+import {
+    Person,
+    Email,
+    Business,
+    CalendarToday,
+    ArrowBack,
+    Edit,
+    Delete,
+    CheckCircle,
+    Cancel,
+} from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { useAuth } from '../../context/AuthContext';
@@ -32,6 +35,7 @@ import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface User {
     id: number;
+    uuid: string;
     email: string;
     full_name: string | null;
     role: string;
@@ -41,12 +45,8 @@ interface User {
     customer_uuid: string | null;
     customer_name: string | null;
     created_at: string;
-}
-
-interface Customer {
-    id: number;
-    uuid: string;
-    name: string;
+    updated_at: string;
+    last_login_at: string | null;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
@@ -55,148 +55,65 @@ export default function UserDetail() {
     const { user: currentUser } = useAuth();
     const { uuid } = useParams<{ uuid: string }>();
     const navigate = useNavigate();
-    const theme = useTheme();
-    const isDark = theme.palette.mode === 'dark';
-
+    const location = useLocation();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState<string | null>(null);
-
-    // Form state
-    const [fullName, setFullName] = useState('');
-    const [role, setRole] = useState('user');
-    const [isActive, setIsActive] = useState(true);
-    const [isVerified, setIsVerified] = useState(false);
-    const [customerId, setCustomerId] = useState<number | null>(null);
-    const [customers, setCustomers] = useState<Customer[]>([]);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
-    // Escape key to go back
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                navigate('/admin');
+        const fetchUser = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(`${API_BASE}/api/admin/users/${uuid}`, {
+                    headers: getAuthHeader(),
+                });
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('User not found');
+                    }
+                    throw new Error('Failed to fetch user');
+                }
+                const data = await response.json();
+                setUser(data);
+                setError(null);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Failed to load user');
+            } finally {
+                setLoading(false);
             }
         };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [navigate]);
 
-    const fetchUser = useCallback(async () => {
-        try {
-            setLoading(true);
-            const response = await fetch(`${API_BASE}/api/admin/users/${uuid}`, {
-                headers: getAuthHeader(),
-            });
-            if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error('User not found');
-                }
-                throw new Error('Failed to fetch user');
-            }
-            const data = await response.json();
-            setUser(data);
-            setFullName(data.full_name || '');
-            setRole(data.role);
-            setIsActive(data.is_active);
-            setIsVerified(data.is_verified);
-            setCustomerId(data.customer_id || null);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to load user');
-        } finally {
-            setLoading(false);
-        }
-    }, [uuid]);
-
-    const fetchCustomers = useCallback(async () => {
-        try {
-            const response = await fetch(`${API_BASE}/api/admin/customers?page=1&per_page=1000`, {
-                headers: getAuthHeader(),
-            });
-            if (!response.ok) throw new Error('Failed to fetch customers');
-            const data = await response.json();
-            setCustomers(data.customers || []);
-        } catch (err) {
-            console.error('Failed to load customers:', err);
-        }
-    }, []);
-
-    // Validate UUID and redirect if invalid
-    useEffect(() => {
-        if (!uuid) {
-            navigate('/admin/users');
-            return;
-        }
-    }, [uuid, navigate]);
-
-    useEffect(() => {
-        if (uuid) {
+        if (uuid && currentUser) {
             fetchUser();
-            fetchCustomers();
         }
-    }, [fetchUser, uuid, fetchCustomers]);
-
-    const handleSave = async () => {
-        try {
-            setSaving(true);
-            setError(null);
-            setSuccess(null);
-
-            const response = await fetch(`${API_BASE}/api/admin/users/${uuid}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...getAuthHeader(),
-                },
-                body: JSON.stringify({
-                    full_name: fullName || null,
-                    role,
-                    is_active: isActive,
-                    is_verified: isVerified,
-                    customer_id: customerId,
-                }),
-            });
-
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.detail || 'Failed to update user');
-            }
-
-            const updatedUser = await response.json();
-            setUser(updatedUser);
-            setSuccess('User updated successfully');
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to update user');
-        } finally {
-            setSaving(false);
-        }
-    };
+    }, [uuid, currentUser, location.key]);
 
     const handleDeleteClick = () => {
         setDeleteDialogOpen(true);
     };
 
     const handleDeleteConfirm = async () => {
-        setDeleteDialogOpen(false);
+        if (!user) return;
 
         try {
-            setSaving(true);
-            const response = await fetch(`${API_BASE}/api/admin/users/${uuid}`, {
+            setDeleting(true);
+            const response = await fetch(`${API_BASE}/api/admin/users/${user.uuid}`, {
                 method: 'DELETE',
                 headers: getAuthHeader(),
             });
 
             if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.detail || 'Failed to delete user');
+                throw new Error('Failed to delete user');
             }
 
-            navigate('/admin');
+            navigate('/admin/users');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to delete user');
-            setSaving(false);
+            setDeleteDialogOpen(false);
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -206,219 +123,224 @@ export default function UserDetail() {
 
     if (loading) {
         return (
-            <Box
-                sx={{
-                    minHeight: '100vh',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    background: isDark
-                        ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
-                        : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
-                }}
-            >
-                <CircularProgress />
-            </Box>
+            <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: 3 }}>
+                <Box display="flex" justifyContent="center" py={8}>
+                    <CircularProgress />
+                </Box>
+            </Container>
         );
     }
 
-    if (!user) {
+    if (error || !user) {
         return (
-            <Box
-                sx={{
-                    minHeight: '100vh',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    background: isDark
-                        ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
-                        : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
-                }}
-            >
+            <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: 3 }}>
                 <Alert severity="error">{error || 'User not found'}</Alert>
-            </Box>
+                <Button
+                    startIcon={<ArrowBack />}
+                    onClick={() => navigate('/admin/users')}
+                    sx={{ mt: 2 }}
+                >
+                    Back to Users
+                </Button>
+            </Container>
         );
     }
 
     return (
-        <Box
-            sx={{
-                minHeight: '100vh',
-                background: isDark
-                    ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
-                    : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
-                py: 4,
-            }}
-        >
-            <Container maxWidth={false} sx={{ px: 3 }}>
-                <AdminBreadcrumbs items={[
+        <Container maxWidth={false} sx={{ mt: 4, mb: 8, px: 3 }}>
+            <AdminBreadcrumbs
+                items={[
                     { label: 'Users', path: '/admin/users' },
-                    { label: user.email }
-                ]} />
+                    { label: user.email },
+                ]}
+            />
 
-                {/* Header with Title */}
-                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-                    <Typography
-                        variant="h4"
-                        sx={{
-                            fontWeight: 700,
-                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                            backgroundClip: 'text',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                        }}
-                    >
-                        User
-                    </Typography>
-                </Stack>
-                <Typography variant="body2" color="text.secondary" mb={0.5}>
-                    {user.email}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" mb={3} display="block">
-                    Joined: {formatInUserTimezone(
-                        user.created_at,
-                        currentUser?.timezone || 'America/Los_Angeles',
-                        'PPpp'
-                    )}
-                </Typography>
-
-                <Paper
-                    elevation={3}
+            {/* Header */}
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+                <Typography
+                    variant="h4"
+                    component="h1"
                     sx={{
-                        p: 4,
-                        borderRadius: 2,
-                        bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
+                        fontWeight: 700,
+                        background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                        backgroundClip: 'text',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
                     }}
                 >
+                    {user.full_name || user.email}
+                </Typography>
+                <Stack direction="row" spacing={2}>
+                    <Button
+                        variant="outlined"
+                        startIcon={<ArrowBack />}
+                        onClick={() => navigate(-1)}
+                    >
+                        Back
+                    </Button>
+                    <Button
+                        variant="contained"
+                        startIcon={<Edit />}
+                        onClick={() => navigate(`/admin/users/${user.uuid}/edit`)}
+                    >
+                        Edit User
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        color="error"
+                        startIcon={<Delete />}
+                        onClick={handleDeleteClick}
+                    >
+                        Delete
+                    </Button>
+                </Stack>
+            </Stack>
 
-                    {error && (
-                        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
-                            {error}
-                        </Alert>
-                    )}
+            {/* User Details */}
+            <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+                <Typography variant="h6" gutterBottom>
+                    User Details
+                </Typography>
+                <Divider sx={{ mb: 3 }} />
 
-                    {success && (
-                        <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccess(null)}>
-                            {success}
-                        </Alert>
-                    )}
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
+                    <Box sx={{ flex: 1 }}>
+                        <Stack spacing={2}>
+                            <Box>
+                                <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
+                                    <Email fontSize="small" />
+                                    Email
+                                </Typography>
+                                <Typography variant="body1" fontWeight={500}>
+                                    {user.email}
+                                </Typography>
+                            </Box>
 
-                    <Stack spacing={3}>
-                        <TextField
-                            label="Full Name"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSave();
-                                }
-                            }}
-                            fullWidth
-                        />
+                            <Box>
+                                <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
+                                    <Person fontSize="small" />
+                                    Full Name
+                                </Typography>
+                                <Typography variant="body1">
+                                    {user.full_name || '—'}
+                                </Typography>
+                            </Box>
 
-                        <FormControl fullWidth>
-                            <InputLabel>Role</InputLabel>
-                            <Select
-                                value={role}
-                                label="Role"
-                                onChange={(e) => setRole(e.target.value)}
-                            >
-                                <MenuItem value="user">User</MenuItem>
-                                <MenuItem value="customer">Customer</MenuItem>
-                                <MenuItem value="admin">Admin</MenuItem>
-                                <MenuItem value="superadmin">Superadmin</MenuItem>
-                            </Select>
-                        </FormControl>
+                            <Box>
+                                <Typography variant="caption" color="text.secondary">
+                                    Role
+                                </Typography>
+                                <Box mt={0.5}>
+                                    <Chip
+                                        label={user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                                        color={user.role === 'superadmin' ? 'error' : user.role === 'admin' ? 'warning' : 'default'}
+                                        size="small"
+                                    />
+                                </Box>
+                            </Box>
+                        </Stack>
+                    </Box>
 
-                        <FormControl fullWidth>
-                            <InputLabel>Customer</InputLabel>
-                            <Select
-                                value={customerId || ''}
-                                label="Customer"
-                                onChange={(e) => setCustomerId(e.target.value ? Number(e.target.value) : null)}
-                            >
-                                <MenuItem value="">None</MenuItem>
-                                {customers.map((customer) => (
-                                    <MenuItem key={customer.id} value={customer.id}>
-                                        {customer.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                    <Box sx={{ flex: 1 }}>
+                        <Stack spacing={2}>
+                            <Box>
+                                <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
+                                    <Business fontSize="small" />
+                                    Customer
+                                </Typography>
+                                {user.customer_uuid ? (
+                                    <Typography
+                                        variant="body1"
+                                        sx={{
+                                            color: 'primary.main',
+                                            cursor: 'pointer',
+                                            '&:hover': { textDecoration: 'underline' },
+                                        }}
+                                        onClick={() => navigate(`/admin/customers/${user.customer_uuid}`)}
+                                    >
+                                        {user.customer_name}
+                                    </Typography>
+                                ) : (
+                                    <Typography variant="body1">—</Typography>
+                                )}
+                            </Box>
 
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={isActive}
-                                    onChange={(e) => setIsActive(e.target.checked)}
-                                />
-                            }
-                            label="Active"
-                        />
+                            <Box>
+                                <Typography variant="caption" color="text.secondary">
+                                    Status
+                                </Typography>
+                                <Box mt={0.5}>
+                                    <Stack direction="row" spacing={1}>
+                                        <Chip
+                                            icon={user.is_active ? <CheckCircle /> : <Cancel />}
+                                            label={user.is_active ? 'Active' : 'Inactive'}
+                                            color={user.is_active ? 'success' : 'default'}
+                                            size="small"
+                                        />
+                                        <Chip
+                                            icon={user.is_verified ? <CheckCircle /> : <Cancel />}
+                                            label={user.is_verified ? 'Verified' : 'Unverified'}
+                                            color={user.is_verified ? 'success' : 'default'}
+                                            size="small"
+                                        />
+                                    </Stack>
+                                </Box>
+                            </Box>
 
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={isVerified}
-                                    onChange={(e) => setIsVerified(e.target.checked)}
-                                />
-                            }
-                            label="Email Verified"
-                        />
+                            <Box>
+                                <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
+                                    <CalendarToday fontSize="small" />
+                                    Last Login
+                                </Typography>
+                                <Typography variant="body1">
+                                    {user.last_login_at
+                                        ? formatInUserTimezone(user.last_login_at, currentUser?.timezone || 'UTC')
+                                        : 'Never'}
+                                </Typography>
+                            </Box>
+                        </Stack>
+                    </Box>
+                </Stack>
 
-                        <Button
-                            variant="contained"
-                            startIcon={<Save />}
-                            onClick={handleSave}
-                            disabled={saving}
-                            sx={{
-                                background: 'linear-gradient(90deg, #6366f1, #4f46e5)',
-                                '&:hover': {
-                                    background: 'linear-gradient(90deg, #4f46e5, #4338ca)',
-                                },
-                            }}
-                        >
-                            {saving ? 'Saving...' : 'Save Changes'}
-                        </Button>
+                <Divider sx={{ my: 3 }} />
 
-                        <Divider />
+                <Stack direction="row" spacing={4}>
+                    <Box>
+                        <Typography variant="caption" color="text.secondary">
+                            Created
+                        </Typography>
+                        <Typography variant="body2">
+                            {formatInUserTimezone(user.created_at, currentUser?.timezone || 'UTC')}
+                        </Typography>
+                    </Box>
+                    <Box>
+                        <Typography variant="caption" color="text.secondary">
+                            Updated
+                        </Typography>
+                        <Typography variant="body2">
+                            {formatInUserTimezone(user.updated_at, currentUser?.timezone || 'UTC')}
+                        </Typography>
+                    </Box>
+                </Stack>
+            </Paper>
 
-                        <Button
-                            variant="outlined"
-                            color="error"
-                            startIcon={<Delete />}
-                            onClick={handleDeleteClick}
-                            disabled={saving}
-                        >
-                            Delete User
-                        </Button>
-                    </Stack>
-                </Paper>
-
-                {/* Delete Confirmation Dialog */}
-                <Dialog
-                    open={deleteDialogOpen}
-                    onClose={handleDeleteCancel}
-                    maxWidth="sm"
-                    fullWidth
-                >
-                    <DialogTitle>Delete User</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            Are you sure you want to delete this user? This action cannot be undone.
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleDeleteCancel} color="primary">
-                            Cancel
-                        </Button>
-                        <Button onClick={handleDeleteConfirm} color="error" variant="contained">
-                            Delete
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </Container>
-        </Box>
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
+                <DialogTitle>Delete User</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to delete this user? This action cannot be undone.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleDeleteCancel} disabled={deleting}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleDeleteConfirm} color="error" disabled={deleting}>
+                        {deleting ? 'Deleting...' : 'Delete'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </Container>
     );
 }
