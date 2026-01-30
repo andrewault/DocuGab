@@ -16,8 +16,10 @@ import {
     Stack,
     Alert,
     useTheme,
+    InputAdornment,
+    IconButton,
 } from '@mui/material';
-import { PersonAdd, ArrowBack } from '@mui/icons-material';
+import { PersonAdd, ArrowBack, Visibility, VisibilityOff } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
@@ -39,10 +41,11 @@ export default function NewUser() {
     const [customers, setCustomers] = useState<Array<{ id: number; uuid: string; name: string }>>([]);
     const [error, setError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const fetchCustomers = useCallback(async () => {
         try {
-            const response = await fetch(`${API_BASE}/api/admin/customers?page=1&per_page=1000`, {
+            const response = await fetch(`${API_BASE}/api/admin/customers?page=1&per_page=100`, {
                 headers: getAuthHeader(),
             });
             if (!response.ok) throw new Error('Failed to fetch customers');
@@ -190,11 +193,24 @@ export default function NewUser() {
 
                         <TextField
                             label="Password"
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             fullWidth
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            edge="end"
+                                            aria-label="toggle password visibility"
+                                        >
+                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
 
                         <TextField
@@ -211,6 +227,7 @@ export default function NewUser() {
                                 value={role}
                                 label="Role"
                                 onChange={(e) => setRole(e.target.value)}
+                                disabled={!!(location.state as { customerId?: number } | null)?.customerId}
                             >
                                 <MenuItem value="user">User</MenuItem>
                                 <MenuItem value="customer">Customer</MenuItem>
@@ -225,6 +242,7 @@ export default function NewUser() {
                                 value={customerId || ''}
                                 label="Customer"
                                 onChange={(e) => setCustomerId(e.target.value ? Number(e.target.value) : null)}
+                                disabled={!!(location.state as { customerId?: number } | null)?.customerId}
                             >
                                 <MenuItem value="">None</MenuItem>
                                 {customers.map((customer) => (
@@ -259,7 +277,7 @@ export default function NewUser() {
                             <Button
                                 variant="outlined"
                                 startIcon={<ArrowBack />}
-                                onClick={() => navigate('/admin/users')}
+                                onClick={() => navigate(-1)}
                             >
                                 Cancel
                             </Button>

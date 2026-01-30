@@ -194,7 +194,7 @@ export default function CustomerDetail() {
                     <Button
                         variant="outlined"
                         startIcon={<ArrowBack />}
-                        onClick={() => navigate('/admin/customers')}
+                        onClick={() => navigate(-1)}
                     >
                         Back
                     </Button>
