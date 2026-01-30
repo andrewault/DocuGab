@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
 
 from app.core.database import get_db
-from app.core.deps import get_admin_user
+from app.core.deps import get_admin_user, get_current_user
 from app.models.user import User
 from app.models.customer import Customer
 from app.models.project import Project
@@ -22,6 +22,7 @@ from app.schemas.project import (
 
 
 router = APIRouter(prefix="/admin/projects", tags=["admin", "projects"])
+customer_router = APIRouter(prefix="/customer/projects", tags=["customer", "projects"])
 
 
 async def _build_project_response(project: Project, db: AsyncSession) -> dict:
@@ -259,3 +260,83 @@ async def delete_project(
     await db.commit()
 
     return None
+
+
+# Customer-accessible endpoints
+@customer_router.get("", response_model=ProjectListResponse)
+async def list_customer_projects(
+    page: int = Query(1, ge=1, description="Page number"),
+    per_page: int = Query(20, ge=1, le=100, description="Items per page"),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """List projects for the current customer user."""
+    if not user.customer_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with a customer",
+        )
+
+    # Build query filtered by user's customer_id
+    query = select(Project).where(Project.customer_id == user.customer_id)
+    count_query = select(func.count(Project.id)).where(
+        Project.customer_id == user.customer_id
+    )
+
+    # Get total count
+    total_result = await db.execute(count_query)
+    total = total_result.scalar() or 0
+
+    # Apply pagination and ordering
+    query = query.order_by(Project.created_at.desc())
+    query = query.offset((page - 1) * per_page).limit(per_page)
+
+    # Execute query
+    result = await db.execute(query)
+    projects = list(result.scalars().all())
+
+    # Build responses
+    project_responses = []
+    for project in projects:
+        project_dict = await _build_project_response(project, db)
+        project_responses.append(ProjectResponse(**project_dict))
+
+    return ProjectListResponse(
+        projects=project_responses,
+        total=total,
+        page=page,
+        per_page=per_page,
+    )
+
+
+@customer_router.get("/{project_uuid}", response_model=ProjectResponse)
+async def get_customer_project(
+    project_uuid: UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get a specific project by UUID (customer must own it)."""
+    if not user.customer_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with a customer",
+        )
+
+    result = await db.execute(select(Project).where(Project.uuid == project_uuid))
+    project = result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+
+    # Verify the project belongs to the user's customer
+    if project.customer_id != user.customer_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied",
+        )
+
+    project_dict = await _build_project_response(project, db)
+    return ProjectResponse(**project_dict)

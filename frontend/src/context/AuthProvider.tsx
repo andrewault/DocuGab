@@ -131,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const isAuthenticated = user !== null;
     const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
+    const isCustomer = user?.role === 'customer';
 
     return (
         <AuthContext.Provider
@@ -139,6 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 isAuthenticated,
                 isLoading,
                 isAdmin,
+                isCustomer,
                 login,
                 register,
                 logout,

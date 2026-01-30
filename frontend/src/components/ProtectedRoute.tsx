@@ -6,10 +6,11 @@ import type { ReactNode } from 'react';
 interface ProtectedRouteProps {
     children: ReactNode;
     requireAdmin?: boolean;
+    requireCustomer?: boolean;
 }
 
-export default function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
-    const { isAuthenticated, isLoading, isAdmin } = useAuth();
+export default function ProtectedRoute({ children, requireAdmin = false, requireCustomer = false }: ProtectedRouteProps) {
+    const { isAuthenticated, isLoading, isAdmin, isCustomer } = useAuth();
     const location = useLocation();
 
     if (isLoading) {
@@ -34,6 +35,11 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
 
     if (requireAdmin && !isAdmin) {
         // Redirect non-admins to home
+        return <Navigate to="/" replace />;
+    }
+
+    if (requireCustomer && !isCustomer) {
+        // Redirect non-customers to home
         return <Navigate to="/" replace />;
     }
 

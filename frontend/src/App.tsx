@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { Box, Toolbar } from '@mui/material';
 import Navbar from './components/Navbar';
 import AdminSidebar from './components/AdminSidebar';
+import CustomerSidebar from './components/CustomerSidebar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
@@ -18,6 +19,10 @@ import FAQ from './pages/FAQ';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import AdminHome from './pages/admin/AdminHome';
+import CustomerHome from './pages/customer/CustomerHome';
+import CustomerProjects from './pages/customer/CustomerProjects';
+import CustomerProjectDetail from './pages/customer/CustomerProjectDetail';
+import CustomerDocumentUpload from './pages/customer/CustomerDocumentUpload';
 import Users from './pages/admin/Users';
 import UserDetail from './pages/admin/UserDetail';
 import UserEdit from './pages/admin/UserEdit';
@@ -34,7 +39,7 @@ import { useAuth } from './context/AuthContext';
 
 export default function App() {
   const isPublicBranded = isBrandedRoute();
-  const { isAdmin } = useAuth();
+  const { isAdmin, isCustomer } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleToggleSidebar = () => {
@@ -62,8 +67,9 @@ export default function App() {
 
       {/* Content area with optional sidebar */}
       <Box sx={{ display: 'flex', flex: 1 }}>
-        {/* Admin sidebar column (only for admins) */}
+        {/* Sidebar column (admin or customer) */}
         {isAdmin && <AdminSidebar isOpen={sidebarOpen} />}
+        {isCustomer && <CustomerSidebar isOpen={sidebarOpen} />}
 
         {/* Main content area */}
         <Box
@@ -109,6 +115,26 @@ export default function App() {
             <Route path="/admin" element={
               <ProtectedRoute requireAdmin>
                 <AdminHome />
+              </ProtectedRoute>
+            } />
+            <Route path="/customer" element={
+              <ProtectedRoute requireCustomer>
+                <CustomerHome />
+              </ProtectedRoute>
+            } />
+            <Route path="/customer/:customer_uuid/projects" element={
+              <ProtectedRoute requireCustomer>
+                <CustomerProjects />
+              </ProtectedRoute>
+            } />
+            <Route path="/customer/:customer_uuid/projects/:uuid" element={
+              <ProtectedRoute requireCustomer>
+                <CustomerProjectDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/customer/:customer_uuid/projects/:project_uuid/documents/new" element={
+              <ProtectedRoute requireCustomer>
+                <CustomerDocumentUpload />
               </ProtectedRoute>
             } />
             <Route path="/admin/users" element={
