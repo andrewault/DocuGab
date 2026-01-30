@@ -45,6 +45,8 @@ class UserResponse(BaseModel):
     role: str
     is_active: bool
     is_verified: bool
+    theme: str
+    timezone: str
 
     class Config:
         from_attributes = True
@@ -62,3 +64,10 @@ class PasswordChange(BaseModel):
 
     current_password: str
     new_password: str = Field(min_length=8)
+
+
+class UserSettingsUpdate(BaseModel):
+    """Schema for updating user settings."""
+
+    theme: Optional[str] = Field(None, pattern="^(light|dark|system)$")
+    timezone: Optional[str] = None

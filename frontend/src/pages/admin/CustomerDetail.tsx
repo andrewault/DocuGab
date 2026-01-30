@@ -38,6 +38,8 @@ import {
 } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { useAuth } from '../../context/AuthContext';
+import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface Customer {
     id: number;
@@ -64,6 +66,7 @@ interface Project {
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function CustomerDetail() {
+    const { user: currentUser } = useAuth();
     const { uuid } = useParams<{ uuid: string }>();
     const navigate = useNavigate();
     const [customer, setCustomer] = useState<Customer | null>(null);
@@ -250,7 +253,11 @@ export default function CustomerDetail() {
                                     Created
                                 </Typography>
                                 <Typography variant="body1">
-                                    {new Date(customer.created_at).toLocaleDateString()}
+                                    {formatInUserTimezone(
+                                        customer.created_at,
+                                        currentUser?.timezone || 'America/Los_Angeles',
+                                        'PP'
+                                    )}
                                 </Typography>
                             </Box>
 
@@ -338,7 +345,11 @@ export default function CustomerDetail() {
                                             />
                                         </TableCell>
                                         <TableCell>
-                                            {new Date(project.created_at).toLocaleDateString()}
+                                            {formatInUserTimezone(
+                                                project.created_at,
+                                                currentUser?.timezone || 'America/Los_Angeles',
+                                                'PP'
+                                            )}
                                         </TableCell>
                                         <TableCell align="right">
                                             <IconButton

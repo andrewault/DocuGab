@@ -30,6 +30,8 @@ import {
     CleaningServices,
 } from '@mui/icons-material';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { useAuth } from '../../context/AuthContext';
+import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface BackupFile {
     filename: string;
@@ -40,6 +42,7 @@ interface BackupFile {
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function Database() {
+    const { user: currentUser } = useAuth();
     const [backups, setBackups] = useState<BackupFile[]>([]);
     const [loading, setLoading] = useState(true);
     const [creating, setCreating] = useState(false);
@@ -199,8 +202,11 @@ export default function Database() {
     };
 
     const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleString();
+        return formatInUserTimezone(
+            dateString,
+            currentUser?.timezone || 'America/Los_Angeles',
+            'PPpp'
+        );
     };
 
     const theme = useTheme();

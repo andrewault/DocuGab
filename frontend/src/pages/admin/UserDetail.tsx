@@ -27,6 +27,8 @@ import {
 import { Save, Delete } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { useAuth } from '../../context/AuthContext';
+import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface User {
     id: number;
@@ -35,11 +37,13 @@ interface User {
     role: string;
     is_active: boolean;
     is_verified: boolean;
+    created_at: string;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function UserDetail() {
+    const { user: currentUser } = useAuth();
     const { uuid } = useParams<{ uuid: string }>();
     const navigate = useNavigate();
     const theme = useTheme();
@@ -240,8 +244,15 @@ export default function UserDetail() {
                         User
                     </Typography>
                 </Stack>
-                <Typography variant="body2" color="text.secondary" mb={3}>
+                <Typography variant="body2" color="text.secondary" mb={0.5}>
                     {user.email}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" mb={3} display="block">
+                    Joined: {formatInUserTimezone(
+                        user.created_at,
+                        currentUser?.timezone || 'America/Los_Angeles',
+                        'PPpp'
+                    )}
                 </Typography>
 
                 <Paper

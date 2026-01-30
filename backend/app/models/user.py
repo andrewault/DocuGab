@@ -36,6 +36,10 @@ class User(Base):
     role: Mapped[str] = mapped_column(String(50), default="user", nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    theme: Mapped[str] = mapped_column(String(20), default="system", nullable=False)
+    timezone: Mapped[str] = mapped_column(
+        String(50), default="America/Los_Angeles", nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

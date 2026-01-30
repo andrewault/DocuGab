@@ -8,6 +8,8 @@ export interface User {
     role: string;
     is_active: boolean;
     is_verified: boolean;
+    theme: string;
+    timezone: string;
 }
 
 interface AuthContextType {
@@ -19,6 +21,7 @@ interface AuthContextType {
     register: (email: string, password: string, fullName?: string) => Promise<void>;
     logout: () => void;
     refreshAuth: () => Promise<void>;
+    updateUser: (updatedUser: User) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);

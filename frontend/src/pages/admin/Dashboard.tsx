@@ -28,8 +28,9 @@ import {
 } from '@mui/material';
 import { Group, PersonAdd, Description, Pending, Edit } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { useAuth } from '../../context/AuthContext';
+import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface Stats {
     total_users: number;
@@ -46,11 +47,13 @@ interface User {
     role: string;
     is_active: boolean;
     is_verified: boolean;
+    created_at: string;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function AdminDashboard() {
+    const { user: currentUser } = useAuth();
     const [stats, setStats] = useState<Stats | null>(null);
     const [users, setUsers] = useState<User[]>([]);
     const [total, setTotal] = useState(0);
@@ -67,6 +70,13 @@ export default function AdminDashboard() {
 
     const fetchStats = async () => {
         try {
+            // Note: getAuthHeader is likely needed if the request requires auth headers, 
+            // but we'll assume fetch uses credentials or headers are handled globally if they were removed?
+            // Wait, I see getAuthHeader was imported in the original file (Step 2772 line 31).
+            // I should re-add it or use a helper that includes it.
+            // But I'll stick to what was there: importing getAuthHeader
+            const { getAuthHeader } = await import('../../utils/authUtils');
+
             const response = await fetch(`${API_BASE}/api/admin/stats`, {
                 headers: getAuthHeader(),
             });
@@ -81,6 +91,7 @@ export default function AdminDashboard() {
     const fetchUsers = useCallback(async () => {
         try {
             setLoading(true);
+            const { getAuthHeader } = await import('../../utils/authUtils');
             const params = new URLSearchParams({
                 page: String(page + 1),
                 per_page: String(rowsPerPage),
@@ -221,6 +232,7 @@ export default function AdminDashboard() {
                                 <TableCell>Email</TableCell>
                                 <TableCell>Name</TableCell>
                                 <TableCell>Role</TableCell>
+                                <TableCell>Joined</TableCell>
                                 <TableCell>Status</TableCell>
                                 <TableCell align="right">Actions</TableCell>
                             </TableRow>
@@ -228,13 +240,13 @@ export default function AdminDashboard() {
                         <TableBody>
                             {loading ? (
                                 <TableRow>
-                                    <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
+                                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
                                         <CircularProgress />
                                     </TableCell>
                                 </TableRow>
                             ) : users.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
+                                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
                                         No users found
                                     </TableCell>
                                 </TableRow>
@@ -260,6 +272,15 @@ export default function AdminDashboard() {
                                                             : 'default'
                                                 }
                                             />
+                                        </TableCell>
+                                        <TableCell>
+                                            <Typography variant="body2">
+                                                {formatInUserTimezone(
+                                                    user.created_at,
+                                                    currentUser?.timezone || 'America/Los_Angeles',
+                                                    'PP'
+                                                )}
+                                            </Typography>
                                         </TableCell>
                                         <TableCell>
                                             <Chip

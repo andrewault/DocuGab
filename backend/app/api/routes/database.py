@@ -4,7 +4,7 @@ Database backup management endpoints.
 
 import os
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List
 
@@ -185,7 +185,7 @@ async def list_backups(
         backups.append({
             "filename": backup_file.name,
             "size": stat.st_size,
-            "created_at": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+            "created_at": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(),
         })
 
     # Sort by created_at descending (newest first)

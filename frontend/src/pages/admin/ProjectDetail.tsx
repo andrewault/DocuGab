@@ -36,6 +36,8 @@ import {
 } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { useAuth } from '../../context/AuthContext';
+import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface Project {
     id: number;
@@ -79,6 +81,7 @@ interface Document {
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function ProjectDetail() {
+    const { user: currentUser } = useAuth();
     const { uuid } = useParams<{ uuid: string }>();
     const navigate = useNavigate();
     const theme = useTheme();
@@ -382,7 +385,11 @@ export default function ProjectDetail() {
                                         Created
                                     </Typography>
                                     <Typography variant="body1">
-                                        {new Date(project.created_at).toLocaleDateString()}
+                                        {formatInUserTimezone(
+                                            project.created_at,
+                                            currentUser?.timezone || 'America/Los_Angeles',
+                                            'PP'
+                                        )}
                                     </Typography>
                                 </Box>
 
@@ -610,7 +617,11 @@ export default function ProjectDetail() {
                                                 />
                                             </TableCell>
                                             <TableCell>
-                                                {new Date(doc.created_at).toLocaleDateString()}
+                                                {formatInUserTimezone(
+                                                    doc.created_at,
+                                                    currentUser?.timezone || 'America/Los_Angeles',
+                                                    'PPpp'
+                                                )}
                                             </TableCell>
                                         </TableRow>
                                     ))}

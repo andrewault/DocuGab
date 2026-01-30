@@ -125,6 +125,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const updateUser = (updatedUser: User) => {
+        setUser(updatedUser);
+    };
+
     const isAuthenticated = user !== null;
     const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
@@ -139,6 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 register,
                 logout,
                 refreshAuth,
+                updateUser,
             }}
         >
             {children}
