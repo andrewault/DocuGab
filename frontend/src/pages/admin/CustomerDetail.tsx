@@ -41,6 +41,7 @@ import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
 interface Customer {
     id: number;
+    uuid: string;
     name: string;
     contact_name: string | null;
     contact_phone: string | null;
@@ -52,6 +53,7 @@ interface Customer {
 
 interface Project {
     id: number;
+    uuid: string;
     name: string;
     subdomain: string;
     is_active: boolean;
@@ -62,7 +64,7 @@ interface Project {
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function CustomerDetail() {
-    const { id } = useParams<{ id: string }>();
+    const { uuid } = useParams<{ uuid: string }>();
     const navigate = useNavigate();
     const [customer, setCustomer] = useState<Customer | null>(null);
     const [projects, setProjects] = useState<Project[]>([]);
@@ -80,7 +82,7 @@ export default function CustomerDetail() {
 
                 // Fetch customer details
                 const customerResponse = await fetch(
-                    `${API_BASE}/api/admin/customers/${id}`,
+                    `${API_BASE}/api/admin/customers/${uuid}`,
                     { headers: getAuthHeader() }
                 );
 
@@ -91,9 +93,9 @@ export default function CustomerDetail() {
                 const customerData = await customerResponse.json();
                 setCustomer(customerData);
 
-                // Fetch customer's projects
+                // Fetch customer's projects using the customer's integer ID
                 const projectsResponse = await fetch(
-                    `${API_BASE}/api/admin/projects?customer_id=${id}`,
+                    `${API_BASE}/api/admin/projects?customer_id=${customerData.id}`,
                     { headers: getAuthHeader() }
                 );
 
@@ -111,10 +113,10 @@ export default function CustomerDetail() {
             }
         };
 
-        if (id) {
+        if (uuid) {
             fetchData();
         }
-    }, [id]);
+    }, [uuid]);
 
     if (loading) {
         return (
@@ -305,7 +307,7 @@ export default function CustomerDetail() {
                                         key={project.id}
                                         hover
                                         sx={{ cursor: 'pointer' }}
-                                        onClick={() => navigate(`/admin/projects/${project.id}`)}
+                                        onClick={() => navigate(`/admin/projects/${project.uuid}`)}
                                     >
                                         <TableCell>
                                             <Stack direction="row" alignItems="center" gap={1}>
@@ -344,7 +346,7 @@ export default function CustomerDetail() {
                                                 color="primary"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    navigate(`/admin/projects/${project.id}/edit`);
+                                                    navigate(`/admin/projects/${project.uuid}/edit`);
                                                 }}
                                             >
                                                 <Edit />
@@ -418,7 +420,7 @@ export default function CustomerDetail() {
                             setSaveError(null);
                             try {
                                 const response = await fetch(
-                                    `${API_BASE}/api/admin/customers/${id}`,
+                                    `${API_BASE}/api/admin/customers/${uuid}`,
                                     {
                                         method: 'PATCH',
                                         headers: {
@@ -454,6 +456,6 @@ export default function CustomerDetail() {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Container>
+        </Container >
     );
 }

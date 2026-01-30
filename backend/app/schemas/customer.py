@@ -3,6 +3,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
+from uuid import UUID
 
 
 class CustomerBase(BaseModel):
@@ -32,6 +33,7 @@ class CustomerResponse(CustomerBase):
     """Schema for customer response."""
 
     id: int
+    uuid: UUID
     is_active: bool
     created_at: datetime
     updated_at: datetime

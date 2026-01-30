@@ -39,6 +39,7 @@ import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
 interface Project {
     id: number;
+    uuid: string;
     customer_id: number;
     name: string;
     slug: string;
@@ -442,7 +443,7 @@ export default function Projects() {
                                                     key={project.id}
                                                     hover
                                                     sx={{ cursor: 'pointer' }}
-                                                    onClick={() => navigate(`/admin/projects/${project.id}`)}
+                                                    onClick={() => navigate(`/admin/projects/${project.uuid}`)}
                                                 >
                                                     <TableCell>
                                                         <Typography fontWeight={500}>
@@ -489,7 +490,7 @@ export default function Projects() {
                                                             size="small"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                navigate(`/admin/projects/${project.id}/edit`);
+                                                                navigate(`/admin/projects/${project.uuid}/edit`);
                                                             }}
                                                             color="primary"
                                                         >

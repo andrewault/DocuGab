@@ -1,6 +1,7 @@
 """Customer management API routes (admin only)."""
 
 from typing import Optional
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -65,6 +66,7 @@ async def list_customers(
         # Create response with projects count
         customer_dict = {
             "id": customer.id,
+            "uuid": customer.uuid,
             "name": customer.name,
             "contact_name": customer.contact_name,
             "contact_phone": customer.contact_phone,
@@ -83,20 +85,20 @@ async def list_customers(
     )
 
 
-@router.get("/{customer_id}", response_model=CustomerResponse)
+@router.get("/{customer_uuid}", response_model=CustomerResponse)
 async def get_customer(
-    customer_id: int,
+    customer_uuid: UUID,
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Get a specific customer by ID."""
-    result = await db.execute(select(Customer).where(Customer.id == customer_id))
+    """Get a specific customer by UUID."""
+    result = await db.execute(select(Customer).where(Customer.uuid == customer_uuid))
     customer = result.scalar_one_or_none()
 
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Customer with ID {customer_id} not found",
+            detail=f"Customer not found",
         )
 
     # Count projects
@@ -108,6 +110,7 @@ async def get_customer(
     # Create response
     customer_dict = {
         "id": customer.id,
+        "uuid": customer.uuid,
         "name": customer.name,
         "contact_name": customer.contact_name,
         "contact_phone": customer.contact_phone,
@@ -142,6 +145,7 @@ async def create_customer(
     # Return response
     customer_dict = {
         "id": customer.id,
+        "uuid": customer.uuid,
         "name": customer.name,
         "contact_name": customer.contact_name,
         "contact_phone": customer.contact_phone,
@@ -154,21 +158,21 @@ async def create_customer(
     return CustomerResponse(**customer_dict)
 
 
-@router.patch("/{customer_id}", response_model=CustomerResponse)
+@router.patch("/{customer_uuid}", response_model=CustomerResponse)
 async def update_customer(
-    customer_id: int,
+    customer_uuid: UUID,
     data: CustomerUpdate,
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Update a customer."""
-    result = await db.execute(select(Customer).where(Customer.id == customer_id))
+    result = await db.execute(select(Customer).where(Customer.uuid == customer_uuid))
     customer = result.scalar_one_or_none()
 
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Customer with ID {customer_id} not found",
+            detail=f"Customer not found",
         )
 
     # Update fields
@@ -193,6 +197,7 @@ async def update_customer(
     # Create response
     customer_dict = {
         "id": customer.id,
+        "uuid": customer.uuid,
         "name": customer.name,
         "contact_name": customer.contact_name,
         "contact_phone": customer.contact_phone,
@@ -205,20 +210,20 @@ async def update_customer(
     return CustomerResponse(**customer_dict)
 
 
-@router.delete("/{customer_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{customer_uuid}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_customer(
-    customer_id: int,
+    customer_uuid: UUID,
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Delete a customer (cascades to projects and documents)."""
-    result = await db.execute(select(Customer).where(Customer.id == customer_id))
+    result = await db.execute(select(Customer).where(Customer.uuid == customer_uuid))
     customer = result.scalar_one_or_none()
 
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Customer with ID {customer_id} not found",
+            detail=f"Customer not found",
         )
 
     # Check if customer has projects

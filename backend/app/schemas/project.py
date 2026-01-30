@@ -3,6 +3,7 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime
+from uuid import UUID
 import re
 
 
@@ -111,6 +112,7 @@ class ProjectResponse(ProjectBase):
     """Schema for project response."""
 
     id: int
+    uuid: UUID
     customer_id: int
     logo: Optional[str]
     is_active: bool
@@ -118,6 +120,7 @@ class ProjectResponse(ProjectBase):
     updated_at: datetime
     documents_count: Optional[int] = 0
     customer_name: Optional[str] = None
+    customer_uuid: Optional[UUID] = None
 
     model_config = {"from_attributes": True}
 

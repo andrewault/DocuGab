@@ -130,7 +130,7 @@ export default function App() {
                 <Customers />
               </ProtectedRoute>
             } />
-            <Route path="/admin/customers/:id" element={
+            <Route path="/admin/customers/:uuid" element={
               <ProtectedRoute requireAdmin>
                 <CustomerDetail />
               </ProtectedRoute>
@@ -140,12 +140,12 @@ export default function App() {
                 <Projects />
               </ProtectedRoute>
             } />
-            <Route path="/admin/projects/:id" element={
+            <Route path="/admin/projects/:uuid" element={
               <ProtectedRoute requireAdmin>
                 <ProjectDetail />
               </ProtectedRoute>
             } />
-            <Route path="/admin/projects/:id/edit" element={
+            <Route path="/admin/projects/:uuid/edit" element={
               <ProtectedRoute requireAdmin>
                 <ProjectEdit />
               </ProtectedRoute>

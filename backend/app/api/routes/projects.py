@@ -1,6 +1,7 @@
 """Project management API routes (admin only)."""
 
 from typing import Optional
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -31,14 +32,17 @@ async def _build_project_response(project: Project, db: AsyncSession) -> dict:
     )
     documents_count = docs_count_result.scalar() or 0
 
-    # Get customer name
+    # Get customer name and uuid
     customer_result = await db.execute(
-        select(Customer.name).where(Customer.id == project.customer_id)
+        select(Customer.name, Customer.uuid).where(Customer.id == project.customer_id)
     )
-    customer_name = customer_result.scalar_one_or_none()
+    customer_data = customer_result.one_or_none()
+    customer_name = customer_data[0] if customer_data else None
+    customer_uuid = customer_data[1] if customer_data else None
 
     return {
         "id": project.id,
+        "uuid": project.uuid,
         "customer_id": project.customer_id,
         "name": project.name,
         "slug": project.slug,
@@ -60,6 +64,7 @@ async def _build_project_response(project: Project, db: AsyncSession) -> dict:
         "updated_at": project.updated_at,
         "documents_count": documents_count,
         "customer_name": customer_name,
+        "customer_uuid": customer_uuid,
     }
 
 
@@ -117,20 +122,20 @@ async def list_projects(
     )
 
 
-@router.get("/{project_id}", response_model=ProjectResponse)
+@router.get("/{project_uuid}", response_model=ProjectResponse)
 async def get_project(
-    project_id: int,
+    project_uuid: UUID,
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Get a specific project by ID."""
-    result = await db.execute(select(Project).where(Project.id == project_id))
+    """Get a specific project by UUID."""
+    result = await db.execute(select(Project).where(Project.uuid == project_uuid))
     project = result.scalar_one_or_none()
 
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project with ID {project_id} not found",
+            detail=f"Project not found",
         )
 
     project_dict = await _build_project_response(project, db)
@@ -194,21 +199,21 @@ async def create_project(
     return ProjectResponse(**project_dict)
 
 
-@router.patch("/{project_id}", response_model=ProjectResponse)
+@router.patch("/{project_uuid}", response_model=ProjectResponse)
 async def update_project(
-    project_id: int,
+    project_uuid: UUID,
     data: ProjectUpdate,
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Update a project."""
-    result = await db.execute(select(Project).where(Project.id == project_id))
+    result = await db.execute(select(Project).where(Project.uuid == project_uuid))
     project = result.scalar_one_or_none()
 
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project with ID {project_id} not found",
+            detail=f"Project not found",
         )
 
     # Check subdomain uniqueness if being updated
@@ -234,20 +239,20 @@ async def update_project(
     return ProjectResponse(**project_dict)
 
 
-@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{project_uuid}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_project(
-    project_id: int,
+    project_uuid: UUID,
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Delete a project (cascades to documents)."""
-    result = await db.execute(select(Project).where(Project.id == project_id))
+    result = await db.execute(select(Project).where(Project.uuid == project_uuid))
     project = result.scalar_one_or_none()
 
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project with ID {project_id} not found",
+            detail=f"Project not found",
         )
 
     await db.delete(project)

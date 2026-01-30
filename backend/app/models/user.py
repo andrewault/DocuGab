@@ -2,7 +2,9 @@
 
 from datetime import datetime
 from typing import TYPE_CHECKING
+import uuid as uuid_lib
 from sqlalchemy import Integer, String, Boolean, DateTime, func
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.database import Base
 
@@ -18,6 +20,13 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    uuid: Mapped[uuid_lib.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        unique=True,
+        nullable=False,
+        index=True,
+        default=uuid_lib.uuid4,
+    )
     email: Mapped[str] = mapped_column(
         String(255), unique=True, index=True, nullable=False
     )

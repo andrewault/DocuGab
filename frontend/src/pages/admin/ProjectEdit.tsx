@@ -85,7 +85,7 @@ function TabPanel(props: TabPanelProps) {
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function ProjectEdit() {
-    const { id } = useParams<{ id: string }>();
+    const { uuid } = useParams<{ uuid: string }>();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -120,7 +120,7 @@ export default function ProjectEdit() {
 
                 // Fetch project
                 const projectResponse = await fetch(
-                    `${API_BASE}/api/admin/projects/${id}`,
+                    `${API_BASE}/api/admin/projects/${uuid}`,
                     { headers: getAuthHeader() }
                 );
                 if (!projectResponse.ok) throw new Error('Failed to fetch project');
@@ -163,7 +163,7 @@ export default function ProjectEdit() {
         };
 
         fetchData();
-    }, [id]);
+    }, [uuid]);
 
     const handleSave = async () => {
         if (!formData.name || !formData.customer_id) {
@@ -175,7 +175,7 @@ export default function ProjectEdit() {
         setSaveError(null);
         try {
             const response = await fetch(
-                `${API_BASE}/api/admin/projects/${id}`,
+                `${API_BASE}/api/admin/projects/${uuid}`,
                 {
                     method: 'PATCH',
                     headers: {
@@ -191,7 +191,7 @@ export default function ProjectEdit() {
                 throw new Error(errorData.detail || 'Failed to update project');
             }
 
-            navigate(`/admin/projects/${id}`);
+            navigate(`/admin/projects/${uuid}`);
         } catch (err) {
             setSaveError(err instanceof Error ? err.message : 'Failed to update project');
         } finally {
@@ -220,7 +220,7 @@ export default function ProjectEdit() {
             <AdminBreadcrumbs
                 items={[
                     { label: 'Projects', path: '/admin/projects' },
-                    { label: project.name, path: `/admin/projects/${id}` },
+                    { label: project.name, path: `/admin/projects/${uuid}` },
                     { label: 'Edit' },
                 ]}
             />
@@ -231,7 +231,7 @@ export default function ProjectEdit() {
                 <Stack direction="row" spacing={2}>
                     <Button
                         startIcon={<ArrowBack />}
-                        onClick={() => navigate(`/admin/projects/${id}`)}
+                        onClick={() => navigate(`/admin/projects/${uuid}`)}
                         disabled={saving}
                     >
                         Cancel

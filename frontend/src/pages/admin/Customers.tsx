@@ -33,6 +33,7 @@ import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
 interface Customer {
     id: number;
+    uuid: string;
     name: string;
     contact_name: string | null;
     contact_phone: string | null;
@@ -305,7 +306,7 @@ export default function Customers() {
                                                 key={customer.id}
                                                 hover
                                                 sx={{ cursor: 'pointer' }}
-                                                onClick={() => navigate(`/admin/customers/${customer.id}`)}
+                                                onClick={() => navigate(`/admin/customers/${customer.uuid}`)}
                                             >
                                                 <TableCell>
                                                     <Typography fontWeight={500}>

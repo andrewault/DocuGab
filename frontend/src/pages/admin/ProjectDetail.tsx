@@ -41,6 +41,7 @@ interface Project {
     id: number;
     customer_id: number;
     customer_name: string;
+    customer_uuid: string | null;
     name: string;
     slug: string;
     description: string | null;
@@ -78,7 +79,7 @@ interface Document {
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function ProjectDetail() {
-    const { id } = useParams<{ id: string }>();
+    const { uuid } = useParams<{ uuid: string }>();
     const navigate = useNavigate();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
@@ -92,11 +93,11 @@ export default function ProjectDetail() {
     const [isDragging, setIsDragging] = useState(false);
 
     const fetchDocuments = async () => {
-        if (!id) return;
+        if (!project?.id) return;
 
         try {
             const docsResponse = await fetch(
-                `${API_BASE}/api/documents?project_id=${id}`,
+                `${API_BASE}/api/documents?project_id=${project.id}`,
                 { headers: getAuthHeader() }
             );
 
@@ -111,7 +112,7 @@ export default function ProjectDetail() {
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
-        if (!files || files.length === 0 || !id) return;
+        if (!files || files.length === 0 || !project?.id) return;
 
         setUploading(true);
         setUploadError(null);
@@ -122,7 +123,7 @@ export default function ProjectDetail() {
                 formData.append('file', file);
 
                 const response = await fetch(
-                    `${API_BASE}/api/documents/upload?project_id=${id}`,
+                    `${API_BASE}/api/documents/upload?project_id=${project.id}`,
                     {
                         method: 'POST',
                         headers: getAuthHeader(),
@@ -189,9 +190,9 @@ export default function ProjectDetail() {
             try {
                 setLoading(true);
 
-                // Fetch project details
+                // Fetch project details by UUID
                 const projectResponse = await fetch(
-                    `${API_BASE}/api/admin/projects/${id}`,
+                    `${API_BASE}/api/admin/projects/${uuid}`,
                     { headers: getAuthHeader() }
                 );
 
@@ -202,9 +203,9 @@ export default function ProjectDetail() {
                 const projectData = await projectResponse.json();
                 setProject(projectData);
 
-                // Fetch documents for this project
+                // Fetch documents for this project using integer ID
                 const docsResponse = await fetch(
-                    `${API_BASE}/api/documents?project_id=${id}`,
+                    `${API_BASE}/api/documents?project_id=${projectData.id}`,
                     { headers: getAuthHeader() }
                 );
 
@@ -221,10 +222,10 @@ export default function ProjectDetail() {
             }
         };
 
-        if (id) {
+        if (uuid) {
             fetchData();
         }
-    }, [id]);
+    }, [uuid]);
 
     if (loading) {
         return (
@@ -285,7 +286,7 @@ export default function ProjectDetail() {
                 <AdminBreadcrumbs
                     items={[
                         { label: 'Customers', path: '/admin/customers' },
-                        { label: project.customer_name, path: `/admin/customers/${project.customer_id}` },
+                        { label: project.customer_name, path: project.customer_uuid ? `/admin/customers/${project.customer_uuid}` : undefined },
                         { label: project.name },
                     ]}
                 />
@@ -299,7 +300,7 @@ export default function ProjectDetail() {
                     <Button
                         variant="contained"
                         startIcon={<Edit />}
-                        onClick={() => navigate(`/admin/projects/${id}/edit`)}
+                        onClick={() => navigate(`/admin/projects/${uuid}/edit`)}
                     >
                         Edit Project
                     </Button>
@@ -333,7 +334,7 @@ export default function ProjectDetail() {
                                     <Typography
                                         variant="body1"
                                         sx={{ cursor: 'pointer', color: 'primary.main' }}
-                                        onClick={() => navigate(`/admin/customers/${project.customer_id}`)}
+                                        onClick={() => project.customer_uuid && navigate(`/admin/customers/${project.customer_uuid}`)}
                                     >
                                         {project.customer_name}
                                     </Typography>
