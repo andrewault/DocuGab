@@ -22,6 +22,7 @@ import AdminHome from './pages/admin/AdminHome';
 import CustomerHome from './pages/customer/CustomerHome';
 import CustomerProjects from './pages/customer/CustomerProjects';
 import CustomerProjectDetail from './pages/customer/CustomerProjectDetail';
+import CustomerProjectEdit from './pages/customer/CustomerProjectEdit';
 import CustomerDocumentUpload from './pages/customer/CustomerDocumentUpload';
 import Users from './pages/admin/Users';
 import UserDetail from './pages/admin/UserDetail';
@@ -130,6 +131,16 @@ export default function App() {
             <Route path="/customer/:customer_uuid/projects/:uuid" element={
               <ProtectedRoute requireCustomer>
                 <CustomerProjectDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/customer/:customer_uuid/projects/:uuid/:tab" element={
+              <ProtectedRoute requireCustomer>
+                <CustomerProjectDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/customer/:customer_uuid/projects/:uuid/edit" element={
+              <ProtectedRoute requireCustomer>
+                <CustomerProjectEdit />
               </ProtectedRoute>
             } />
             <Route path="/customer/:customer_uuid/projects/:project_uuid/documents/new" element={

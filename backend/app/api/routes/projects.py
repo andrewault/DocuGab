@@ -338,5 +338,73 @@ async def get_customer_project(
             detail="Access denied",
         )
 
+
+    project_dict = await _build_project_response(project, db)
+    return ProjectResponse(**project_dict)
+
+
+@customer_router.patch("/{project_uuid}", response_model=ProjectResponse)
+async def update_customer_project(
+    project_uuid: UUID,
+    name: Optional[str] = None,
+    slug: Optional[str] = None,
+    description: Optional[str] = None,
+    subtitle: Optional[str] = None,
+    body: Optional[str] = None,
+    color_primary: Optional[str] = None,
+    color_secondary: Optional[str] = None,
+    color_background: Optional[str] = None,
+    return_link: Optional[str] = None,
+    return_link_text: Optional[str] = None,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update a project's editable fields (customer must own it)."""
+    if not user.customer_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with a customer",
+        )
+
+    result = await db.execute(select(Project).where(Project.uuid == project_uuid))
+    project = result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+
+    if project.customer_id != user.customer_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to update this project",
+        )
+
+    # Update fields if provided
+    if name is not None:
+        project.name = name
+    if slug is not None:
+        project.slug = slug
+    if description is not None:
+        project.description = description
+    if subtitle is not None:
+        project.subtitle = subtitle
+    if body is not None:
+        project.body = body
+    if color_primary is not None:
+        project.color_primary = color_primary
+    if color_secondary is not None:
+        project.color_secondary = color_secondary
+    if color_background is not None:
+        project.color_background = color_background
+    if return_link is not None:
+        project.return_link = return_link
+    if return_link_text is not None:
+        project.return_link_text = return_link_text
+
+    await db.commit()
+    await db.refresh(project)
+
     project_dict = await _build_project_response(project, db)
     return ProjectResponse(**project_dict)

@@ -17,8 +17,10 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    Tabs,
+    Tab,
 } from '@mui/material';
-import { ArrowBack, Folder, Description as DocumentIcon, Add } from '@mui/icons-material';
+import { ArrowBack, Folder, Description as DocumentIcon, Add, Edit } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getAuthHeader } from '../../utils/authUtils';
@@ -32,7 +34,15 @@ interface Project {
     id: number;
     uuid: string;
     name: string;
+    slug: string;
     description: string | null;
+    subtitle: string | null;
+    body: string | null;
+    color_primary: string;
+    color_secondary: string;
+    color_background: string;
+    return_link: string | null;
+    return_link_text: string | null;
     is_active: boolean;
     customer_id: number;
     customer_name: string;
@@ -52,11 +62,12 @@ interface Document {
 }
 
 export default function CustomerProjectDetail() {
-    const { uuid } = useParams<{ uuid: string }>();
+    const { uuid, tab } = useParams<{ uuid: string; tab?: string }>();
     const { user } = useAuth();
     const navigate = useNavigate();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    const currentTab = tab || 'properties';
     const [project, setProject] = useState<Project | null>(null);
     const [documents, setDocuments] = useState<Document[]>([]);
     const [loading, setLoading] = useState(true);
@@ -171,190 +182,322 @@ export default function CustomerProjectDetail() {
                 />
 
                 {/* Header */}
-                <Box mb={4}>
-                    <Typography
-                        variant="h4"
-                        component="h1"
-                        sx={{
-                            fontWeight: 700,
-                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                            backgroundClip: 'text',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                        }}
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Folder sx={{ fontSize: 32, color: '#6366f1' }} />
+                        <Typography
+                            variant="h4"
+                            sx={{
+                                fontWeight: 700,
+                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}
+                        >
+                            {project.name} Chatbot Project
+                        </Typography>
+                    </Box>
+                    <Button
+                        variant="outlined"
+                        startIcon={<Edit />}
+                        onClick={() => navigate(`/customer/${user?.customer_uuid}/projects/${project.uuid}/edit`)}
                     >
-                        {project.name} Chatbot Project
-                    </Typography>
+                        Edit
+                    </Button>
                 </Box>
 
-                {/* Chatbot Project Details */}
+
+                {/* Tabs */}
                 <Paper
                     elevation={3}
                     sx={{
-                        p: 4,
                         borderRadius: 2,
                         bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
                     }}
                 >
-                    <Stack spacing={3}>
-                        <Box>
-                            <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
-                                <Folder fontSize="small" />
-                                Chatbot Project Name
-                            </Typography>
-                            <Typography variant="h6" fontWeight={600}>
-                                {project.name}
-                            </Typography>
-                        </Box>
+                    <Tabs
+                        value={currentTab}
+                        onChange={(_, newValue) => {
+                            navigate(`/customer/${user?.customer_uuid}/projects/${uuid}/${newValue}`);
+                        }}
+                        sx={{
+                            borderBottom: 1,
+                            borderColor: 'divider',
+                            px: 2,
+                        }}
+                    >
+                        <Tab label="Properties" value="properties" />
+                        <Tab label="Avatar" value="avatar" />
+                        <Tab label="Documents" value="documents" />
+                    </Tabs>
 
-                        {project.description && (
-                            <Box>
-                                <Typography variant="caption" color="text.secondary">
-                                    Description
-                                </Typography>
-                                <Typography variant="body1">
-                                    {project.description}
-                                </Typography>
-                            </Box>
-                        )}
+                    {/* Properties Tab */}
+                    {currentTab === 'properties' && (
+                        <Box sx={{ p: 4 }}>
+                            <Stack spacing={3}>
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
+                                        <Folder fontSize="small" />
+                                        Chatbot Project Name
+                                    </Typography>
+                                    <Typography variant="h6" fontWeight={600}>
+                                        {project.name}
+                                    </Typography>
+                                </Box>
 
-                        <Box>
-                            <Typography variant="caption" color="text.secondary">
-                                Status
-                            </Typography>
-                            <Box mt={1}>
-                                <Chip
-                                    label={project.is_active ? 'Active' : 'Inactive'}
-                                    color={project.is_active ? 'success' : 'default'}
-                                />
-                            </Box>
-                        </Box>
+                                <Divider />
 
-                        <Divider sx={{ my: 3 }} />
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Description
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        {project.description || 'No description provided'}
+                                    </Typography>
+                                </Box>
 
-                        <Stack direction="row" spacing={4}>
-                            <Box>
-                                <Typography variant="caption" color="text.secondary">
-                                    Created
-                                </Typography>
-                                <Typography variant="body2">
-                                    {formatInUserTimezone(project.created_at, user?.timezone || 'UTC')}
-                                </Typography>
-                            </Box>
-                            <Box>
-                                <Typography variant="caption" color="text.secondary">
-                                    Updated
-                                </Typography>
-                                <Typography variant="body2">
-                                    {formatInUserTimezone(project.updated_at, user?.timezone || 'UTC')}
-                                </Typography>
-                            </Box>
-                        </Stack>
-                    </Stack>
-                </Paper>
+                                <Divider />
 
-                {/* Chatbot Project Avatar */}
-                <Paper
-                    elevation={3}
-                    sx={{
-                        p: 4,
-                        mt: 4,
-                        borderRadius: 2,
-                        bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
-                    }}
-                >
-                    <Typography variant="h6" gutterBottom fontWeight={600} mb={3}>
-                        Chatbot Project Avatar
-                    </Typography>
-                    <AvatarUpload projectUuid={project.uuid} />
-                </Paper>
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Slug
+                                    </Typography>
+                                    <Typography variant="body1" fontFamily="monospace">
+                                        {project.slug}
+                                    </Typography>
+                                </Box>
 
-                {/* Documents Table */}
-                <Paper
-                    elevation={3}
-                    sx={{
-                        p: 4,
-                        mt: 4,
-                        borderRadius: 2,
-                        bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
-                    }}
-                >
-                    <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-                        <Typography variant="h6" fontWeight={600}>
-                            Chatbot Project Documents
-                        </Typography>
-                        <Button
-                            variant="contained"
-                            size="small"
-                            startIcon={<Add />}
-                            onClick={() => navigate(`/customer/${user?.customer_uuid}/projects/${project.uuid}/documents/new`)}
-                        >
-                            Document
-                        </Button>
-                    </Stack>
-                    <TableContainer>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                            <DocumentIcon fontSize="small" />
-                                            Filename
-                                        </Box>
-                                    </TableCell>
-                                    <TableCell>Status</TableCell>
-                                    <TableCell>Size</TableCell>
-                                    <TableCell>Created</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {documents.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
-                                            <Typography variant="body2" color="text.secondary">
-                                                No documents found
+                                <Divider />
+
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Subtitle
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        {project.subtitle || 'No subtitle'}
+                                    </Typography>
+                                </Box>
+
+                                <Divider />
+
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Body
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                                        {project.body || 'No body content'}
+                                    </Typography>
+                                </Box>
+
+                                <Divider />
+
+                                <Stack direction="row" spacing={4}>
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Primary Color
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                                            <Box
+                                                sx={{
+                                                    width: 32,
+                                                    height: 32,
+                                                    borderRadius: 1,
+                                                    bgcolor: project.color_primary,
+                                                    border: '1px solid',
+                                                    borderColor: 'divider',
+                                                }}
+                                            />
+                                            <Typography variant="body2" fontFamily="monospace">
+                                                {project.color_primary}
                                             </Typography>
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    documents.map((doc) => (
-                                        <TableRow key={doc.uuid} hover>
-                                            <TableCell>
-                                                <Typography variant="body2" fontWeight={500}>
-                                                    {doc.filename}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Chip
-                                                    label={doc.status}
-                                                    size="small"
-                                                    color={
-                                                        doc.status === 'completed'
-                                                            ? 'success'
-                                                            : doc.status === 'pending'
-                                                                ? 'warning'
-                                                                : 'error'
-                                                    }
-                                                />
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="body2">
-                                                    {(doc.file_size / 1024).toFixed(1)} KB
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="body2">
-                                                    {formatInUserTimezone(doc.created_at, user?.timezone || 'UTC')}
-                                                </Typography>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                                        </Box>
+                                    </Box>
+
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Secondary Color
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                                            <Box
+                                                sx={{
+                                                    width: 32,
+                                                    height: 32,
+                                                    borderRadius: 1,
+                                                    bgcolor: project.color_secondary,
+                                                    border: '1px solid',
+                                                    borderColor: 'divider',
+                                                }}
+                                            />
+                                            <Typography variant="body2" fontFamily="monospace">
+                                                {project.color_secondary}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Background Color
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                                            <Box
+                                                sx={{
+                                                    width: 32,
+                                                    height: 32,
+                                                    borderRadius: 1,
+                                                    bgcolor: project.color_background,
+                                                    border: '1px solid',
+                                                    borderColor: 'divider',
+                                                }}
+                                            />
+                                            <Typography variant="body2" fontFamily="monospace">
+                                                {project.color_background}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                </Stack>
+
+                                <Divider />
+
+                                <Stack direction="row" spacing={4}>
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Return Link
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            {project.return_link || 'Not set'}
+                                        </Typography>
+                                    </Box>
+
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Return Link Text
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            {project.return_link_text || 'Not set'}
+                                        </Typography>
+                                    </Box>
+                                </Stack>
+
+                                <Divider />
+
+                                <Stack direction="row" spacing={4}>
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Status
+                                        </Typography>
+                                        <Box sx={{ mt: 0.5 }}>
+                                            <Chip
+                                                label={project.is_active ? 'Active' : 'Inactive'}
+                                                color={project.is_active ? 'success' : 'default'}
+                                                size="small"
+                                            />
+                                        </Box>
+                                    </Box>
+
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Created
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            {formatInUserTimezone(project.created_at, user?.timezone || 'UTC')}
+                                        </Typography>
+                                    </Box>
+
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Last Updated
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            {formatInUserTimezone(project.updated_at, user?.timezone || 'UTC')}
+                                        </Typography>
+                                    </Box>
+                                </Stack>
+                            </Stack>
+                        </Box>
+                    )}
+
+                    {/* Avatar Tab */}
+                    {currentTab === 'avatar' && (
+                        <Box sx={{ p: 4 }}>
+                            <AvatarUpload projectUuid={project.uuid} />
+                        </Box>
+                    )}
+
+                    {/* Documents Tab */}
+                    {currentTab === 'documents' && (
+                        <Box sx={{ p: 4 }}>
+                            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+                                <Typography variant="h6" fontWeight={600}>
+                                    Chatbot Project Documents
+                                </Typography>
+                                <Button
+                                    variant="contained"
+                                    startIcon={<Add />}
+                                    onClick={() =>
+                                        navigate(
+                                            `/customer/${user?.customer_uuid}/projects/${project.uuid}/documents/new`
+                                        )
+                                    }
+                                >
+                                    Upload Document
+                                </Button>
+                            </Stack>
+
+                            {documents.length === 0 ? (
+                                <Alert severity="info">No documents uploaded yet</Alert>
+                            ) : (
+                                <TableContainer>
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <DocumentIcon fontSize="small" />
+                                                        Filename
+                                                    </Box>
+                                                </TableCell>
+                                                <TableCell>Status</TableCell>
+                                                <TableCell>Size</TableCell>
+                                                <TableCell>Uploaded</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {documents.map((doc) => (
+                                                <TableRow key={doc.id} hover>
+                                                    <TableCell>{doc.filename}</TableCell>
+                                                    <TableCell>
+                                                        <Chip
+                                                            label={doc.status}
+                                                            color={
+                                                                doc.status === 'processed'
+                                                                    ? 'success'
+                                                                    : doc.status === 'processing'
+                                                                        ? 'warning'
+                                                                        : doc.status === 'failed'
+                                                                            ? 'error'
+                                                                            : 'default'
+                                                            }
+                                                            size="small"
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {(doc.file_size / 1024 / 1024).toFixed(2)} MB
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {formatInUserTimezone(doc.created_at, user?.timezone || 'UTC')}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            )}
+                        </Box>
+                    )}
                 </Paper>
             </Container>
         </Box>
     );
 }
+
