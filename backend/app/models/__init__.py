@@ -6,6 +6,7 @@ from app.models.faq import FAQ
 from app.models.chat_message import ChatMessage
 from app.models.customer import Customer
 from app.models.project import Project
+from app.models.avatar import Avatar
 
 __all__ = [
     "Document",
@@ -16,4 +17,5 @@ __all__ = [
     "ChatMessage",
     "Customer",
     "Project",
+    "Avatar",
 ]

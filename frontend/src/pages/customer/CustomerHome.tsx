@@ -15,6 +15,7 @@ import {
     Chat,
     Upload,
     TrendingUp,
+    Dashboard as DashboardIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -36,6 +37,8 @@ export default function CustomerHome() {
 
     useEffect(() => {
         const fetchStats = async () => {
+            if (!user) return;
+
             try {
                 // Fetch document count
                 const docsResponse = await fetch(`${API_BASE}/api/documents?page=1&per_page=1`, {
@@ -50,8 +53,10 @@ export default function CustomerHome() {
             }
         };
 
-        fetchStats();
-    }, []);
+        if (user) {
+            fetchStats();
+        }
+    }, [user]);
 
     const StatCard = ({ title, value, icon }: { title: string; value: number; icon: React.ReactNode }) => (
         <Card sx={{ bgcolor: isDark ? 'rgba(30, 41, 59, 0.8)' : 'background.paper' }}>
@@ -84,8 +89,9 @@ export default function CustomerHome() {
             }}
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
-                {/* Welcome Header */}
-                <Box mb={4}>
+                {/* Header */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+                    <DashboardIcon sx={{ fontSize: 32, color: '#6366f1' }} />
                     <Typography
                         variant="h4"
                         sx={{
@@ -94,13 +100,9 @@ export default function CustomerHome() {
                             backgroundClip: 'text',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
-                            mb: 1,
                         }}
                     >
-                        Welcome back, {user?.full_name || user?.email}!
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                        {user?.customer_name && `${user.customer_name} Portal`}
+                        Dashboard
                     </Typography>
                 </Box>
 

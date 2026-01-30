@@ -24,6 +24,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getAuthHeader } from '../../utils/authUtils';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
+import AvatarUpload from '../../components/AvatarUpload';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
@@ -62,7 +63,7 @@ export default function CustomerProjectDetail() {
     const [error, setError] = useState<string | null>(null);
 
     const fetchProject = useCallback(async () => {
-        if (!uuid) return;
+        if (!uuid || !user) return;
 
         try {
             setLoading(true);
@@ -72,7 +73,7 @@ export default function CustomerProjectDetail() {
 
             if (!response.ok) {
                 if (response.status === 404) {
-                    throw new Error('Project not found');
+                    throw new Error('Chatbot Project not found');
                 }
                 throw new Error('Failed to fetch project');
             }
@@ -85,7 +86,7 @@ export default function CustomerProjectDetail() {
             }
 
             setProject(data);
-            setError(null);
+            // setError(null); // Removed as per instruction
 
             // Fetch documents for this project
             const docsResponse = await fetch(
@@ -101,11 +102,13 @@ export default function CustomerProjectDetail() {
         } finally {
             setLoading(false);
         }
-    }, [uuid, user?.customer_id]);
+    }, [uuid, user]);
 
     useEffect(() => {
-        fetchProject();
-    }, [fetchProject]);
+        if (user) {
+            fetchProject();
+        }
+    }, [fetchProject, user]);
 
     if (loading) {
         return (
@@ -134,14 +137,14 @@ export default function CustomerProjectDetail() {
                 }}
             >
                 <Container maxWidth={false} sx={{ px: 3 }}>
-                    <Alert severity="error">{error || 'Project not found'}</Alert>
+                    <Alert severity="error">{error || 'Chatbot Project not found'}</Alert>
                     <Button
                         variant="outlined"
                         startIcon={<ArrowBack />}
                         onClick={() => navigate(`/customer/${user?.customer_uuid}/projects`)}
                         sx={{ mt: 2 }}
                     >
-                        Back to Projects
+                        Back to Chatbot Projects
                     </Button>
                 </Container>
             </Box>
@@ -162,7 +165,7 @@ export default function CustomerProjectDetail() {
                 {/* Breadcrumbs */}
                 <CustomerBreadcrumbs
                     items={[
-                        { label: 'Projects', path: `/customer/${user?.customer_uuid}/projects` },
+                        { label: 'Chatbot Projects', path: `/customer/${user?.customer_uuid}/projects` },
                         { label: project.name },
                     ]}
                 />
@@ -180,11 +183,11 @@ export default function CustomerProjectDetail() {
                             WebkitTextFillColor: 'transparent',
                         }}
                     >
-                        {project.name} Project
+                        {project.name} Chatbot Project
                     </Typography>
                 </Box>
 
-                {/* Project Details */}
+                {/* Chatbot Project Details */}
                 <Paper
                     elevation={3}
                     sx={{
@@ -197,7 +200,7 @@ export default function CustomerProjectDetail() {
                         <Box>
                             <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
                                 <Folder fontSize="small" />
-                                Project Name
+                                Chatbot Project Name
                             </Typography>
                             <Typography variant="h6" fontWeight={600}>
                                 {project.name}
@@ -250,6 +253,22 @@ export default function CustomerProjectDetail() {
                     </Stack>
                 </Paper>
 
+                {/* Chatbot Project Avatar */}
+                <Paper
+                    elevation={3}
+                    sx={{
+                        p: 4,
+                        mt: 4,
+                        borderRadius: 2,
+                        bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
+                    }}
+                >
+                    <Typography variant="h6" gutterBottom fontWeight={600} mb={3}>
+                        Chatbot Project Avatar
+                    </Typography>
+                    <AvatarUpload projectUuid={project.uuid} />
+                </Paper>
+
                 {/* Documents Table */}
                 <Paper
                     elevation={3}
@@ -262,7 +281,7 @@ export default function CustomerProjectDetail() {
                 >
                     <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
                         <Typography variant="h6" fontWeight={600}>
-                            Project Documents
+                            Chatbot Project Documents
                         </Typography>
                         <Button
                             variant="contained"

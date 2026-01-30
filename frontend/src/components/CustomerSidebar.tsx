@@ -16,7 +16,7 @@ export default function CustomerSidebar({ isOpen }: CustomerSidebarProps) {
 
     const customerNavItems = [
         { label: 'Dashboard', icon: <Dashboard />, path: '/customer' },
-        { label: 'Projects', icon: <Folder />, path: `/customer/${user?.customer_uuid}/projects` },
+        { label: 'Chatbot Projects', icon: <Folder />, path: `/customer/${user?.customer_uuid}/projects` },
         { label: 'Settings', icon: <Settings />, path: '/settings' },
         { label: 'Profile', icon: <Person />, path: '/profile' },
     ];

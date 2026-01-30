@@ -104,10 +104,11 @@ export default function CustomerProjects() {
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
                 {/* Breadcrumbs */}
-                <CustomerBreadcrumbs items={[{ label: 'Projects' }]} />
+                <CustomerBreadcrumbs items={[{ label: 'Chatbot Projects' }]} />
 
                 {/* Header */}
-                <Box mb={4}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+                    <Folder sx={{ fontSize: 32, color: '#6366f1' }} />
                     <Typography
                         variant="h4"
                         sx={{
@@ -116,13 +117,9 @@ export default function CustomerProjects() {
                             backgroundClip: 'text',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
-                            mb: 1,
                         }}
                     >
-                        {user?.customer_name ? `${user.customer_name} Projects` : 'My Projects'}
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                        View and manage your projects
+                        Chatbot Projects
                     </Typography>
                 </Box>
 
@@ -132,7 +129,7 @@ export default function CustomerProjects() {
                     </Alert>
                 )}
 
-                {/* Projects Table */}
+                {/* Chatbot Projects Table */}
                 <TableContainer
                     component={Paper}
                     elevation={3}
@@ -147,7 +144,7 @@ export default function CustomerProjects() {
                                 <TableCell>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <Folder fontSize="small" />
-                                        Project Name
+                                        Chatbot Project Name
                                     </Box>
                                 </TableCell>
                                 <TableCell>Description</TableCell>

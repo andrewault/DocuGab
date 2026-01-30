@@ -21,6 +21,7 @@ from app.api.routes import (
     projects,
     public,
     database,
+    avatars,
 )
 from app.middleware import SubdomainMiddleware
 
@@ -100,3 +101,5 @@ app.include_router(documents.router, prefix="/api/documents", tags=["Documents"]
 app.include_router(chat.router, prefix="/api/chat", tags=["Chat"])
 app.include_router(speech.router, prefix="/api/speech", tags=["Speech"])
 app.include_router(faq.router, tags=["FAQ"])
+app.include_router(avatars.router, prefix="/api", tags=["Avatars"])
+app.include_router(avatars.customer_router, prefix="/api", tags=["Customer Avatars"])

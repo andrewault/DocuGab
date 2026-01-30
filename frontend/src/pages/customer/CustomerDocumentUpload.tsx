@@ -6,7 +6,6 @@ import {
     Paper,
     Button,
     Alert,
-    CircularProgress,
     useTheme,
     Stack,
 } from '@mui/material';
@@ -28,21 +27,45 @@ export default function CustomerDocumentUpload() {
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
-            setFile(event.target.files[0]);
-            setError(null);
-            setSuccess(false);
+            validateAndSetFile(event.target.files[0]);
         }
     };
 
-    const handleUpload = async () => {
-        if (!file) {
-            setError('Please select a file');
-            return;
-        }
+    const validateAndSetFile = (selectedFile: File) => {
+        setFile(selectedFile);
+        setError(null);
+        setSuccess(false);
+        // Auto-upload after file selection
+        uploadFile(selectedFile);
+    };
 
+    const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setIsDragging(false);
+
+        if (event.dataTransfer.files && event.dataTransfer.files[0]) {
+            validateAndSetFile(event.dataTransfer.files[0]);
+        }
+    };
+
+    const uploadFile = async (fileToUpload: File) => {
         try {
             setUploading(true);
             setError(null);
@@ -61,7 +84,7 @@ export default function CustomerDocumentUpload() {
 
             // Upload the document
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', fileToUpload);
             formData.append('project_id', projectData.id.toString());
 
             const uploadResponse = await fetch(`${API_BASE}/api/documents/upload`, {
@@ -105,14 +128,15 @@ export default function CustomerDocumentUpload() {
                 {/* Breadcrumbs */}
                 <CustomerBreadcrumbs
                     items={[
-                        { label: 'Projects', path: `/customer/${customer_uuid}/projects` },
-                        { label: 'Project', path: `/customer/${customer_uuid}/projects/${project_uuid}` },
+                        { label: 'Chatbot Projects', path: `/customer/${customer_uuid}/projects` },
+                        { label: 'Chatbot Project', path: `/customer/${customer_uuid}/projects/${project_uuid}` },
                         { label: 'Upload Document' },
                     ]}
                 />
 
                 {/* Header */}
-                <Box mb={4}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+                    <Upload sx={{ fontSize: 32, color: '#6366f1' }} />
                     <Typography
                         variant="h4"
                         sx={{
@@ -121,13 +145,9 @@ export default function CustomerDocumentUpload() {
                             backgroundClip: 'text',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
-                            mb: 1,
                         }}
                     >
                         Upload Document
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                        Upload a document to this project for processing
                     </Typography>
                 </Box>
 
@@ -149,7 +169,19 @@ export default function CustomerDocumentUpload() {
                         )}
 
                         {/* File Input */}
-                        <Box>
+                        <Box
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
+                            sx={{
+                                border: '2px dashed',
+                                borderColor: isDragging ? 'primary.main' : 'divider',
+                                borderRadius: 2,
+                                p: 3,
+                                bgcolor: isDragging ? 'action.hover' : 'transparent',
+                                transition: 'all 0.2s ease',
+                            }}
+                        >
                             <input
                                 accept=".pdf,.docx,.txt,.md"
                                 style={{ display: 'none' }}
@@ -167,31 +199,15 @@ export default function CustomerDocumentUpload() {
                                     disabled={uploading || success}
                                     sx={{ py: 2 }}
                                 >
-                                    {file ? file.name : 'Choose File'}
+                                    {uploading ? 'Uploading...' : file ? file.name : 'Choose File'}
                                 </Button>
                             </label>
-                            <Typography variant="caption" color="text.secondary" display="block" mt={1}>
+                            <Typography variant="caption" color="text.secondary" display="block" mt={1} textAlign="center">
+                                {isDragging ? 'Drop file here' : 'Drag and drop a file here, or click to browse'}
+                                <br />
                                 Supported formats: PDF, DOCX, TXT, MD
                             </Typography>
                         </Box>
-
-                        {/* Upload Button */}
-                        <Button
-                            variant="contained"
-                            onClick={handleUpload}
-                            disabled={!file || uploading || success}
-                            fullWidth
-                            sx={{ py: 1.5 }}
-                        >
-                            {uploading ? (
-                                <>
-                                    <CircularProgress size={20} sx={{ mr: 1 }} />
-                                    Uploading...
-                                </>
-                            ) : (
-                                'Upload Document'
-                            )}
-                        </Button>
 
                         {/* Cancel Button */}
                         <Button

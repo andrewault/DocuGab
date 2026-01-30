@@ -93,19 +93,22 @@ export default function Settings() {
             }}
         >
             <Container maxWidth="md">
-                <Typography
-                    variant="h4"
-                    sx={{
-                        fontWeight: 700,
-                        mb: 4,
-                        background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                        backgroundClip: 'text',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                    }}
-                >
-                    Settings
-                </Typography>
+                {/* Header */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+                    <SettingsBrightness sx={{ fontSize: 32, color: '#6366f1' }} />
+                    <Typography
+                        variant="h4"
+                        sx={{
+                            fontWeight: 700,
+                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}
+                    >
+                        Settings
+                    </Typography>
+                </Box>
 
                 <Paper sx={{ p: 4, bgcolor: isDark ? 'rgba(30, 41, 59, 0.8)' : 'background.paper' }}>
                     {error && (
