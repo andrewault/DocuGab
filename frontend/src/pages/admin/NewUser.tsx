@@ -73,6 +73,11 @@ export default function NewUser() {
             return;
         }
 
+        if (password.length < 8) {
+            setError('Password must be at least 8 characters');
+            return;
+        }
+
         try {
             setSaving(true);
             setError(null);
@@ -92,15 +97,20 @@ export default function NewUser() {
 
             if (!response.ok) {
                 const data = await response.json();
+                // Handle validation errors from FastAPI
+                if (data.detail && Array.isArray(data.detail)) {
+                    const errors = data.detail.map((err: any) => err.msg).join(', ');
+                    throw new Error(errors);
+                }
                 throw new Error(data.detail || 'Failed to create user');
             }
 
             const newUser = await response.json();
 
-            // Update the user's role, active status, and verified status if needed
-            if (role !== 'user' || !isActive || isVerified) {
-                const updateResponse = await fetch(`${API_BASE}/api/admin/users/${newUser.id}`, {
-                    method: 'PUT',
+            // Update the user's role, active status, verified status, and customer if needed
+            if (role !== 'user' || !isActive || isVerified || customerId !== null) {
+                const updateResponse = await fetch(`${API_BASE}/api/admin/users/${newUser.uuid}`, {
+                    method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         ...getAuthHeader(),
@@ -115,12 +125,18 @@ export default function NewUser() {
                 });
 
                 if (!updateResponse.ok) {
-                    throw new Error('User created but failed to update settings');
+                    const updateData = await updateResponse.json().catch(() => ({}));
+                    throw new Error(updateData.detail || 'User created but failed to update settings');
                 }
             }
 
-            // Navigate to the new user's detail page
-            navigate(`/admin/users/${newUser.id}`);
+            // Navigate back to customer page if user was created from customer context
+            const state = location.state as { customerId?: number; customerUuid?: string; customerName?: string } | null;
+            if (state?.customerUuid) {
+                navigate(`/admin/customers/${state.customerUuid}`);
+            } else {
+                navigate(`/admin/users/${newUser.uuid}`);
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to create user');
         } finally {
@@ -210,6 +226,7 @@ export default function NewUser() {
                             }}
                             required
                             fullWidth
+                            helperText="Minimum 8 characters"
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment position="end">

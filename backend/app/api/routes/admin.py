@@ -199,7 +199,7 @@ async def update_user(
     if data.full_name is not None:
         user.full_name = data.full_name
     if data.role is not None:
-        if data.role not in ["user", "admin", "superadmin"]:
+        if data.role not in ["user", "customer", "admin", "superadmin"]:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid role",

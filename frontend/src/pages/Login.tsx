@@ -9,7 +9,10 @@ import {
     Alert,
     Link,
     useTheme,
+    InputAdornment,
+    IconButton,
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -18,6 +21,7 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const { login } = useAuth();
     const navigate = useNavigate();
@@ -106,7 +110,7 @@ export default function Login() {
                         <TextField
                             fullWidth
                             label="Password"
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             onKeyDown={(e) => {
@@ -117,6 +121,18 @@ export default function Login() {
                             }}
                             required
                             sx={{ mb: 3 }}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            edge="end"
+                                        >
+                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
                         <Button
                             type="submit"

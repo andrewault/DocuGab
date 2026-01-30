@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
     Box,
     Container,
@@ -81,6 +81,7 @@ export default function CustomerDetail() {
     const { user: currentUser } = useAuth();
     const { uuid } = useParams<{ uuid: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const [customer, setCustomer] = useState<Customer | null>(null);
     const [projects, setProjects] = useState<Project[]>([]);
     const [users, setUsers] = useState<User[]>([]);
@@ -125,7 +126,7 @@ export default function CustomerDetail() {
 
                 // Fetch customer's users
                 const usersResponse = await fetch(
-                    `${API_BASE}/api/admin/users?page=1&per_page=1000`,
+                    `${API_BASE}/api/admin/users?page=1&per_page=100`,
                     { headers: getAuthHeader() }
                 );
 
@@ -149,7 +150,7 @@ export default function CustomerDetail() {
         if (uuid && currentUser) {
             fetchData();
         }
-    }, [uuid, currentUser]);
+    }, [uuid, currentUser, location.key]); // Re-fetch when navigating back to this page
 
     if (loading) {
         return (
