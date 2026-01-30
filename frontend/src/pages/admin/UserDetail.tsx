@@ -37,7 +37,16 @@ interface User {
     role: string;
     is_active: boolean;
     is_verified: boolean;
+    customer_id: number | null;
+    customer_uuid: string | null;
+    customer_name: string | null;
     created_at: string;
+}
+
+interface Customer {
+    id: number;
+    uuid: string;
+    name: string;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
@@ -60,6 +69,8 @@ export default function UserDetail() {
     const [role, setRole] = useState('user');
     const [isActive, setIsActive] = useState(true);
     const [isVerified, setIsVerified] = useState(false);
+    const [customerId, setCustomerId] = useState<number | null>(null);
+    const [customers, setCustomers] = useState<Customer[]>([]);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
     // Escape key to go back
@@ -91,12 +102,26 @@ export default function UserDetail() {
             setRole(data.role);
             setIsActive(data.is_active);
             setIsVerified(data.is_verified);
+            setCustomerId(data.customer_id || null);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load user');
         } finally {
             setLoading(false);
         }
     }, [uuid]);
+
+    const fetchCustomers = useCallback(async () => {
+        try {
+            const response = await fetch(`${API_BASE}/api/admin/customers?page=1&per_page=1000`, {
+                headers: getAuthHeader(),
+            });
+            if (!response.ok) throw new Error('Failed to fetch customers');
+            const data = await response.json();
+            setCustomers(data.customers || []);
+        } catch (err) {
+            console.error('Failed to load customers:', err);
+        }
+    }, []);
 
     // Validate UUID and redirect if invalid
     useEffect(() => {
@@ -109,8 +134,9 @@ export default function UserDetail() {
     useEffect(() => {
         if (uuid) {
             fetchUser();
+            fetchCustomers();
         }
-    }, [fetchUser, uuid]);
+    }, [fetchUser, uuid, fetchCustomers]);
 
     const handleSave = async () => {
         try {
@@ -129,6 +155,7 @@ export default function UserDetail() {
                     role,
                     is_active: isActive,
                     is_verified: isVerified,
+                    customer_id: customerId,
                 }),
             });
 
@@ -292,8 +319,25 @@ export default function UserDetail() {
                                 onChange={(e) => setRole(e.target.value)}
                             >
                                 <MenuItem value="user">User</MenuItem>
+                                <MenuItem value="customer">Customer</MenuItem>
                                 <MenuItem value="admin">Admin</MenuItem>
                                 <MenuItem value="superadmin">Superadmin</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                        <FormControl fullWidth>
+                            <InputLabel>Customer</InputLabel>
+                            <Select
+                                value={customerId || ''}
+                                label="Customer"
+                                onChange={(e) => setCustomerId(e.target.value ? Number(e.target.value) : null)}
+                            >
+                                <MenuItem value="">None</MenuItem>
+                                {customers.map((customer) => (
+                                    <MenuItem key={customer.id} value={customer.id}>
+                                        {customer.name}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
 

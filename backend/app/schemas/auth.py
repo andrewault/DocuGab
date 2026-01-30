@@ -48,6 +48,9 @@ class UserResponse(BaseModel):
     is_verified: bool
     theme: str
     timezone: str
+    customer_id: Optional[int] = None
+    customer_uuid: Optional[UUID] = None
+    customer_name: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
@@ -60,6 +63,7 @@ class UserUpdate(BaseModel):
 
     full_name: Optional[str] = None
     avatar_url: Optional[str] = None
+    customer_id: Optional[int] = None
 
 
 class PasswordChange(BaseModel):

@@ -10,6 +10,9 @@ export interface User {
     is_verified: boolean;
     theme: string;
     timezone: string;
+    customer_id: number | null;
+    customer_uuid: string | null;
+    customer_name: string | null;
 }
 
 interface AuthContextType {

@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 import uuid as uuid_lib
-from sqlalchemy import Integer, String, Boolean, DateTime, func
+from sqlalchemy import Integer, String, Boolean, DateTime, ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.database import Base
@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from app.models.document import Document
     from app.models.session import Session
     from app.models.chat_message import ChatMessage
+    from app.models.customer import Customer
 
 
 class User(Base):
@@ -40,6 +41,9 @@ class User(Base):
     timezone: Mapped[str] = mapped_column(
         String(50), default="America/Los_Angeles", nullable=False
     )
+    customer_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("customers.id", ondelete="SET NULL"), nullable=True, index=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -49,6 +53,7 @@ class User(Base):
     last_login_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+
 
     # Relationships
     documents: Mapped[list["Document"]] = relationship(
@@ -60,3 +65,4 @@ class User(Base):
     chat_messages: Mapped[list["ChatMessage"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    customer: Mapped["Customer | None"] = relationship(back_populates="users")

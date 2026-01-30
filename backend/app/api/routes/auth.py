@@ -2,10 +2,12 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models.user import User
+from app.models.customer import Customer
 from app.schemas.auth import (
     UserRegister,
     UserLogin,
@@ -114,6 +116,18 @@ async def logout_all(
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(
     current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """Get the current authenticated user's information."""
-    return current_user
+    # Populate customer data
+    user_dict = UserResponse.model_validate(current_user).model_dump()
+    if current_user.customer_id:
+        customer_result = await db.execute(
+            select(Customer).where(Customer.id == current_user.customer_id)
+        )
+        customer = customer_result.scalar_one_or_none()
+        if customer:
+            user_dict["customer_uuid"] = customer.uuid
+            user_dict["customer_name"] = customer.name
+    
+    return UserResponse(**user_dict)

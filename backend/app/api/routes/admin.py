@@ -89,8 +89,8 @@ async def list_users(
     db: AsyncSession = Depends(get_db),
 ):
     """List all users with pagination and filtering."""
-    # Build query
-    query = select(User)
+    # Build query with customer join
+    query = select(User).outerjoin(Customer, User.customer_id == Customer.id)
     count_query = select(func.count(User.id))
 
     # Apply filters
@@ -120,8 +120,23 @@ async def list_users(
     result = await db.execute(query)
     users = result.scalars().all()
 
+    # Populate customer data for each user
+    user_responses = []
+    for user in users:
+        user_dict = UserResponse.model_validate(user).model_dump()
+        if user.customer_id:
+            # Fetch customer to get UUID and name
+            customer_result = await db.execute(
+                select(Customer).where(Customer.id == user.customer_id)
+            )
+            customer = customer_result.scalar_one_or_none()
+            if customer:
+                user_dict["customer_uuid"] = customer.uuid
+                user_dict["customer_name"] = customer.name
+        user_responses.append(UserResponse(**user_dict))
+
     return UserListResponse(
-        users=[UserResponse.model_validate(u) for u in users],
+        users=user_responses,
         total=total,
         page=page,
         per_page=per_page,
@@ -142,7 +157,19 @@ async def get_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
-    return user
+    
+    # Populate customer data
+    user_dict = UserResponse.model_validate(user).model_dump()
+    if user.customer_id:
+        customer_result = await db.execute(
+            select(Customer).where(Customer.id == user.customer_id)
+        )
+        customer = customer_result.scalar_one_or_none()
+        if customer:
+            user_dict["customer_uuid"] = customer.uuid
+            user_dict["customer_name"] = customer.name
+    
+    return UserResponse(**user_dict)
 
 
 @router.patch("/users/{user_uuid}", response_model=UserResponse)

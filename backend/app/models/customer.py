@@ -8,8 +8,10 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.database import Base
 
+
 if TYPE_CHECKING:
     from app.models.project import Project
+    from app.models.user import User
 
 
 class Customer(Base):
@@ -44,3 +46,4 @@ class Customer(Base):
     projects: Mapped[list["Project"]] = relationship(
         back_populates="customer", cascade="all, delete-orphan"
     )
+    users: Mapped[list["User"]] = relationship(back_populates="customer")

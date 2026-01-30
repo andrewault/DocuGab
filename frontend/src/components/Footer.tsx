@@ -12,6 +12,20 @@ export default function Footer() {
         setThemeMode(effectiveTheme === 'dark' ? 'light' : 'dark');
     };
 
+    // Dynamic copyright year calculation
+    const getCopyrightYear = () => {
+        const startYear = 2026;
+        const currentYear = new Date().getFullYear();
+
+        if (currentYear === startYear) {
+            return `© ${startYear}`;
+        } else if (currentYear === startYear + 1) {
+            return `© ${startYear}, ${currentYear}`;
+        } else {
+            return `© ${startYear}-${currentYear}`;
+        }
+    };
+
     return (
         <Box
             component="footer"
@@ -40,7 +54,7 @@ export default function Footer() {
                     spacing={2}
                 >
                     <Typography variant="body2" color="text.secondary">
-                        © {new Date().getFullYear()} DocuTok
+                        {getCopyrightYear()} DocuTok
                     </Typography>
                     <Stack direction="row" spacing={3} alignItems="center">
                         <Link

@@ -31,6 +31,7 @@ import { useNavigate } from 'react-router-dom';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { useAuth } from '../../context/AuthContext';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
+import { getAuthHeader } from '../../utils/authUtils';
 
 interface Stats {
     total_users: number;
@@ -47,6 +48,9 @@ interface User {
     role: string;
     is_active: boolean;
     is_verified: boolean;
+    customer_id: number | null;
+    customer_uuid: string | null;
+    customer_name: string | null;
     created_at: string;
     updated_at: string;
 }
@@ -71,13 +75,6 @@ export default function Users() {
 
     const fetchStats = async () => {
         try {
-            // Note: getAuthHeader is likely needed if the request requires auth headers, 
-            // but we'll assume fetch uses credentials or headers are handled globally if they were removed?
-            // Wait, I see getAuthHeader was imported in the original file (Step 2772 line 31).
-            // I should re-add it or use a helper that includes it.
-            // But I'll stick to what was there: importing getAuthHeader
-            const { getAuthHeader } = await import('../../utils/authUtils');
-
             const response = await fetch(`${API_BASE}/api/admin/stats`, {
                 headers: getAuthHeader(),
             });
@@ -92,7 +89,6 @@ export default function Users() {
     const fetchUsers = useCallback(async () => {
         try {
             setLoading(true);
-            const { getAuthHeader } = await import('../../utils/authUtils');
             const params = new URLSearchParams({
                 page: String(page + 1),
                 per_page: String(rowsPerPage),
@@ -218,6 +214,7 @@ export default function Users() {
                             >
                                 <MenuItem value="">All</MenuItem>
                                 <MenuItem value="user">User</MenuItem>
+                                <MenuItem value="customer">Customer</MenuItem>
                                 <MenuItem value="admin">Admin</MenuItem>
                                 <MenuItem value="superadmin">Superadmin</MenuItem>
                             </Select>
@@ -233,6 +230,7 @@ export default function Users() {
                                 <TableCell>Email</TableCell>
                                 <TableCell>Name</TableCell>
                                 <TableCell>Role</TableCell>
+                                <TableCell>Customer</TableCell>
                                 <TableCell>Created at</TableCell>
                                 <TableCell>Updated at</TableCell>
                                 <TableCell>Status</TableCell>
@@ -242,13 +240,13 @@ export default function Users() {
                         <TableBody>
                             {loading ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
                                         <CircularProgress />
                                     </TableCell>
                                 </TableRow>
                             ) : users.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
                                         No users found
                                     </TableCell>
                                 </TableRow>
@@ -271,9 +269,18 @@ export default function Users() {
                                                         ? 'error'
                                                         : user.role === 'admin'
                                                             ? 'warning'
-                                                            : 'default'
+                                                            : user.role === 'customer'
+                                                                ? 'info'
+                                                                : 'default'
                                                 }
                                             />
+                                        </TableCell>
+                                        <TableCell>
+                                            {user.customer_name ? (
+                                                <Typography variant="body2">{user.customer_name}</Typography>
+                                            ) : (
+                                                <Typography variant="body2" color="text.secondary">-</Typography>
+                                            )}
                                         </TableCell>
                                         <TableCell>
                                             <Typography variant="body2">

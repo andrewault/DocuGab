@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Box,
     Container,
@@ -25,6 +25,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function NewUser() {
     const navigate = useNavigate();
+    const location = useLocation();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
 
@@ -34,8 +35,34 @@ export default function NewUser() {
     const [role, setRole] = useState('user');
     const [isActive, setIsActive] = useState(true);
     const [isVerified, setIsVerified] = useState(false);
+    const [customerId, setCustomerId] = useState<number | null>(null);
+    const [customers, setCustomers] = useState<Array<{ id: number; uuid: string; name: string }>>([]);
     const [error, setError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
+
+    const fetchCustomers = useCallback(async () => {
+        try {
+            const response = await fetch(`${API_BASE}/api/admin/customers?page=1&per_page=1000`, {
+                headers: getAuthHeader(),
+            });
+            if (!response.ok) throw new Error('Failed to fetch customers');
+            const data = await response.json();
+            setCustomers(data.customers || []);
+        } catch (err) {
+            console.error('Failed to load customers:', err);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchCustomers();
+
+        // Pre-populate customer from location state if provided
+        const state = location.state as { customerId?: number; customerUuid?: string; customerName?: string } | null;
+        if (state?.customerId) {
+            setCustomerId(state.customerId);
+            setRole('customer'); // Default to customer role when coming from customer page
+        }
+    }, [fetchCustomers, location.state]);
 
     const handleSubmit = async () => {
         if (!email || !password) {
@@ -80,6 +107,7 @@ export default function NewUser() {
                         role,
                         is_active: isActive,
                         is_verified: isVerified,
+                        customer_id: customerId,
                     }),
                 });
 
@@ -125,7 +153,10 @@ export default function NewUser() {
                             WebkitTextFillColor: 'transparent',
                         }}
                     >
-                        New User
+                        {(() => {
+                            const state = location.state as { customerId?: number; customerUuid?: string; customerName?: string } | null;
+                            return state?.customerName ? `New User for ${state.customerName}` : 'New User';
+                        })()}
                     </Typography>
                 </Stack>
                 <Typography variant="body2" color="text.secondary" mb={3}>
@@ -182,8 +213,25 @@ export default function NewUser() {
                                 onChange={(e) => setRole(e.target.value)}
                             >
                                 <MenuItem value="user">User</MenuItem>
+                                <MenuItem value="customer">Customer</MenuItem>
                                 <MenuItem value="admin">Admin</MenuItem>
                                 <MenuItem value="superadmin">Superadmin</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                        <FormControl fullWidth>
+                            <InputLabel>Customer</InputLabel>
+                            <Select
+                                value={customerId || ''}
+                                label="Customer"
+                                onChange={(e) => setCustomerId(e.target.value ? Number(e.target.value) : null)}
+                            >
+                                <MenuItem value="">None</MenuItem>
+                                {customers.map((customer) => (
+                                    <MenuItem key={customer.id} value={customer.id}>
+                                        {customer.name}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
 

@@ -63,6 +63,17 @@ interface Project {
     documents_count: number;
 }
 
+interface User {
+    id: number;
+    uuid: string;
+    email: string;
+    full_name: string | null;
+    role: string;
+    is_active: boolean;
+    customer_id: number | null;
+    created_at: string;
+}
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function CustomerDetail() {
@@ -71,6 +82,7 @@ export default function CustomerDetail() {
     const navigate = useNavigate();
     const [customer, setCustomer] = useState<Customer | null>(null);
     const [projects, setProjects] = useState<Project[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -106,8 +118,25 @@ export default function CustomerDetail() {
                     throw new Error('Failed to fetch projects');
                 }
 
+
                 const projectsData = await projectsResponse.json();
                 setProjects(projectsData.projects || []);
+
+                // Fetch customer's users
+                const usersResponse = await fetch(
+                    `${API_BASE}/api/admin/users?page=1&per_page=1000`,
+                    { headers: getAuthHeader() }
+                );
+
+                if (usersResponse.ok) {
+                    const usersData = await usersResponse.json();
+                    // Filter users by customer_id
+                    const customerUsers = (usersData.users || []).filter(
+                        (user: User) => user.customer_id === customerData.id
+                    );
+                    setUsers(customerUsers);
+                }
+
                 setError(null);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Failed to load data');
@@ -116,10 +145,10 @@ export default function CustomerDetail() {
             }
         };
 
-        if (uuid) {
+        if (uuid && currentUser) {
             fetchData();
         }
-    }, [uuid]);
+    }, [uuid, currentUser]);
 
     if (loading) {
         return (
@@ -147,7 +176,7 @@ export default function CustomerDetail() {
     }
 
     return (
-        <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: 3 }}>
+        <Container maxWidth={false} sx={{ mt: 4, mb: 8, px: 3 }}>
             <AdminBreadcrumbs
                 items={[
                     { label: 'Customers', path: '/admin/customers' },
@@ -275,7 +304,7 @@ export default function CustomerDetail() {
             </Paper>
 
             {/* Projects List */}
-            <Paper elevation={2} sx={{ p: 3 }}>
+            <Paper elevation={2} sx={{ p: 3, mt: 3 }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
                     <Typography variant="h6">
                         Projects ({projects.length})
@@ -285,7 +314,7 @@ export default function CustomerDetail() {
                         startIcon={<Add />}
                         onClick={() => navigate('/admin/projects')}
                     >
-                        Add Project
+                        Project
                     </Button>
                 </Stack>
 
@@ -361,6 +390,106 @@ export default function CustomerDetail() {
                                                 }}
                                             >
                                                 <Edit />
+                                            </IconButton>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                )}
+            </Paper>
+
+            {/* Users List */}
+            <Paper elevation={2} sx={{ p: 3, mt: 3 }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+                    <Typography variant="h6">
+                        Users ({users.length})
+                    </Typography>
+                    <Button
+                        variant="contained"
+                        startIcon={<Add />}
+                        onClick={() => navigate('/admin/users/new', {
+                            state: {
+                                customerId: customer.id,
+                                customerUuid: customer.uuid,
+                                customerName: customer.name
+                            }
+                        })}
+                        size="small"
+                    >
+                        User
+                    </Button>
+                </Stack>
+
+                {users.length === 0 ? (
+                    <Alert severity="info">No users assigned to this customer</Alert>
+                ) : (
+                    <TableContainer>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Email</TableCell>
+                                    <TableCell>Name</TableCell>
+                                    <TableCell>Role</TableCell>
+                                    <TableCell>Status</TableCell>
+                                    <TableCell>Created</TableCell>
+                                    <TableCell align="right">Actions</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {users.map((user) => (
+                                    <TableRow
+                                        key={user.id}
+                                        hover
+                                        sx={{ cursor: 'pointer' }}
+                                        onClick={() => navigate(`/admin/users/${user.uuid}`)}
+                                    >
+                                        <TableCell>
+                                            <Typography fontWeight={500}>
+                                                {user.email}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell>
+                                            {user.full_name || '-'}
+                                        </TableCell>
+                                        <TableCell>
+                                            <Chip
+                                                label={user.role}
+                                                size="small"
+                                                color={
+                                                    user.role === 'admin'
+                                                        ? 'warning'
+                                                        : user.role === 'customer'
+                                                            ? 'info'
+                                                            : 'default'
+                                                }
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <Chip
+                                                label={user.is_active ? 'Active' : 'Inactive'}
+                                                color={user.is_active ? 'success' : 'default'}
+                                                size="small"
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            {formatInUserTimezone(
+                                                user.created_at,
+                                                currentUser?.timezone || 'America/Los_Angeles',
+                                                'PP'
+                                            )}
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            <IconButton
+                                                size="small"
+                                                color="primary"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate(`/admin/users/${user.uuid}`);
+                                                }}
+                                            >
+                                                <Edit fontSize="small" />
                                             </IconButton>
                                         </TableCell>
                                     </TableRow>
