@@ -1,7 +1,6 @@
 """Admin API routes for user management."""
 
 from typing import Optional, Any
-from datetime import datetime, timedelta
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
@@ -28,6 +27,7 @@ class AdminUserUpdate(BaseModel):
     role: Optional[str] = None
     is_active: Optional[bool] = None
     is_verified: Optional[bool] = None
+    customer_id: Optional[int] = None
 
 
 class UserListResponse(BaseModel):
@@ -157,7 +157,7 @@ async def get_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
-    
+
     # Populate customer data
     user_dict = UserResponse.model_validate(user).model_dump()
     if user.customer_id:
@@ -168,7 +168,7 @@ async def get_user(
         if customer:
             user_dict["customer_uuid"] = customer.uuid
             user_dict["customer_name"] = customer.name
-    
+
     return UserResponse(**user_dict)
 
 
@@ -215,6 +215,8 @@ async def update_user(
         user.is_active = data.is_active
     if data.is_verified is not None:
         user.is_verified = data.is_verified
+    if data.customer_id is not None:
+        user.customer_id = data.customer_id
 
     await db.commit()
     await db.refresh(user)

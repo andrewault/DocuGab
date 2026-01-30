@@ -98,7 +98,7 @@ async def get_customer(
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Customer not found",
+            detail="Customer not found",
         )
 
     # Count projects
@@ -172,7 +172,7 @@ async def update_customer(
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Customer not found",
+            detail="Customer not found",
         )
 
     # Update fields
@@ -223,7 +223,7 @@ async def delete_customer(
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Customer not found",
+            detail="Customer not found",
         )
 
     # Check if customer has projects

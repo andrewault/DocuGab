@@ -7,7 +7,12 @@ from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.core.security import hash_password, verify_password
 from app.models.user import User
-from app.schemas.auth import UserResponse, UserUpdate, PasswordChange, UserSettingsUpdate
+from app.schemas.auth import (
+    UserResponse,
+    UserUpdate,
+    PasswordChange,
+    UserSettingsUpdate,
+)
 
 
 router = APIRouter(prefix="/users", tags=["users"])

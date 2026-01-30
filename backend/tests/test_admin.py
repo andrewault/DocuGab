@@ -49,7 +49,7 @@ class TestAdminUserUpdate:
     ):
         """Test admin can update user role."""
         response = await client.patch(
-            f"/api/admin/users/{test_user.id}",
+            f"/api/admin/users/{test_user.uuid}",
             headers=admin_auth_headers,
             json={"role": "admin"},
         )
@@ -62,7 +62,7 @@ class TestAdminUserUpdate:
     ):
         """Test updating non-existent user returns 404."""
         response = await client.patch(
-            "/api/admin/users/99999",
+            "/api/admin/users/00000000-0000-0000-0000-000000000000",
             headers=admin_auth_headers,
             json={"role": "admin"},
         )
@@ -77,7 +77,7 @@ class TestAdminUserDelete:
     ):
         """Test admin can delete user."""
         response = await client.delete(
-            f"/api/admin/users/{test_user.id}",
+            f"/api/admin/users/{test_user.uuid}",
             headers=admin_auth_headers,
         )
         assert response.status_code in [200, 204]
@@ -87,7 +87,7 @@ class TestAdminUserDelete:
     ):
         """Test regular user cannot delete other users."""
         response = await client.delete(
-            f"/api/admin/users/{admin_user.id}",
+            f"/api/admin/users/{admin_user.uuid}",
             headers=auth_headers,
         )
         assert response.status_code == 403

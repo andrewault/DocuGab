@@ -19,15 +19,15 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Parse arguments
-RUN_TESTS=false  # Tests optional by default due to Python version issues
+RUN_TESTS=true  # Tests enabled by default
 RUN_LINT=true
 RUN_FORMAT=true
 FIX_ISSUES=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --with-tests)
-            RUN_TESTS=true
+        --no-tests)
+            RUN_TESTS=false
             shift
             ;;
         --no-lint)
@@ -44,7 +44,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         *)
             echo "Unknown option: $1"
-            echo "Usage: $0 [--with-tests] [--no-lint] [--no-format] [--fix]"
+            echo "Usage: $0 [--no-tests] [--no-lint] [--no-format] [--fix]"
             exit 1
             ;;
     esac
@@ -67,29 +67,30 @@ run_check() {
     fi
 }
 
+
 FAILED=false
 
-# Linting
-if [ "$RUN_LINT" = true ]; then
-    echo "📋 Code Quality Checks"
-    echo "----------------------"
-    
-    if [ "$FIX_ISSUES" = true ]; then
-        run_check "Ruff (auto-fix)" poetry run ruff check --fix || FAILED=true
-    else
-        run_check "Ruff" poetry run ruff check || FAILED=true
-    fi
-fi
-
-# Formatting
+# Formatting (run first to auto-format code)
 if [ "$RUN_FORMAT" = true ]; then
     echo "🎨 Code Formatting"
     echo "------------------"
     
     if [ "$FIX_ISSUES" = true ]; then
-        run_check "Ruff Format" poetry run ruff format || FAILED=true
+        run_check "Ruff Format" uv run ruff format || FAILED=true
     else
-        run_check "Ruff Format Check" poetry run ruff format --check || FAILED=true
+        run_check "Ruff Format Check" uv run ruff format --check || FAILED=true
+    fi
+fi
+
+# Linting (run after formatting)
+if [ "$RUN_LINT" = true ]; then
+    echo "📋 Code Quality Checks"
+    echo "----------------------"
+    
+    if [ "$FIX_ISSUES" = true ]; then
+        run_check "Ruff (auto-fix)" uv run ruff check --fix || FAILED=true
+    else
+        run_check "Ruff" uv run ruff check || FAILED=true
     fi
 fi
 
@@ -101,7 +102,7 @@ if [ "$RUN_TESTS" = true ]; then
     if [ -d "tests" ] && [ "$(ls -A tests)" ]; then
         # Temporarily disable exit on error for pytest
         set +e
-        poetry run pytest -v
+        uv run pytest -v
         TEST_EXIT_CODE=$?
         set -e
         

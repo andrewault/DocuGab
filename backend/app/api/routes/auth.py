@@ -129,5 +129,5 @@ async def get_current_user_info(
         if customer:
             user_dict["customer_uuid"] = customer.uuid
             user_dict["customer_name"] = customer.name
-    
+
     return UserResponse(**user_dict)

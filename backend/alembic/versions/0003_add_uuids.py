@@ -27,10 +27,10 @@ def upgrade() -> None:
             nullable=True,  # Temporarily nullable for data migration
         ),
     )
-    
+
     # Generate UUIDs for existing users
     op.execute("UPDATE users SET uuid = gen_random_uuid()")
-    
+
     # Make uuid non-nullable and add unique constraint
     op.alter_column("users", "uuid", nullable=False)
     op.create_unique_constraint("uq_users_uuid", "users", ["uuid"])
@@ -45,10 +45,10 @@ def upgrade() -> None:
             nullable=True,
         ),
     )
-    
+
     # Generate UUIDs for existing customers
     op.execute("UPDATE customers SET uuid = gen_random_uuid()")
-    
+
     # Make uuid non-nullable and add unique constraint
     op.alter_column("customers", "uuid", nullable=False)
     op.create_unique_constraint("uq_customers_uuid", "customers", ["uuid"])
@@ -63,10 +63,10 @@ def upgrade() -> None:
             nullable=True,
         ),
     )
-    
+
     # Generate UUIDs for existing projects
     op.execute("UPDATE projects SET uuid = gen_random_uuid()")
-    
+
     # Make uuid non-nullable and add unique constraint
     op.alter_column("projects", "uuid", nullable=False)
     op.create_unique_constraint("uq_projects_uuid", "projects", ["uuid"])

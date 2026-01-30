@@ -6,11 +6,9 @@ import os
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from fastapi.responses import FileResponse
-from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -46,7 +44,19 @@ async def vacuum_database(
         env["PGPASSWORD"] = db_password
 
         result = subprocess.run(
-            ["psql", "-h", db_host, "-p", db_port, "-U", db_user, "-d", db_name, "-c", "VACUUM ANALYZE;"],
+            [
+                "psql",
+                "-h",
+                db_host,
+                "-p",
+                db_port,
+                "-U",
+                db_user,
+                "-d",
+                db_name,
+                "-c",
+                "VACUUM ANALYZE;",
+            ],
             env=env,
             capture_output=True,
             text=True,
@@ -55,21 +65,17 @@ async def vacuum_database(
 
         if result.returncode != 0:
             raise HTTPException(
-                status_code=500,
-                detail=f"VACUUM failed: {result.stderr}"
+                status_code=500, detail=f"VACUUM failed: {result.stderr}"
             )
-        
+
         return {
             "message": "Database vacuumed successfully",
-            "details": "VACUUM ANALYZE completed - storage reclaimed and statistics updated"
+            "details": "VACUUM ANALYZE completed - storage reclaimed and statistics updated",
         }
     except subprocess.TimeoutExpired:
         raise HTTPException(status_code=500, detail="VACUUM timeout")
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"VACUUM failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"VACUUM failed: {str(e)}")
 
 
 @router.post("/backup")
@@ -104,10 +110,14 @@ async def create_backup(
         # Run pg_dump and compress with gzip
         pg_dump_cmd = [
             "pg_dump",
-            "-h", db_host,
-            "-p", db_port,
-            "-U", db_user,
-            "-d", db_name,
+            "-h",
+            db_host,
+            "-p",
+            db_port,
+            "-U",
+            db_user,
+            "-d",
+            db_name,
             "--no-owner",
             "--no-acl",
         ]
@@ -129,7 +139,7 @@ async def create_backup(
                 stderr=subprocess.PIPE,
             )
             pg_dump.stdout.close()  # Allow pg_dump to receive SIGPIPE
-            
+
             # Wait for both processes to complete
             gzip_stderr = gzip_proc.communicate()[1]
             pg_dump_stderr = pg_dump.communicate()[1]
@@ -139,8 +149,7 @@ async def create_backup(
                 if backup_path.exists():
                     backup_path.unlink()
                 raise HTTPException(
-                    status_code=500,
-                    detail=f"pg_dump failed: {pg_dump_stderr.decode()}"
+                    status_code=500, detail=f"pg_dump failed: {pg_dump_stderr.decode()}"
                 )
 
             if gzip_proc.returncode != 0:
@@ -148,8 +157,7 @@ async def create_backup(
                 if backup_path.exists():
                     backup_path.unlink()
                 raise HTTPException(
-                    status_code=500,
-                    detail=f"gzip failed: {gzip_stderr.decode()}"
+                    status_code=500, detail=f"gzip failed: {gzip_stderr.decode()}"
                 )
 
         return {
@@ -182,11 +190,15 @@ async def list_backups(
     backups = []
     for backup_file in BACKUP_DIR.glob("docutok-backup-*.sql.gz"):
         stat = backup_file.stat()
-        backups.append({
-            "filename": backup_file.name,
-            "size": stat.st_size,
-            "created_at": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(),
-        })
+        backups.append(
+            {
+                "filename": backup_file.name,
+                "size": stat.st_size,
+                "created_at": datetime.fromtimestamp(
+                    stat.st_mtime, tz=timezone.utc
+                ).isoformat(),
+            }
+        )
 
     # Sort by created_at descending (newest first)
     backups.sort(key=lambda x: x["created_at"], reverse=True)
@@ -272,16 +284,12 @@ async def restore_backup(
     """
     # Validate file extension
     if not file.filename or not file.filename.endswith(".sql.gz"):
-        raise HTTPException(
-            status_code=400,
-            detail="Only .sql.gz files are allowed"
-        )
+        raise HTTPException(status_code=400, detail="Only .sql.gz files are allowed")
 
     # Validate filename pattern
     if not file.filename.startswith("docutok-backup-"):
         raise HTTPException(
-            status_code=400,
-            detail="Backup filename must start with 'docutok-backup-'"
+            status_code=400, detail="Backup filename must start with 'docutok-backup-'"
         )
 
     # Security: sanitize filename
@@ -294,10 +302,7 @@ async def restore_backup(
 
     # Check if file already exists
     if backup_path.exists():
-        raise HTTPException(
-            status_code=400,
-            detail=f"Backup {filename} already exists"
-        )
+        raise HTTPException(status_code=400, detail=f"Backup {filename} already exists")
 
     try:
         # Save uploaded file
@@ -310,7 +315,4 @@ async def restore_backup(
             "size": len(content),
         }
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Upload failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")

@@ -223,16 +223,16 @@ class TestProjectGet:
             headers=admin_auth_headers,
             json=project_data,
         )
-        project_id = create_response.json()["id"]
+        project_uuid = create_response.json()["uuid"]
 
         # Fetch project
         response = await client.get(
-            f"/api/admin/projects/{project_id}",
+            f"/api/admin/projects/{project_uuid}",
             headers=admin_auth_headers,
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["id"] == project_id
+        assert data["uuid"] == project_uuid
         assert data["customer_name"] == "Test Customer"
         assert "documents_count" in data
 
@@ -241,7 +241,7 @@ class TestProjectGet:
     ):
         """Test getting non-existent project returns 404."""
         response = await client.get(
-            "/api/admin/projects/99999",
+            "/api/admin/projects/00000000-0000-0000-0000-000000000000",
             headers=admin_auth_headers,
         )
         assert response.status_code == 404
@@ -270,7 +270,7 @@ class TestProjectUpdate:
             headers=admin_auth_headers,
             json=project_data,
         )
-        project_id = create_response.json()["id"]
+        project_uuid = create_response.json()["uuid"]
 
         # Update project
         update_data = {
@@ -278,7 +278,7 @@ class TestProjectUpdate:
             "color_primary": "#ff5722",
         }
         response = await client.patch(
-            f"/api/admin/projects/{project_id}",
+            f"/api/admin/projects/{project_uuid}",
             headers=admin_auth_headers,
             json=update_data,
         )
@@ -310,11 +310,11 @@ class TestProjectUpdate:
             headers=admin_auth_headers,
             json=project_data,
         )
-        project_id = create_response.json()["id"]
+        project_uuid = create_response.json()["uuid"]
 
         # Update subdomain
         response = await client.patch(
-            f"/api/admin/projects/{project_id}",
+            f"/api/admin/projects/{project_uuid}",
             headers=admin_auth_headers,
             json={"subdomain": "new-subdomain"},
         )
@@ -356,11 +356,11 @@ class TestProjectUpdate:
             headers=admin_auth_headers,
             json=project2_data,
         )
-        project2_id = create_response.json()["id"]
+        project2_uuid = create_response.json()["uuid"]
 
         # Try to update project2's subdomain to proj1
         response = await client.patch(
-            f"/api/admin/projects/{project2_id}",
+            f"/api/admin/projects/{project2_uuid}",
             headers=admin_auth_headers,
             json={"subdomain": "proj1"},
         )
@@ -390,18 +390,18 @@ class TestProjectDelete:
             headers=admin_auth_headers,
             json=project_data,
         )
-        project_id = create_response.json()["id"]
+        project_uuid = create_response.json()["uuid"]
 
         # Delete
         response = await client.delete(
-            f"/api/admin/projects/{project_id}",
+            f"/api/admin/projects/{project_uuid}",
             headers=admin_auth_headers,
         )
         assert response.status_code == 204
 
         # Verify deleted
         get_response = await client.get(
-            f"/api/admin/projects/{project_id}",
+            f"/api/admin/projects/{project_uuid}",
             headers=admin_auth_headers,
         )
         assert get_response.status_code == 404
@@ -411,7 +411,7 @@ class TestProjectDelete:
     ):
         """Test deleting non-existent project returns 404."""
         response = await client.delete(
-            "/api/admin/projects/99999",
+            "/api/admin/projects/00000000-0000-0000-0000-000000000000",
             headers=admin_auth_headers,
         )
         assert response.status_code == 404

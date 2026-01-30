@@ -135,16 +135,16 @@ class TestCustomerGet:
             headers=admin_auth_headers,
             json={"name": "Get Test Customer"},
         )
-        customer_id = create_response.json()["id"]
+        customer_uuid = create_response.json()["uuid"]
 
         # Then fetch it
         response = await client.get(
-            f"/api/admin/customers/{customer_id}",
+            f"/api/admin/customers/{customer_uuid}",
             headers=admin_auth_headers,
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["id"] == customer_id
+        assert data["uuid"] == customer_uuid
         assert data["name"] == "Get Test Customer"
         assert "projects_count" in data
 
@@ -153,7 +153,7 @@ class TestCustomerGet:
     ):
         """Test getting non-existent customer returns 404."""
         response = await client.get(
-            "/api/admin/customers/99999",
+            "/api/admin/customers/00000000-0000-0000-0000-000000000000",
             headers=admin_auth_headers,
         )
         assert response.status_code == 404
@@ -170,7 +170,7 @@ class TestCustomerUpdate:
             headers=admin_auth_headers,
             json={"name": "Original Name"},
         )
-        customer_id = create_response.json()["id"]
+        customer_uuid = create_response.json()["uuid"]
 
         # Update customer
         update_data = {
@@ -179,7 +179,7 @@ class TestCustomerUpdate:
             "contact_phone": "+1-555-9999",
         }
         response = await client.patch(
-            f"/api/admin/customers/{customer_id}",
+            f"/api/admin/customers/{customer_uuid}",
             headers=admin_auth_headers,
             json=update_data,
         )
@@ -199,11 +199,11 @@ class TestCustomerUpdate:
             headers=admin_auth_headers,
             json={"name": "Test", "contact_name": "Original"},
         )
-        customer_id = create_response.json()["id"]
+        customer_uuid = create_response.json()["uuid"]
 
         # Update only name
         response = await client.patch(
-            f"/api/admin/customers/{customer_id}",
+            f"/api/admin/customers/{customer_uuid}",
             headers=admin_auth_headers,
             json={"name": "New Name"},
         )
@@ -222,11 +222,11 @@ class TestCustomerUpdate:
             headers=admin_auth_headers,
             json={"name": "Test Customer"},
         )
-        customer_id = create_response.json()["id"]
+        customer_uuid = create_response.json()["uuid"]
 
         # Deactivate
         response = await client.patch(
-            f"/api/admin/customers/{customer_id}",
+            f"/api/admin/customers/{customer_uuid}",
             headers=admin_auth_headers,
             json={"is_active": False},
         )
@@ -238,7 +238,7 @@ class TestCustomerUpdate:
     ):
         """Test updating non-existent customer returns 404."""
         response = await client.patch(
-            "/api/admin/customers/99999",
+            "/api/admin/customers/00000000-0000-0000-0000-000000000000",
             headers=admin_auth_headers,
             json={"name": "Updated"},
         )
@@ -256,18 +256,18 @@ class TestCustomerDelete:
             headers=admin_auth_headers,
             json={"name": "To Delete"},
         )
-        customer_id = create_response.json()["id"]
+        customer_uuid = create_response.json()["uuid"]
 
         # Delete
         response = await client.delete(
-            f"/api/admin/customers/{customer_id}",
+            f"/api/admin/customers/{customer_uuid}",
             headers=admin_auth_headers,
         )
         assert response.status_code == 204
 
         # Verify deleted
         get_response = await client.get(
-            f"/api/admin/customers/{customer_id}",
+            f"/api/admin/customers/{customer_uuid}",
             headers=admin_auth_headers,
         )
         assert get_response.status_code == 404
@@ -277,7 +277,7 @@ class TestCustomerDelete:
     ):
         """Test deleting non-existent customer returns 404."""
         response = await client.delete(
-            "/api/admin/customers/99999",
+            "/api/admin/customers/00000000-0000-0000-0000-000000000000",
             headers=admin_auth_headers,
         )
         assert response.status_code == 404

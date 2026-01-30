@@ -40,7 +40,7 @@ export function formatInUserTimezone(
         }
 
         return new Intl.DateTimeFormat('en-US', options).format(date);
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Error formatting date:', error);
         return utcDateString;
     }
@@ -78,7 +78,7 @@ export function getAllTimezones(): string[] {
     // For a full list, you could use Intl.supportedValuesOf('timeZone') in modern browsers
     if (typeof Intl !== 'undefined' && 'supportedValuesOf' in Intl) {
         try {
-            return (Intl as any).supportedValuesOf('timeZone');
+            return (Intl as { supportedValuesOf: (input: string) => string[] }).supportedValuesOf('timeZone');
         } catch {
             // Fallback to common timezones
             return getCommonTimezones();

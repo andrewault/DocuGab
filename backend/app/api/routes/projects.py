@@ -135,7 +135,7 @@ async def get_project(
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project not found",
+            detail="Project not found",
         )
 
     project_dict = await _build_project_response(project, db)
@@ -213,7 +213,7 @@ async def update_project(
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project not found",
+            detail="Project not found",
         )
 
     # Check subdomain uniqueness if being updated
@@ -252,7 +252,7 @@ async def delete_project(
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project not found",
+            detail="Project not found",
         )
 
     await db.delete(project)

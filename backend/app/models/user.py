@@ -42,7 +42,10 @@ class User(Base):
         String(50), default="America/Los_Angeles", nullable=False
     )
     customer_id: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey("customers.id", ondelete="SET NULL"), nullable=True, index=True
+        Integer,
+        ForeignKey("customers.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -53,7 +56,6 @@ class User(Base):
     last_login_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
-
 
     # Relationships
     documents: Mapped[list["Document"]] = relationship(
