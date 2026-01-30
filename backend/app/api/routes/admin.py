@@ -13,7 +13,8 @@ from app.core.database import get_db
 from app.core.deps import get_admin_user
 from app.models.user import User
 from app.models.document import Document
-from app.models.session import Session
+from app.models.customer import Customer
+from app.models.project import Project
 from app.schemas.auth import UserResponse
 
 
@@ -42,8 +43,8 @@ class AdminStats(BaseModel):
     """Schema for admin dashboard stats."""
 
     total_users: int
-    new_users_7d: int
-    active_sessions: int
+    total_customers: int
+    total_projects: int
     total_documents: int
 
 
@@ -57,18 +58,13 @@ async def get_admin_stats(
     total_users_result = await db.execute(select(func.count(User.id)))
     total_users = total_users_result.scalar() or 0
 
-    # New users in last 7 days
-    week_ago = datetime.utcnow() - timedelta(days=7)
-    new_users_result = await db.execute(
-        select(func.count(User.id)).where(User.created_at >= week_ago)
-    )
-    new_users_7d = new_users_result.scalar() or 0
+    # Total customers
+    customers_result = await db.execute(select(func.count(Customer.id)))
+    total_customers = customers_result.scalar() or 0
 
-    # Active sessions
-    sessions_result = await db.execute(
-        select(func.count(Session.id)).where(Session.expires_at > datetime.utcnow())
-    )
-    active_sessions = sessions_result.scalar() or 0
+    # Total projects
+    projects_result = await db.execute(select(func.count(Project.id)))
+    total_projects = projects_result.scalar() or 0
 
     # Total documents
     docs_result = await db.execute(select(func.count(Document.id)))
@@ -76,8 +72,8 @@ async def get_admin_stats(
 
     return AdminStats(
         total_users=total_users,
-        new_users_7d=new_users_7d,
-        active_sessions=active_sessions,
+        total_customers=total_customers,
+        total_projects=total_projects,
         total_documents=total_documents,
     )
 

@@ -26,6 +26,8 @@ import {
 import { Add, Edit, Delete } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { useAuth } from '../../context/AuthContext';
+import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface FAQItem {
     id: number;
@@ -34,6 +36,8 @@ interface FAQItem {
     answer: string;
     order: number;
     is_active: boolean;
+    created_at: string;
+    updated_at: string;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
@@ -50,6 +54,7 @@ export default function FAQManagement() {
         is_active: true,
     });
     const [error, setError] = useState('');
+    const { user: currentUser } = useAuth();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
 
@@ -191,6 +196,8 @@ export default function FAQManagement() {
                                 <TableRow>
                                     <TableCell>Order</TableCell>
                                     <TableCell>Question</TableCell>
+                                    <TableCell>Created at</TableCell>
+                                    <TableCell>Updated at</TableCell>
                                     <TableCell>Active</TableCell>
                                     <TableCell align="right">Actions</TableCell>
                                 </TableRow>
@@ -198,7 +205,7 @@ export default function FAQManagement() {
                             <TableBody>
                                 {faqs.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={4} align="center">
+                                        <TableCell colSpan={6} align="center">
                                             No FAQs yet. Click "Add FAQ" to create one.
                                         </TableCell>
                                     </TableRow>
@@ -207,6 +214,24 @@ export default function FAQManagement() {
                                         <TableRow key={faq.id}>
                                             <TableCell>{faq.order}</TableCell>
                                             <TableCell>{faq.question}</TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2">
+                                                    {formatInUserTimezone(
+                                                        faq.created_at,
+                                                        currentUser?.timezone || 'America/Los_Angeles',
+                                                        'PP'
+                                                    )}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2">
+                                                    {formatInUserTimezone(
+                                                        faq.updated_at,
+                                                        currentUser?.timezone || 'America/Los_Angeles',
+                                                        'PP'
+                                                    )}
+                                                </Typography>
+                                            </TableCell>
                                             <TableCell>
                                                 {faq.is_active ? '✓' : '—'}
                                             </TableCell>

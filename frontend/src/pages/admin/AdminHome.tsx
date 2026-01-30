@@ -1,18 +1,41 @@
-import { Box, Container, Typography, Paper, Stack, useTheme } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Box, Container, Typography, Paper, Stack, useTheme, Grid, Card, CardContent } from '@mui/material';
 import { Group, QuestionAnswer, Business, Folder } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { getAuthHeader } from '../../utils/authUtils';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+
+interface AdminStats {
+    total_users: number;
+    total_customers: number;
+    total_projects: number;
+    total_documents: number;
+}
 
 export default function AdminHome() {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    const [stats, setStats] = useState<AdminStats | null>(null);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/stats`, {
+                    headers: getAuthHeader(),
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setStats(data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch admin stats:', error);
+            }
+        };
+        fetchStats();
+    }, []);
 
     const adminLinks = [
-        {
-            title: 'Users',
-            description: 'Manage user accounts, roles, and permissions',
-            icon: <Group sx={{ fontSize: 48 }} />,
-            path: '/admin/users',
-        },
         {
             title: 'Customers',
             description: 'Manage customer organizations and their projects',
@@ -24,6 +47,12 @@ export default function AdminHome() {
             description: 'Manage projects with branding and configuration',
             icon: <Folder sx={{ fontSize: 48 }} />,
             path: '/admin/projects',
+        },
+        {
+            title: 'Users',
+            description: 'Manage user accounts, roles, and permissions',
+            icon: <Group sx={{ fontSize: 48 }} />,
+            path: '/admin/users',
         },
         {
             title: 'FAQs',
@@ -44,19 +73,113 @@ export default function AdminHome() {
             }}
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
-                <Typography
-                    variant="h4"
-                    mb={4}
-                    sx={{
-                        fontWeight: 700,
-                        background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                        backgroundClip: 'text',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                    }}
-                >
-                    Admin Dashboard
-                </Typography>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+                    <Typography
+                        variant="h4"
+                        sx={{
+                            fontWeight: 700,
+                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}
+                    >
+                        Admin Dashboard
+                    </Typography>
+                </Stack>
+
+                {stats && (
+                    <Grid container spacing={3} mb={6}>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                            <Card
+                                sx={{
+                                    bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'background.paper',
+                                    height: '100%',
+                                }}
+                            >
+                                <CardContent>
+                                    <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                                        <Box>
+                                            <Typography color="textSecondary" gutterBottom variant="overline">
+                                                Total Customers
+                                            </Typography>
+                                            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                                                {stats.total_customers}
+                                            </Typography>
+                                        </Box>
+                                        <Business color="primary" sx={{ fontSize: 32, opacity: 0.8 }} />
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                            <Card
+                                sx={{
+                                    bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'background.paper',
+                                    height: '100%',
+                                }}
+                            >
+                                <CardContent>
+                                    <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                                        <Box>
+                                            <Typography color="textSecondary" gutterBottom variant="overline">
+                                                Total Projects
+                                            </Typography>
+                                            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                                                {stats.total_projects}
+                                            </Typography>
+                                        </Box>
+                                        <Folder color="secondary" sx={{ fontSize: 32, opacity: 0.8 }} />
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                            <Card
+                                sx={{
+                                    bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'background.paper',
+                                    height: '100%',
+                                }}
+                            >
+                                <CardContent>
+                                    <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                                        <Box>
+                                            <Typography color="textSecondary" gutterBottom variant="overline">
+                                                Total Documents
+                                            </Typography>
+                                            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                                                {stats.total_documents}
+                                            </Typography>
+                                        </Box>
+                                        <Folder color="success" sx={{ fontSize: 32, opacity: 0.8 }} />
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                            <Card
+                                sx={{
+                                    bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'background.paper',
+                                    height: '100%',
+                                }}
+                            >
+                                <CardContent>
+                                    <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                                        <Box>
+                                            <Typography color="textSecondary" gutterBottom variant="overline">
+                                                Total Users
+                                            </Typography>
+                                            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                                                {stats.total_users}
+                                            </Typography>
+                                        </Box>
+                                        <Group color="info" sx={{ fontSize: 32, opacity: 0.8 }} />
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    </Grid>
+                )}
 
                 <Stack spacing={3}>
                     {adminLinks.map((link) => (

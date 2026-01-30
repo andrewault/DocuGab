@@ -1,6 +1,7 @@
 """FAQ API routes."""
 
 from typing import Optional
+from datetime import datetime
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -36,6 +37,8 @@ class FAQResponse(BaseModel):
     answer: str
     order: int
     is_active: bool
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True

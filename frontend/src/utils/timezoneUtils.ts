@@ -1,22 +1,21 @@
-import { formatInTimeZone } from 'date-fns-tz';
+// Removed date-fns-tz import to avoid dependency issues
 
 /**
  * Format a UTC datetime string in the user's timezone
  * @param utcDateString - ISO 8601 datetime string from the backend
  * @param timezone - IANA timezone string (e.g., 'America/Los_Angeles')
- * @param formatString - date-fns format string (default: 'PPpp')
+ * @param formatString - 'PP' (date only) or 'PPpp' (date and time)
  * @returns Formatted date string in the user's timezone
  */
 export function formatInUserTimezone(
     utcDateString: string | null | undefined,
     timezone: string,
-    formatString: string = 'PPpp' // e.g., "Apr 29, 2026, 1:15 PM"
+    formatString: string = 'PPpp'
 ): string {
     if (!utcDateString) return 'N/A';
 
     try {
-        // If the date string is naive (no timezone info), assume it's UTC and append 'Z'
-        // SQLALchemy/Pydantic often return naive ISO strings for UTC datetimes
+        // If the date string is naive, assume UTC
         let dateToFormat = utcDateString;
         if (typeof utcDateString === 'string' &&
             !utcDateString.endsWith('Z') &&
@@ -25,7 +24,22 @@ export function formatInUserTimezone(
             dateToFormat = utcDateString + 'Z';
         }
 
-        return formatInTimeZone(dateToFormat, timezone, formatString);
+        const date = new Date(dateToFormat);
+        if (isNaN(date.getTime())) return utcDateString;
+
+        const options: Intl.DateTimeFormatOptions = {
+            timeZone: timezone,
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        };
+
+        if (formatString === 'PPpp') {
+            options.hour = 'numeric';
+            options.minute = 'numeric';
+        }
+
+        return new Intl.DateTimeFormat('en-US', options).format(date);
     } catch (error) {
         console.error('Error formatting date:', error);
         return utcDateString;
@@ -76,13 +90,22 @@ export function getAllTimezones(): string[] {
 /**
  * Get timezone label with offset for display
  * @param timezone - IANA timezone string
- * @returns Formatted label like "America/Los_Angeles (PST, UTC-8)"
+ * @returns Formatted label like "America/Los_Angeles (PST, GMT-8)"
  */
 export function getTimezoneLabel(timezone: string): string {
     try {
         const now = new Date();
-        const formatted = formatInTimeZone(now, timezone, 'zzz (OOOO)');
-        return `${timezone} (${formatted})`;
+        const shortName = new Intl.DateTimeFormat('en-US', {
+            timeZone: timezone,
+            timeZoneName: 'short'
+        }).formatToParts(now).find(p => p.type === 'timeZoneName')?.value;
+
+        const offset = new Intl.DateTimeFormat('en-US', {
+            timeZone: timezone,
+            timeZoneName: 'shortOffset'
+        }).formatToParts(now).find(p => p.type === 'timeZoneName')?.value;
+
+        return `${timezone} (${shortName || ''}, ${offset || ''})`;
     } catch {
         return timezone;
     }

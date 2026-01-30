@@ -53,7 +53,7 @@ interface User {
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
-export default function AdminDashboard() {
+export default function Users() {
     const { user: currentUser } = useAuth();
     const [stats, setStats] = useState<Stats | null>(null);
     const [users, setUsers] = useState<User[]>([]);

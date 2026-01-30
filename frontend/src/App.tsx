@@ -18,7 +18,7 @@ import FAQ from './pages/FAQ';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import AdminHome from './pages/admin/AdminHome';
-import AdminDashboard from './pages/admin/Dashboard';
+import Users from './pages/admin/Users';
 import UserDetail from './pages/admin/UserDetail';
 import NewUser from './pages/admin/NewUser';
 import FAQManagement from './pages/admin/FAQManagement';
@@ -112,7 +112,7 @@ export default function App() {
             } />
             <Route path="/admin/users" element={
               <ProtectedRoute requireAdmin>
-                <AdminDashboard />
+                <Users />
               </ProtectedRoute>
             } />
             <Route path="/admin/users/new" element={
