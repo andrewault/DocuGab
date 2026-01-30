@@ -23,8 +23,10 @@ import {
     CircularProgress,
     Alert,
     useTheme,
+    Button,
+    IconButton,
 } from '@mui/material';
-import { Group, PersonAdd, Description, Pending } from '@mui/icons-material';
+import { Group, PersonAdd, Description, Pending, Edit } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
@@ -137,19 +139,29 @@ export default function AdminDashboard() {
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
                 <AdminBreadcrumbs items={[{ label: 'Users' }]} />
-                <Typography
-                    variant="h4"
-                    mb={4}
-                    sx={{
-                        fontWeight: 700,
-                        background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                        backgroundClip: 'text',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                    }}
-                >
-                    Users
-                </Typography>
+
+                {/* Header with Title */}
+                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+                    <Typography
+                        variant="h4"
+                        sx={{
+                            fontWeight: 700,
+                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}
+                    >
+                        Users
+                    </Typography>
+                    <Button
+                        variant="contained"
+                        startIcon={<PersonAdd />}
+                        onClick={() => navigate('/admin/users/new')}
+                    >
+                        Add User
+                    </Button>
+                </Stack>
 
                 {error && (
                     <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
@@ -209,6 +221,7 @@ export default function AdminDashboard() {
                                 <TableCell>Name</TableCell>
                                 <TableCell>Role</TableCell>
                                 <TableCell>Status</TableCell>
+                                <TableCell align="right">Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -253,6 +266,18 @@ export default function AdminDashboard() {
                                                 size="small"
                                                 color={user.is_active ? 'success' : 'default'}
                                             />
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            <IconButton
+                                                size="small"
+                                                color="primary"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate(`/admin/users/${user.id}`);
+                                                }}
+                                            >
+                                                <Edit />
+                                            </IconButton>
                                         </TableCell>
                                     </TableRow>
                                 ))

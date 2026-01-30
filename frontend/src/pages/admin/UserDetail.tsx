@@ -203,17 +203,10 @@ export default function UserDetail() {
                     { label: user.email }
                 ]} />
 
-                <Paper
-                    elevation={3}
-                    sx={{
-                        p: 4,
-                        borderRadius: 2,
-                        bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
-                    }}
-                >
+                {/* Header with Title */}
+                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
                     <Typography
                         variant="h4"
-                        mb={1}
                         sx={{
                             fontWeight: 700,
                             background: 'linear-gradient(90deg, #6366f1, #10b981)',
@@ -222,11 +215,21 @@ export default function UserDetail() {
                             WebkitTextFillColor: 'transparent',
                         }}
                     >
-                        Edit User
+                        User
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" mb={3}>
-                        {user.email}
-                    </Typography>
+                </Stack>
+                <Typography variant="body2" color="text.secondary" mb={3}>
+                    {user.email}
+                </Typography>
+
+                <Paper
+                    elevation={3}
+                    sx={{
+                        p: 4,
+                        borderRadius: 2,
+                        bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
+                    }}
+                >
 
                     {error && (
                         <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
