@@ -5,28 +5,57 @@ set -e
 
 cd "$(dirname "$0")/../.."
 
+# Color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
 echo "🩺 Checking DocuTok health..."
 echo ""
 
 # Container status
 echo "📦 Containers:"
-docker compose ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || docker compose ps
+CONTAINER_STATUS=$(docker compose ps --format "{{.Name}}\t{{.Status}}" 2>/dev/null)
+echo "$CONTAINER_STATUS" | while IFS=$'\t' read -r name status; do
+    if [[ "$status" =~ "Up" ]] && [[ "$status" =~ "healthy" || ! "$status" =~ "health" ]]; then
+        echo -e "   ${GREEN}✓${NC} $name: $status"
+    else
+        echo -e "   ${RED}✗${NC} $name: $status"
+    fi
+done
 
 echo ""
 
 # Backend health
 echo "🔌 Backend API:"
-if curl -s http://localhost:8007/health 2>/dev/null; then
-    echo ""
+if BACKEND_RESPONSE=$(curl -s http://localhost:8007/health 2>/dev/null); then
+    if [[ "$BACKEND_RESPONSE" =~ "healthy" ]]; then
+        echo -e "   ${GREEN}✓ Backend is healthy${NC}"
+    else
+        echo -e "   ${YELLOW}⚠ Backend responded but status unknown${NC}"
+        echo "   Response: $BACKEND_RESPONSE"
+    fi
 else
-    echo "❌ Backend not responding"
+    echo -e "   ${RED}✗ Backend not responding${NC}"
 fi
 
 echo ""
 
-# Ollama models
+# Ollama models (native installation)
 echo "🤖 Ollama models:"
-docker exec docutok-ollama ollama list 2>/dev/null || echo "❌ Ollama not responding"
+if OLLAMA_RESPONSE=$(curl -s http://localhost:11434/api/tags 2>/dev/null); then
+    MODEL_COUNT=$(echo "$OLLAMA_RESPONSE" | grep -o '"name":"[^"]*"' | wc -l | tr -d ' ')
+    if [ "$MODEL_COUNT" -gt 0 ]; then
+        echo "$OLLAMA_RESPONSE" | grep -o '"name":"[^"]*"' | cut -d'"' -f4 | while read model; do
+            echo -e "   ${GREEN}✓${NC} $model"
+        done
+    else
+        echo -e "   ${YELLOW}⚠ Ollama running but no models found${NC}"
+    fi
+else
+    echo -e "   ${RED}✗ Ollama not responding${NC}"
+fi
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

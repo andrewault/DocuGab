@@ -134,7 +134,6 @@ export default function CustomerDetail() {
         <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: 3 }}>
             <AdminBreadcrumbs
                 items={[
-                    { label: 'Admin', path: '/admin' },
                     { label: 'Customers', path: '/admin/customers' },
                     { label: customer.name },
                 ]}

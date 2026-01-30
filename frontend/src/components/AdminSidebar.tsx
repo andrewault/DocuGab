@@ -1,5 +1,5 @@
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Divider, useTheme } from '@mui/material';
-import { Business, Folder, Group, QuestionAnswer } from '@mui/icons-material';
+import { Business, Folder, Group, QuestionAnswer, Storage } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface AdminSidebarProps {
@@ -17,6 +17,7 @@ export default function AdminSidebar({ isOpen }: AdminSidebarProps) {
         { label: 'Projects', icon: <Folder />, path: '/admin/projects' },
         { label: 'Users', icon: <Group />, path: '/admin/users' },
         { label: 'FAQs', icon: <QuestionAnswer />, path: '/admin/faq' },
+        { label: 'Database', icon: <Storage />, path: '/admin/database' },
     ];
 
     return (

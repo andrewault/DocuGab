@@ -20,6 +20,7 @@ from app.api.routes import (
     customers,
     projects,
     public,
+    database,
 )
 from app.middleware import SubdomainMiddleware
 
@@ -91,6 +92,7 @@ app.include_router(public.router, tags=["Public"])
 app.include_router(auth.router, prefix="/api", tags=["Auth"])
 app.include_router(users.router, prefix="/api", tags=["Users"])
 app.include_router(admin.router, prefix="/api", tags=["Admin"])
+app.include_router(database.router, prefix="/api/admin/database", tags=["Database"])
 app.include_router(customers.router, prefix="/api", tags=["Customers"])
 app.include_router(projects.router, prefix="/api", tags=["Projects"])
 app.include_router(documents.router, prefix="/api/documents", tags=["Documents"])

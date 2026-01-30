@@ -89,6 +89,7 @@ export default function ProjectDetail() {
     const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState<string | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
 
     const fetchDocuments = async () => {
         if (!id) return;
@@ -144,6 +145,44 @@ export default function ProjectDetail() {
             setUploading(false);
         }
     };
+
+    const handleDragEnter = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleDrop = async (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            // Create a synthetic event to pass to handleFileUpload
+            const input = document.getElementById('upload-file-input') as HTMLInputElement;
+            if (input) {
+                const dataTransfer = new DataTransfer();
+                Array.from(files).forEach(file => dataTransfer.items.add(file));
+                input.files = dataTransfer.files;
+
+                const event = new Event('change', { bubbles: true });
+                input.dispatchEvent(event);
+            }
+        }
+    };
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -591,9 +630,28 @@ export default function ProjectDetail() {
                                 {uploadError}
                             </Alert>
                         )}
-                        <Box sx={{ mt: 2 }}>
+                        <Box
+                            sx={{
+                                mt: 2,
+                                p: 4,
+                                border: '2px dashed',
+                                borderColor: isDragging ? 'primary.main' : 'divider',
+                                borderRadius: 2,
+                                bgcolor: isDragging ? 'action.hover' : 'background.paper',
+                                transition: 'all 0.2s',
+                                cursor: uploading ? 'default' : 'pointer',
+                                '&:hover': uploading ? {} : {
+                                    borderColor: 'primary.main',
+                                    bgcolor: 'action.hover',
+                                },
+                            }}
+                            onDragEnter={handleDragEnter}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
+                        >
                             <input
-                                accept=".pdf,.txt,.md,.doc,.docx"
+                                accept=".pdf,.txt,.md,.docx"
                                 style={{ display: 'none' }}
                                 id="upload-file-input"
                                 type="file"
@@ -601,21 +659,28 @@ export default function ProjectDetail() {
                                 onChange={handleFileUpload}
                                 disabled={uploading}
                             />
-                            <label htmlFor="upload-file-input">
-                                <Button
-                                    variant="outlined"
-                                    component="span"
-                                    fullWidth
-                                    startIcon={<CloudUpload />}
-                                    disabled={uploading}
-                                    sx={{ py: 2 }}
-                                >
-                                    {uploading ? 'Uploading...' : 'Choose Files'}
-                                </Button>
+                            <label htmlFor="upload-file-input" style={{ cursor: uploading ? 'default' : 'pointer', display: 'block' }}>
+                                <Stack spacing={2} alignItems="center">
+                                    <CloudUpload sx={{ fontSize: 48, color: isDragging ? 'primary.main' : 'text.secondary' }} />
+                                    <Typography variant="h6" align="center">
+                                        {uploading ? 'Uploading...' : isDragging ? 'Drop files here' : 'Drag and drop files here'}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary" align="center">
+                                        or
+                                    </Typography>
+                                    <Button
+                                        variant="outlined"
+                                        component="span"
+                                        startIcon={<CloudUpload />}
+                                        disabled={uploading}
+                                    >
+                                        Choose Files
+                                    </Button>
+                                    <Typography variant="caption" color="text.secondary" align="center">
+                                        Supported formats: PDF, TXT, MD, DOCX
+                                    </Typography>
+                                </Stack>
                             </label>
-                            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                                Supported formats: PDF, TXT, MD, DOC, DOCX
-                            </Typography>
                         </Box>
                     </DialogContent>
                     <DialogActions>
