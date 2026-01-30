@@ -282,6 +282,12 @@ export default function ProjectEdit() {
                             label="Project Name"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSave();
+                                }
+                            }}
                             fullWidth
                             required
                             disabled={saving}
@@ -291,6 +297,12 @@ export default function ProjectEdit() {
                             label="Slug"
                             value={formData.slug}
                             onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSave();
+                                }
+                            }}
                             fullWidth
                             helperText="URL-friendly identifier"
                             disabled={saving}
@@ -300,6 +312,12 @@ export default function ProjectEdit() {
                             label="Subdomain"
                             value={formData.subdomain}
                             onChange={(e) => setFormData({ ...formData, subdomain: e.target.value })}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSave();
+                                }
+                            }}
                             fullWidth
                             disabled={saving}
                         />
@@ -322,6 +340,12 @@ export default function ProjectEdit() {
                             label="Title"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSave();
+                                }
+                            }}
                             fullWidth
                             disabled={saving}
                         />
@@ -330,6 +354,12 @@ export default function ProjectEdit() {
                             label="Subtitle"
                             value={formData.subtitle}
                             onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSave();
+                                }
+                            }}
                             fullWidth
                             disabled={saving}
                         />
@@ -348,6 +378,12 @@ export default function ProjectEdit() {
                             label="Logo URL"
                             value={formData.logo}
                             onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSave();
+                                }
+                            }}
                             fullWidth
                             disabled={saving}
                         />
@@ -388,6 +424,12 @@ export default function ProjectEdit() {
                             label="Return Link"
                             value={formData.return_link}
                             onChange={(e) => setFormData({ ...formData, return_link: e.target.value })}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSave();
+                                }
+                            }}
                             fullWidth
                             disabled={saving}
                         />
@@ -396,6 +438,12 @@ export default function ProjectEdit() {
                             label="Return Link Text"
                             value={formData.return_link_text}
                             onChange={(e) => setFormData({ ...formData, return_link_text: e.target.value })}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSave();
+                                }
+                            }}
                             fullWidth
                             disabled={saving}
                         />

@@ -70,6 +70,7 @@ async def list_customers(
             "name": customer.name,
             "contact_name": customer.contact_name,
             "contact_phone": customer.contact_phone,
+            "email": customer.email,
             "is_active": customer.is_active,
             "created_at": customer.created_at,
             "updated_at": customer.updated_at,
@@ -114,6 +115,7 @@ async def get_customer(
         "name": customer.name,
         "contact_name": customer.contact_name,
         "contact_phone": customer.contact_phone,
+        "email": customer.email,
         "is_active": customer.is_active,
         "created_at": customer.created_at,
         "updated_at": customer.updated_at,
@@ -135,6 +137,7 @@ async def create_customer(
         name=data.name,
         contact_name=data.contact_name,
         contact_phone=data.contact_phone,
+        email=data.email,
         is_active=True,
     )
 
@@ -149,6 +152,7 @@ async def create_customer(
         "name": customer.name,
         "contact_name": customer.contact_name,
         "contact_phone": customer.contact_phone,
+        "email": customer.email,
         "is_active": customer.is_active,
         "created_at": customer.created_at,
         "updated_at": customer.updated_at,
@@ -182,6 +186,8 @@ async def update_customer(
         customer.contact_name = data.contact_name
     if data.contact_phone is not None:
         customer.contact_phone = data.contact_phone
+    if data.email is not None:
+        customer.email = data.email
     if data.is_active is not None:
         customer.is_active = data.is_active
 
@@ -201,6 +207,7 @@ async def update_customer(
         "name": customer.name,
         "contact_name": customer.contact_name,
         "contact_phone": customer.contact_phone,
+        "email": customer.email,
         "is_active": customer.is_active,
         "created_at": customer.created_at,
         "updated_at": customer.updated_at,

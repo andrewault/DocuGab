@@ -32,6 +32,7 @@ class Customer(Base):
     # Contact Information
     contact_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     contact_phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    email: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # Metadata
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

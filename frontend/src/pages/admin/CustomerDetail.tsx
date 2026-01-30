@@ -47,6 +47,7 @@ interface Customer {
     name: string;
     contact_name: string | null;
     contact_phone: string | null;
+    email: string | null;
     is_active: boolean;
     created_at: string;
     updated_at: string;
@@ -86,7 +87,7 @@ export default function CustomerDetail() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
-    const [editForm, setEditForm] = useState({ name: '', contact_name: '', contact_phone: '', is_active: true });
+    const [editForm, setEditForm] = useState({ name: '', contact_name: '', contact_phone: '', email: '', is_active: true });
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -208,6 +209,7 @@ export default function CustomerDetail() {
                                     contact_name: customer.contact_name || '',
                                     contact_phone: customer.contact_phone || '',
                                     is_active: customer.is_active,
+                                    email: customer.email || '',
                                 });
                                 setEditDialogOpen(true);
                                 setSaveError(null);
@@ -256,6 +258,16 @@ export default function CustomerDetail() {
                                 </Typography>
                                 <Typography variant="body1">
                                     {customer.contact_phone || '—'}
+                                </Typography>
+                            </Box>
+
+                            <Box>
+                                <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
+                                    <Person fontSize="small" />
+                                    Email
+                                </Typography>
+                                <Typography variant="body1">
+                                    {customer.email || '—'}
                                 </Typography>
                             </Box>
                         </Stack>
@@ -514,6 +526,12 @@ export default function CustomerDetail() {
                             label="Customer Name"
                             value={editForm.name}
                             onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    document.getElementById('save-customer-btn')?.click();
+                                }
+                            }}
                             fullWidth
                             required
                             disabled={saving}
@@ -522,6 +540,12 @@ export default function CustomerDetail() {
                             label="Contact Name"
                             value={editForm.contact_name}
                             onChange={(e) => setEditForm({ ...editForm, contact_name: e.target.value })}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    document.getElementById('save-customer-btn')?.click();
+                                }
+                            }}
                             fullWidth
                             disabled={saving}
                         />
@@ -529,6 +553,26 @@ export default function CustomerDetail() {
                             label="Contact Phone"
                             value={editForm.contact_phone}
                             onChange={(e) => setEditForm({ ...editForm, contact_phone: e.target.value })}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    document.getElementById('save-customer-btn')?.click();
+                                }
+                            }}
+                            fullWidth
+                            disabled={saving}
+                        />
+                        <TextField
+                            label="Email"
+                            type="email"
+                            value={editForm.email}
+                            onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    document.getElementById('save-customer-btn')?.click();
+                                }
+                            }}
                             fullWidth
                             disabled={saving}
                         />
@@ -549,6 +593,7 @@ export default function CustomerDetail() {
                         Cancel
                     </Button>
                     <Button
+                        id="save-customer-btn"
                         variant="contained"
                         onClick={async () => {
                             if (!editForm.name.trim()) {
@@ -571,6 +616,7 @@ export default function CustomerDetail() {
                                             name: editForm.name,
                                             contact_name: editForm.contact_name || null,
                                             contact_phone: editForm.contact_phone || null,
+                                            email: editForm.email || null,
                                             is_active: editForm.is_active,
                                         }),
                                     }

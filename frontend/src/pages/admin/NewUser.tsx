@@ -187,6 +187,12 @@ export default function NewUser() {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSubmit();
+                                }
+                            }}
                             required
                             fullWidth
                         />
@@ -196,6 +202,12 @@ export default function NewUser() {
                             type={showPassword ? 'text' : 'password'}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSubmit();
+                                }
+                            }}
                             required
                             fullWidth
                             InputProps={{
@@ -217,6 +229,12 @@ export default function NewUser() {
                             label="Full Name"
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSubmit();
+                                }
+                            }}
                             fullWidth
                             helperText="Optional - defaults to email if not provided"
                         />

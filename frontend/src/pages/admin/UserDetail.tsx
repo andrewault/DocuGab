@@ -308,6 +308,12 @@ export default function UserDetail() {
                             label="Full Name"
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSave();
+                                }
+                            }}
                             fullWidth
                         />
 

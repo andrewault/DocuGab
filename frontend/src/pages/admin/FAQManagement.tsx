@@ -273,6 +273,12 @@ export default function FAQManagement() {
                             label="Question"
                             value={formData.question}
                             onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSave();
+                                }
+                            }}
                             sx={{ mt: 2, mb: 2 }}
                         />
                         <TextField
@@ -290,6 +296,12 @@ export default function FAQManagement() {
                             type="number"
                             value={formData.order}
                             onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSave();
+                                }
+                            }}
                             sx={{ mb: 2 }}
                         />
                         <FormControlLabel

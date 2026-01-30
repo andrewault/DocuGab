@@ -12,6 +12,7 @@ class CustomerBase(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     contact_name: Optional[str] = Field(None, max_length=255)
     contact_phone: Optional[str] = Field(None, max_length=50)
+    email: Optional[str] = Field(None, max_length=255)
 
 
 class CustomerCreate(CustomerBase):
@@ -26,6 +27,7 @@ class CustomerUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     contact_name: Optional[str] = Field(None, max_length=255)
     contact_phone: Optional[str] = Field(None, max_length=50)
+    email: Optional[str] = Field(None, max_length=255)
     is_active: Optional[bool] = None
 
 

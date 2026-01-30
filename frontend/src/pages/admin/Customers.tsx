@@ -39,6 +39,7 @@ interface Customer {
     name: string;
     contact_name: string | null;
     contact_phone: string | null;
+    email: string | null;
     is_active: boolean;
     created_at: string;
     updated_at: string;
@@ -49,6 +50,7 @@ interface CustomerFormData {
     name: string;
     contact_name: string;
     contact_phone: string;
+    email: string;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
@@ -69,6 +71,7 @@ export default function Customers() {
         name: '',
         contact_name: '',
         contact_phone: '',
+        email: '',
     });
 
     const fetchCustomers = useCallback(async () => {
@@ -118,6 +121,7 @@ export default function Customers() {
                 name: customer.name,
                 contact_name: customer.contact_name || '',
                 contact_phone: customer.contact_phone || '',
+                email: customer.email || '',
             });
         } else {
             setEditingCustomer(null);
@@ -125,6 +129,7 @@ export default function Customers() {
                 name: '',
                 contact_name: '',
                 contact_phone: '',
+                email: '',
             });
         }
         setOpenDialog(true);
@@ -138,7 +143,7 @@ export default function Customers() {
     const handleSubmit = async () => {
         try {
             const url = editingCustomer
-                ? `${API_BASE}/api/admin/customers/${editingCustomer.id}`
+                ? `${API_BASE}/api/admin/customers/${editingCustomer.uuid}`
                 : `${API_BASE}/api/admin/customers`;
 
             const method = editingCustomer ? 'PATCH' : 'POST';
@@ -152,7 +157,10 @@ export default function Customers() {
                 body: JSON.stringify(formData),
             });
 
-            if (!response.ok) throw new Error('Failed to save customer');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.detail || `Failed to save customer (${response.status})`);
+            }
 
             handleCloseDialog();
             fetchCustomers();
@@ -289,6 +297,7 @@ export default function Customers() {
                                     <TableRow>
                                         <TableCell>Name</TableCell>
                                         <TableCell>Contact Name</TableCell>
+                                        <TableCell>Email</TableCell>
                                         <TableCell>Contact Phone</TableCell>
                                         <TableCell>Projects</TableCell>
                                         <TableCell>Created at</TableCell>
@@ -300,7 +309,7 @@ export default function Customers() {
                                 <TableBody>
                                     {customers.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={8} align="center">
+                                            <TableCell colSpan={9} align="center">
                                                 <Typography color="textSecondary" py={4}>
                                                     No customers found
                                                 </Typography>
@@ -321,6 +330,9 @@ export default function Customers() {
                                                 </TableCell>
                                                 <TableCell>
                                                     {customer.contact_name || '—'}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {customer.email || '—'}
                                                 </TableCell>
                                                 <TableCell>
                                                     {customer.contact_phone || '—'}
@@ -410,6 +422,12 @@ export default function Customers() {
                                 label="Customer Name"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSubmit();
+                                    }
+                                }}
                                 required
                             />
                             <TextField
@@ -417,12 +435,37 @@ export default function Customers() {
                                 label="Contact Name"
                                 value={formData.contact_name}
                                 onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSubmit();
+                                    }
+                                }}
                             />
                             <TextField
                                 fullWidth
                                 label="Contact Phone"
                                 value={formData.contact_phone}
                                 onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSubmit();
+                                    }
+                                }}
+                            />
+                            <TextField
+                                fullWidth
+                                label="Email"
+                                type="email"
+                                value={formData.email}
+                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSubmit();
+                                    }
+                                }}
                             />
                         </Stack>
                     </DialogContent>
@@ -433,7 +476,7 @@ export default function Customers() {
                             variant="contained"
                             disabled={!formData.name}
                         >
-                            {editingCustomer ? 'Update' : 'Create'}
+                            {editingCustomer ? 'Save' : 'Create'}
                         </Button>
                     </DialogActions>
                 </Dialog>

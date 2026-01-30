@@ -103,6 +103,12 @@ export default function Register() {
                             label="Full Name"
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSubmit(e as any);
+                                }
+                            }}
                             sx={{ mb: 2 }}
                         />
                         <TextField
@@ -111,6 +117,12 @@ export default function Register() {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSubmit(e as any);
+                                }
+                            }}
                             required
                             sx={{ mb: 2 }}
                         />
@@ -120,6 +132,12 @@ export default function Register() {
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSubmit(e as any);
+                                }
+                            }}
                             required
                             helperText="Minimum 8 characters"
                             sx={{ mb: 2 }}
@@ -130,6 +148,12 @@ export default function Register() {
                             type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSubmit(e as any);
+                                }
+                            }}
                             required
                             sx={{ mb: 3 }}
                         />
