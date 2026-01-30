@@ -211,7 +211,17 @@ export default function UserDetail() {
                         bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
                     }}
                 >
-                    <Typography variant="h5" fontWeight={700} mb={1}>
+                    <Typography
+                        variant="h4"
+                        mb={1}
+                        sx={{
+                            fontWeight: 700,
+                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}
+                    >
                         Edit User
                     </Typography>
                     <Typography variant="body2" color="text.secondary" mb={3}>

@@ -257,24 +257,15 @@ export default function ProjectDetail() {
                         <Folder sx={{ mr: 1, verticalAlign: 'bottom' }} />
                         {project.name}
                     </Typography>
-                    <Stack direction="row" spacing={2}>
-                        <Button
-                            variant="outlined"
-                            startIcon={<ArrowBack />}
-                            onClick={() => navigate('/admin/projects')}
-                        >
-                            Back
-                        </Button>
-                        <Button
-                            variant="contained"
-                            startIcon={<Edit />}
-                            onClick={() => {
-                                alert('Edit functionality coming soon!');
-                            }}
-                        >
-                            Edit Project
-                        </Button>
-                    </Stack>
+                    <Button
+                        variant="contained"
+                        startIcon={<Edit />}
+                        onClick={() => {
+                            alert('Edit functionality coming soon!');
+                        }}
+                    >
+                        Edit Project
+                    </Button>
                 </Stack>
 
                 {/* Project Details */}

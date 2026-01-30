@@ -153,7 +153,16 @@ export default function FAQManagement() {
             <Container maxWidth={false} sx={{ px: 3 }}>
                 <AdminBreadcrumbs items={[{ label: 'FAQs' }]} />
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-                    <Typography variant="h4" fontWeight={700}>
+                    <Typography
+                        variant="h4"
+                        sx={{
+                            fontWeight: 700,
+                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}
+                    >
                         FAQs
                     </Typography>
                     <Button
