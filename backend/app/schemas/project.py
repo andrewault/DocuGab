@@ -1,4 +1,5 @@
 """Project schemas for request/response validation."""
+
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime
@@ -7,6 +8,7 @@ import re
 
 class ProjectBase(BaseModel):
     """Base schema for project."""
+
     name: str = Field(min_length=1, max_length=255)
     slug: str = Field(min_length=1, max_length=100)
     description: Optional[str] = None
@@ -15,8 +17,12 @@ class ProjectBase(BaseModel):
     subtitle: Optional[str] = Field(None, max_length=500)
     body: Optional[str] = None
     color_primary: str = Field(min_length=7, max_length=7, pattern=r"^#[0-9a-fA-F]{6}$")
-    color_secondary: str = Field(min_length=7, max_length=7, pattern=r"^#[0-9a-fA-F]{6}$")
-    color_background: str = Field(min_length=7, max_length=7, pattern=r"^#[0-9a-fA-F]{6}$")
+    color_secondary: str = Field(
+        min_length=7, max_length=7, pattern=r"^#[0-9a-fA-F]{6}$"
+    )
+    color_background: str = Field(
+        min_length=7, max_length=7, pattern=r"^#[0-9a-fA-F]{6}$"
+    )
     avatar: str = Field(min_length=1, max_length=500)
     voice: str = Field(min_length=1, max_length=100)
     return_link: Optional[str] = Field(None, max_length=500)
@@ -47,12 +53,14 @@ class ProjectBase(BaseModel):
 
 class ProjectCreate(ProjectBase):
     """Schema for creating a project."""
+
     customer_id: int = Field(gt=0)
     logo: Optional[str] = Field(None, max_length=500)
 
 
 class ProjectUpdate(BaseModel):
     """Schema for updating a project."""
+
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     slug: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = None
@@ -61,9 +69,15 @@ class ProjectUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=1, max_length=255)
     subtitle: Optional[str] = Field(None, max_length=500)
     body: Optional[str] = None
-    color_primary: Optional[str] = Field(None, min_length=7, max_length=7, pattern=r"^#[0-9a-fA-F]{6}$")
-    color_secondary: Optional[str] = Field(None, min_length=7, max_length=7, pattern=r"^#[0-9a-fA-F]{6}$")
-    color_background: Optional[str] = Field(None, min_length=7, max_length=7, pattern=r"^#[0-9a-fA-F]{6}$")
+    color_primary: Optional[str] = Field(
+        None, min_length=7, max_length=7, pattern=r"^#[0-9a-fA-F]{6}$"
+    )
+    color_secondary: Optional[str] = Field(
+        None, min_length=7, max_length=7, pattern=r"^#[0-9a-fA-F]{6}$"
+    )
+    color_background: Optional[str] = Field(
+        None, min_length=7, max_length=7, pattern=r"^#[0-9a-fA-F]{6}$"
+    )
     avatar: Optional[str] = Field(None, min_length=1, max_length=500)
     voice: Optional[str] = Field(None, min_length=1, max_length=100)
     return_link: Optional[str] = Field(None, max_length=500)
@@ -95,6 +109,7 @@ class ProjectUpdate(BaseModel):
 
 class ProjectResponse(ProjectBase):
     """Schema for project response."""
+
     id: int
     customer_id: int
     logo: Optional[str]
@@ -109,6 +124,7 @@ class ProjectResponse(ProjectBase):
 
 class ProjectListResponse(BaseModel):
     """Schema for paginated project list."""
+
     projects: list[ProjectResponse]
     total: int
     page: int

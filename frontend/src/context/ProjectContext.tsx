@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 
 interface ProjectConfig {
     id: number;
@@ -45,7 +45,7 @@ export function ProjectProvider({ children, subdomain }: ProjectProviderProps) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchProject = async () => {
+    const fetchProject = useCallback(async () => {
         // If no subdomain provided, don't fetch
         if (!subdomain) {
             setLoading(false);
@@ -72,11 +72,11 @@ export function ProjectProvider({ children, subdomain }: ProjectProviderProps) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [subdomain]);
 
     useEffect(() => {
         fetchProject();
-    }, [subdomain]);
+    }, [fetchProject]);
 
     const value: ProjectContextType = {
         project,
@@ -92,6 +92,7 @@ export function ProjectProvider({ children, subdomain }: ProjectProviderProps) {
     );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useProject() {
     const context = useContext(ProjectContext);
     if (context === undefined) {

@@ -7,4 +7,13 @@ from app.models.chat_message import ChatMessage
 from app.models.customer import Customer
 from app.models.project import Project
 
-__all__ = ["Document", "Chunk", "User", "Session", "FAQ", "ChatMessage", "Customer", "Project"]
+__all__ = [
+    "Document",
+    "Chunk",
+    "User",
+    "Session",
+    "FAQ",
+    "ChatMessage",
+    "Customer",
+    "Project",
+]

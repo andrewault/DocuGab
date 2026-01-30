@@ -6,7 +6,7 @@ from docx import Document as DocxDocument
 def extract_text(file_path: Path) -> list[dict]:
     """Extract text from file, returning list of {page, content}."""
     ext = file_path.suffix.lower()
-    
+
     if ext == ".pdf":
         return extract_pdf(file_path)
     elif ext == ".docx":

@@ -1,4 +1,5 @@
 """Security utilities for authentication."""
+
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -11,14 +12,13 @@ from app.core.config import settings
 def hash_password(password: str) -> str:
     """Hash a password using bcrypt."""
     salt = bcrypt.gensalt()
-    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+    return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its hash."""
     return bcrypt.checkpw(
-        plain_password.encode('utf-8'),
-        hashed_password.encode('utf-8')
+        plain_password.encode("utf-8"), hashed_password.encode("utf-8")
     )
 
 
@@ -26,7 +26,7 @@ def create_access_token(user_id: int, expires_delta: Optional[timedelta] = None)
     """Create a JWT access token."""
     if expires_delta is None:
         expires_delta = timedelta(minutes=settings.access_token_expire_minutes)
-    
+
     expire = datetime.utcnow() + expires_delta
     payload = {
         "sub": str(user_id),

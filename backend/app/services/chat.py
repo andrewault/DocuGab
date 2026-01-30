@@ -29,51 +29,45 @@ async def generate_response(
     query: str,
     db: AsyncSession,
     project_id: int | None = None,
-    document_id: int | None = None
+    document_id: int | None = None,
 ) -> AsyncGenerator[str, None]:
     """
     Generate a streaming response with RAG context using Ollama.
-    
+
     For multi-tenant security, pass project_id to scope retrieval to project documents.
     """
-    
+
     # Retrieve relevant chunks (filtered by project_id for isolation)
     chunks = await search_similar_chunks(
-        query, 
-        db, 
-        project_id=project_id,
-        document_id=document_id,
-        limit=5
+        query, db, project_id=project_id, document_id=document_id, limit=5
     )
-    
+
     if not chunks:
         yield "I don't have any documents to search. Please upload some documents first."
         return
-    
+
     # Build context from retrieved chunks
-    context = "\n\n---\n\n".join([
-        f"[{c['filename']}, Page {c['page']}]:\n{c['content']}"
-        for c in chunks
-    ])
-    
+    context = "\n\n---\n\n".join(
+        [f"[{c['filename']}, Page {c['page']}]:\n{c['content']}" for c in chunks]
+    )
+
     # Build messages
     messages = [
         SystemMessage(content=SYSTEM_PROMPT),
-        HumanMessage(content=f"Context:\n{context}\n\nQuestion: {query}")
+        HumanMessage(content=f"Context:\n{context}\n\nQuestion: {query}"),
     ]
-    
+
     # Stream response from LLM
     llm = get_llm()
     async for chunk in llm.astream(messages):
         if chunk.content:
             yield str(chunk.content)
-    
+
     # Append sources with UUIDs for linking
     yield "\n\n**Sources:**\n"
     seen_docs = set()
     for c in chunks:
-        doc_key = c['document_uuid']
+        doc_key = c["document_uuid"]
         if doc_key not in seen_docs:
             seen_docs.add(doc_key)
             yield f"- [{c['filename']}](/documents/{c['document_uuid']}), Page {c['page']}\n"
-

@@ -1,9 +1,10 @@
 """Customer management API routes (admin only)."""
+
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, delete
+from sqlalchemy import select, func
 
 from app.core.database import get_db
 from app.core.deps import get_admin_user
@@ -33,25 +34,25 @@ async def list_customers(
     # Build query
     query = select(Customer)
     count_query = select(func.count(Customer.id))
-    
+
     # Apply search filter
     if search:
         search_filter = Customer.name.ilike(f"%{search}%")
         query = query.where(search_filter)
         count_query = count_query.where(search_filter)
-    
+
     # Get total count
     total_result = await db.execute(count_query)
     total = total_result.scalar() or 0
-    
+
     # Apply pagination and ordering
     query = query.order_by(Customer.created_at.desc())
     query = query.offset((page - 1) * per_page).limit(per_page)
-    
+
     # Execute query
     result = await db.execute(query)
     customers = list(result.scalars().all())
-    
+
     # Add projects count for each customer
     customer_responses = []
     for customer in customers:
@@ -60,7 +61,7 @@ async def list_customers(
             select(func.count(Project.id)).where(Project.customer_id == customer.id)
         )
         projects_count = projects_count_result.scalar() or 0
-        
+
         # Create response with projects count
         customer_dict = {
             "id": customer.id,
@@ -73,7 +74,7 @@ async def list_customers(
             "projects_count": projects_count,
         }
         customer_responses.append(CustomerResponse(**customer_dict))
-    
+
     return CustomerListResponse(
         customers=customer_responses,
         total=total,
@@ -91,19 +92,19 @@ async def get_customer(
     """Get a specific customer by ID."""
     result = await db.execute(select(Customer).where(Customer.id == customer_id))
     customer = result.scalar_one_or_none()
-    
+
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Customer with ID {customer_id} not found",
         )
-    
+
     # Count projects
     projects_count_result = await db.execute(
         select(func.count(Project.id)).where(Project.customer_id == customer.id)
     )
     projects_count = projects_count_result.scalar() or 0
-    
+
     # Create response
     customer_dict = {
         "id": customer.id,
@@ -115,7 +116,7 @@ async def get_customer(
         "updated_at": customer.updated_at,
         "projects_count": projects_count,
     }
-    
+
     return CustomerResponse(**customer_dict)
 
 
@@ -133,11 +134,11 @@ async def create_customer(
         contact_phone=data.contact_phone,
         is_active=True,
     )
-    
+
     db.add(customer)
     await db.commit()
     await db.refresh(customer)
-    
+
     # Return response
     customer_dict = {
         "id": customer.id,
@@ -149,7 +150,7 @@ async def create_customer(
         "updated_at": customer.updated_at,
         "projects_count": 0,
     }
-    
+
     return CustomerResponse(**customer_dict)
 
 
@@ -163,13 +164,13 @@ async def update_customer(
     """Update a customer."""
     result = await db.execute(select(Customer).where(Customer.id == customer_id))
     customer = result.scalar_one_or_none()
-    
+
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Customer with ID {customer_id} not found",
         )
-    
+
     # Update fields
     if data.name is not None:
         customer.name = data.name
@@ -179,16 +180,16 @@ async def update_customer(
         customer.contact_phone = data.contact_phone
     if data.is_active is not None:
         customer.is_active = data.is_active
-    
+
     await db.commit()
     await db.refresh(customer)
-    
+
     # Count projects
     projects_count_result = await db.execute(
         select(func.count(Project.id)).where(Project.customer_id == customer.id)
     )
     projects_count = projects_count_result.scalar() or 0
-    
+
     # Create response
     customer_dict = {
         "id": customer.id,
@@ -200,7 +201,7 @@ async def update_customer(
         "updated_at": customer.updated_at,
         "projects_count": projects_count,
     }
-    
+
     return CustomerResponse(**customer_dict)
 
 
@@ -213,25 +214,25 @@ async def delete_customer(
     """Delete a customer (cascades to projects and documents)."""
     result = await db.execute(select(Customer).where(Customer.id == customer_id))
     customer = result.scalar_one_or_none()
-    
+
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Customer with ID {customer_id} not found",
         )
-    
+
     # Check if customer has projects
     projects_count_result = await db.execute(
         select(func.count(Project.id)).where(Project.customer_id == customer.id)
     )
     projects_count = projects_count_result.scalar() or 0
-    
+
     if projects_count > 0:
         # This is just a warning in the API response headers, not blocking deletion
         # The cascade delete will handle cleanup
         pass
-    
+
     await db.delete(customer)
     await db.commit()
-    
+
     return None

@@ -1,4 +1,5 @@
 """Customer schemas for request/response validation."""
+
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
@@ -6,6 +7,7 @@ from datetime import datetime
 
 class CustomerBase(BaseModel):
     """Base schema for customer."""
+
     name: str = Field(min_length=1, max_length=255)
     contact_name: Optional[str] = Field(None, max_length=255)
     contact_phone: Optional[str] = Field(None, max_length=50)
@@ -13,11 +15,13 @@ class CustomerBase(BaseModel):
 
 class CustomerCreate(CustomerBase):
     """Schema for creating a customer."""
+
     pass
 
 
 class CustomerUpdate(BaseModel):
     """Schema for updating a customer."""
+
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     contact_name: Optional[str] = Field(None, max_length=255)
     contact_phone: Optional[str] = Field(None, max_length=50)
@@ -26,6 +30,7 @@ class CustomerUpdate(BaseModel):
 
 class CustomerResponse(CustomerBase):
     """Schema for customer response."""
+
     id: int
     is_active: bool
     created_at: datetime
@@ -37,6 +42,7 @@ class CustomerResponse(CustomerBase):
 
 class CustomerListResponse(BaseModel):
     """Schema for paginated customer list."""
+
     customers: list[CustomerResponse]
     total: int
     page: int

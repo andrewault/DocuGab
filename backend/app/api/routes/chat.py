@@ -29,7 +29,7 @@ class ChatMessageResponse(BaseModel):
     content: str
     session_id: str
     created_at: str
-    
+
     class Config:
         from_attributes = True
 
@@ -45,19 +45,21 @@ class SaveMessageRequest(BaseModel):
 async def get_chat_history(
     session_id: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """Get chat history for the current user."""
-    query = select(ChatMessage).where(
-        ChatMessage.user_id == current_user.id
-    ).order_by(ChatMessage.created_at.asc())
-    
+    query = (
+        select(ChatMessage)
+        .where(ChatMessage.user_id == current_user.id)
+        .order_by(ChatMessage.created_at.asc())
+    )
+
     if session_id:
         query = query.where(ChatMessage.session_id == UUID(session_id))
-    
+
     result = await db.execute(query)
     messages = result.scalars().all()
-    
+
     return {
         "messages": [
             {
@@ -76,7 +78,7 @@ async def get_chat_history(
 async def save_chat_message(
     request: SaveMessageRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """Save a chat message."""
     message = ChatMessage(
@@ -89,7 +91,7 @@ async def save_chat_message(
     db.add(message)
     await db.commit()
     await db.refresh(message)
-    
+
     return {
         "id": message.id,
         "role": message.role,
@@ -103,19 +105,17 @@ async def save_chat_message(
 async def clear_chat_history(
     session_id: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """Clear chat history for the current user."""
-    query = delete(ChatMessage).where(
-        ChatMessage.user_id == current_user.id
-    )
-    
+    query = delete(ChatMessage).where(ChatMessage.user_id == current_user.id)
+
     if session_id:
         query = query.where(ChatMessage.session_id == UUID(session_id))
-    
+
     await db.execute(query)
     await db.commit()
-    
+
     return {"message": "Chat history cleared"}
 
 
@@ -123,44 +123,41 @@ async def clear_chat_history(
 async def chat(
     request: ChatRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User | None = Depends(get_current_user_optional)
+    current_user: User | None = Depends(get_current_user_optional),
 ):
     """
     Chat with your documents using RAG.
-    
+
     For multi-tenant security, pass project_id to scope retrieval.
     Retrieves relevant chunks from uploaded documents and generates
     a response using the local LLM (Ollama).
     """
     return StreamingResponse(
         generate_response(
-            request.query, 
-            db, 
+            request.query,
+            db,
             project_id=request.project_id,
-            document_id=request.document_id
+            document_id=request.document_id,
         ),
-        media_type="text/event-stream"
+        media_type="text/event-stream",
     )
 
 
 @router.post("/query")
-async def chat_query(
-    request: ChatRequest,
-    db: AsyncSession = Depends(get_db)
-):
+async def chat_query(request: ChatRequest, db: AsyncSession = Depends(get_db)):
     """
     Non-streaming chat endpoint.
-    
+
     For multi-tenant security, pass project_id to scope retrieval.
     Returns the complete response after generation.
     """
     response_parts = []
     async for chunk in generate_response(
-        request.query, 
-        db, 
+        request.query,
+        db,
         project_id=request.project_id,
-        document_id=request.document_id
+        document_id=request.document_id,
     ):
         response_parts.append(chunk)
-    
+
     return {"response": "".join(response_parts)}

@@ -1,4 +1,5 @@
 """FAQ API routes."""
+
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -47,7 +48,7 @@ async def list_faqs(
     query = select(FAQ).order_by(FAQ.order, FAQ.id)
     if not include_inactive:
         query = query.where(FAQ.is_active)
-    
+
     result = await db.execute(query)
     faqs = result.scalars().all()
     return {"faqs": [FAQResponse.model_validate(f) for f in faqs]}
@@ -82,14 +83,14 @@ async def update_faq(
     """Update an FAQ (admin only)."""
     result = await db.execute(select(FAQ).where(FAQ.id == faq_id))
     faq = result.scalar_one_or_none()
-    
+
     if not faq:
         raise HTTPException(status_code=404, detail="FAQ not found")
-    
+
     update_data = data.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(faq, key, value)
-    
+
     await db.commit()
     await db.refresh(faq)
     return FAQResponse.model_validate(faq)
@@ -104,9 +105,9 @@ async def delete_faq(
     """Delete an FAQ (admin only)."""
     result = await db.execute(select(FAQ).where(FAQ.id == faq_id))
     faq = result.scalar_one_or_none()
-    
+
     if not faq:
         raise HTTPException(status_code=404, detail="FAQ not found")
-    
+
     await db.delete(faq)
     await db.commit()

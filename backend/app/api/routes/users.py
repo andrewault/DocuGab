@@ -1,4 +1,5 @@
 """User profile API routes."""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -31,7 +32,7 @@ async def update_profile(
         current_user.full_name = data.full_name
     if data.avatar_url is not None:
         current_user.avatar_url = data.avatar_url
-    
+
     await db.commit()
     await db.refresh(current_user)
     return current_user
@@ -49,7 +50,7 @@ async def change_password(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Current password is incorrect",
         )
-    
+
     current_user.password_hash = hash_password(data.new_password)
     await db.commit()
     return None

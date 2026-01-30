@@ -88,9 +88,19 @@ export default function UserDetail() {
         }
     }, [id]);
 
+    // Validate ID and redirect if invalid
     useEffect(() => {
-        fetchUser();
-    }, [fetchUser]);
+        if (!id || isNaN(Number(id))) {
+            navigate('/admin/users');
+            return;
+        }
+    }, [id, navigate]);
+
+    useEffect(() => {
+        if (id && !isNaN(Number(id))) {
+            fetchUser();
+        }
+    }, [fetchUser, id]);
 
     const handleSave = async () => {
         try {

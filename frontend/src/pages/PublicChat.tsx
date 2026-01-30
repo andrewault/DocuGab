@@ -59,7 +59,7 @@ export default function PublicChat() {
             };
 
             setMessages(prev => [...prev, assistantMessage]);
-        } catch (error) {
+        } catch {
             const errorMessage: Message = {
                 role: 'assistant',
                 content: 'Sorry, I encountered an error. Please try again.',

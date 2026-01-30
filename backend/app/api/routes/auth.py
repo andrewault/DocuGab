@@ -1,4 +1,5 @@
 """Auth API routes."""
+
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,7 +19,9 @@ from app.services import auth as auth_service
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED
+)
 async def register(
     data: UserRegister,
     db: AsyncSession = Depends(get_db),
@@ -31,7 +34,7 @@ async def register(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered",
         )
-    
+
     user = await auth_service.create_user(db, data)
     return user
 
@@ -49,19 +52,19 @@ async def login(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
         )
-    
+
     # Get client info
     device_info = request.headers.get("User-Agent", "")[:255]
     ip_address = request.client.host if request.client else None
-    
+
     # Create session and tokens
     access_token, refresh_token = await auth_service.create_session(
         db, user.id, device_info, ip_address
     )
-    
+
     # Update last login
     await auth_service.update_last_login(db, user)
-    
+
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -80,7 +83,7 @@ async def refresh_token(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired refresh token",
         )
-    
+
     access_token, new_refresh_token = result
     return TokenResponse(
         access_token=access_token,

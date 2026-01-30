@@ -1,4 +1,5 @@
 """Project management API routes (admin only)."""
+
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
@@ -29,13 +30,13 @@ async def _build_project_response(project: Project, db: AsyncSession) -> dict:
         select(func.count(Document.id)).where(Document.project_id == project.id)
     )
     documents_count = docs_count_result.scalar() or 0
-    
+
     # Get customer name
     customer_result = await db.execute(
         select(Customer.name).where(Customer.id == project.customer_id)
     )
     customer_name = customer_result.scalar_one_or_none()
-    
+
     return {
         "id": project.id,
         "customer_id": project.customer_id,
@@ -75,40 +76,39 @@ async def list_projects(
     # Build query
     query = select(Project)
     count_query = select(func.count(Project.id))
-    
+
     # Apply filters
     filters = []
     if customer_id:
         filters.append(Project.customer_id == customer_id)
     if search:
-        search_filter = (
-            Project.name.ilike(f"%{search}%") | 
-            Project.subdomain.ilike(f"%{search}%")
+        search_filter = Project.name.ilike(f"%{search}%") | Project.subdomain.ilike(
+            f"%{search}%"
         )
         filters.append(search_filter)
-    
+
     if filters:
         query = query.where(and_(*filters))
         count_query = count_query.where(and_(*filters))
-    
+
     # Get total count
     total_result = await db.execute(count_query)
     total = total_result.scalar() or 0
-    
+
     # Apply pagination and ordering
     query = query.order_by(Project.created_at.desc())
     query = query.offset((page - 1) * per_page).limit(per_page)
-    
+
     # Execute query
     result = await db.execute(query)
     projects = list(result.scalars().all())
-    
+
     # Build responses
     project_responses = []
     for project in projects:
         project_dict = await _build_project_response(project, db)
         project_responses.append(ProjectResponse(**project_dict))
-    
+
     return ProjectListResponse(
         projects=project_responses,
         total=total,
@@ -126,13 +126,13 @@ async def get_project(
     """Get a specific project by ID."""
     result = await db.execute(select(Project).where(Project.id == project_id))
     project = result.scalar_one_or_none()
-    
+
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Project with ID {project_id} not found",
         )
-    
+
     project_dict = await _build_project_response(project, db)
     return ProjectResponse(**project_dict)
 
@@ -154,7 +154,7 @@ async def create_project(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Customer with ID {data.customer_id} not found",
         )
-    
+
     # Check subdomain uniqueness
     subdomain_check = await db.execute(
         select(Project).where(Project.subdomain == data.subdomain)
@@ -164,7 +164,7 @@ async def create_project(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Subdomain '{data.subdomain}' is already in use",
         )
-    
+
     # Create project
     project = Project(
         customer_id=data.customer_id,
@@ -185,11 +185,11 @@ async def create_project(
         return_link_text=data.return_link_text,
         is_active=True,
     )
-    
+
     db.add(project)
     await db.commit()
     await db.refresh(project)
-    
+
     project_dict = await _build_project_response(project, db)
     return ProjectResponse(**project_dict)
 
@@ -204,13 +204,13 @@ async def update_project(
     """Update a project."""
     result = await db.execute(select(Project).where(Project.id == project_id))
     project = result.scalar_one_or_none()
-    
+
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Project with ID {project_id} not found",
         )
-    
+
     # Check subdomain uniqueness if being updated
     if data.subdomain and data.subdomain != project.subdomain:
         subdomain_check = await db.execute(
@@ -221,15 +221,15 @@ async def update_project(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Subdomain '{data.subdomain}' is already in use",
             )
-    
+
     # Update fields
     update_data = data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(project, field, value)
-    
+
     await db.commit()
     await db.refresh(project)
-    
+
     project_dict = await _build_project_response(project, db)
     return ProjectResponse(**project_dict)
 
@@ -243,14 +243,14 @@ async def delete_project(
     """Delete a project (cascades to documents)."""
     result = await db.execute(select(Project).where(Project.id == project_id))
     project = result.scalar_one_or_none()
-    
+
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Project with ID {project_id} not found",
         )
-    
+
     await db.delete(project)
     await db.commit()
-    
+
     return None

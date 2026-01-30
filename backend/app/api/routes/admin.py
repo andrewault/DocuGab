@@ -1,4 +1,5 @@
 """Admin API routes for user management."""
+
 from typing import Optional, Any
 from datetime import datetime, timedelta
 
@@ -20,6 +21,7 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 
 class AdminUserUpdate(BaseModel):
     """Schema for admin updating a user."""
+
     full_name: Optional[str] = None
     role: Optional[str] = None
     is_active: Optional[bool] = None
@@ -28,6 +30,7 @@ class AdminUserUpdate(BaseModel):
 
 class UserListResponse(BaseModel):
     """Schema for paginated user list."""
+
     users: list[UserResponse]
     total: int
     page: int
@@ -36,6 +39,7 @@ class UserListResponse(BaseModel):
 
 class AdminStats(BaseModel):
     """Schema for admin dashboard stats."""
+
     total_users: int
     new_users_7d: int
     active_sessions: int
@@ -51,24 +55,24 @@ async def get_admin_stats(
     # Total users
     total_users_result = await db.execute(select(func.count(User.id)))
     total_users = total_users_result.scalar() or 0
-    
+
     # New users in last 7 days
     week_ago = datetime.utcnow() - timedelta(days=7)
     new_users_result = await db.execute(
         select(func.count(User.id)).where(User.created_at >= week_ago)
     )
     new_users_7d = new_users_result.scalar() or 0
-    
+
     # Active sessions
     sessions_result = await db.execute(
         select(func.count(Session.id)).where(Session.expires_at > datetime.utcnow())
     )
     active_sessions = sessions_result.scalar() or 0
-    
+
     # Total documents
     docs_result = await db.execute(select(func.count(Document.id)))
     total_documents = docs_result.scalar() or 0
-    
+
     return AdminStats(
         total_users=total_users,
         new_users_7d=new_users_7d,
@@ -91,32 +95,34 @@ async def list_users(
     # Build query
     query = select(User)
     count_query = select(func.count(User.id))
-    
+
     # Apply filters
     filters: list[Any] = []
     if search:
-        search_filter = User.email.ilike(f"%{search}%") | User.full_name.ilike(f"%{search}%")
+        search_filter = User.email.ilike(f"%{search}%") | User.full_name.ilike(
+            f"%{search}%"
+        )
         filters.append(search_filter)
     if role:
         filters.append(User.role == role)
     if is_active is not None:
         filters.append(User.is_active == is_active)
-    
+
     if filters:
         query = query.where(and_(*filters))
         count_query = count_query.where(and_(*filters))
-    
+
     # Get total count
     total_result = await db.execute(count_query)
     total = total_result.scalar() or 0
-    
+
     # Apply pagination
     offset = (page - 1) * per_page
     query = query.order_by(User.created_at.desc()).offset(offset).limit(per_page)
-    
+
     result = await db.execute(query)
     users = result.scalars().all()
-    
+
     return UserListResponse(
         users=[UserResponse.model_validate(u) for u in users],
         total=total,
@@ -155,14 +161,14 @@ async def update_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
-    
+
     # Prevent demoting superadmin unless you are superadmin
     if user.role == "superadmin" and admin.role != "superadmin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Cannot modify superadmin",
         )
-    
+
     # Update fields
     if data.full_name is not None:
         user.full_name = data.full_name
@@ -183,7 +189,7 @@ async def update_user(
         user.is_active = data.is_active
     if data.is_verified is not None:
         user.is_verified = data.is_verified
-    
+
     await db.commit()
     await db.refresh(user)
     return user
@@ -202,21 +208,21 @@ async def delete_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
-    
+
     # Prevent deleting superadmin
     if user.role == "superadmin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Cannot delete superadmin",
         )
-    
+
     # Prevent self-deletion through this endpoint
     if user.id == admin.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot delete yourself through admin endpoint",
         )
-    
+
     await db.delete(user)
     await db.commit()
     return None

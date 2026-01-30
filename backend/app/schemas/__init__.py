@@ -1,4 +1,5 @@
 """Schemas package."""
+
 from app.schemas.auth import (
     UserRegister,
     UserLogin,

@@ -1,4 +1,5 @@
 """Public project configuration API."""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,7 +18,7 @@ async def get_project_by_subdomain(
 ):
     """
     Get public project configuration by subdomain.
-    
+
     This endpoint is publicly accessible and returns project branding
     and configuration data needed to render the chat interface.
     """
@@ -28,31 +29,32 @@ async def get_project_by_subdomain(
         .where(Project.is_active == True)  # noqa: E712
     )
     project = result.scalar_one_or_none()
-    
+
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"No active project found for subdomain '{subdomain}'",
         )
-    
+
     # Build response with customer name
     from sqlalchemy.orm import selectinload
+
     result = await db.execute(
         select(Project)
         .options(selectinload(Project.customer))
         .where(Project.id == project.id)
     )
     project_with_customer = result.scalar_one()
-    
+
     # Get document count
     from app.models.document import Document
     from sqlalchemy import func
-    
+
     doc_count_result = await db.execute(
         select(func.count(Document.id)).where(Document.project_id == project.id)
     )
     documents_count = doc_count_result.scalar() or 0
-    
+
     # Build response
     project_dict = {
         "id": project_with_customer.id,
@@ -76,7 +78,9 @@ async def get_project_by_subdomain(
         "created_at": project_with_customer.created_at,
         "updated_at": project_with_customer.updated_at,
         "documents_count": documents_count,
-        "customer_name": project_with_customer.customer.name if project_with_customer.customer else None,
+        "customer_name": project_with_customer.customer.name
+        if project_with_customer.customer
+        else None,
     }
-    
+
     return ProjectResponse(**project_dict)

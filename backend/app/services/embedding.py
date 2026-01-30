@@ -11,8 +11,7 @@ def get_embeddings_model() -> OllamaEmbeddings:
     global _embeddings_model
     if _embeddings_model is None:
         _embeddings_model = OllamaEmbeddings(
-            model=settings.embedding_model,
-            base_url=settings.ollama_base_url
+            model=settings.embedding_model, base_url=settings.ollama_base_url
         )
     return _embeddings_model
 
@@ -37,4 +36,3 @@ async def generate_embeddings(texts: list[str]) -> list[list[float]]:
 async def generate_embedding(text: str) -> list[float]:
     """Generate embedding for a single text (async wrapper)."""
     return await asyncio.to_thread(_generate_embedding_sync, text)
-
