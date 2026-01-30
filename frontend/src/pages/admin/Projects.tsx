@@ -489,7 +489,7 @@ export default function Projects() {
                                                             size="small"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                handleOpenDialog(project);
+                                                                navigate(`/admin/projects/${project.id}/edit`);
                                                             }}
                                                             color="primary"
                                                         >

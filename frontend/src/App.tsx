@@ -26,6 +26,7 @@ import Customers from './pages/admin/Customers';
 import CustomerDetail from './pages/admin/CustomerDetail';
 import Projects from './pages/admin/Projects';
 import ProjectDetail from './pages/admin/ProjectDetail';
+import ProjectEdit from './pages/admin/ProjectEdit';
 import Database from './pages/admin/Database';
 import { isBrandedRoute } from './utils/subdomainUtils';
 import { useAuth } from './context/AuthContext';
@@ -142,6 +143,11 @@ export default function App() {
             <Route path="/admin/projects/:id" element={
               <ProtectedRoute requireAdmin>
                 <ProjectDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/projects/:id/edit" element={
+              <ProtectedRoute requireAdmin>
+                <ProjectEdit />
               </ProtectedRoute>
             } />
             <Route path="/admin/faq" element={

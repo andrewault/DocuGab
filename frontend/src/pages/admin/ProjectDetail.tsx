@@ -299,9 +299,7 @@ export default function ProjectDetail() {
                     <Button
                         variant="contained"
                         startIcon={<Edit />}
-                        onClick={() => {
-                            alert('Edit functionality coming soon!');
-                        }}
+                        onClick={() => navigate(`/admin/projects/${id}/edit`)}
                     >
                         Edit Project
                     </Button>

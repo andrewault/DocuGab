@@ -18,6 +18,13 @@ import {
     TableHead,
     TableRow,
     IconButton,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
+    FormControlLabel,
+    Switch,
 } from '@mui/material';
 import {
     Business,
@@ -61,6 +68,10 @@ export default function CustomerDetail() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [editForm, setEditForm] = useState({ name: '', contact_name: '', contact_phone: '', is_active: true });
+    const [saving, setSaving] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -157,8 +168,16 @@ export default function CustomerDetail() {
                         variant="contained"
                         startIcon={<Edit />}
                         onClick={() => {
-                            // TODO: Open edit dialog
-                            alert('Edit functionality coming soon!');
+                            if (customer) {
+                                setEditForm({
+                                    name: customer.name,
+                                    contact_name: customer.contact_name || '',
+                                    contact_phone: customer.contact_phone || '',
+                                    is_active: customer.is_active,
+                                });
+                                setEditDialogOpen(true);
+                                setSaveError(null);
+                            }
                         }}
                     >
                         Edit Customer
@@ -325,7 +344,7 @@ export default function CustomerDetail() {
                                                 color="primary"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    navigate(`/admin/projects/${project.id}`);
+                                                    navigate(`/admin/projects/${project.id}/edit`);
                                                 }}
                                             >
                                                 <Edit />
@@ -338,6 +357,103 @@ export default function CustomerDetail() {
                     </TableContainer>
                 )}
             </Paper>
+
+            {/* Edit Customer Dialog */}
+            <Dialog open={editDialogOpen} onClose={() => !saving && setEditDialogOpen(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Edit Customer</DialogTitle>
+                <DialogContent>
+                    {saveError && (
+                        <Alert severity="error" sx={{ mb: 2 }}>
+                            {saveError}
+                        </Alert>
+                    )}
+                    <Stack spacing={3} sx={{ mt: 2 }}>
+                        <TextField
+                            label="Customer Name"
+                            value={editForm.name}
+                            onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                            fullWidth
+                            required
+                            disabled={saving}
+                        />
+                        <TextField
+                            label="Contact Name"
+                            value={editForm.contact_name}
+                            onChange={(e) => setEditForm({ ...editForm, contact_name: e.target.value })}
+                            fullWidth
+                            disabled={saving}
+                        />
+                        <TextField
+                            label="Contact Phone"
+                            value={editForm.contact_phone}
+                            onChange={(e) => setEditForm({ ...editForm, contact_phone: e.target.value })}
+                            fullWidth
+                            disabled={saving}
+                        />
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={editForm.is_active}
+                                    onChange={(e) => setEditForm({ ...editForm, is_active: e.target.checked })}
+                                    disabled={saving}
+                                />
+                            }
+                            label="Active"
+                        />
+                    </Stack>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setEditDialogOpen(false)} disabled={saving}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={async () => {
+                            if (!editForm.name.trim()) {
+                                setSaveError('Customer name is required');
+                                return;
+                            }
+
+                            setSaving(true);
+                            setSaveError(null);
+                            try {
+                                const response = await fetch(
+                                    `${API_BASE}/api/admin/customers/${id}`,
+                                    {
+                                        method: 'PATCH',
+                                        headers: {
+                                            ...getAuthHeader(),
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                            name: editForm.name,
+                                            contact_name: editForm.contact_name || null,
+                                            contact_phone: editForm.contact_phone || null,
+                                            is_active: editForm.is_active,
+                                        }),
+                                    }
+                                );
+
+                                if (!response.ok) {
+                                    const errorData = await response.json();
+                                    throw new Error(errorData.detail || 'Failed to update customer');
+                                }
+
+                                const updatedCustomer = await response.json();
+                                setCustomer(updatedCustomer);
+                                setEditDialogOpen(false);
+                            } catch (err) {
+                                setSaveError(err instanceof Error ? err.message : 'Failed to update customer');
+                            } finally {
+                                setSaving(false);
+                            }
+                        }}
+                        disabled={saving}
+                    >
+                        {saving ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Container>
     );
 }
