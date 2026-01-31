@@ -16,7 +16,7 @@ import {
     useTheme,
     IconButton,
 } from '@mui/material';
-import { Folder, Visibility } from '@mui/icons-material';
+import { RecordVoiceOver, Visibility } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getAuthHeader } from '../../utils/authUtils';
@@ -108,7 +108,7 @@ export default function CustomerProjects() {
 
                 {/* Header */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
-                    <Folder sx={{ fontSize: 32, color: '#6366f1' }} />
+                    <RecordVoiceOver sx={{ fontSize: 32, color: '#6366f1' }} />
                     <Typography
                         variant="h4"
                         sx={{
@@ -143,7 +143,7 @@ export default function CustomerProjects() {
                             <TableRow>
                                 <TableCell>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Folder fontSize="small" />
+                                        <RecordVoiceOver fontSize="small" />
                                         Chatbot Project Name
                                     </Box>
                                 </TableCell>

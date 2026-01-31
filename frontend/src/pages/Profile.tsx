@@ -138,11 +138,10 @@ export default function Profile() {
                 background: isDark
                     ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
                     : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
-                pt: 12,
-                pb: 8,
+                py: 4,
             }}
         >
-            <Container maxWidth="md">
+            <Container maxWidth={false} sx={{ px: 3 }}>
                 {/* Header */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
                     <Person sx={{ fontSize: 32, color: '#6366f1' }} />

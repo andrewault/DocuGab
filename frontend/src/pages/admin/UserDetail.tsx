@@ -27,6 +27,7 @@ import {
     Delete,
     CheckCircle,
     Cancel,
+    Group,
 } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
@@ -150,26 +151,34 @@ export default function UserDetail() {
         <Container maxWidth={false} sx={{ mt: 4, mb: 8, px: 3 }}>
             <AdminBreadcrumbs
                 items={[
-                    { label: 'Users', path: '/admin/users' },
+                    ...(user.customer_uuid && user.customer_name
+                        ? [
+                            { label: 'Customers', path: '/admin/customers' },
+                            { label: user.customer_name, path: `/admin/customers/${user.customer_uuid}` },
+                        ]
+                        : [{ label: 'Users', path: '/admin/users' }]),
                     { label: user.email },
                 ]}
             />
 
             {/* Header */}
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-                <Typography
-                    variant="h4"
-                    component="h1"
-                    sx={{
-                        fontWeight: 700,
-                        background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                        backgroundClip: 'text',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                    }}
-                >
-                    {user.full_name || user.email}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Group sx={{ fontSize: 32, color: '#6366f1' }} />
+                    <Typography
+                        variant="h4"
+                        component="h1"
+                        sx={{
+                            fontWeight: 700,
+                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}
+                    >
+                        {user.full_name || user.email}
+                    </Typography>
+                </Box>
                 <Stack direction="row" spacing={2}>
                     <Button
                         variant="outlined"

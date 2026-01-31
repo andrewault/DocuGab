@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Box, Container, Typography, Paper, Stack, useTheme, Grid, Card, CardContent } from '@mui/material';
-import { Group, QuestionAnswer, Business, Folder } from '@mui/icons-material';
+import { Group, QuestionAnswer, Business, Folder, RecordVoiceOver } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { getAuthHeader } from '../../utils/authUtils';
 
@@ -43,9 +43,9 @@ export default function AdminHome() {
             path: '/admin/customers',
         },
         {
-            title: 'Projects',
+            title: 'Chatbot Projects',
             description: 'Manage projects with branding and configuration',
-            icon: <Folder sx={{ fontSize: 48 }} />,
+            icon: <RecordVoiceOver sx={{ fontSize: 48 }} />,
             path: '/admin/projects',
         },
         {
@@ -123,7 +123,7 @@ export default function AdminHome() {
                                     <Box display="flex" justifyContent="space-between" alignItems="flex-start">
                                         <Box>
                                             <Typography color="textSecondary" gutterBottom variant="overline">
-                                                Total Projects
+                                                Total Chatbot Projects
                                             </Typography>
                                             <Typography variant="h4" sx={{ fontWeight: 700 }}>
                                                 {stats.total_projects}

@@ -20,7 +20,7 @@ import {
     Tabs,
     Tab,
 } from '@mui/material';
-import { ArrowBack, Folder, Description as DocumentIcon, Add, Edit } from '@mui/icons-material';
+import { ArrowBack, RecordVoiceOver, Description as DocumentIcon, Add, Edit } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getAuthHeader } from '../../utils/authUtils';
@@ -185,7 +185,7 @@ export default function CustomerProjectDetail() {
                 {/* Header */}
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Folder sx={{ fontSize: 32, color: '#6366f1' }} />
+                        <RecordVoiceOver sx={{ fontSize: 32, color: '#6366f1' }} />
                         <Typography
                             variant="h4"
                             sx={{
@@ -239,7 +239,7 @@ export default function CustomerProjectDetail() {
                             <Stack spacing={3}>
                                 <Box>
                                     <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
-                                        <Folder fontSize="small" />
+                                        <RecordVoiceOver fontSize="small" />
                                         Chatbot Project Name
                                     </Typography>
                                     <Typography variant="h6" fontWeight={600}>

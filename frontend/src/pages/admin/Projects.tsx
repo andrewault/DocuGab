@@ -32,7 +32,7 @@ import {
     CardContent,
     useTheme,
 } from '@mui/material';
-import { Add, Edit, Delete, Folder, Palette } from '@mui/icons-material';
+import { Add, Edit, Delete, Folder, Palette, RecordVoiceOver } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
@@ -328,7 +328,7 @@ export default function Projects() {
             }}
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
-                <AdminBreadcrumbs items={[{ label: 'Projects' }]} />
+                <AdminBreadcrumbs items={[{ label: 'Chatbot Projects' }]} />
 
                 {/* Header with Title and Add Button */}
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
@@ -342,14 +342,14 @@ export default function Projects() {
                             WebkitTextFillColor: 'transparent',
                         }}
                     >
-                        Projects
+                        Chatbot Projects
                     </Typography>
                     <Button
                         variant="contained"
                         startIcon={<Add />}
                         onClick={() => handleOpenDialog()}
                     >
-                        Add Project
+                        Add Chatbot Project
                     </Button>
                 </Stack>
 
@@ -362,11 +362,11 @@ export default function Projects() {
                         mb: 4,
                     }}
                 >
-                    <StatCard title="Total Projects" value={total} icon={<Folder sx={{ fontSize: 40 }} />} />
+                    <StatCard title="Total Chatbot Projects" value={total} icon={<RecordVoiceOver sx={{ fontSize: 40 }} />} />
                     <StatCard
-                        title="Active Projects"
+                        title="Active Chatbot Projects"
                         value={projects.filter(p => p.is_active).length}
-                        icon={<Folder sx={{ fontSize: 40 }} />}
+                        icon={<RecordVoiceOver sx={{ fontSize: 40 }} />}
                     />
                     <StatCard
                         title="Documents"
@@ -379,7 +379,7 @@ export default function Projects() {
                     <Stack direction="row" spacing={2} mb={3}>
                         <TextField
                             fullWidth
-                            label="Search projects"
+                            label="Search chatbot projects"
                             variant="outlined"
                             value={search}
                             onChange={(e) => {
@@ -553,7 +553,7 @@ export default function Projects() {
                 {/* Create/Edit Dialog */}
                 <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
                     <DialogTitle>
-                        {editingProject ? 'Edit Project' : 'Add Project'}
+                        {editingProject ? 'Edit Chatbot Project' : 'Add Chatbot Project'}
                     </DialogTitle>
                     <DialogContent>
                         <Tabs value={tabValue} onChange={(_e, newValue) => setTabValue(newValue)} sx={{ mb: 2 }}>
@@ -582,7 +582,7 @@ export default function Projects() {
 
                                 <TextField
                                     fullWidth
-                                    label="Project Name"
+                                    label="Chatbot Project Name"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     required

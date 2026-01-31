@@ -151,18 +151,21 @@ export default function Users() {
 
                 {/* Header with Title */}
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-                    <Typography
-                        variant="h4"
-                        sx={{
-                            fontWeight: 700,
-                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                            backgroundClip: 'text',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                        }}
-                    >
-                        Users
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Group sx={{ fontSize: 32, color: '#6366f1' }} />
+                        <Typography
+                            variant="h4"
+                            sx={{
+                                fontWeight: 700,
+                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}
+                        >
+                            Users
+                        </Typography>
+                    </Box>
                     <Button
                         variant="contained"
                         startIcon={<PersonAdd />}

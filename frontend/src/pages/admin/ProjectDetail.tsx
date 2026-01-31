@@ -290,7 +290,7 @@ export default function ProjectDetail() {
                     items={[
                         { label: 'Customers', path: '/admin/customers' },
                         { label: project.customer_name, path: project.customer_uuid ? `/admin/customers/${project.customer_uuid}` : undefined },
-                        { label: project.name },
+                        { label: `${project.name} Chatbot Project` },
                     ]}
                 />
 
@@ -307,7 +307,7 @@ export default function ProjectDetail() {
                             WebkitTextFillColor: 'transparent',
                         }}
                     >
-                        {project.name}
+                        {project.name} Chatbot Project
                     </Typography>
                     <Button
                         variant="contained"
@@ -321,7 +321,7 @@ export default function ProjectDetail() {
                 {/* Project Details */}
                 <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
                     <Typography variant="h6" gutterBottom>
-                        Project Details
+                        Details
                     </Typography>
                     <Divider sx={{ mb: 3 }} />
 
@@ -331,7 +331,7 @@ export default function ProjectDetail() {
                                 <Box>
                                     <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
                                         <Folder fontSize="small" />
-                                        Project Name
+                                        Chatbot Project Name
                                     </Typography>
                                     <Typography variant="body1" fontWeight={500}>
                                         {project.name}
@@ -443,7 +443,7 @@ export default function ProjectDetail() {
                             <Stack spacing={2}>
                                 <Box>
                                     <Typography variant="caption" color="text.secondary">
-                                        Page Title
+                                        Chatbot Project Name
                                     </Typography>
                                     <Typography variant="body1" fontWeight={500}>
                                         {project.title}

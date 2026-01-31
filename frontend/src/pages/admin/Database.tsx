@@ -28,6 +28,7 @@ import {
     Backup as BackupIcon,
     Refresh,
     CleaningServices,
+    Storage,
 } from '@mui/icons-material';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { useAuth } from '../../context/AuthContext';
@@ -227,18 +228,21 @@ export default function Database() {
 
                 {/* Header with Title and Actions */}
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-                    <Typography
-                        variant="h4"
-                        sx={{
-                            fontWeight: 700,
-                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                            backgroundClip: 'text',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                        }}
-                    >
-                        Database
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Storage sx={{ fontSize: 32, color: '#6366f1' }} />
+                        <Typography
+                            variant="h4"
+                            sx={{
+                                fontWeight: 700,
+                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}
+                        >
+                            Database
+                        </Typography>
+                    </Box>
 
                     <Stack direction="row" spacing={2}>
                         <Button

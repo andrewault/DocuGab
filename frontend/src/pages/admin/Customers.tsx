@@ -224,18 +224,21 @@ export default function Customers() {
 
                 {/* Header with Title and Add Button */}
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-                    <Typography
-                        variant="h4"
-                        sx={{
-                            fontWeight: 700,
-                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                            backgroundClip: 'text',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                        }}
-                    >
-                        Customers
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Business sx={{ fontSize: 32, color: '#6366f1' }} />
+                        <Typography
+                            variant="h4"
+                            sx={{
+                                fontWeight: 700,
+                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}
+                        >
+                            Customers
+                        </Typography>
+                    </Box>
                     <Button
                         variant="contained"
                         startIcon={<Add />}

@@ -188,19 +188,22 @@ export default function CustomerDetail() {
 
             {/* Header */}
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-                <Typography
-                    variant="h4"
-                    component="h1"
-                    sx={{
-                        fontWeight: 700,
-                        background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                        backgroundClip: 'text',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                    }}
-                >
-                    {customer.name}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Business sx={{ fontSize: 32, color: '#6366f1' }} />
+                    <Typography
+                        variant="h4"
+                        component="h1"
+                        sx={{
+                            fontWeight: 700,
+                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}
+                    >
+                        {customer.name}
+                    </Typography>
+                </Box>
                 <Stack direction="row" spacing={2}>
                     <Button
                         variant="outlined"
@@ -371,7 +374,7 @@ export default function CustomerDetail() {
                                             <Stack direction="row" alignItems="center" gap={1}>
                                                 <Folder color="primary" fontSize="small" />
                                                 <Typography fontWeight={500}>
-                                                    {project.name}
+                                                    {project.name} Chatbot Project
                                                 </Typography>
                                             </Stack>
                                         </TableCell>

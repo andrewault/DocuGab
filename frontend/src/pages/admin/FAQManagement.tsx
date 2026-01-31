@@ -23,7 +23,7 @@ import {
     CircularProgress,
     Alert,
 } from '@mui/material';
-import { Add, Edit, Delete } from '@mui/icons-material';
+import { Add, Edit, Delete, QuestionAnswer } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { useAuth } from '../../context/AuthContext';
@@ -159,18 +159,21 @@ export default function FAQManagement() {
             <Container maxWidth={false} sx={{ px: 3 }}>
                 <AdminBreadcrumbs items={[{ label: 'FAQs' }]} />
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-                    <Typography
-                        variant="h4"
-                        sx={{
-                            fontWeight: 700,
-                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                            backgroundClip: 'text',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                        }}
-                    >
-                        FAQs
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <QuestionAnswer sx={{ fontSize: 32, color: '#6366f1' }} />
+                        <Typography
+                            variant="h4"
+                            sx={{
+                                fontWeight: 700,
+                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}
+                        >
+                            FAQs
+                        </Typography>
+                    </Box>
                     <Button
                         variant="contained"
                         startIcon={<Add />}

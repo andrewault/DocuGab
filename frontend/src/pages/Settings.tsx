@@ -92,7 +92,7 @@ export default function Settings() {
                 py: 4,
             }}
         >
-            <Container maxWidth="md">
+            <Container maxWidth={false} sx={{ px: 3 }}>
                 {/* Header */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
                     <SettingsBrightness sx={{ fontSize: 32, color: '#6366f1' }} />

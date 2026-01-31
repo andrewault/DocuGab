@@ -1,5 +1,5 @@
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Divider, useTheme } from '@mui/material';
-import { Business, Folder, Group, QuestionAnswer, Storage, Dashboard } from '@mui/icons-material';
+import { Business, Group, QuestionAnswer, Storage, Dashboard, RecordVoiceOver } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface AdminSidebarProps {
@@ -15,7 +15,7 @@ export default function AdminSidebar({ isOpen }: AdminSidebarProps) {
     const adminNavItems = [
         { label: 'Dashboard', icon: <Dashboard />, path: '/admin' },
         { label: 'Customers', icon: <Business />, path: '/admin/customers' },
-        { label: 'Projects', icon: <Folder />, path: '/admin/projects' },
+        { label: 'Chatbot Projects', icon: <RecordVoiceOver />, path: '/admin/projects' },
         { label: 'Users', icon: <Group />, path: '/admin/users' },
         { label: 'FAQs', icon: <QuestionAnswer />, path: '/admin/faq' },
         { label: 'Database', icon: <Storage />, path: '/admin/database' },
