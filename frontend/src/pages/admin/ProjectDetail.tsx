@@ -22,6 +22,8 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
+    IconButton,
+    Tooltip,
 } from '@mui/material';
 import {
     Folder,
@@ -33,6 +35,8 @@ import {
     Palette,
     CloudUpload,
     VolumeUp,
+    Delete,
+    Forum,
 } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
@@ -96,6 +100,9 @@ export default function ProjectDetail() {
     const [uploadError, setUploadError] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [testingVoice, setTestingVoice] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [documentToDelete, setDocumentToDelete] = useState<Document | null>(null);
+    const [deleting, setDeleting] = useState(false);
 
 
     const fetchDocuments = async () => {
@@ -214,6 +221,37 @@ export default function ProjectDetail() {
             console.error('Voice test error:', error);
         } finally {
             setTestingVoice(false);
+        }
+    };
+
+    const handleDeleteClick = (doc: Document) => {
+        setDocumentToDelete(doc);
+        setDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!documentToDelete) return;
+
+        setDeleting(true);
+        try {
+            const response = await fetch(`${API_BASE}/api/documents/${documentToDelete.id}`, {
+                method: 'DELETE',
+                headers: getAuthHeader(),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete document');
+            }
+
+            // Remove from list
+            setDocuments(documents.filter(d => d.id !== documentToDelete.id));
+            setDeleteDialogOpen(false);
+            setDocumentToDelete(null);
+        } catch (error) {
+            console.error('Delete error:', error);
+            // Optionally show error snackbar
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -338,13 +376,22 @@ export default function ProjectDetail() {
                     >
                         {project.name} • Chatbot Project
                     </Typography>
-                    <Button
-                        variant="contained"
-                        startIcon={<Edit />}
-                        onClick={() => navigate(`/admin/projects/${uuid}/edit`)}
-                    >
-                        Edit Chatbot Project
-                    </Button>
+                    <Stack direction="row" spacing={2}>
+                        <Button
+                            variant="outlined"
+                            startIcon={<Forum />}
+                            onClick={() => navigate(`/admin/projects/${uuid}/test`)}
+                        >
+                            Test Chat
+                        </Button>
+                        <Button
+                            variant="contained"
+                            startIcon={<Edit />}
+                            onClick={() => navigate(`/admin/projects/${uuid}/edit`)}
+                        >
+                            Edit Chatbot Project
+                        </Button>
+                    </Stack>
                 </Stack>
 
                 {/* Project Details */}
@@ -618,7 +665,7 @@ export default function ProjectDetail() {
                 </Paper>
 
                 {/* Documents */}
-                <Paper elevation={2} sx={{ p: 3 }}>
+                <Paper elevation={2} sx={{ p: 3, mb: 10 }}>
                     <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
                         <Typography variant="h6">
                             <Description sx={{ mr: 1, verticalAlign: 'bottom' }} />
@@ -649,6 +696,7 @@ export default function ProjectDetail() {
                                         <TableCell>Chunks</TableCell>
                                         <TableCell>Status</TableCell>
                                         <TableCell>Uploaded</TableCell>
+                                        <TableCell align="right">Actions</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -694,6 +742,22 @@ export default function ProjectDetail() {
                                                     currentUser?.timezone || 'America/Los_Angeles',
                                                     'PPpp'
                                                 )}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                <Tooltip title="Delete Document">
+                                                    <IconButton
+                                                        edge="end"
+                                                        aria-label="delete"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteClick(doc);
+                                                        }}
+                                                        color="error"
+                                                        size="small"
+                                                    >
+                                                        <Delete />
+                                                    </IconButton>
+                                                </Tooltip>
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -768,6 +832,27 @@ export default function ProjectDetail() {
                     <DialogActions>
                         <Button onClick={() => setUploadDialogOpen(false)} disabled={uploading}>
                             Close
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                {/* Delete Confirmation Dialog */}
+                <Dialog open={deleteDialogOpen} onClose={() => !deleting && setDeleteDialogOpen(false)}>
+                    <DialogTitle>Delete Document?</DialogTitle>
+                    <DialogContent>
+                        <Typography>
+                            Are you sure you want to delete <strong>{documentToDelete?.original_filename}</strong>?
+                        </Typography>
+                        <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                            This will permanently delete the file and all associated search chunks.
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
+                            Cancel
+                        </Button>
+                        <Button onClick={confirmDelete} color="error" variant="contained" disabled={deleting}>
+                            {deleting ? 'Deleting...' : 'Delete'}
                         </Button>
                     </DialogActions>
                 </Dialog>

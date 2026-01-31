@@ -32,6 +32,7 @@ import CustomerDetail from './pages/admin/CustomerDetail';
 import Projects from './pages/admin/Projects';
 import ProjectDetail from './pages/admin/ProjectDetail';
 import ProjectEdit from './pages/admin/ProjectEdit';
+import TestChat from './pages/admin/TestChat';
 import Database from './pages/admin/Database';
 import { useAuth } from './context/AuthContext';
 
@@ -170,6 +171,11 @@ export default function App() {
             <Route path="/admin/projects/:uuid/edit" element={
               <ProtectedRoute requireAdmin>
                 <ProjectEdit />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/projects/:uuid/test" element={
+              <ProtectedRoute requireAdmin>
+                <TestChat />
               </ProtectedRoute>
             } />
             <Route path="/admin/faq" element={
