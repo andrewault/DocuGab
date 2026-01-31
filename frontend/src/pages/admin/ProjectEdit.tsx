@@ -16,8 +16,12 @@ import {
     InputLabel,
     Select,
     MenuItem,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
 } from '@mui/material';
-import { ArrowBack, Save } from '@mui/icons-material';
+import { ArrowBack, Save, CloudUpload, Image as ImageIcon } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
@@ -89,6 +93,13 @@ export default function ProjectEdit() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [logoModalOpen, setLogoModalOpen] = useState(false);
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [logoPreview, setLogoPreview] = useState<string | null>(null);
+    const [logoUploading, setLogoUploading] = useState(false);
+    const [logoError, setLogoError] = useState<string | null>(null);
+    const [dragActive, setDragActive] = useState(false);
+    const [currentLogo, setCurrentLogo] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [saveError, setSaveError] = useState<string | null>(null);
     const [project, setProject] = useState<Project | null>(null);
@@ -146,6 +157,7 @@ export default function ProjectEdit() {
                     return_link: projectData.return_link || '',
                     return_link_text: projectData.return_link_text || '',
                 });
+                setCurrentLogo(projectData.logo);
 
                 // Fetch customers
                 const customersResponse = await fetch(
@@ -196,6 +208,66 @@ export default function ProjectEdit() {
             setSaveError(err instanceof Error ? err.message : 'Failed to update project');
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleLogoFileSelect = (file: File) => {
+        if (file.type !== 'image/png') {
+            setLogoError('Only PNG files are allowed');
+            return;
+        }
+        setLogoError(null);
+        setLogoFile(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setLogoPreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleLogoDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handleLogoFileSelect(e.dataTransfer.files[0]);
+        }
+    };
+
+    const handleLogoDrag = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.type === 'dragenter' || e.type === 'dragover') {
+            setDragActive(true);
+        } else if (e.type === 'dragleave') {
+            setDragActive(false);
+        }
+    };
+
+    const handleLogoUpload = async () => {
+        if (!logoFile || !uuid) return;
+        try {
+            setLogoUploading(true);
+            setLogoError(null);
+            const formData = new FormData();
+            formData.append('file', logoFile);
+            const response = await fetch(`${API_BASE}/api/admin/projects/${uuid}/logo`, {
+                method: 'POST',
+                headers: getAuthHeader(),
+                body: formData,
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || 'Failed to upload logo');
+            }
+            setCurrentLogo(`/api/admin/projects/${uuid}/logo?t=${Date.now()}`);
+            setLogoModalOpen(false);
+            setLogoFile(null);
+            setLogoPreview(null);
+        } catch (err) {
+            setLogoError(err instanceof Error ? err.message : 'Failed to upload logo');
+        } finally {
+            setLogoUploading(false);
         }
     };
 
@@ -374,19 +446,32 @@ export default function ProjectEdit() {
                             disabled={saving}
                         />
 
-                        <TextField
-                            label="Logo URL"
-                            value={formData.logo}
-                            onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSave();
-                                }
-                            }}
-                            fullWidth
-                            disabled={saving}
-                        />
+                        <Box>
+                            <Typography variant="subtitle2" gutterBottom>
+                                Logo
+                            </Typography>
+                            {currentLogo && (
+                                <Box sx={{ mb: 2 }}>
+                                    <img
+                                        src={`${API_BASE}${currentLogo}`}
+                                        alt="Current Logo"
+                                        style={{
+                                            maxWidth: '200px',
+                                            maxHeight: '100px',
+                                            objectFit: 'contain',
+                                        }}
+                                    />
+                                </Box>
+                            )}
+                            <Button
+                                variant="outlined"
+                                startIcon={<CloudUpload />}
+                                onClick={() => setLogoModalOpen(true)}
+                                disabled={saving}
+                            >
+                                {currentLogo ? 'Replace Logo' : 'Upload Logo'}
+                            </Button>
+                        </Box>
 
                         <Box>
                             <Typography variant="subtitle2" gutterBottom>
@@ -484,6 +569,85 @@ export default function ProjectEdit() {
                     </Stack>
                 </TabPanel>
             </Paper>
+
+            {/* Logo Upload Modal */}
+            <Dialog open={logoModalOpen} onClose={() => setLogoModalOpen(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Upload Logo</DialogTitle>
+                <DialogContent>
+                    <Stack spacing={2} sx={{ mt: 1 }}>
+                        {logoError && (
+                            <Alert severity="error" onClose={() => setLogoError(null)}>
+                                {logoError}
+                            </Alert>
+                        )}
+                        <Box
+                            onDrop={handleLogoDrop}
+                            onDragEnter={handleLogoDrag}
+                            onDragLeave={handleLogoDrag}
+                            onDragOver={handleLogoDrag}
+                            sx={{
+                                border: '2px dashed',
+                                borderColor: dragActive ? 'primary.main' : 'divider',
+                                borderRadius: 2,
+                                p: 4,
+                                textAlign: 'center',
+                                bgcolor: dragActive ? 'action.hover' : 'transparent',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                            }}
+                            onClick={() => document.getElementById('admin-logo-input')?.click()}
+                        >
+                            <input
+                                id="admin-logo-input"
+                                type="file"
+                                accept="image/png"
+                                style={{ display: 'none' }}
+                                onChange={(e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                        handleLogoFileSelect(e.target.files[0]);
+                                    }
+                                }}
+                            />
+                            <ImageIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                            <Typography variant="h6" gutterBottom>
+                                {dragActive ? 'Drop file here' : 'Drag and drop logo here'}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                or click to browse (PNG only)
+                            </Typography>
+                        </Box>
+                        {logoPreview && (
+                            <Box sx={{ textAlign: 'center' }}>
+                                <Typography variant="subtitle2" gutterBottom>
+                                    Preview:
+                                </Typography>
+                                <img
+                                    src={logoPreview}
+                                    alt="Logo Preview"
+                                    style={{
+                                        maxWidth: '100%',
+                                        maxHeight: '200px',
+                                        objectFit: 'contain',
+                                    }}
+                                />
+                            </Box>
+                        )}
+                    </Stack>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setLogoModalOpen(false)} disabled={logoUploading}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={handleLogoUpload}
+                        disabled={!logoFile || logoUploading}
+                        startIcon={logoUploading ? <CircularProgress size={20} /> : <CloudUpload />}
+                    >
+                        {logoUploading ? 'Uploading...' : 'Upload'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Container>
     );
 }

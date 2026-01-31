@@ -499,3 +499,68 @@ async def get_project_logo(
         )
 
     return FileResponse(logo_path, media_type="image/png")
+
+
+@router.post("/{project_uuid}/logo")
+async def upload_admin_project_logo(
+    project_uuid: UUID,
+    file: UploadFile = File(...),
+    user: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Upload a logo for a project (admin, PNG only)."""
+    # Validate file type
+    if not file.content_type or file.content_type != "image/png":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only PNG files are allowed",
+        )
+
+    # Get project
+    result = await db.execute(select(Project).where(Project.uuid == project_uuid))
+    project = result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+
+    # Save the logo file
+    filename = await save_logo_file(file, str(project_uuid))
+    
+    # Update project logo field
+    project.logo = f"/api/admin/projects/{project_uuid}/logo"
+    await db.commit()
+
+    return {"message": "Logo uploaded successfully", "filename": filename}
+
+
+@router.get("/{project_uuid}/logo")
+async def get_admin_project_logo(
+    project_uuid: UUID,
+    user: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get the logo for a project (admin)."""
+    # Get project
+    result = await db.execute(select(Project).where(Project.uuid == project_uuid))
+    project = result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+
+    # Get logo file path
+    logo_filename = f"{project_uuid}.png"
+    logo_path = get_logo_path(logo_filename)
+
+    if not logo_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Logo not found",
+        )
+
+    return FileResponse(logo_path, media_type="image/png")

@@ -525,6 +525,25 @@ export default function ProjectDetail() {
                                     </Typography>
                                 </Box>
 
+                                {project.logo && (
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Logo
+                                        </Typography>
+                                        <Box sx={{ mt: 1 }}>
+                                            <img
+                                                src={`${API_BASE}${project.logo}`}
+                                                alt="Project Logo"
+                                                style={{
+                                                    maxWidth: '200px',
+                                                    maxHeight: '100px',
+                                                    objectFit: 'contain',
+                                                }}
+                                            />
+                                        </Box>
+                                    </Box>
+                                )}
+
                                 {project.return_link && (
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">
