@@ -5,12 +5,13 @@ import {
     Typography, CircularProgress, Divider,
     useTheme, Button, Stack, Link
 } from '@mui/material';
-import { Send, Delete, Mic, Stop, VolumeUp, ArrowBack } from '@mui/icons-material';
+import { Send, Delete, Mic, Stop, VolumeUp } from '@mui/icons-material';
 import ReactMarkdown from 'react-markdown';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import TalkingHeadAvatar from '../../components/TalkingHeadAvatar';
 import { getAuthHeader } from '../../utils/authUtils';
+import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -26,6 +27,8 @@ interface Project {
     color_secondary: string;
     color_background: string;
     documents_count: number;
+    customer_name: string;
+    customer_uuid: string | null;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
@@ -263,29 +266,48 @@ export default function TestChat() {
             pb: 10, // Account for fixed footer
             background: containerBg,
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            pt: 4,
+            px: 3
         }}>
-            {/* Header */}
-            <Paper sx={{ p: 2, borderRadius: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 1 }}>
-                <Stack direction="row" alignItems="center" spacing={2}>
-                    <Button startIcon={<ArrowBack />} onClick={() => navigate(`/admin/projects/${uuid}`)}>
-                        Back
-                    </Button>
-                    <Box>
-                        <Typography variant="h6" fontWeight={700}>
-                            Test Chat: {project.name}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                            Testing logic with {project.documents_count} documents
-                        </Typography>
-                    </Box>
-                </Stack>
-                <Button startIcon={<Delete />} color="error" onClick={handleClearChat} disabled={messages.length === 0}>
-                    Clear Test
-                </Button>
-            </Paper>
+            <AdminBreadcrumbs
+                items={[
+                    { label: 'Customers', path: '/admin/customers' },
+                    { label: project.customer_name || 'Customer', path: project.customer_uuid ? `/admin/customers/${project.customer_uuid}` : undefined },
+                    { label: `${project.name} • Chatbot Project`, path: `/admin/projects/${uuid}` },
+                    { label: 'Test Chat' },
+                ]}
+            />
 
-            <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden', p: 3, gap: 3 }}>
+            {/* Header */}
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+                <Typography
+                    variant="h4"
+                    component="h1"
+                    sx={{
+                        fontWeight: 700,
+                        background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                        backgroundClip: 'text',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                    }}
+                >
+                    Test Chat
+                </Typography>
+                <Stack direction="row" spacing={2}>
+                    <Button
+                        startIcon={<Delete />}
+                        color="error"
+                        variant="outlined"
+                        onClick={handleClearChat}
+                        disabled={messages.length === 0}
+                    >
+                        Clear
+                    </Button>
+                </Stack>
+            </Stack>
+
+            <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden', gap: 3 }}>
                 {/* Avatar Panel */}
                 <Box sx={{ width: '30%', display: { xs: 'none', md: 'flex' }, flexDirection: 'column' }}>
                     <Paper sx={{
