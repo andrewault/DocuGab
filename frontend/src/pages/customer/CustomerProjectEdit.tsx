@@ -15,11 +15,16 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
 } from '@mui/material';
-import { ArrowBack, Save, Edit as EditIcon, CloudUpload, Image as ImageIcon } from '@mui/icons-material';
+import { ArrowBack, Save, Edit as EditIcon, CloudUpload, Image as ImageIcon, VolumeUp } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import { getAuthHeader } from '../../utils/authUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
+import { VOICE_OPTIONS, VOICE_TEST_TEXT } from '../../constants/voiceConstants';
 
 interface Project {
     id: number;
@@ -33,6 +38,7 @@ interface Project {
     color_primary: string;
     color_secondary: string;
     color_background: string;
+    voice: string;
     return_link: string | null;
     return_link_text: string | null;
 }
@@ -61,6 +67,7 @@ export default function CustomerProjectEdit() {
     const [colorBackground, setColorBackground] = useState('#ffffff');
     const [returnLink, setReturnLink] = useState('');
     const [returnLinkText, setReturnLinkText] = useState('');
+    const [voice, setVoice] = useState('en-US-Neural2-F');
     const [logoModalOpen, setLogoModalOpen] = useState(false);
     const [logoFile, setLogoFile] = useState<File | null>(null);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -68,6 +75,7 @@ export default function CustomerProjectEdit() {
     const [logoError, setLogoError] = useState<string | null>(null);
     const [dragActive, setDragActive] = useState(false);
     const [currentLogo, setCurrentLogo] = useState<string | null>(null);
+    const [testingVoice, setTestingVoice] = useState(false);
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -92,6 +100,7 @@ export default function CustomerProjectEdit() {
                 setColorPrimary(data.color_primary);
                 setColorSecondary(data.color_secondary);
                 setColorBackground(data.color_background);
+                setVoice(data.voice || 'en-US-Neural2-F');
                 setReturnLink(data.return_link || '');
                 setReturnLinkText(data.return_link_text || '');
                 setCurrentLogo(data.logo);
@@ -127,6 +136,7 @@ export default function CustomerProjectEdit() {
                     color_primary: colorPrimary,
                     color_secondary: colorSecondary,
                     color_background: colorBackground,
+                    voice,
                     return_link: returnLink || null,
                     return_link_text: returnLinkText || null,
                 }),
@@ -216,6 +226,33 @@ export default function CustomerProjectEdit() {
             setLogoError(err instanceof Error ? err.message : 'Failed to upload logo');
         } finally {
             setLogoUploading(false);
+        }
+    };
+
+    const testVoice = async (voiceValue: string) => {
+        setTestingVoice(true);
+        try {
+            const res = await fetch(`${API_BASE}/api/speech/synthesize`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: VOICE_TEST_TEXT, voice: voiceValue }),
+            });
+
+            if (res.ok) {
+                const audioBlob = await res.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+
+                audio.onended = () => {
+                    URL.revokeObjectURL(audioUrl);
+                };
+
+                audio.play();
+            }
+        } catch (error) {
+            console.error('Voice test error:', error);
+        } finally {
+            setTestingVoice(false);
         }
     };
 
@@ -487,6 +524,38 @@ export default function CustomerProjectEdit() {
                                         />
                                     </Stack>
                                 </Box>
+                            </Stack>
+                        </Box>
+
+                        <Box>
+                            <Typography variant="subtitle2" gutterBottom>
+                                Voice Assistant
+                            </Typography>
+                            <Stack direction="row" spacing={2} alignItems="flex-start">
+                                <FormControl fullWidth>
+                                    <InputLabel>Voice</InputLabel>
+                                    <Select
+                                        value={voice}
+                                        onChange={(e) => setVoice(e.target.value)}
+                                        label="Voice"
+                                        disabled={saving || success}
+                                    >
+                                        {VOICE_OPTIONS.map((voiceOption) => (
+                                            <MenuItem key={voiceOption.value} value={voiceOption.value}>
+                                                {voiceOption.label}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<VolumeUp />}
+                                    onClick={() => testVoice(voice)}
+                                    disabled={saving || success || testingVoice}
+                                    sx={{ minWidth: 100, height: 56 }}
+                                >
+                                    Test
+                                </Button>
                             </Stack>
                         </Box>
 

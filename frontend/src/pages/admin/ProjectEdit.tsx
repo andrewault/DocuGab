@@ -21,9 +21,10 @@ import {
     DialogContent,
     DialogActions,
 } from '@mui/material';
-import { ArrowBack, Save, CloudUpload, Image as ImageIcon } from '@mui/icons-material';
+import { ArrowBack, Save, CloudUpload, Image as ImageIcon, VolumeUp } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { VOICE_OPTIONS, VOICE_TEST_TEXT } from '../../constants/voiceConstants';
 
 interface Project {
     id: number;
@@ -97,6 +98,7 @@ export default function ProjectEdit() {
     const [logoFile, setLogoFile] = useState<File | null>(null);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
     const [logoUploading, setLogoUploading] = useState(false);
+    const [testingVoice, setTestingVoice] = useState(false);
     const [logoError, setLogoError] = useState<string | null>(null);
     const [dragActive, setDragActive] = useState(false);
     const [currentLogo, setCurrentLogo] = useState<string | null>(null);
@@ -268,6 +270,33 @@ export default function ProjectEdit() {
             setLogoError(err instanceof Error ? err.message : 'Failed to upload logo');
         } finally {
             setLogoUploading(false);
+        }
+    };
+
+    const testVoice = async (voice: string) => {
+        setTestingVoice(true);
+        try {
+            const res = await fetch(`${API_BASE}/api/speech/synthesize`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: VOICE_TEST_TEXT, voice }),
+            });
+
+            if (res.ok) {
+                const audioBlob = await res.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+
+                audio.onended = () => {
+                    URL.revokeObjectURL(audioUrl);
+                };
+
+                audio.play();
+            }
+        } catch (error) {
+            console.error('Voice test error:', error);
+        } finally {
+            setTestingVoice(false);
         }
     };
 
@@ -562,22 +591,32 @@ export default function ProjectEdit() {
                             </Select>
                         </FormControl>
 
-                        <FormControl fullWidth>
-                            <InputLabel>Voice</InputLabel>
-                            <Select
-                                value={formData.voice}
-                                onChange={(e) => setFormData({ ...formData, voice: e.target.value })}
-                                label="Voice"
-                                disabled={saving}
+                        <Stack direction="row" spacing={2} alignItems="flex-start">
+                            <FormControl fullWidth>
+                                <InputLabel>Voice Assistant</InputLabel>
+                                <Select
+                                    value={formData.voice}
+                                    onChange={(e) => setFormData({ ...formData, voice: e.target.value })}
+                                    label="Voice Assistant"
+                                    disabled={saving}
+                                >
+                                    {VOICE_OPTIONS.map((voice) => (
+                                        <MenuItem key={voice.value} value={voice.value}>
+                                            {voice.label}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <Button
+                                variant="outlined"
+                                startIcon={<VolumeUp />}
+                                onClick={() => testVoice(formData.voice)}
+                                disabled={saving || testingVoice}
+                                sx={{ minWidth: 100, height: 56 }}
                             >
-                                <MenuItem value="alloy">Alloy</MenuItem>
-                                <MenuItem value="echo">Echo</MenuItem>
-                                <MenuItem value="fable">Fable</MenuItem>
-                                <MenuItem value="onyx">Onyx</MenuItem>
-                                <MenuItem value="nova">Nova</MenuItem>
-                                <MenuItem value="shimmer">Shimmer</MenuItem>
-                            </Select>
-                        </FormControl>
+                                Test
+                            </Button>
+                        </Stack>
                     </Stack>
                 </TabPanel>
             </Paper>

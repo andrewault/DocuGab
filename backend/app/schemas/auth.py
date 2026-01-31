@@ -53,6 +53,7 @@ class UserResponse(BaseModel):
     customer_name: Optional[str] = None
     created_at: datetime
     updated_at: datetime
+    last_login_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

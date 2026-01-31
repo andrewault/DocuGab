@@ -11,6 +11,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../context/AuthContext';
 import TalkingHeadAvatar from '../components/TalkingHeadAvatar';
+import { VOICE_OPTIONS } from '../constants/voiceConstants';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -186,16 +187,6 @@ export default function Chat() {
         setAnimationEnabled(newValue);
         localStorage.setItem('docutok_animation_enabled', String(newValue));
     };
-
-    // Voice selection for TTS
-    const VOICE_OPTIONS = [
-        { value: 'en-US-Neural2-F', label: 'Female (Neural)' },
-        { value: 'en-US-Neural2-D', label: 'Male (Neural)' },
-        { value: 'en-US-Wavenet-F', label: 'Female (Wavenet)' },
-        { value: 'en-US-Wavenet-D', label: 'Male (Wavenet)' },
-        { value: 'en-US-Studio-O', label: 'Female (Studio)' },
-        { value: 'en-US-Studio-M', label: 'Male (Studio)' },
-    ];
 
     const [selectedVoice, setSelectedVoice] = useState(() => {
         return localStorage.getItem('docutok_tts_voice') || 'en-US-Neural2-F';

@@ -330,9 +330,9 @@ export default function CustomerDetail() {
 
             {/* Projects List */}
             <Paper elevation={2} sx={{ p: 3, mt: 3 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
                     <Typography variant="h6">
-                        Projects ({projects.length})
+                        Chatbot Projects ({projects.length})
                     </Typography>
                     <Button
                         variant="contained"
@@ -374,7 +374,7 @@ export default function CustomerDetail() {
                                             <Stack direction="row" alignItems="center" gap={1}>
                                                 <Folder color="primary" fontSize="small" />
                                                 <Typography fontWeight={500}>
-                                                    {project.name} Chatbot Project
+                                                    {project.name}
                                                 </Typography>
                                             </Stack>
                                         </TableCell>

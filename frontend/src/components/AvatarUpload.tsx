@@ -202,6 +202,11 @@ export default function AvatarUpload({ projectUuid, onUploadSuccess }: AvatarUpl
                 </Alert>
             )}
 
+            {/* Current Avatar Display */}
+            <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
+                Avatar: {avatars.find(a => a.is_active)?.original_filename || 'avatar.glb'} {(!avatars.find(a => a.is_active)) && '(default)'}
+            </Typography>
+
             {/* Upload Section */}
             <Box
                 onDragOver={handleDragOver}
@@ -318,11 +323,8 @@ export default function AvatarUpload({ projectUuid, onUploadSuccess }: AvatarUpl
                         </Box>
                     ))}
                 </Stack>
-            ) : (
-                <Typography variant="body2" color="text.secondary" textAlign="center" py={2}>
-                    An avatar has not been uploaded yet
-                </Typography>
-            )}
+            ) : null}
+
         </Box>
     );
 }

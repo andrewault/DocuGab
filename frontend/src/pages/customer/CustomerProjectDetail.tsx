@@ -27,6 +27,7 @@ import { getAuthHeader } from '../../utils/authUtils';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
 import AvatarUpload from '../../components/AvatarUpload';
+import { getVoiceLabel } from '../../constants/voiceConstants';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
@@ -36,12 +37,14 @@ interface Project {
     name: string;
     slug: string;
     description: string | null;
+    title: string;
     subtitle: string | null;
     body: string | null;
     logo: string | null;
     color_primary: string;
     color_secondary: string;
     color_background: string;
+    voice: string;
     return_link: string | null;
     return_link_text: string | null;
     is_active: boolean;
@@ -220,15 +223,15 @@ export default function CustomerProjectDetail() {
                     <Tabs
                         value={currentTab}
                         onChange={(_, newValue) => {
-                            navigate(`/customer/${user?.customer_uuid}/projects/${uuid}/${newValue}`);
+                            navigate(
+                                `/customer/${user?.customer_uuid}/projects/${uuid}/${newValue}`,
+                                { replace: true }
+                            );
                         }}
-                        sx={{
-                            borderBottom: 1,
-                            borderColor: 'divider',
-                            px: 2,
-                        }}
+                        sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}
                     >
-                        <Tab label="Properties" value="properties" />
+                        <Tab label="Basic Info" value="properties" />
+                        <Tab label="Branding" value="branding" />
                         <Tab label="Avatar" value="avatar" />
                         <Tab label="Documents" value="documents" />
                     </Tabs>
@@ -248,29 +251,6 @@ export default function CustomerProjectDetail() {
                                 </Box>
 
                                 <Divider />
-
-                                {project.logo && (
-                                    <>
-                                        <Box>
-                                            <Typography variant="caption" color="text.secondary">
-                                                Logo
-                                            </Typography>
-                                            <Box sx={{ mt: 1 }}>
-                                                <img
-                                                    src={`${API_BASE}${project.logo}`}
-                                                    alt="Project Logo"
-                                                    style={{
-                                                        maxWidth: '200px',
-                                                        maxHeight: '100px',
-                                                        objectFit: 'contain',
-                                                    }}
-                                                />
-                                            </Box>
-                                        </Box>
-
-                                        <Divider />
-                                    </>
-                                )}
 
                                 <Box>
                                     <Typography variant="caption" color="text.secondary">
@@ -298,143 +278,20 @@ export default function CustomerProjectDetail() {
                                     </>
                                 )}
 
-                                {project.subtitle && (
+                                {project.voice && (
                                     <>
                                         <Box>
                                             <Typography variant="caption" color="text.secondary">
-                                                Subtitle
+                                                Voice Assistant
                                             </Typography>
                                             <Typography variant="body1">
-                                                {project.subtitle}
+                                                {getVoiceLabel(project.voice)}
                                             </Typography>
                                         </Box>
 
                                         <Divider />
                                     </>
                                 )}
-
-                                {project.body && (
-                                    <>
-                                        <Box>
-                                            <Typography variant="caption" color="text.secondary">
-                                                Body
-                                            </Typography>
-                                            <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-                                                {project.body}
-                                            </Typography>
-                                        </Box>
-
-                                        <Divider />
-                                    </>
-                                )}
-
-                                {(project.color_primary || project.color_secondary || project.color_background) && (
-                                    <>
-                                        <Stack direction="row" spacing={4}>
-                                            {project.color_primary && (
-                                                <Box>
-                                                    <Typography variant="caption" color="text.secondary">
-                                                        Primary Color
-                                                    </Typography>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                                                        <Box
-                                                            sx={{
-                                                                width: 32,
-                                                                height: 32,
-                                                                borderRadius: 1,
-                                                                bgcolor: project.color_primary,
-                                                                border: '1px solid',
-                                                                borderColor: 'divider',
-                                                            }}
-                                                        />
-                                                        <Typography variant="body2" fontFamily="monospace">
-                                                            {project.color_primary}
-                                                        </Typography>
-                                                    </Box>
-                                                </Box>
-                                            )}
-
-                                            {project.color_secondary && (
-                                                <Box>
-                                                    <Typography variant="caption" color="text.secondary">
-                                                        Secondary Color
-                                                    </Typography>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                                                        <Box
-                                                            sx={{
-                                                                width: 32,
-                                                                height: 32,
-                                                                borderRadius: 1,
-                                                                bgcolor: project.color_secondary,
-                                                                border: '1px solid',
-                                                                borderColor: 'divider',
-                                                            }}
-                                                        />
-                                                        <Typography variant="body2" fontFamily="monospace">
-                                                            {project.color_secondary}
-                                                        </Typography>
-                                                    </Box>
-                                                </Box>
-                                            )}
-
-                                            {project.color_background && (
-                                                <Box>
-                                                    <Typography variant="caption" color="text.secondary">
-                                                        Background Color
-                                                    </Typography>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                                                        <Box
-                                                            sx={{
-                                                                width: 32,
-                                                                height: 32,
-                                                                borderRadius: 1,
-                                                                bgcolor: project.color_background,
-                                                                border: '1px solid',
-                                                                borderColor: 'divider',
-                                                            }}
-                                                        />
-                                                        <Typography variant="body2" fontFamily="monospace">
-                                                            {project.color_background}
-                                                        </Typography>
-                                                    </Box>
-                                                </Box>
-                                            )}
-                                        </Stack>
-
-                                        <Divider />
-                                    </>
-                                )}
-
-                                {(project.return_link || project.return_link_text) && (
-                                    <>
-                                        <Stack direction="row" spacing={4}>
-                                            {project.return_link && (
-                                                <Box>
-                                                    <Typography variant="caption" color="text.secondary">
-                                                        Return Link
-                                                    </Typography>
-                                                    <Typography variant="body2">
-                                                        {project.return_link}
-                                                    </Typography>
-                                                </Box>
-                                            )}
-
-                                            {project.return_link_text && (
-                                                <Box>
-                                                    <Typography variant="caption" color="text.secondary">
-                                                        Return Link Text
-                                                    </Typography>
-                                                    <Typography variant="body2">
-                                                        {project.return_link_text}
-                                                    </Typography>
-                                                </Box>
-                                            )}
-                                        </Stack>
-
-                                        <Divider />
-                                    </>
-                                )}
-
 
                                 <Stack direction="row" spacing={4}>
                                     <Box>
@@ -472,87 +329,258 @@ export default function CustomerProjectDetail() {
                         </Box>
                     )}
 
-                    {/* Avatar Tab */}
-                    {currentTab === 'avatar' && (
+
+                    {/* Branding Tab */}
+                    {currentTab === 'branding' && (
                         <Box sx={{ p: 4 }}>
-                            <AvatarUpload projectUuid={project.uuid} />
+                            <Stack spacing={3}>
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Title
+                                    </Typography>
+                                    <Typography variant="body1" fontWeight={500}>
+                                        {project.title}
+                                    </Typography>
+                                </Box>
+
+                                <Divider />
+
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Subtitle
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        {project.subtitle || '—'}
+                                    </Typography>
+                                </Box>
+
+                                <Divider />
+
+                                {project.body && (
+                                    <>
+                                        <Box>
+                                            <Typography variant="caption" color="text.secondary">
+                                                Body Text
+                                            </Typography>
+                                            <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                                                {project.body}
+                                            </Typography>
+                                        </Box>
+
+                                        <Divider />
+                                    </>
+                                )}
+
+                                {project.logo && (
+                                    <>
+                                        <Box>
+                                            <Typography variant="caption" color="text.secondary">
+                                                Logo
+                                            </Typography>
+                                            <Box sx={{ mt: 1 }}>
+                                                <img
+                                                    src={`${API_BASE}${project.logo}`}
+                                                    alt="Project Logo"
+                                                    style={{
+                                                        maxWidth: '200px',
+                                                        maxHeight: '100px',
+                                                        objectFit: 'contain',
+                                                    }}
+                                                />
+                                            </Box>
+                                        </Box>
+
+                                        <Divider />
+                                    </>
+                                )}
+
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+                                        Colors
+                                    </Typography>
+                                    <Stack direction="row" spacing={2}>
+                                        <Box>
+                                            <Box
+                                                sx={{
+                                                    width: 60,
+                                                    height: 60,
+                                                    borderRadius: 1,
+                                                    bgcolor: project.color_primary,
+                                                    border: '1px solid',
+                                                    borderColor: 'divider',
+                                                    mb: 0.5,
+                                                }}
+                                            />
+                                            <Typography variant="caption" color="text.secondary" display="block" textAlign="center">
+                                                Primary
+                                            </Typography>
+                                            <Typography variant="caption" fontFamily="monospace" display="block" textAlign="center">
+                                                {project.color_primary}
+                                            </Typography>
+                                        </Box>
+
+                                        <Box>
+                                            <Box
+                                                sx={{
+                                                    width: 60,
+                                                    height: 60,
+                                                    borderRadius: 1,
+                                                    bgcolor: project.color_secondary,
+                                                    border: '1px solid',
+                                                    borderColor: 'divider',
+                                                    mb: 0.5,
+                                                }}
+                                            />
+                                            <Typography variant="caption" color="text.secondary" display="block" textAlign="center">
+                                                Secondary
+                                            </Typography>
+                                            <Typography variant="caption" fontFamily="monospace" display="block" textAlign="center">
+                                                {project.color_secondary}
+                                            </Typography>
+                                        </Box>
+
+                                        <Box>
+                                            <Box
+                                                sx={{
+                                                    width: 60,
+                                                    height: 60,
+                                                    borderRadius: 1,
+                                                    bgcolor: project.color_background,
+                                                    border: '1px solid',
+                                                    borderColor: 'divider',
+                                                    mb: 0.5,
+                                                }}
+                                            />
+                                            <Typography variant="caption" color="text.secondary" display="block" textAlign="center">
+                                                Background
+                                            </Typography>
+                                            <Typography variant="caption" fontFamily="monospace" display="block" textAlign="center">
+                                                {project.color_background}
+                                            </Typography>
+                                        </Box>
+                                    </Stack>
+                                </Box>
+
+                                {(project.return_link || project.return_link_text) && (
+                                    <>
+                                        <Divider />
+
+                                        <Stack direction="row" spacing={4}>
+                                            {project.return_link && (
+                                                <Box>
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        Return Link
+                                                    </Typography>
+                                                    <Typography variant="body1" fontFamily="monospace">
+                                                        {project.return_link}
+                                                    </Typography>
+                                                </Box>
+                                            )}
+
+                                            {project.return_link_text && (
+                                                <Box>
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        Return Link Text
+                                                    </Typography>
+                                                    <Typography variant="body1">
+                                                        {project.return_link_text}
+                                                    </Typography>
+                                                </Box>
+                                            )}
+                                        </Stack>
+                                    </>
+                                )}
+                            </Stack>
                         </Box>
-                    )}
+                    )
+                    }
+
+
+                    {/* Avatar Tab */}
+                    {
+                        currentTab === 'avatar' && (
+                            <Box sx={{ p: 4 }}>
+                                <AvatarUpload projectUuid={project.uuid} />
+                            </Box>
+                        )
+                    }
 
                     {/* Documents Tab */}
-                    {currentTab === 'documents' && (
-                        <Box sx={{ p: 4 }}>
-                            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-                                <Typography variant="h6" fontWeight={600}>
-                                    Chatbot Project Documents
-                                </Typography>
-                                <Button
-                                    variant="contained"
-                                    startIcon={<Add />}
-                                    onClick={() =>
-                                        navigate(
-                                            `/customer/${user?.customer_uuid}/projects/${project.uuid}/documents/new`
-                                        )
-                                    }
-                                >
-                                    Upload Document
-                                </Button>
-                            </Stack>
+                    {
+                        currentTab === 'documents' && (
+                            <Box sx={{ p: 4 }}>
+                                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+                                    <Typography variant="h6" fontWeight={600}>
+                                        Chatbot Project Documents
+                                    </Typography>
+                                    <Button
+                                        variant="contained"
+                                        startIcon={<Add />}
+                                        onClick={() =>
+                                            navigate(
+                                                `/customer/${user?.customer_uuid}/projects/${project.uuid}/documents/new`
+                                            )
+                                        }
+                                    >
+                                        Upload Document
+                                    </Button>
+                                </Stack>
 
-                            {documents.length === 0 ? (
-                                <Alert severity="info">No documents uploaded yet</Alert>
-                            ) : (
-                                <TableContainer>
-                                    <Table>
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <DocumentIcon fontSize="small" />
-                                                        Filename
-                                                    </Box>
-                                                </TableCell>
-                                                <TableCell>Status</TableCell>
-                                                <TableCell>Size</TableCell>
-                                                <TableCell>Uploaded</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {documents.map((doc) => (
-                                                <TableRow key={doc.id} hover>
-                                                    <TableCell>{doc.filename}</TableCell>
+                                {documents.length === 0 ? (
+                                    <Alert severity="info">No documents uploaded yet</Alert>
+                                ) : (
+                                    <TableContainer>
+                                        <Table>
+                                            <TableHead>
+                                                <TableRow>
                                                     <TableCell>
-                                                        <Chip
-                                                            label={doc.status}
-                                                            color={
-                                                                doc.status === 'processed'
-                                                                    ? 'success'
-                                                                    : doc.status === 'processing'
-                                                                        ? 'warning'
-                                                                        : doc.status === 'failed'
-                                                                            ? 'error'
-                                                                            : 'default'
-                                                            }
-                                                            size="small"
-                                                        />
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <DocumentIcon fontSize="small" />
+                                                            Filename
+                                                        </Box>
                                                     </TableCell>
-                                                    <TableCell>
-                                                        {(doc.file_size / 1024 / 1024).toFixed(2)} MB
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {formatInUserTimezone(doc.created_at, user?.timezone || 'UTC')}
-                                                    </TableCell>
+                                                    <TableCell>Status</TableCell>
+                                                    <TableCell>Size</TableCell>
+                                                    <TableCell>Uploaded</TableCell>
                                                 </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            )}
-                        </Box>
-                    )}
-                </Paper>
-            </Container>
-        </Box>
+                                            </TableHead>
+                                            <TableBody>
+                                                {documents.map((doc) => (
+                                                    <TableRow key={doc.id} hover>
+                                                        <TableCell>{doc.filename}</TableCell>
+                                                        <TableCell>
+                                                            <Chip
+                                                                label={doc.status}
+                                                                color={
+                                                                    doc.status === 'processed'
+                                                                        ? 'success'
+                                                                        : doc.status === 'processing'
+                                                                            ? 'warning'
+                                                                            : doc.status === 'failed'
+                                                                                ? 'error'
+                                                                                : 'default'
+                                                                }
+                                                                size="small"
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {(doc.file_size / 1024 / 1024).toFixed(2)} MB
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {formatInUserTimezone(doc.created_at, user?.timezone || 'UTC')}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                )}
+                            </Box>
+                        )
+                    }
+                </Paper >
+            </Container >
+        </Box >
     );
 }
 

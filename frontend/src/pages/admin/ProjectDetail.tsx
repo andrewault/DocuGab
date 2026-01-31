@@ -33,9 +33,11 @@ import {
     Description,
     Palette,
     CloudUpload,
+    VolumeUp,
 } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { getVoiceLabel, VOICE_TEST_TEXT } from '../../constants/voiceConstants';
 import { useAuth } from '../../context/AuthContext';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
@@ -94,6 +96,8 @@ export default function ProjectDetail() {
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
+    const [testingVoice, setTestingVoice] = useState(false);
+
 
     const fetchDocuments = async () => {
         if (!project?.id) return;
@@ -187,6 +191,32 @@ export default function ProjectDetail() {
         }
     };
 
+    const testVoice = async (voice: string) => {
+        setTestingVoice(true);
+        try {
+            const res = await fetch(`${API_BASE}/api/speech/synthesize`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: VOICE_TEST_TEXT, voice }),
+            });
+
+            if (res.ok) {
+                const audioBlob = await res.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+
+                audio.onended = () => {
+                    URL.revokeObjectURL(audioUrl);
+                };
+
+                audio.play();
+            }
+        } catch (error) {
+            console.error('Voice test error:', error);
+        } finally {
+            setTestingVoice(false);
+        }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -290,7 +320,7 @@ export default function ProjectDetail() {
                     items={[
                         { label: 'Customers', path: '/admin/customers' },
                         { label: project.customer_name, path: project.customer_uuid ? `/admin/customers/${project.customer_uuid}` : undefined },
-                        { label: `${project.name} Chatbot Project` },
+                        { label: `${project.name} • Chatbot Project` },
                     ]}
                 />
 
@@ -307,21 +337,21 @@ export default function ProjectDetail() {
                             WebkitTextFillColor: 'transparent',
                         }}
                     >
-                        {project.name} Chatbot Project
+                        {project.name} • Chatbot Project
                     </Typography>
                     <Button
                         variant="contained"
                         startIcon={<Edit />}
                         onClick={() => navigate(`/admin/projects/${uuid}/edit`)}
                     >
-                        Edit Project
+                        Edit Chatbot Project
                     </Button>
                 </Stack>
 
                 {/* Project Details */}
                 <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
                     <Typography variant="h6" gutterBottom>
-                        Details
+                        Basic Info
                     </Typography>
                     <Divider sx={{ mb: 3 }} />
 
@@ -458,24 +488,6 @@ export default function ProjectDetail() {
                                         {project.subtitle || '—'}
                                     </Typography>
                                 </Box>
-
-                                <Box>
-                                    <Typography variant="caption" color="text.secondary">
-                                        Avatar
-                                    </Typography>
-                                    <Typography variant="body1" fontFamily="monospace">
-                                        {project.avatar}
-                                    </Typography>
-                                </Box>
-
-                                <Box>
-                                    <Typography variant="caption" color="text.secondary">
-                                        Voice
-                                    </Typography>
-                                    <Typography variant="body1" fontFamily="monospace">
-                                        {project.voice}
-                                    </Typography>
-                                </Box>
                             </Stack>
                         </Box>
 
@@ -571,6 +583,49 @@ export default function ProjectDetail() {
                             </Box>
                         </>
                     )}
+                </Paper>
+
+                {/* Avatar and Voice */}
+                <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+                    <Typography variant="h6" gutterBottom>
+                        Avatar and Voice
+                    </Typography>
+                    <Divider sx={{ mb: 3 }} />
+
+                    <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
+                        <Box sx={{ flex: 1 }}>
+                            <Stack spacing={2}>
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Avatar
+                                    </Typography>
+                                    <Typography variant="body1" fontFamily="monospace">
+                                        {project.avatar || 'Default (avatar.glb)'}
+                                    </Typography>
+                                </Box>
+
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+                                        Voice Assistant
+                                    </Typography>
+                                    <Stack direction="row" spacing={2} alignItems="center">
+                                        <Typography variant="body1">
+                                            {getVoiceLabel(project.voice)}
+                                        </Typography>
+                                        <Button
+                                            variant="outlined"
+                                            size="small"
+                                            startIcon={<VolumeUp />}
+                                            onClick={() => testVoice(project.voice)}
+                                            disabled={testingVoice}
+                                        >
+                                            Test
+                                        </Button>
+                                    </Stack>
+                                </Box>
+                            </Stack>
+                        </Box>
+                    </Stack>
                 </Paper>
 
                 {/* Documents */}
@@ -727,7 +782,7 @@ export default function ProjectDetail() {
                         </Button>
                     </DialogActions>
                 </Dialog>
-            </Container>
-        </Box>
+            </Container >
+        </Box >
     );
 }

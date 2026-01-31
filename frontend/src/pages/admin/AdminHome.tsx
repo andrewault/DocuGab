@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Box, Container, Typography, Paper, Stack, useTheme, Grid, Card, CardContent } from '@mui/material';
-import { Group, QuestionAnswer, Business, Folder, RecordVoiceOver } from '@mui/icons-material';
+import { Group, QuestionAnswer, Business, Folder, RecordVoiceOver, Dashboard } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { getAuthHeader } from '../../utils/authUtils';
 
@@ -74,18 +74,21 @@ export default function AdminHome() {
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-                    <Typography
-                        variant="h4"
-                        sx={{
-                            fontWeight: 700,
-                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                            backgroundClip: 'text',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                        }}
-                    >
-                        Admin Dashboard
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Dashboard sx={{ fontSize: 32, color: '#6366f1' }} />
+                        <Typography
+                            variant="h4"
+                            sx={{
+                                fontWeight: 700,
+                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}
+                        >
+                            Admin Dashboard
+                        </Typography>
+                    </Box>
                 </Stack>
 
                 {stats && (
