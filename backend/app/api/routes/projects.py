@@ -3,7 +3,8 @@
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
+from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
 
@@ -19,6 +20,7 @@ from app.schemas.project import (
     ProjectResponse,
     ProjectListResponse,
 )
+from app.services.storage import save_logo_file, get_logo_path
 
 
 router = APIRouter(prefix="/admin/projects", tags=["admin", "projects"])
@@ -408,3 +410,92 @@ async def update_customer_project(
 
     project_dict = await _build_project_response(project, db)
     return ProjectResponse(**project_dict)
+
+
+@customer_router.post("/{project_uuid}/logo")
+async def upload_project_logo(
+    project_uuid: UUID,
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Upload a logo for a project (PNG only)."""
+    if not user.customer_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with a customer",
+        )
+
+    # Validate file type
+    if not file.content_type or file.content_type != "image/png":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only PNG files are allowed",
+        )
+
+    # Get project and verify ownership
+    result = await db.execute(select(Project).where(Project.uuid == project_uuid))
+    project = result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+
+    if project.customer_id != user.customer_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to update this project",
+        )
+
+    # Save the logo file
+    filename = await save_logo_file(file, str(project_uuid))
+    
+    # Update project logo field
+    project.logo = f"/api/customer/projects/{project_uuid}/logo"
+    await db.commit()
+
+    return {"message": "Logo uploaded successfully", "filename": filename}
+
+
+@customer_router.get("/{project_uuid}/logo")
+async def get_project_logo(
+    project_uuid: UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get the logo for a project."""
+    if not user.customer_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with a customer",
+        )
+
+    # Get project and verify ownership
+    result = await db.execute(select(Project).where(Project.uuid == project_uuid))
+    project = result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+
+    if project.customer_id != user.customer_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to access this project",
+        )
+
+    # Get logo file path
+    logo_filename = f"{project_uuid}.png"
+    logo_path = get_logo_path(logo_filename)
+
+    if not logo_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Logo not found",
+        )
+
+    return FileResponse(logo_path, media_type="image/png")

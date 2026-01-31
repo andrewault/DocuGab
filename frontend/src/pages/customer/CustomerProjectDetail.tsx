@@ -38,6 +38,7 @@ interface Project {
     description: string | null;
     subtitle: string | null;
     body: string | null;
+    logo: string | null;
     color_primary: string;
     color_secondary: string;
     color_background: string;
@@ -248,6 +249,29 @@ export default function CustomerProjectDetail() {
 
                                 <Divider />
 
+                                {project.logo && (
+                                    <>
+                                        <Box>
+                                            <Typography variant="caption" color="text.secondary">
+                                                Logo
+                                            </Typography>
+                                            <Box sx={{ mt: 1 }}>
+                                                <img
+                                                    src={`${API_BASE}${project.logo}`}
+                                                    alt="Project Logo"
+                                                    style={{
+                                                        maxWidth: '200px',
+                                                        maxHeight: '100px',
+                                                        objectFit: 'contain',
+                                                    }}
+                                                />
+                                            </Box>
+                                        </Box>
+
+                                        <Divider />
+                                    </>
+                                )}
+
                                 <Box>
                                     <Typography variant="caption" color="text.secondary">
                                         Description
@@ -259,127 +283,158 @@ export default function CustomerProjectDetail() {
 
                                 <Divider />
 
-                                <Box>
-                                    <Typography variant="caption" color="text.secondary">
-                                        Slug
-                                    </Typography>
-                                    <Typography variant="body1" fontFamily="monospace">
-                                        {project.slug}
-                                    </Typography>
-                                </Box>
-
-                                <Divider />
-
-                                <Box>
-                                    <Typography variant="caption" color="text.secondary">
-                                        Subtitle
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {project.subtitle || 'No subtitle'}
-                                    </Typography>
-                                </Box>
-
-                                <Divider />
-
-                                <Box>
-                                    <Typography variant="caption" color="text.secondary">
-                                        Body
-                                    </Typography>
-                                    <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-                                        {project.body || 'No body content'}
-                                    </Typography>
-                                </Box>
-
-                                <Divider />
-
-                                <Stack direction="row" spacing={4}>
-                                    <Box>
-                                        <Typography variant="caption" color="text.secondary">
-                                            Primary Color
-                                        </Typography>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                                            <Box
-                                                sx={{
-                                                    width: 32,
-                                                    height: 32,
-                                                    borderRadius: 1,
-                                                    bgcolor: project.color_primary,
-                                                    border: '1px solid',
-                                                    borderColor: 'divider',
-                                                }}
-                                            />
-                                            <Typography variant="body2" fontFamily="monospace">
-                                                {project.color_primary}
+                                {project.slug && (
+                                    <>
+                                        <Box>
+                                            <Typography variant="caption" color="text.secondary">
+                                                Slug
+                                            </Typography>
+                                            <Typography variant="body1" fontFamily="monospace">
+                                                {project.slug}
                                             </Typography>
                                         </Box>
-                                    </Box>
 
-                                    <Box>
-                                        <Typography variant="caption" color="text.secondary">
-                                            Secondary Color
-                                        </Typography>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                                            <Box
-                                                sx={{
-                                                    width: 32,
-                                                    height: 32,
-                                                    borderRadius: 1,
-                                                    bgcolor: project.color_secondary,
-                                                    border: '1px solid',
-                                                    borderColor: 'divider',
-                                                }}
-                                            />
-                                            <Typography variant="body2" fontFamily="monospace">
-                                                {project.color_secondary}
+                                        <Divider />
+                                    </>
+                                )}
+
+                                {project.subtitle && (
+                                    <>
+                                        <Box>
+                                            <Typography variant="caption" color="text.secondary">
+                                                Subtitle
+                                            </Typography>
+                                            <Typography variant="body1">
+                                                {project.subtitle}
                                             </Typography>
                                         </Box>
-                                    </Box>
 
-                                    <Box>
-                                        <Typography variant="caption" color="text.secondary">
-                                            Background Color
-                                        </Typography>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                                            <Box
-                                                sx={{
-                                                    width: 32,
-                                                    height: 32,
-                                                    borderRadius: 1,
-                                                    bgcolor: project.color_background,
-                                                    border: '1px solid',
-                                                    borderColor: 'divider',
-                                                }}
-                                            />
-                                            <Typography variant="body2" fontFamily="monospace">
-                                                {project.color_background}
+                                        <Divider />
+                                    </>
+                                )}
+
+                                {project.body && (
+                                    <>
+                                        <Box>
+                                            <Typography variant="caption" color="text.secondary">
+                                                Body
+                                            </Typography>
+                                            <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                                                {project.body}
                                             </Typography>
                                         </Box>
-                                    </Box>
-                                </Stack>
 
-                                <Divider />
+                                        <Divider />
+                                    </>
+                                )}
 
-                                <Stack direction="row" spacing={4}>
-                                    <Box>
-                                        <Typography variant="caption" color="text.secondary">
-                                            Return Link
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            {project.return_link || 'Not set'}
-                                        </Typography>
-                                    </Box>
+                                {(project.color_primary || project.color_secondary || project.color_background) && (
+                                    <>
+                                        <Stack direction="row" spacing={4}>
+                                            {project.color_primary && (
+                                                <Box>
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        Primary Color
+                                                    </Typography>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                                                        <Box
+                                                            sx={{
+                                                                width: 32,
+                                                                height: 32,
+                                                                borderRadius: 1,
+                                                                bgcolor: project.color_primary,
+                                                                border: '1px solid',
+                                                                borderColor: 'divider',
+                                                            }}
+                                                        />
+                                                        <Typography variant="body2" fontFamily="monospace">
+                                                            {project.color_primary}
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+                                            )}
 
-                                    <Box>
-                                        <Typography variant="caption" color="text.secondary">
-                                            Return Link Text
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            {project.return_link_text || 'Not set'}
-                                        </Typography>
-                                    </Box>
-                                </Stack>
+                                            {project.color_secondary && (
+                                                <Box>
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        Secondary Color
+                                                    </Typography>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                                                        <Box
+                                                            sx={{
+                                                                width: 32,
+                                                                height: 32,
+                                                                borderRadius: 1,
+                                                                bgcolor: project.color_secondary,
+                                                                border: '1px solid',
+                                                                borderColor: 'divider',
+                                                            }}
+                                                        />
+                                                        <Typography variant="body2" fontFamily="monospace">
+                                                            {project.color_secondary}
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+                                            )}
 
-                                <Divider />
+                                            {project.color_background && (
+                                                <Box>
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        Background Color
+                                                    </Typography>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                                                        <Box
+                                                            sx={{
+                                                                width: 32,
+                                                                height: 32,
+                                                                borderRadius: 1,
+                                                                bgcolor: project.color_background,
+                                                                border: '1px solid',
+                                                                borderColor: 'divider',
+                                                            }}
+                                                        />
+                                                        <Typography variant="body2" fontFamily="monospace">
+                                                            {project.color_background}
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+                                            )}
+                                        </Stack>
+
+                                        <Divider />
+                                    </>
+                                )}
+
+                                {(project.return_link || project.return_link_text) && (
+                                    <>
+                                        <Stack direction="row" spacing={4}>
+                                            {project.return_link && (
+                                                <Box>
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        Return Link
+                                                    </Typography>
+                                                    <Typography variant="body2">
+                                                        {project.return_link}
+                                                    </Typography>
+                                                </Box>
+                                            )}
+
+                                            {project.return_link_text && (
+                                                <Box>
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        Return Link Text
+                                                    </Typography>
+                                                    <Typography variant="body2">
+                                                        {project.return_link_text}
+                                                    </Typography>
+                                                </Box>
+                                            )}
+                                        </Stack>
+
+                                        <Divider />
+                                    </>
+                                )}
+
 
                                 <Stack direction="row" spacing={4}>
                                     <Box>
