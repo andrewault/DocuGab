@@ -43,7 +43,7 @@ async def transcribe(
 
     try:
         audio_bytes = await audio.read()
-        text = await transcribe_audio(audio_bytes)
+        text = await transcribe_audio(audio_bytes, mime_type=content_type)
         return TranscribeResponse(text=text)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")

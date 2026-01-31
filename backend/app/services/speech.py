@@ -6,13 +6,16 @@ from typing import Optional
 from app.core.config import settings
 
 
-async def transcribe_audio(audio_bytes: bytes, language: Optional[str] = None) -> str:
+async def transcribe_audio(
+    audio_bytes: bytes, language: Optional[str] = None, mime_type: str = "audio/webm"
+) -> str:
     """
     Transcribe audio to text using Google Cloud Speech-to-Text.
 
     Args:
         audio_bytes: Raw audio data (webm, wav, etc.)
         language: Optional language code (default: en-US)
+        mime_type: MIME type of the audio file
 
     Returns:
         Transcribed text
@@ -22,9 +25,21 @@ async def transcribe_audio(audio_bytes: bytes, language: Optional[str] = None) -
     client = speech.SpeechClient()
     audio = speech.RecognitionAudio(content=audio_bytes)
 
+    # Determine encoding based on mime type
+    encoding = speech.RecognitionConfig.AudioEncoding.WEBM_OPUS  # Default
+    if "ogg" in mime_type:
+        encoding = speech.RecognitionConfig.AudioEncoding.OGG_OPUS
+    elif "mp3" in mime_type or "mpeg" in mime_type:
+        encoding = speech.RecognitionConfig.AudioEncoding.MP3
+    elif "wav" in mime_type or "x-wav" in mime_type:
+        encoding = speech.RecognitionConfig.AudioEncoding.LINEAR16
+    
+    # Note: MP4/AAC is not directly supported by standard RecognitionConfig without ffmpeg conversion
+    # unless using V2 API. For now, we default to WEBM_OPUS which covers most modern browsers.
+
     config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.WEBM_OPUS,
-        sample_rate_hertz=48000,
+        encoding=encoding,
+        # sample_rate_hertz is optional for WEBM_OPUS/OGG_OPUS and retrieved from header
         language_code=language or "en-US",
         enable_automatic_punctuation=True,
     )

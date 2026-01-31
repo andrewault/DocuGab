@@ -354,7 +354,6 @@ export default function CustomerDetail() {
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Name</TableCell>
-                                    <TableCell>Name</TableCell>
                                     <TableCell>Documents</TableCell>
                                     <TableCell>Status</TableCell>
                                     <TableCell>Created</TableCell>

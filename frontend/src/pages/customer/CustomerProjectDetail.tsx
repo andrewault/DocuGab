@@ -20,7 +20,7 @@ import {
     Tabs,
     Tab,
 } from '@mui/material';
-import { ArrowBack, RecordVoiceOver, Description as DocumentIcon, Add, Edit } from '@mui/icons-material';
+import { ArrowBack, RecordVoiceOver, Description as DocumentIcon, Add, Edit, Forum } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getAuthHeader } from '../../utils/authUtils';
@@ -202,13 +202,22 @@ export default function CustomerProjectDetail() {
                             {project.name} Chatbot Project
                         </Typography>
                     </Box>
-                    <Button
-                        variant="outlined"
-                        startIcon={<Edit />}
-                        onClick={() => navigate(`/customer/${user?.customer_uuid}/projects/${project.uuid}/edit`)}
-                    >
-                        Edit
-                    </Button>
+                    <Stack direction="row" spacing={2}>
+                        <Button
+                            variant="outlined"
+                            startIcon={<Forum />}
+                            onClick={() => navigate(`/customer/${user?.customer_uuid}/projects/${project.uuid}/test`)}
+                        >
+                            Test Chat
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            startIcon={<Edit />}
+                            onClick={() => navigate(`/customer/${user?.customer_uuid}/projects/${project.uuid}/edit`)}
+                        >
+                            Edit
+                        </Button>
+                    </Stack>
                 </Box>
 
 

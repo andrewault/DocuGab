@@ -22,6 +22,7 @@ import CustomerProjects from './pages/customer/CustomerProjects';
 import CustomerProjectDetail from './pages/customer/CustomerProjectDetail';
 import CustomerProjectEdit from './pages/customer/CustomerProjectEdit';
 import CustomerDocumentUpload from './pages/customer/CustomerDocumentUpload';
+import CustomerTestChat from './pages/customer/CustomerTestChat';
 import Users from './pages/admin/Users';
 import UserDetail from './pages/admin/UserDetail';
 import UserEdit from './pages/admin/UserEdit';
@@ -121,6 +122,11 @@ export default function App() {
             <Route path="/customer/:customer_uuid/projects/:uuid/edit" element={
               <ProtectedRoute requireCustomer>
                 <CustomerProjectEdit />
+              </ProtectedRoute>
+            } />
+            <Route path="/customer/:customer_uuid/projects/:uuid/test" element={
+              <ProtectedRoute requireCustomer>
+                <CustomerTestChat />
               </ProtectedRoute>
             } />
             <Route path="/customer/:customer_uuid/projects/:project_uuid/documents/new" element={
