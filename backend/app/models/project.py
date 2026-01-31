@@ -39,10 +39,6 @@ class Project(Base):
     slug: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    # Subdomain & Access
-    subdomain: Mapped[str] = mapped_column(
-        String(63), unique=True, nullable=False, index=True
-    )
 
     # Branding
     logo: Mapped[str | None] = mapped_column(String(500), nullable=True)

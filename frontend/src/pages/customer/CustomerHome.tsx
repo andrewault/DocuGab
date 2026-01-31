@@ -13,7 +13,6 @@ import {
 import {
     Description,
     Chat,
-    Upload,
     TrendingUp,
     Dashboard as DashboardIcon,
 } from '@mui/icons-material';
@@ -139,31 +138,11 @@ export default function CustomerHome() {
                     </Typography>
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={2}>
                         <Button
-                            variant="contained"
-                            startIcon={<Upload />}
-                            onClick={() => navigate('/documents')}
-                            sx={{
-                                background: 'linear-gradient(90deg, #6366f1, #4f46e5)',
-                                '&:hover': {
-                                    background: 'linear-gradient(90deg, #4f46e5, #4338ca)',
-                                },
-                            }}
-                        >
-                            Upload Document
-                        </Button>
-                        <Button
                             variant="outlined"
                             startIcon={<Chat />}
                             onClick={() => navigate('/chat')}
                         >
                             Start Chat
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            startIcon={<Description />}
-                            onClick={() => navigate('/documents')}
-                        >
-                            View Documents
                         </Button>
                     </Stack>
                 </Paper>

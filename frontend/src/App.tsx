@@ -7,10 +7,8 @@ import CustomerSidebar from './components/CustomerSidebar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
-import Documents from './pages/Documents';
 import DocumentViewer from './pages/DocumentViewer';
 import Chat from './pages/Chat';
-import PublicChat from './pages/PublicChat';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
@@ -35,29 +33,15 @@ import Projects from './pages/admin/Projects';
 import ProjectDetail from './pages/admin/ProjectDetail';
 import ProjectEdit from './pages/admin/ProjectEdit';
 import Database from './pages/admin/Database';
-import { isBrandedRoute } from './utils/subdomainUtils';
 import { useAuth } from './context/AuthContext';
 
 export default function App() {
-  const isPublicBranded = isBrandedRoute();
   const { isAdmin, isCustomer } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleToggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
-
-  // For branded subdomains, show minimal UI with public chat
-  if (isPublicBranded) {
-    return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <Routes>
-          <Route path="/" element={<PublicChat />} />
-          <Route path="*" element={<PublicChat />} />
-        </Routes>
-      </Box>
-    );
-  }
 
   // Normal app routes for main domain
   return (
@@ -88,11 +72,6 @@ export default function App() {
             <Route path="/faq" element={<FAQ />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/documents" element={
-              <ProtectedRoute>
-                <Documents />
-              </ProtectedRoute>
-            } />
             <Route path="/documents/:uuid" element={
               <ProtectedRoute>
                 <DocumentViewer />

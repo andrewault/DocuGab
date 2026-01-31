@@ -26,7 +26,6 @@ import {
 import {
     Folder,
     Business,
-    Public,
     CalendarToday,
     ArrowBack,
     Edit,
@@ -379,16 +378,6 @@ export default function ProjectDetail() {
                                         onClick={() => project.customer_uuid && navigate(`/admin/customers/${project.customer_uuid}`)}
                                     >
                                         {project.customer_name}
-                                    </Typography>
-                                </Box>
-
-                                <Box>
-                                    <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
-                                        <Public fontSize="small" />
-                                        Subdomain
-                                    </Typography>
-                                    <Typography variant="body1" fontFamily="monospace">
-                                        {project.subdomain}
                                     </Typography>
                                 </Box>
 

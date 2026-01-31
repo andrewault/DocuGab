@@ -7,7 +7,6 @@ from app.api.routes import (
     admin,
     customers,
     projects,
-    public,
 )
 
 __all__ = [
@@ -19,5 +18,4 @@ __all__ = [
     "admin",
     "customers",
     "projects",
-    "public",
 ]

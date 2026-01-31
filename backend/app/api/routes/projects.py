@@ -50,7 +50,6 @@ async def _build_project_response(project: Project, db: AsyncSession) -> dict:
         "name": project.name,
         "slug": project.slug,
         "description": project.description,
-        "subdomain": project.subdomain,
         "logo": project.logo,
         "title": project.title,
         "subtitle": project.subtitle,
@@ -90,9 +89,7 @@ async def list_projects(
     if customer_id:
         filters.append(Project.customer_id == customer_id)
     if search:
-        search_filter = Project.name.ilike(f"%{search}%") | Project.subdomain.ilike(
-            f"%{search}%"
-        )
+        search_filter = Project.name.ilike(f"%{search}%")
         filters.append(search_filter)
 
     if filters:
@@ -163,15 +160,6 @@ async def create_project(
             detail=f"Customer with ID {data.customer_id} not found",
         )
 
-    # Check subdomain uniqueness
-    subdomain_check = await db.execute(
-        select(Project).where(Project.subdomain == data.subdomain)
-    )
-    if subdomain_check.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"Subdomain '{data.subdomain}' is already in use",
-        )
 
     # Create project
     project = Project(
@@ -179,7 +167,6 @@ async def create_project(
         name=data.name,
         slug=data.slug,
         description=data.description,
-        subdomain=data.subdomain,
         logo=data.logo,
         title=data.title,
         subtitle=data.subtitle,
@@ -219,16 +206,6 @@ async def update_project(
             detail="Project not found",
         )
 
-    # Check subdomain uniqueness if being updated
-    if data.subdomain and data.subdomain != project.subdomain:
-        subdomain_check = await db.execute(
-            select(Project).where(Project.subdomain == data.subdomain)
-        )
-        if subdomain_check.scalar_one_or_none():
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Subdomain '{data.subdomain}' is already in use",
-            )
 
     # Update fields
     update_data = data.model_dump(exclude_unset=True)

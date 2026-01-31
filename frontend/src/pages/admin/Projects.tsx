@@ -46,7 +46,6 @@ interface Project {
     name: string;
     slug: string;
     description: string | null;
-    subdomain: string;
     logo: string | null;
     title: string;
     subtitle: string | null;
@@ -75,7 +74,6 @@ interface ProjectFormData {
     name: string;
     slug: string;
     description: string;
-    subdomain: string;
     logo: string;
     title: string;
     subtitle: string;
@@ -111,7 +109,6 @@ const DEFAULT_FORM_DATA: ProjectFormData = {
     name: '',
     slug: '',
     description: '',
-    subdomain: '',
     logo: '',
     title: '',
     subtitle: '',
@@ -209,7 +206,6 @@ export default function Projects() {
                 name: project.name,
                 slug: project.slug,
                 description: project.description || '',
-                subdomain: project.subdomain,
                 logo: project.logo || '',
                 title: project.title,
                 subtitle: project.subtitle || '',
@@ -289,7 +285,7 @@ export default function Projects() {
             formData.customer_id !== '' &&
             formData.name.trim() !== '' &&
             formData.slug.trim() !== '' &&
-            formData.subdomain.trim() !== '' &&
+            formData.slug.trim() !== '' &&
             formData.title.trim() !== '' &&
             formData.avatar.trim() !== '' &&
             formData.voice.trim() !== ''
@@ -425,7 +421,6 @@ export default function Projects() {
                                         <TableRow>
                                             <TableCell>Name</TableCell>
                                             <TableCell>Customer</TableCell>
-                                            <TableCell>Subdomain</TableCell>
                                             <TableCell>Title</TableCell>
                                             <TableCell>Documents</TableCell>
                                             <TableCell>Created at</TableCell>
@@ -461,17 +456,6 @@ export default function Projects() {
                                                     </TableCell>
                                                     <TableCell>
                                                         {project.customer_name || '—'}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Chip
-                                                            label={project.subdomain}
-                                                            size="small"
-                                                            variant="outlined"
-                                                            sx={{
-                                                                fontFamily: 'monospace',
-                                                                fontSize: '0.75rem',
-                                                            }}
-                                                        />
                                                     </TableCell>
                                                     <TableCell>
                                                         {project.title}
@@ -596,15 +580,6 @@ export default function Projects() {
                                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                     required
                                     helperText="URL-friendly identifier (lowercase, hyphens only)"
-                                />
-
-                                <TextField
-                                    fullWidth
-                                    label="Subdomain"
-                                    value={formData.subdomain}
-                                    onChange={(e) => setFormData({ ...formData, subdomain: e.target.value })}
-                                    required
-                                    helperText="Unique subdomain (lowercase, hyphens only)"
                                 />
 
                                 <TextField

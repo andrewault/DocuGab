@@ -74,6 +74,13 @@ async def get_document_content(uuid: UUID, db: AsyncSession = Depends(get_db)):
 
     file_path = get_file_path(document.filename)
     if not file_path.exists():
+        with open("debug_log.txt", "a") as log:
+            log.write(f"UUID: {uuid}\n")
+            log.write(f"DB Filename: {document.filename}\n")
+            log.write(f"Resolved Path: {file_path}\n")
+            log.write(f"Exists: {file_path.exists()}\n")
+            log.write(f"CWD: {Path.cwd()}\n")
+            log.write("-" * 20 + "\n")
         raise HTTPException(status_code=404, detail="Document file not found")
 
     # Read file content

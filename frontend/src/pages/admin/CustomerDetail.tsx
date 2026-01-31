@@ -58,7 +58,6 @@ interface Project {
     id: number;
     uuid: string;
     name: string;
-    subdomain: string;
     is_active: boolean;
     created_at: string;
     documents_count: number;
@@ -355,7 +354,7 @@ export default function CustomerDetail() {
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Name</TableCell>
-                                    <TableCell>Subdomain</TableCell>
+                                    <TableCell>Name</TableCell>
                                     <TableCell>Documents</TableCell>
                                     <TableCell>Status</TableCell>
                                     <TableCell>Created</TableCell>
@@ -377,11 +376,6 @@ export default function CustomerDetail() {
                                                     {project.name}
                                                 </Typography>
                                             </Stack>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography variant="body2" fontFamily="monospace">
-                                                {project.subdomain}
-                                            </Typography>
                                         </TableCell>
                                         <TableCell>
                                             <Chip

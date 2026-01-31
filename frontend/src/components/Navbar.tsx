@@ -12,7 +12,6 @@ import {
     Divider,
 } from '@mui/material';
 import {
-    Description,
     Forum,
     Settings,
     AccountCircle,
@@ -114,18 +113,6 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
                 {/* Navigation Links - Centered */}
                 {isAuthenticated && (
                     <>
-                        <Button
-                            color="inherit"
-                            startIcon={<Description />}
-                            onClick={() => navigate('/documents')}
-                            sx={{
-                                mx: 1,
-                                opacity: location.pathname === '/documents' ? 1 : 0.7,
-                                '&:hover': { opacity: 1 },
-                            }}
-                        >
-                            Documents
-                        </Button>
                         <Button
                             color="inherit"
                             startIcon={<Forum />}

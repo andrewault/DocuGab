@@ -3,7 +3,7 @@ import {
     Box, Paper, Typography, LinearProgress,
     List, ListItem, ListItemText, Chip
 } from '@mui/material';
-import { CloudUpload, CheckCircle, Error, HourglassEmpty } from '@mui/icons-material';
+import { CloudUpload, CheckCircle, Error as ErrorIcon, HourglassEmpty } from '@mui/icons-material';
 
 interface UploadedDoc {
     id: number;
@@ -13,21 +13,32 @@ interface UploadedDoc {
 
 interface DocumentUploadProps {
     onUploadComplete?: () => void;
+    projectId?: number;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
-export default function DocumentUpload({ onUploadComplete }: DocumentUploadProps) {
+export default function DocumentUpload({ onUploadComplete, projectId }: DocumentUploadProps) {
     const [uploading, setUploading] = useState(false);
     const [documents, setDocuments] = useState<UploadedDoc[]>([]);
     const [dragOver, setDragOver] = useState(false);
 
     const uploadFile = useCallback(async (file: File) => {
+        if (!projectId) {
+            console.error('Project ID is required for upload');
+            setDocuments(prev => [...prev, {
+                id: Date.now(),
+                filename: file.name,
+                status: 'error'
+            }]);
+            return;
+        }
+
         const formData = new FormData();
         formData.append('file', file);
 
         try {
-            const res = await fetch(`${API_BASE}/api/documents/upload`, {
+            const res = await fetch(`${API_BASE}/api/documents/upload?project_id=${projectId}`, {
                 method: 'POST',
                 body: formData
             });
@@ -109,7 +120,7 @@ export default function DocumentUpload({ onUploadComplete }: DocumentUploadProps
     const getStatusIcon = (status: string) => {
         switch (status) {
             case 'ready': return <CheckCircle color="success" />;
-            case 'error': return <Error color="error" />;
+            case 'error': return <ErrorIcon color="error" />;
             case 'processing': return <HourglassEmpty color="warning" />;
             default: return <HourglassEmpty color="disabled" />;
         }

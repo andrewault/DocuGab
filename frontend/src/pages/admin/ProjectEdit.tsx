@@ -422,20 +422,6 @@ export default function ProjectEdit() {
                         />
 
                         <TextField
-                            label="Subdomain"
-                            value={formData.subdomain}
-                            onChange={(e) => setFormData({ ...formData, subdomain: e.target.value })}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSave();
-                                }
-                            }}
-                            fullWidth
-                            disabled={saving}
-                        />
-
-                        <TextField
                             label="Description"
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}

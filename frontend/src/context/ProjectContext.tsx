@@ -6,7 +6,6 @@ interface ProjectConfig {
     name: string;
     slug: string;
     description: string | null;
-    subdomain: string;
     logo: string | null;
     title: string;
     subtitle: string | null;
@@ -33,46 +32,49 @@ interface ProjectContextType {
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 interface ProjectProviderProps {
     children: ReactNode;
-    subdomain?: string;
 }
 
-export function ProjectProvider({ children, subdomain }: ProjectProviderProps) {
-    const [project, setProject] = useState<ProjectConfig | null>(null);
-    const [loading, setLoading] = useState(true);
+export function ProjectProvider({ children }: ProjectProviderProps) {
+    const [project] = useState<ProjectConfig | null>(null);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Context logic simplified as subdomain lookup is removed.
+    // Future implementation: Fetch project based on domain or other criteria if needed.
+
     const fetchProject = useCallback(async () => {
-        // If no subdomain provided, don't fetch
-        if (!subdomain) {
-            setLoading(false);
-            return;
-        }
+        // Placeholder for future project fetching logic without subdomain
+        // For now, it will just set loading to false and return.
+        // You might want to fetch a default project or based on a different identifier here.
+        setLoading(false);
+        setError('Project fetching logic needs to be implemented without subdomain.');
+        return;
 
-        try {
-            setLoading(true);
-            setError(null);
+        // try {
+        //     setLoading(true);
+        //     setError(null);
 
-            const response = await fetch(
-                `${API_BASE}/api/public/projects/by-subdomain/${subdomain}`
-            );
+        //     // Example: Fetch a default project or by a hardcoded ID
+        //     const response = await fetch(
+        //         `${API_BASE}/api/public/projects/default` // Or by ID: /api/public/projects/1
+        //     );
 
-            if (!response.ok) {
-                throw new Error('Failed to load project configuration');
-            }
+        //     if (!response.ok) {
+        //         throw new Error('Failed to load project configuration');
+        //     }
 
-            const data = await response.json();
-            setProject(data);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Unknown error');
-            setProject(null);
-        } finally {
-            setLoading(false);
-        }
-    }, [subdomain]);
+        //     const data = await response.json();
+        //     setProject(data);
+        // } catch (err) {
+        //     setError(err instanceof Error ? err.message : 'Unknown error');
+        //     setProject(null);
+        // } finally {
+        //     setLoading(false);
+        // }
+    }, []); // No dependencies as subdomain is removed
 
     useEffect(() => {
         fetchProject();

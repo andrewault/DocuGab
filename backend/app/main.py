@@ -19,11 +19,9 @@ from app.api.routes import (
     speech,
     customers,
     projects,
-    public,
     database,
     avatars,
 )
-from app.middleware import SubdomainMiddleware
 
 
 async def seed_admin_user():
@@ -84,12 +82,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Subdomain middleware
-app.add_middleware(SubdomainMiddleware)
-
 # Routes
 app.include_router(health.router, tags=["Health"])
-app.include_router(public.router, tags=["Public"])
 app.include_router(auth.router, prefix="/api", tags=["Auth"])
 app.include_router(users.router, prefix="/api", tags=["Users"])
 app.include_router(admin.router, prefix="/api", tags=["Admin"])
