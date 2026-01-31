@@ -288,7 +288,7 @@ export default function ProjectEdit() {
     }
 
     return (
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: 3 }}>
             <AdminBreadcrumbs
                 items={[
                     { label: 'Projects', path: '/admin/projects' },
@@ -299,7 +299,19 @@ export default function ProjectEdit() {
 
             {/* Header */}
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-                <Typography variant="h4">Edit Project</Typography>
+                <Typography
+                    variant="h4"
+                    component="h1"
+                    sx={{
+                        fontWeight: 700,
+                        background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                        backgroundClip: 'text',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                    }}
+                >
+                    Edit Project
+                </Typography>
                 <Stack direction="row" spacing={2}>
                     <Button
                         startIcon={<ArrowBack />}

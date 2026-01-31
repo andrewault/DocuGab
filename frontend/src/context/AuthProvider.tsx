@@ -1,6 +1,6 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { AuthContext, type User } from './AuthContext';
-import { getAuthHeader } from '../utils/authUtils';
+import { authFetch, getAuthHeader } from '../utils/authFetch';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
@@ -8,10 +8,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const fetchCurrentUser = async (token: string) => {
-        const response = await fetch(`${API_BASE}/api/auth/me`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+    const fetchCurrentUser = async () => {
+        const response = await authFetch(`${API_BASE}/api/auth/me`);
         if (!response.ok) throw new Error('Failed to fetch user');
         const userData = await response.json();
         setUser(userData);
@@ -27,7 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { access_token, refresh_token: newRefresh } = await response.json();
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('refresh_token', newRefresh);
-        await fetchCurrentUser(access_token);
+        await fetchCurrentUser();
     };
 
     const clearTokens = () => {
@@ -42,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const accessToken = localStorage.getItem('access_token');
             if (accessToken) {
                 try {
-                    await fetchCurrentUser(accessToken);
+                    await fetchCurrentUser();
                 } catch {
                     // Token expired, try refresh
                     const refreshToken = localStorage.getItem('refresh_token');
@@ -76,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { access_token, refresh_token } = await response.json();
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('refresh_token', refresh_token);
-        await fetchCurrentUser(access_token);
+        await fetchCurrentUser();
     };
 
     const register = async (email: string, password: string, fullName?: string) => {

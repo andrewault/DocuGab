@@ -35,7 +35,7 @@ class Settings(BaseSettings):
 
     # Auth Configuration
     secret_key: str = "change-me-in-production-min-32-chars"
-    access_token_expire_minutes: int = 15
+    access_token_expire_minutes: int = 1800  # 30 hours
     refresh_token_expire_days: int = 7
 
     # Initial Admin User (optional)
