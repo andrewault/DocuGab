@@ -1,7 +1,6 @@
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Divider, useTheme } from '@mui/material';
 import { Dashboard, Settings, Person, RecordVoiceOver } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 
 interface CustomerSidebarProps {
     isOpen: boolean;
@@ -12,11 +11,10 @@ export default function CustomerSidebar({ isOpen }: CustomerSidebarProps) {
     const location = useLocation();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
-    const { user } = useAuth();
 
     const customerNavItems = [
         { label: 'Dashboard', icon: <Dashboard />, path: '/customer' },
-        { label: 'Chatbot Projects', icon: <RecordVoiceOver />, path: `/customer/${user?.customer_uuid}/projects` },
+        { label: 'Chatbot Projects', icon: <RecordVoiceOver />, path: '/customer/projects' },
         { label: 'Settings', icon: <Settings />, path: '/settings' },
         { label: 'Profile', icon: <Person />, path: '/profile' },
     ];

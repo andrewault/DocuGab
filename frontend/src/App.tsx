@@ -17,6 +17,7 @@ import FAQ from './pages/FAQ';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import AdminHome from './pages/admin/AdminHome';
+import CustomerDashboard from './pages/customer/CustomerDashboard';
 import CustomerProjects from './pages/customer/CustomerProjects';
 import CustomerProjectDetail from './pages/customer/CustomerProjectDetail';
 import CustomerProjectEdit from './pages/customer/CustomerProjectEdit';
@@ -100,6 +101,11 @@ export default function App() {
               </ProtectedRoute>
             } />
             <Route path="/customer" element={
+              <ProtectedRoute requireCustomer>
+                <CustomerDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/customer/projects" element={
               <ProtectedRoute requireCustomer>
                 <CustomerProjects />
               </ProtectedRoute>
