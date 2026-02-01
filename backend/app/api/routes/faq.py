@@ -19,7 +19,6 @@ router = APIRouter(prefix="/api/faq", tags=["faq"])
 class FAQCreate(BaseModel):
     question: str
     answer: str
-    order: int = 0
     is_active: bool = True
 
 
@@ -59,6 +58,44 @@ async def list_faqs(
     return {"faqs": [FAQResponse.model_validate(f) for f in faqs]}
 
 
+@router.get("/{faq_uuid}")
+async def get_faq(
+    faq_uuid: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_admin_user),
+):
+    """Get a single FAQ by UUID (admin only)."""
+    result = await db.execute(select(FAQ).where(FAQ.uuid == faq_uuid))
+    faq = result.scalar_one_or_none()
+
+    if not faq:
+        raise HTTPException(status_code=404, detail="FAQ not found")
+
+    return FAQResponse.model_validate(faq)
+
+
+class FAQReorderItem(BaseModel):
+    uuid: UUID
+    order: int
+
+
+@router.post("/reorder")
+async def reorder_faqs(
+    items: list[FAQReorderItem],
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_admin_user),
+):
+    """Bulk update FAQ order (admin only)."""
+    for item in items:
+        result = await db.execute(select(FAQ).where(FAQ.uuid == item.uuid))
+        faq = result.scalar_one_or_none()
+        if faq:
+            faq.order = item.order
+    
+    await db.commit()
+    return {"status": "success", "updated": len(items)}
+
+
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_faq(
     data: FAQCreate,
@@ -66,10 +103,15 @@ async def create_faq(
     current_user: User = Depends(get_admin_user),
 ):
     """Create a new FAQ (admin only)."""
+    # Get max order and add 1
+    result = await db.execute(select(FAQ))
+    existing_faqs = result.scalars().all()
+    max_order = max([f.order for f in existing_faqs], default=-1)
+    
     faq = FAQ(
         question=data.question,
         answer=data.answer,
-        order=data.order,
+        order=max_order + 1,
         is_active=data.is_active,
     )
     db.add(faq)

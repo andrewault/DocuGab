@@ -12,18 +12,30 @@ import {
     TableRow,
     IconButton,
     Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     TextField,
-    Switch,
-    FormControlLabel,
+    InputAdornment,
     useTheme,
     CircularProgress,
-    Alert,
 } from '@mui/material';
-import { Add, Edit, Delete, QuestionAnswer } from '@mui/icons-material';
+import { Add, Edit, Delete, QuestionAnswer, Search, DragIndicator } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { useAuth } from '../../context/AuthContext';
@@ -42,21 +54,112 @@ interface FAQItem {
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
+function SortableRow({
+    faq,
+    isDark,
+    currentUser,
+    navigate,
+    handleDelete,
+}: {
+    faq: FAQItem;
+    isDark: boolean;
+    currentUser: any;
+    navigate: any;
+    handleDelete: (uuid: string) => void;
+}) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: faq.uuid });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        cursor: 'pointer',
+        '&:hover': {
+            backgroundColor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.05)',
+        },
+    };
+
+    return (
+        <TableRow
+            ref={setNodeRef}
+            style={style}
+            onClick={() => navigate(`/admin/faq/${faq.uuid}`)}
+            sx={style}
+        >
+            <TableCell onClick={(e) => e.stopPropagation()}>
+                <DragIndicator
+                    {...attributes}
+                    {...listeners}
+                    sx={{ cursor: 'grab', '&:active': { cursor: 'grabbing' } }}
+                />
+            </TableCell>
+            <TableCell>{faq.question}</TableCell>
+            <TableCell>
+                <Typography variant="body2">
+                    {formatInUserTimezone(
+                        faq.created_at,
+                        currentUser?.timezone || 'America/Los_Angeles',
+                        'PP'
+                    )}
+                </Typography>
+            </TableCell>
+            <TableCell>
+                <Typography variant="body2">
+                    {formatInUserTimezone(
+                        faq.updated_at,
+                        currentUser?.timezone || 'America/Los_Angeles',
+                        'PP'
+                    )}
+                </Typography>
+            </TableCell>
+            <TableCell>{faq.is_active ? '✓' : '—'}</TableCell>
+            <TableCell align="right">
+                <IconButton
+                    size="small"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/admin/faq/${faq.uuid}/edit`);
+                    }}
+                >
+                    <Edit />
+                </IconButton>
+                <IconButton
+                    size="small"
+                    color="error"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(faq.uuid);
+                    }}
+                >
+                    <Delete />
+                </IconButton>
+            </TableCell>
+        </TableRow>
+    );
+}
+
 export default function FAQManagement() {
+    const navigate = useNavigate();
     const [faqs, setFaqs] = useState<FAQItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [editingFaq, setEditingFaq] = useState<FAQItem | null>(null);
-    const [formData, setFormData] = useState({
-        question: '',
-        answer: '',
-        order: 0,
-        is_active: true,
-    });
-    const [error, setError] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
     const { user: currentUser } = useAuth();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     const fetchFaqs = async () => {
         try {
@@ -78,57 +181,6 @@ export default function FAQManagement() {
         fetchFaqs();
     }, []);
 
-    const handleOpenDialog = (faq?: FAQItem) => {
-        if (faq) {
-            setEditingFaq(faq);
-            setFormData({
-                question: faq.question,
-                answer: faq.answer,
-                order: faq.order,
-                is_active: faq.is_active,
-            });
-        } else {
-            setEditingFaq(null);
-            setFormData({ question: '', answer: '', order: 0, is_active: true });
-        }
-        setDialogOpen(true);
-        setError('');
-    };
-
-    const handleCloseDialog = () => {
-        setDialogOpen(false);
-        setEditingFaq(null);
-        setError('');
-    };
-
-    const handleSave = async () => {
-        try {
-            const url = editingFaq
-                ? `${API_BASE}/api/faq/${editingFaq.uuid}`
-                : `${API_BASE}/api/faq/`;
-            const method = editingFaq ? 'PATCH' : 'POST';
-
-            const res = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...getAuthHeader(),
-                },
-                body: JSON.stringify(formData),
-            });
-
-            if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.detail || 'Failed to save FAQ');
-            }
-
-            handleCloseDialog();
-            fetchFaqs();
-        } catch (e) {
-            setError(e instanceof Error ? e.message : 'Failed to save');
-        }
-    };
-
     const handleDelete = async (uuid: string) => {
         if (!window.confirm('Are you sure you want to delete this FAQ?')) return;
 
@@ -146,6 +198,54 @@ export default function FAQManagement() {
         }
     };
 
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (!over || active.id === over.id) {
+            return;
+        }
+
+        const oldIndex = faqs.findIndex((faq) => faq.uuid === active.id);
+        const newIndex = faqs.findIndex((faq) => faq.uuid === over.id);
+
+        const newFaqs = arrayMove(faqs, oldIndex, newIndex);
+
+        // Update order values
+        const updatedFaqs = newFaqs.map((faq, index) => ({
+            ...faq,
+            order: index,
+        }));
+
+        setFaqs(updatedFaqs);
+
+        // Send to backend
+        try {
+            await fetch(`${API_BASE}/api/faq/reorder`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeader(),
+                },
+                body: JSON.stringify(
+                    updatedFaqs.map((faq) => ({
+                        uuid: faq.uuid,
+                        order: faq.order,
+                    }))
+                ),
+            });
+        } catch (e) {
+            console.error('Failed to update order:', e);
+            fetchFaqs(); // Revert on error
+        }
+    };
+
+    // Filter FAQs based on search query
+    const filteredFaqs = faqs.filter(
+        (faq) =>
+            faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <Box
             sx={{
@@ -158,7 +258,7 @@ export default function FAQManagement() {
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
                 <AdminBreadcrumbs items={[{ label: 'FAQs' }]} />
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <QuestionAnswer sx={{ fontSize: 32, color: '#6366f1' }} />
                         <Typography
@@ -177,153 +277,86 @@ export default function FAQManagement() {
                     <Button
                         variant="contained"
                         startIcon={<Add />}
-                        onClick={() => handleOpenDialog()}
+                        onClick={() => navigate('/admin/faq/new')}
                     >
                         Add FAQ
                     </Button>
                 </Box>
+
+                {/* Search Field */}
+                <TextField
+                    fullWidth
+                    placeholder="Search FAQs..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    sx={{ mb: 3 }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <Search />
+                            </InputAdornment>
+                        ),
+                    }}
+                />
 
                 {loading ? (
                     <Box display="flex" justifyContent="center" py={8}>
                         <CircularProgress />
                     </Box>
                 ) : (
-                    <TableContainer
-                        component={Paper}
-                        sx={{
-                            background: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
-                        }}
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
                     >
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Order</TableCell>
-                                    <TableCell>Question</TableCell>
-                                    <TableCell>Created at</TableCell>
-                                    <TableCell>Updated at</TableCell>
-                                    <TableCell>Active</TableCell>
-                                    <TableCell align="right">Actions</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {faqs.length === 0 ? (
+                        <TableContainer
+                            component={Paper}
+                            sx={{
+                                background: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
+                            }}
+                        >
+                            <Table>
+                                <TableHead>
                                     <TableRow>
-                                        <TableCell colSpan={6} align="center">
-                                            No FAQs yet. Click "Add FAQ" to create one.
-                                        </TableCell>
+                                        <TableCell width={50}></TableCell>
+                                        <TableCell>Question</TableCell>
+                                        <TableCell>Created at</TableCell>
+                                        <TableCell>Updated at</TableCell>
+                                        <TableCell>Active</TableCell>
+                                        <TableCell align="right">Actions</TableCell>
                                     </TableRow>
-                                ) : (
-                                    faqs.map((faq) => (
-                                        <TableRow key={faq.id}>
-                                            <TableCell>{faq.order}</TableCell>
-                                            <TableCell>{faq.question}</TableCell>
-                                            <TableCell>
-                                                <Typography variant="body2">
-                                                    {formatInUserTimezone(
-                                                        faq.created_at,
-                                                        currentUser?.timezone || 'America/Los_Angeles',
-                                                        'PP'
-                                                    )}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="body2">
-                                                    {formatInUserTimezone(
-                                                        faq.updated_at,
-                                                        currentUser?.timezone || 'America/Los_Angeles',
-                                                        'PP'
-                                                    )}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                {faq.is_active ? '✓' : '—'}
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={() => handleOpenDialog(faq)}
-                                                >
-                                                    <Edit />
-                                                </IconButton>
-                                                <IconButton
-                                                    size="small"
-                                                    color="error"
-                                                    onClick={() => handleDelete(faq.uuid)}
-                                                >
-                                                    <Delete />
-                                                </IconButton>
+                                </TableHead>
+                                <TableBody>
+                                    {filteredFaqs.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={6} align="center">
+                                                {searchQuery
+                                                    ? 'No FAQs match your search.'
+                                                    : 'No FAQs yet. Click "Add FAQ" to create one.'}
                                             </TableCell>
                                         </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                                    ) : (
+                                        <SortableContext
+                                            items={filteredFaqs.map((f) => f.uuid)}
+                                            strategy={verticalListSortingStrategy}
+                                        >
+                                            {filteredFaqs.map((faq) => (
+                                                <SortableRow
+                                                    key={faq.uuid}
+                                                    faq={faq}
+                                                    isDark={isDark}
+                                                    currentUser={currentUser}
+                                                    navigate={navigate}
+                                                    handleDelete={handleDelete}
+                                                />
+                                            ))}
+                                        </SortableContext>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </DndContext>
                 )}
-
-                <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-                    <DialogTitle>
-                        {editingFaq ? 'Edit FAQ' : 'Add FAQ'}
-                    </DialogTitle>
-                    <DialogContent>
-                        {error && (
-                            <Alert severity="error" sx={{ mb: 2, mt: 1 }}>
-                                {error}
-                            </Alert>
-                        )}
-                        <TextField
-                            fullWidth
-                            label="Question"
-                            value={formData.question}
-                            onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSave();
-                                }
-                            }}
-                            sx={{ mt: 2, mb: 2 }}
-                        />
-                        <TextField
-                            fullWidth
-                            label="Answer"
-                            value={formData.answer}
-                            onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
-                            multiline
-                            rows={4}
-                            sx={{ mb: 2 }}
-                        />
-                        <TextField
-                            fullWidth
-                            label="Order"
-                            type="number"
-                            value={formData.order}
-                            onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSave();
-                                }
-                            }}
-                            sx={{ mb: 2 }}
-                        />
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={formData.is_active}
-                                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                                />
-                            }
-                            label="Active"
-                        />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCloseDialog}>Cancel</Button>
-                        <Button variant="contained" onClick={handleSave}>
-                            Save
-                        </Button>
-                    </DialogActions>
-                </Dialog>
             </Container>
         </Box>
     );
