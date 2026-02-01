@@ -23,6 +23,7 @@ from app.api.routes import (
 )
 from app.api.routes.admin_routes import projects as admin_projects
 from app.api.routes.customer_routes import projects as customer_projects
+from app.api.routes.customer_routes import account as customer_account
 
 
 async def seed_admin_user():
@@ -92,6 +93,7 @@ app.include_router(database.router, prefix="/api/admin/database", tags=["Databas
 app.include_router(customers.router, prefix="/api", tags=["Customers"])
 app.include_router(admin_projects.router, prefix="/api", tags=["Admin Projects"])
 app.include_router(customer_projects.router, prefix="/api", tags=["Customer Projects"])
+app.include_router(customer_account.router, prefix="/api", tags=["Customer Account"])
 app.include_router(documents.router, prefix="/api/documents", tags=["Documents"])
 app.include_router(chat.router, prefix="/api/chat", tags=["Chat"])
 app.include_router(speech.router, prefix="/api/speech", tags=["Speech"])

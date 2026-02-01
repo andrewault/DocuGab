@@ -22,6 +22,7 @@ import {
     DialogActions,
     Switch,
     FormControlLabel,
+    Chip,
 } from '@mui/material';
 import { ArrowBack, Save, CloudUpload, Image as ImageIcon, VolumeUp } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
@@ -48,6 +49,9 @@ interface Project {
     return_link_text: string | null;
     is_active: boolean;
     is_demo: boolean;
+    is_enabled: boolean;
+    is_ready: boolean;
+    documents_count: number;
     customer_name: string | null;
 }
 
@@ -74,6 +78,7 @@ interface ProjectFormData {
     return_link: string;
     return_link_text: string;
     is_demo: boolean;
+    is_enabled: boolean;
 }
 
 interface TabPanelProps {
@@ -129,6 +134,7 @@ export default function ProjectEdit() {
         return_link: '',
         return_link_text: '',
         is_demo: false,
+        is_enabled: true,
     });
 
     useEffect(() => {
@@ -164,6 +170,7 @@ export default function ProjectEdit() {
                     return_link: projectData.return_link || '',
                     return_link_text: projectData.return_link_text || '',
                     is_demo: projectData.is_demo || false,
+                    is_enabled: projectData.is_enabled ?? true,
                 });
                 setCurrentLogo(projectData.logo);
 
@@ -334,19 +341,40 @@ export default function ProjectEdit() {
 
             {/* Header */}
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-                <Typography
-                    variant="h4"
-                    component="h1"
-                    sx={{
-                        fontWeight: 700,
-                        background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                        backgroundClip: 'text',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                    }}
-                >
-                    Edit Project
-                </Typography>
+                <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography
+                        variant="h4"
+                        component="h1"
+                        sx={{
+                            fontWeight: 700,
+                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}
+                    >
+                        Edit Project
+                    </Typography>
+                    {project.is_ready ? (
+                        <Chip
+                            label="Ready"
+                            sx={{
+                                backgroundColor: '#4caf50',
+                                color: 'white',
+                                fontWeight: 600,
+                            }}
+                        />
+                    ) : (
+                        <Chip
+                            label="Not Ready"
+                            sx={{
+                                backgroundColor: '#f44336',
+                                color: 'white',
+                                fontWeight: 600,
+                            }}
+                        />
+                    )}
+                </Stack>
                 <Stack direction="row" spacing={2}>
                     <Button
                         startIcon={<ArrowBack />}
@@ -436,6 +464,35 @@ export default function ProjectEdit() {
                             rows={3}
                             disabled={saving}
                         />
+
+                        <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={formData.is_enabled}
+                                        onChange={(e) => {
+                                            // Only allow enabling if project is ready
+                                            if (e.target.checked && project && !project.is_ready) {
+                                                return;
+                                            }
+                                            setFormData({ ...formData, is_enabled: e.target.checked });
+                                        }}
+                                        disabled={saving || (project && !project.is_ready && !formData.is_enabled)}
+                                        color="primary"
+                                    />
+                                }
+                                label="Enabled"
+                            />
+                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+                                Controls whether this project is enabled and available for use.
+                                {project && !project.is_ready && (
+                                    <>
+                                        <br />
+                                        <strong>Note:</strong> Project must be ready (have avatar, voice, and documents) before it can be enabled.
+                                    </>
+                                )}
+                            </Typography>
+                        </Box>
 
                         <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
                             <FormControlLabel

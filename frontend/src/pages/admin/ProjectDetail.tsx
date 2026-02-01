@@ -70,6 +70,8 @@ interface Project {
     return_link_text: string | null;
     is_active: boolean;
     is_demo: boolean;
+    is_enabled: boolean;
+    is_ready: boolean;
     created_at: string;
     updated_at: string;
     documents_count: number;
@@ -374,19 +376,40 @@ export default function ProjectDetail() {
 
                 {/* Header */}
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-                    <Typography
-                        variant="h4"
-                        component="h1"
-                        sx={{
-                            fontWeight: 700,
-                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                            backgroundClip: 'text',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                        }}
-                    >
-                        {project.name} • Chatbot Project
-                    </Typography>
+                    <Stack direction="row" spacing={2} alignItems="center">
+                        <Typography
+                            variant="h4"
+                            component="h1"
+                            sx={{
+                                fontWeight: 700,
+                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}
+                        >
+                            {project.name} • Chatbot Project
+                        </Typography>
+                        {project.is_ready ? (
+                            <Chip
+                                label="Ready"
+                                sx={{
+                                    backgroundColor: '#4caf50',
+                                    color: 'white',
+                                    fontWeight: 600,
+                                }}
+                            />
+                        ) : (
+                            <Chip
+                                label="Not Ready"
+                                sx={{
+                                    backgroundColor: '#f44336',
+                                    color: 'white',
+                                    fontWeight: 600,
+                                }}
+                            />
+                        )}
+                    </Stack>
                     <Stack direction="row" spacing={2}>
                         <Button
                             variant="outlined"

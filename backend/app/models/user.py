@@ -47,6 +47,9 @@ class User(Base):
         nullable=True,
         index=True,
     )
+    customer_role: Mapped[str | None] = mapped_column(
+        String(50), nullable=True
+    )  # owner, member
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

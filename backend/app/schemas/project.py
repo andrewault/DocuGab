@@ -27,6 +27,7 @@ class ProjectBase(BaseModel):
     return_link: Optional[str] = Field(None, max_length=500)
     return_link_text: Optional[str] = Field(None, max_length=100)
     is_demo: bool = False
+    is_enabled: bool = True
 
 
     @field_validator("slug")
@@ -73,6 +74,7 @@ class ProjectUpdate(BaseModel):
     return_link_text: Optional[str] = Field(None, max_length=100)
     is_active: Optional[bool] = None
     is_demo: Optional[bool] = None
+    is_enabled: Optional[bool] = None
 
 
     @field_validator("slug")
@@ -95,6 +97,8 @@ class ProjectResponse(ProjectBase):
     customer_id: int
     logo: Optional[str]
     is_active: bool
+    is_enabled: bool
+    is_ready: bool
     created_at: datetime
     updated_at: datetime
     documents_count: Optional[int] = 0

@@ -60,6 +60,8 @@ interface Project {
     return_link_text: string | null;
     is_active: boolean;
     is_demo: boolean;
+    is_enabled: boolean;
+    is_ready: boolean;
     created_at: string;
     updated_at: string;
     documents_count: number;
@@ -548,6 +550,23 @@ export default function Projects() {
                                                                     color={project.is_active ? 'success' : 'default'}
                                                                     size="small"
                                                                 />
+                                                                <Chip
+                                                                    label={project.is_enabled ? 'Enabled' : 'Disabled'}
+                                                                    color={project.is_enabled ? 'primary' : 'default'}
+                                                                    size="small"
+                                                                    variant="outlined"
+                                                                />
+                                                                {project.is_ready && (
+                                                                    <Chip
+                                                                        label="Ready"
+                                                                        size="small"
+                                                                        sx={{
+                                                                            backgroundColor: '#4caf50',
+                                                                            color: 'white',
+                                                                            fontWeight: 600
+                                                                        }}
+                                                                    />
+                                                                )}
                                                                 {project.is_demo && (
                                                                     <Chip
                                                                         label="Internal"

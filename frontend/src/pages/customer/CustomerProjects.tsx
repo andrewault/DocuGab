@@ -16,6 +16,7 @@ import {
     Alert,
     useTheme,
     IconButton,
+    Stack,
 } from '@mui/material';
 import { RecordVoiceOver, Visibility } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -32,6 +33,8 @@ interface Project {
     name: string;
     description: string | null;
     is_active: boolean;
+    is_enabled: boolean;
+    is_ready: boolean;
     customer_id: number;
     created_at: string;
     updated_at: string;
@@ -250,11 +253,30 @@ export default function CustomerProjects() {
                                                 </Typography>
                                             </TableCell>
                                             <TableCell>
-                                                <Chip
-                                                    label={project.is_active ? 'Active' : 'Inactive'}
-                                                    color={project.is_active ? 'success' : 'default'}
-                                                    size="small"
-                                                />
+                                                <Stack direction="row" spacing={1}>
+                                                    <Chip
+                                                        label={project.is_active ? 'Active' : 'Inactive'}
+                                                        color={project.is_active ? 'success' : 'default'}
+                                                        size="small"
+                                                    />
+                                                    <Chip
+                                                        label={project.is_enabled ? 'Enabled' : 'Disabled'}
+                                                        color={project.is_enabled ? 'primary' : 'default'}
+                                                        size="small"
+                                                        variant="outlined"
+                                                    />
+                                                    {project.is_ready && (
+                                                        <Chip
+                                                            label="Ready"
+                                                            size="small"
+                                                            sx={{
+                                                                backgroundColor: '#4caf50',
+                                                                color: 'white',
+                                                                fontWeight: 600
+                                                            }}
+                                                        />
+                                                    )}
+                                                </Stack>
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="body2">

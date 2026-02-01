@@ -257,7 +257,7 @@ export default function CustomerTestChat() {
         return (
             <Box p={4}>
                 <Typography color="error">{error || 'Project not found'}</Typography>
-                <Button onClick={() => navigate(`/customer`)}>Back</Button>
+                <Button onClick={() => navigate(`/customer/projects`)}>Back</Button>
             </Box>
         );
     }
@@ -280,8 +280,8 @@ export default function CustomerTestChat() {
         }}>
             <CustomerBreadcrumbs
                 items={[
-                    { label: 'Chatbot Projects', path: `/customer` },
-                    { label: project.name, path: `/customer/${project.uuid}` },
+                    { label: 'Chatbot Projects', path: `/customer/projects` },
+                    { label: project.name, path: `/customer/projects/${project.uuid}` },
                     { label: 'Test Chat' },
                 ]}
             />

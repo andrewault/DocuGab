@@ -19,6 +19,9 @@ import {
     InputLabel,
     Select,
     MenuItem,
+    Chip,
+    Tabs,
+    Tab,
 } from '@mui/material';
 import { ArrowBack, Save, Edit as EditIcon, CloudUpload, Image as ImageIcon, VolumeUp } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
@@ -41,6 +44,23 @@ interface Project {
     voice: string;
     return_link: string | null;
     return_link_text: string | null;
+    is_ready: boolean;
+    documents_count: number;
+}
+
+interface TabPanelProps {
+    children?: React.ReactNode;
+    index: number;
+    value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+    const { children, value, index, ...other } = props;
+    return (
+        <div hidden={value !== index} {...other}>
+            {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
+        </div>
+    );
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
@@ -57,6 +77,7 @@ export default function CustomerProjectEdit() {
     const [error, setError] = useState<string | null>(null);
     const [saveError, setSaveError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+    const [tabValue, setTabValue] = useState(0);
     const [name, setName] = useState('');
     const [slug, setSlug] = useState('');
     const [description, setDescription] = useState('');
@@ -76,6 +97,7 @@ export default function CustomerProjectEdit() {
     const [dragActive, setDragActive] = useState(false);
     const [currentLogo, setCurrentLogo] = useState<string | null>(null);
     const [testingVoice, setTestingVoice] = useState(false);
+    const [project, setProject] = useState<Project | null>(null);
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -92,6 +114,7 @@ export default function CustomerProjectEdit() {
                 }
 
                 const data: Project = await response.json();
+                setProject(data);
                 setName(data.name);
                 setSlug(data.slug);
                 setDescription(data.description || '');
@@ -149,7 +172,7 @@ export default function CustomerProjectEdit() {
 
             setSuccess(true);
             setTimeout(() => {
-                navigate(`/customer/${uuid}`);
+                navigate(`/customer/projects/${uuid}`);
             }, 1500);
         } catch (err) {
             setSaveError(err instanceof Error ? err.message : 'Failed to save changes');
@@ -311,8 +334,8 @@ export default function CustomerProjectEdit() {
                 {/* Breadcrumbs */}
                 <CustomerBreadcrumbs
                     items={[
-                        { label: 'Chatbot Projects', path: `/customer` },
-                        { label: name, path: `/customer/${uuid}` },
+                        { label: 'Chatbot Projects', path: `/customer/projects` },
+                        { label: name, path: `/customer/projects/${uuid}` },
                         { label: 'Edit' },
                     ]}
                 />
@@ -332,6 +355,27 @@ export default function CustomerProjectEdit() {
                     >
                         Edit Chatbot Project
                     </Typography>
+                    {project && (
+                        project.is_ready ? (
+                            <Chip
+                                label="Ready"
+                                sx={{
+                                    backgroundColor: '#4caf50',
+                                    color: 'white',
+                                    fontWeight: 600,
+                                }}
+                            />
+                        ) : (
+                            <Chip
+                                label="Not Ready"
+                                sx={{
+                                    backgroundColor: '#f44336',
+                                    color: 'white',
+                                    fontWeight: 600,
+                                }}
+                            />
+                        )
+                    )}
                 </Box>
 
                 {/* Form */}
@@ -356,234 +400,252 @@ export default function CustomerProjectEdit() {
                             </Alert>
                         )}
 
-                        <TextField
-                            label="Chatbot Project Name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            fullWidth
-                            required
-                            disabled={saving || success}
-                        />
+                        <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} sx={{ mb: 3 }}>
+                            <Tab label="Basic Info" />
+                            <Tab label="Branding" />
+                            <Tab label="Avatar & Voice" />
+                        </Tabs>
 
-                        <Box>
-                            <Typography variant="subtitle2" gutterBottom>
-                                Logo
-                            </Typography>
-                            {currentLogo && (
-                                <Box sx={{ mb: 2 }}>
-                                    <img
-                                        src={`${API_BASE}${currentLogo}`}
-                                        alt="Current Logo"
-                                        style={{
-                                            maxWidth: '200px',
-                                            maxHeight: '100px',
-                                            objectFit: 'contain',
-                                        }}
-                                    />
-                                </Box>
-                            )}
-                            <Button
-                                variant="outlined"
-                                startIcon={<CloudUpload />}
-                                onClick={() => setLogoModalOpen(true)}
-                                disabled={saving || success}
-                            >
-                                {currentLogo ? 'Replace Logo' : 'Upload Logo'}
-                            </Button>
-                        </Box>
+                        <TabPanel value={tabValue} index={0}>
+                            <Stack spacing={3}>
+                                <TextField
+                                    label="Chatbot Project Name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    fullWidth
+                                    required
+                                    disabled={saving || success}
+                                />
 
-                        <TextField
-                            label="Description"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            fullWidth
-                            multiline
-                            rows={4}
-                            disabled={saving || success}
-                            helperText="Optional description for this chatbot project"
-                        />
+                                <TextField
+                                    label="Slug"
+                                    value={slug}
+                                    onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                                    fullWidth
+                                    required
+                                    disabled={saving || success}
+                                    helperText="Unique identifier (auto-generated from name by default)"
+                                    InputProps={{
+                                        style: { fontFamily: 'monospace' },
+                                    }}
+                                />
 
-                        <TextField
-                            label="Slug"
-                            value={slug}
-                            onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
-                            fullWidth
-                            required
-                            disabled={saving || success}
-                            helperText="Unique identifier (auto-generated from name by default)"
-                            InputProps={{
-                                style: { fontFamily: 'monospace' },
-                            }}
-                        />
-
-                        <TextField
-                            label="Subtitle"
-                            value={subtitle}
-                            onChange={(e) => setSubtitle(e.target.value)}
-                            fullWidth
-                            disabled={saving || success}
-                            helperText="Optional subtitle"
-                        />
-
-                        <TextField
-                            label="Body"
-                            value={body}
-                            onChange={(e) => setBody(e.target.value)}
-                            fullWidth
-                            multiline
-                            rows={8}
-                            disabled={saving || success}
-                            helperText="Optional body content"
-                        />
-
-                        <Box>
-                            <Typography variant="subtitle2" gutterBottom>
-                                Colors
-                            </Typography>
-                            <Stack spacing={2}>
-                                <Box>
-                                    <Stack direction="row" spacing={2} alignItems="center">
-                                        <TextField
-                                            label="Primary Color"
-                                            value={colorPrimary}
-                                            onChange={(e) => setColorPrimary(e.target.value)}
-                                            disabled={saving || success}
-                                            sx={{ flex: 1 }}
-                                            InputProps={{
-                                                style: { fontFamily: 'monospace' },
-                                            }}
-                                        />
-                                        <input
-                                            type="color"
-                                            value={colorPrimary}
-                                            onChange={(e) => setColorPrimary(e.target.value)}
-                                            disabled={saving || success}
-                                            style={{
-                                                width: '60px',
-                                                height: '56px',
-                                                border: '1px solid rgba(0, 0, 0, 0.23)',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer',
-                                            }}
-                                        />
-                                    </Stack>
-                                </Box>
-
-                                <Box>
-                                    <Stack direction="row" spacing={2} alignItems="center">
-                                        <TextField
-                                            label="Secondary Color"
-                                            value={colorSecondary}
-                                            onChange={(e) => setColorSecondary(e.target.value)}
-                                            disabled={saving || success}
-                                            sx={{ flex: 1 }}
-                                            InputProps={{
-                                                style: { fontFamily: 'monospace' },
-                                            }}
-                                        />
-                                        <input
-                                            type="color"
-                                            value={colorSecondary}
-                                            onChange={(e) => setColorSecondary(e.target.value)}
-                                            disabled={saving || success}
-                                            style={{
-                                                width: '60px',
-                                                height: '56px',
-                                                border: '1px solid rgba(0, 0, 0, 0.23)',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer',
-                                            }}
-                                        />
-                                    </Stack>
-                                </Box>
-
-                                <Box>
-                                    <Stack direction="row" spacing={2} alignItems="center">
-                                        <TextField
-                                            label="Background Color"
-                                            value={colorBackground}
-                                            onChange={(e) => setColorBackground(e.target.value)}
-                                            disabled={saving || success}
-                                            sx={{ flex: 1 }}
-                                            InputProps={{
-                                                style: { fontFamily: 'monospace' },
-                                            }}
-                                        />
-                                        <input
-                                            type="color"
-                                            value={colorBackground}
-                                            onChange={(e) => setColorBackground(e.target.value)}
-                                            disabled={saving || success}
-                                            style={{
-                                                width: '60px',
-                                                height: '56px',
-                                                border: '1px solid rgba(0, 0, 0, 0.23)',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer',
-                                            }}
-                                        />
-                                    </Stack>
-                                </Box>
+                                <TextField
+                                    label="Description"
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    fullWidth
+                                    multiline
+                                    rows={4}
+                                    disabled={saving || success}
+                                    helperText="Optional description for this chatbot project"
+                                />
                             </Stack>
-                        </Box>
+                        </TabPanel>
 
-                        <Box>
-                            <Typography variant="subtitle2" gutterBottom>
-                                Voice Assistant
-                            </Typography>
-                            <Stack direction="row" spacing={2} alignItems="flex-start">
-                                <FormControl fullWidth>
-                                    <InputLabel>Voice</InputLabel>
-                                    <Select
-                                        value={voice}
-                                        onChange={(e) => setVoice(e.target.value)}
-                                        label="Voice"
+                        <TabPanel value={tabValue} index={1}>
+                            <Stack spacing={3}>
+                                <Box>
+                                    <Typography variant="subtitle2" gutterBottom>
+                                        Logo
+                                    </Typography>
+                                    {currentLogo && (
+                                        <Box sx={{ mb: 2 }}>
+                                            <img
+                                                src={`${API_BASE}${currentLogo}`}
+                                                alt="Current Logo"
+                                                style={{
+                                                    maxWidth: '200px',
+                                                    maxHeight: '100px',
+                                                    objectFit: 'contain',
+                                                }}
+                                            />
+                                        </Box>
+                                    )}
+                                    <Button
+                                        variant="outlined"
+                                        startIcon={<CloudUpload />}
+                                        onClick={() => setLogoModalOpen(true)}
                                         disabled={saving || success}
                                     >
-                                        {VOICE_OPTIONS.map((voiceOption) => (
-                                            <MenuItem key={voiceOption.value} value={voiceOption.value}>
-                                                {voiceOption.label}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                                <Button
-                                    variant="outlined"
-                                    startIcon={<VolumeUp />}
-                                    onClick={() => testVoice(voice)}
-                                    disabled={saving || success || testingVoice}
-                                    sx={{ minWidth: 100, height: 56 }}
-                                >
-                                    Test
-                                </Button>
-                            </Stack>
-                        </Box>
+                                        {currentLogo ? 'Replace Logo' : 'Upload Logo'}
+                                    </Button>
+                                </Box>
 
-                        <Box>
-                            <Typography variant="subtitle2" gutterBottom>
-                                Return Link Settings
-                            </Typography>
-                            <Stack spacing={2}>
                                 <TextField
-                                    label="Return Link URL"
-                                    value={returnLink}
-                                    onChange={(e) => setReturnLink(e.target.value)}
+                                    label="Subtitle"
+                                    value={subtitle}
+                                    onChange={(e) => setSubtitle(e.target.value)}
                                     fullWidth
                                     disabled={saving || success}
-                                    helperText="Optional URL to return to"
-                                    type="url"
+                                    helperText="Optional subtitle"
                                 />
 
                                 <TextField
-                                    label="Return Link Text"
-                                    value={returnLinkText}
-                                    onChange={(e) => setReturnLinkText(e.target.value)}
+                                    label="Body"
+                                    value={body}
+                                    onChange={(e) => setBody(e.target.value)}
                                     fullWidth
+                                    multiline
+                                    rows={8}
                                     disabled={saving || success}
-                                    helperText="Text to display for the return link"
+                                    helperText="Optional body content"
                                 />
+
+                                <Box>
+                                    <Typography variant="subtitle2" gutterBottom>
+                                        Colors
+                                    </Typography>
+                                    <Stack spacing={2}>
+                                        <Box>
+                                            <Stack direction="row" spacing={2} alignItems="center">
+                                                <TextField
+                                                    label="Primary Color"
+                                                    value={colorPrimary}
+                                                    onChange={(e) => setColorPrimary(e.target.value)}
+                                                    disabled={saving || success}
+                                                    sx={{ flex: 1 }}
+                                                    InputProps={{
+                                                        style: { fontFamily: 'monospace' },
+                                                    }}
+                                                />
+                                                <input
+                                                    type="color"
+                                                    value={colorPrimary}
+                                                    onChange={(e) => setColorPrimary(e.target.value)}
+                                                    disabled={saving || success}
+                                                    style={{
+                                                        width: '60px',
+                                                        height: '56px',
+                                                        border: '1px solid rgba(0, 0, 0, 0.23)',
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                />
+                                            </Stack>
+                                        </Box>
+
+                                        <Box>
+                                            <Stack direction="row" spacing={2} alignItems="center">
+                                                <TextField
+                                                    label="Secondary Color"
+                                                    value={colorSecondary}
+                                                    onChange={(e) => setColorSecondary(e.target.value)}
+                                                    disabled={saving || success}
+                                                    sx={{ flex: 1 }}
+                                                    InputProps={{
+                                                        style: { fontFamily: 'monospace' },
+                                                    }}
+                                                />
+                                                <input
+                                                    type="color"
+                                                    value={colorSecondary}
+                                                    onChange={(e) => setColorSecondary(e.target.value)}
+                                                    disabled={saving || success}
+                                                    style={{
+                                                        width: '60px',
+                                                        height: '56px',
+                                                        border: '1px solid rgba(0, 0, 0, 0.23)',
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                />
+                                            </Stack>
+                                        </Box>
+
+                                        <Box>
+                                            <Stack direction="row" spacing={2} alignItems="center">
+                                                <TextField
+                                                    label="Background Color"
+                                                    value={colorBackground}
+                                                    onChange={(e) => setColorBackground(e.target.value)}
+                                                    disabled={saving || success}
+                                                    sx={{ flex: 1 }}
+                                                    InputProps={{
+                                                        style: { fontFamily: 'monospace' },
+                                                    }}
+                                                />
+                                                <input
+                                                    type="color"
+                                                    value={colorBackground}
+                                                    onChange={(e) => setColorBackground(e.target.value)}
+                                                    disabled={saving || success}
+                                                    style={{
+                                                        width: '60px',
+                                                        height: '56px',
+                                                        border: '1px solid rgba(0, 0, 0, 0.23)',
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                />
+                                            </Stack>
+                                        </Box>
+                                    </Stack>
+                                </Box>
+
+                                <Box>
+                                    <Typography variant="subtitle2" gutterBottom>
+                                        Return Link Settings
+                                    </Typography>
+                                    <Stack spacing={2}>
+                                        <TextField
+                                            label="Return Link URL"
+                                            value={returnLink}
+                                            onChange={(e) => setReturnLink(e.target.value)}
+                                            fullWidth
+                                            disabled={saving || success}
+                                            helperText="Optional URL to return to"
+                                            type="url"
+                                        />
+
+                                        <TextField
+                                            label="Return Link Text"
+                                            value={returnLinkText}
+                                            onChange={(e) => setReturnLinkText(e.target.value)}
+                                            fullWidth
+                                            disabled={saving || success}
+                                            helperText="Text to display for the return link"
+                                        />
+                                    </Stack>
+                                </Box>
                             </Stack>
-                        </Box>
+                        </TabPanel>
+
+                        <TabPanel value={tabValue} index={2}>
+                            <Stack spacing={3}>
+                                <Box>
+                                    <Typography variant="subtitle2" gutterBottom>
+                                        Voice Assistant
+                                    </Typography>
+                                    <Stack direction="row" spacing={2} alignItems="flex-start">
+                                        <FormControl fullWidth>
+                                            <InputLabel>Voice</InputLabel>
+                                            <Select
+                                                value={voice}
+                                                onChange={(e) => setVoice(e.target.value)}
+                                                label="Voice"
+                                                disabled={saving || success}
+                                            >
+                                                {VOICE_OPTIONS.map((voiceOption) => (
+                                                    <MenuItem key={voiceOption.value} value={voiceOption.value}>
+                                                        {voiceOption.label}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                        <Button
+                                            variant="outlined"
+                                            startIcon={<VolumeUp />}
+                                            onClick={() => testVoice(voice)}
+                                            disabled={saving || success || testingVoice}
+                                            sx={{ minWidth: 100, height: 56 }}
+                                        >
+                                            Test
+                                        </Button>
+                                    </Stack>
+                                </Box>
+                            </Stack>
+                        </TabPanel>
 
                         <Stack direction="row" spacing={2}>
                             <Button
@@ -597,7 +659,7 @@ export default function CustomerProjectEdit() {
                             <Button
                                 variant="outlined"
                                 startIcon={<ArrowBack />}
-                                onClick={() => navigate(`/customer/${uuid}`)}
+                                onClick={() => navigate(`/customer/projects/${uuid}`)}
                                 disabled={saving}
                             >
                                 Cancel

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Box, Container, Typography, Paper, Stack, useTheme, Grid, Card, CardContent } from '@mui/material';
-import { Group, QuestionAnswer, Business, Folder, RecordVoiceOver, Dashboard } from '@mui/icons-material';
+import { Group, QuestionAnswer, Business, Folder, RecordVoiceOver, Dashboard, Storage } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { getAuthHeader } from '../../utils/authUtils';
 
@@ -59,6 +59,12 @@ export default function AdminHome() {
             description: 'Create and manage frequently asked questions',
             icon: <QuestionAnswer sx={{ fontSize: 48 }} />,
             path: '/admin/faq',
+        },
+        {
+            title: 'Database',
+            description: 'View and manage database tables and records',
+            icon: <Storage sx={{ fontSize: 48 }} />,
+            path: '/admin/database',
         },
     ];
 

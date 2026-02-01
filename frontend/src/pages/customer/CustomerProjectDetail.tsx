@@ -49,6 +49,8 @@ interface Project {
     return_link: string | null;
     return_link_text: string | null;
     is_active: boolean;
+    is_enabled: boolean;
+    is_ready: boolean;
     customer_id: number;
     customer_name: string;
     created_at: string;
@@ -183,7 +185,7 @@ export default function CustomerProjectDetail() {
                 {/* Breadcrumbs */}
                 <CustomerBreadcrumbs
                     items={[
-                        { label: 'Chatbot Projects', path: `/customer` },
+                        { label: 'Chatbot Projects', path: `/customer/projects` },
                         { label: project.name },
                     ]}
                 />
@@ -204,19 +206,38 @@ export default function CustomerProjectDetail() {
                         >
                             {project.name} Chatbot Project
                         </Typography>
+                        {project.is_ready ? (
+                            <Chip
+                                label="Ready"
+                                sx={{
+                                    backgroundColor: '#4caf50',
+                                    color: 'white',
+                                    fontWeight: 600,
+                                }}
+                            />
+                        ) : (
+                            <Chip
+                                label="Not Ready"
+                                sx={{
+                                    backgroundColor: '#f44336',
+                                    color: 'white',
+                                    fontWeight: 600,
+                                }}
+                            />
+                        )}
                     </Box>
                     <Stack direction="row" spacing={2}>
                         <Button
                             variant="outlined"
                             startIcon={<Forum />}
-                            onClick={() => navigate(`/customer/${project.uuid}/test`)}
+                            onClick={() => navigate(`/customer/projects/${project.uuid}/test`)}
                         >
                             Test Chat
                         </Button>
                         <Button
                             variant="outlined"
                             startIcon={<Edit />}
-                            onClick={() => navigate(`/customer/${project.uuid}/edit`)}
+                            onClick={() => navigate(`/customer/projects/${project.uuid}/edit`)}
                         >
                             Edit
                         </Button>
@@ -236,7 +257,7 @@ export default function CustomerProjectDetail() {
                         value={currentTab}
                         onChange={(_, newValue) => {
                             navigate(
-                                `/customer/${uuid}/${newValue}`,
+                                `/customer/projects/${uuid}/${newValue}`,
                                 { replace: true }
                             );
                         }}
@@ -530,7 +551,7 @@ export default function CustomerProjectDetail() {
                                         startIcon={<Add />}
                                         onClick={() =>
                                             navigate(
-                                                `/customer/${project.uuid}/documents/new`
+                                                `/customer/projects/${project.uuid}/documents/new`
                                             )
                                         }
                                     >

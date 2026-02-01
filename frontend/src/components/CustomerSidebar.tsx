@@ -1,5 +1,5 @@
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Divider, useTheme } from '@mui/material';
-import { Dashboard, Settings, Person, RecordVoiceOver } from '@mui/icons-material';
+import { Dashboard, Settings, Person, RecordVoiceOver, AccountCircle } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface CustomerSidebarProps {
@@ -15,6 +15,7 @@ export default function CustomerSidebar({ isOpen }: CustomerSidebarProps) {
     const customerNavItems = [
         { label: 'Dashboard', icon: <Dashboard />, path: '/customer' },
         { label: 'Chatbot Projects', icon: <RecordVoiceOver />, path: '/customer/projects' },
+        { label: 'Account', icon: <AccountCircle />, path: '/customer/account' },
         { label: 'Settings', icon: <Settings />, path: '/settings' },
         { label: 'Profile', icon: <Person />, path: '/profile' },
     ];

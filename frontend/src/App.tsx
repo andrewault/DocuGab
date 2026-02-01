@@ -23,6 +23,9 @@ import CustomerProjectDetail from './pages/customer/CustomerProjectDetail';
 import CustomerProjectEdit from './pages/customer/CustomerProjectEdit';
 import CustomerDocumentUpload from './pages/customer/CustomerDocumentUpload';
 import CustomerTestChat from './pages/customer/CustomerTestChat';
+import CustomerAccount from './pages/customer/CustomerAccount';
+import CustomerUserDetail from './pages/customer/CustomerUserDetail';
+import CustomerUserEdit from './pages/customer/CustomerUserEdit';
 import Users from './pages/admin/Users';
 import UserDetail from './pages/admin/UserDetail';
 import UserEdit from './pages/admin/UserEdit';
@@ -110,12 +113,22 @@ export default function App() {
                 <CustomerProjects />
               </ProtectedRoute>
             } />
-            <Route path="/customer/projects/:uuid" element={
+            <Route path="/customer/account" element={
               <ProtectedRoute requireCustomer>
-                <CustomerProjectDetail />
+                <CustomerAccount />
               </ProtectedRoute>
             } />
-            <Route path="/customer/projects/:uuid/:tab" element={
+            <Route path="/customer/account/users/:uuid" element={
+              <ProtectedRoute requireCustomer>
+                <CustomerUserDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/customer/account/users/:uuid/edit" element={
+              <ProtectedRoute requireCustomer>
+                <CustomerUserEdit />
+              </ProtectedRoute>
+            } />
+            <Route path="/customer/projects/:uuid" element={
               <ProtectedRoute requireCustomer>
                 <CustomerProjectDetail />
               </ProtectedRoute>
@@ -123,6 +136,11 @@ export default function App() {
             <Route path="/customer/projects/:uuid/edit" element={
               <ProtectedRoute requireCustomer>
                 <CustomerProjectEdit />
+              </ProtectedRoute>
+            } />
+            <Route path="/customer/projects/:uuid/:tab" element={
+              <ProtectedRoute requireCustomer>
+                <CustomerProjectDetail />
               </ProtectedRoute>
             } />
             <Route path="/customer/projects/:uuid/test" element={

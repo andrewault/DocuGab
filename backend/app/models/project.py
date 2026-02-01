@@ -68,6 +68,9 @@ class Project(Base):
     is_active: Mapped[bool] = mapped_column(
         Boolean, default=True, nullable=False, index=True
     )
+    is_enabled: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default=sql.true(), nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
