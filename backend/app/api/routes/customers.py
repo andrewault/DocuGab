@@ -23,6 +23,34 @@ from app.schemas.customer import (
 router = APIRouter(prefix="/admin/customers", tags=["admin", "customers"])
 
 
+def _build_customer_response(
+    customer: Customer, 
+    projects_count: int = 0
+) -> dict:
+    """Build standardized customer response dictionary.
+    
+    Args:
+        customer: Customer model instance
+        projects_count: Number of projects for this customer
+        
+    Returns:
+        Dictionary with all customer fields for API response
+    """
+    return {
+        "id": customer.id,
+        "uuid": customer.uuid,
+        "name": customer.name,
+        "contact_name": customer.contact_name,
+        "contact_phone": customer.contact_phone,
+        "email": customer.email,
+        "is_docutok_customer": customer.is_docutok_customer,
+        "is_active": customer.is_active,
+        "created_at": customer.created_at,
+        "updated_at": customer.updated_at,
+        "projects_count": projects_count,
+    }
+
+
 @router.get("", response_model=CustomerListResponse)
 async def list_customers(
     page: int = Query(1, ge=1, description="Page number"),
@@ -64,19 +92,7 @@ async def list_customers(
         projects_count = projects_count_result.scalar() or 0
 
         # Create response with projects count
-        customer_dict = {
-            "id": customer.id,
-            "uuid": customer.uuid,
-            "name": customer.name,
-            "contact_name": customer.contact_name,
-            "contact_phone": customer.contact_phone,
-            "email": customer.email,
-            "is_docutok_customer": customer.is_docutok_customer,
-            "is_active": customer.is_active,
-            "created_at": customer.created_at,
-            "updated_at": customer.updated_at,
-            "projects_count": projects_count,
-        }
+        customer_dict = _build_customer_response(customer, projects_count)
         customer_responses.append(CustomerResponse(**customer_dict))
 
     return CustomerListResponse(
@@ -110,20 +126,7 @@ async def get_customer(
     projects_count = projects_count_result.scalar() or 0
 
     # Create response
-    customer_dict = {
-        "id": customer.id,
-        "uuid": customer.uuid,
-        "name": customer.name,
-        "contact_name": customer.contact_name,
-        "contact_phone": customer.contact_phone,
-        "email": customer.email,
-        "is_docutok_customer": customer.is_docutok_customer,
-        "is_active": customer.is_active,
-        "created_at": customer.created_at,
-        "updated_at": customer.updated_at,
-        "projects_count": projects_count,
-    }
-
+    customer_dict = _build_customer_response(customer, projects_count)
     return CustomerResponse(**customer_dict)
 
 
@@ -153,20 +156,7 @@ async def create_customer(
     await db.refresh(customer)
 
     # Return response
-    customer_dict = {
-        "id": customer.id,
-        "uuid": customer.uuid,
-        "name": customer.name,
-        "contact_name": customer.contact_name,
-        "contact_phone": customer.contact_phone,
-        "email": customer.email,
-        "is_docutok_customer": customer.is_docutok_customer,
-        "is_active": customer.is_active,
-        "created_at": customer.created_at,
-        "updated_at": customer.updated_at,
-        "projects_count": 0,
-    }
-
+    customer_dict = _build_customer_response(customer, projects_count=0)
     return CustomerResponse(**customer_dict)
 
 
@@ -220,20 +210,7 @@ async def update_customer(
     projects_count = projects_count_result.scalar() or 0
 
     # Create response
-    customer_dict = {
-        "id": customer.id,
-        "uuid": customer.uuid,
-        "name": customer.name,
-        "contact_name": customer.contact_name,
-        "contact_phone": customer.contact_phone,
-        "email": customer.email,
-        "is_docutok_customer": customer.is_docutok_customer,
-        "is_active": customer.is_active,
-        "created_at": customer.created_at,
-        "updated_at": customer.updated_at,
-        "projects_count": projects_count,
-    }
-
+    customer_dict = _build_customer_response(customer, projects_count)
     return CustomerResponse(**customer_dict)
 
 

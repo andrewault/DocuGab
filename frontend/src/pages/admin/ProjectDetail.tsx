@@ -40,6 +40,9 @@ import {
 } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { StatusBanner } from '../../components/admin/StatusBanner';
+import { InfoSection } from '../../components/admin/InfoSection';
+import { DetailRow } from '../../components/admin/DetailRow';
 import { getVoiceLabel, VOICE_TEST_TEXT } from '../../constants/voiceConstants';
 import { useAuth } from '../../context/AuthContext';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
@@ -354,22 +357,10 @@ export default function ProjectDetail() {
             }}
         >
             <Container maxWidth={false} sx={{ mt: 4, mb: 8, px: 3 }}>
-                {project.is_demo && (
-                    <Alert
-                        severity="info"
-                        sx={{
-                            mb: 3,
-                            backgroundColor: '#1976d2',
-                            color: 'white',
-                            fontWeight: 600,
-                            '& .MuiAlert-icon': {
-                                color: 'white'
-                            }
-                        }}
-                    >
-                        Demo Project • This is the chatbot demo that is linked from the home page.
-                    </Alert>
-                )}
+                <StatusBanner
+                    message="Demo Project • This is the chatbot demo that is linked from the home page."
+                    visible={project.is_demo}
+                />
                 <AdminBreadcrumbs
                     items={[
                         { label: 'Customers', path: '/admin/customers' },
@@ -412,115 +403,93 @@ export default function ProjectDetail() {
                 </Stack>
 
                 {/* Project Details */}
-                <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-                    <Typography variant="h6" gutterBottom>
-                        Basic Info
-                    </Typography>
-                    <Divider sx={{ mb: 3 }} />
-
+                <InfoSection title="Basic Info" icon={<Folder />}>
                     <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
                         <Box sx={{ flex: 1 }}>
                             <Stack spacing={2}>
-                                <Box>
-                                    <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
-                                        <Folder fontSize="small" />
-                                        Chatbot Project Name
-                                    </Typography>
-                                    <Typography variant="body1" fontWeight={500}>
-                                        {project.name}
-                                    </Typography>
-                                </Box>
-
-                                <Box>
-                                    <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
-                                        <Business fontSize="small" />
-                                        Customer
-                                    </Typography>
-                                    <Typography
-                                        variant="body1"
-                                        sx={{ cursor: 'pointer', color: 'primary.main' }}
-                                        onClick={() => project.customer_uuid && navigate(`/admin/customers/${project.customer_uuid}`)}
-                                    >
-                                        {project.customer_name}
-                                    </Typography>
-                                </Box>
-
-                                <Box>
-                                    <Typography variant="caption" color="text.secondary">
-                                        Slug
-                                    </Typography>
-                                    <Typography variant="body1" fontFamily="monospace">
-                                        {project.slug}
-                                    </Typography>
-                                </Box>
+                                <DetailRow
+                                    icon={<Folder fontSize="small" />}
+                                    label="Chatbot Project Name"
+                                    value={project.name}
+                                    valueProps={{ fontWeight: 500 }}
+                                />
+                                <DetailRow
+                                    icon={<Business fontSize="small" />}
+                                    label="Customer"
+                                    value={
+                                        <Typography
+                                            variant="body1"
+                                            sx={{ cursor: 'pointer', color: 'primary.main' }}
+                                            onClick={() => project.customer_uuid && navigate(`/admin/customers/${project.customer_uuid}`)}
+                                        >
+                                            {project.customer_name}
+                                        </Typography>
+                                    }
+                                />
+                                <DetailRow
+                                    label="Slug"
+                                    value={project.slug}
+                                    valueProps={{ fontFamily: 'monospace' }}
+                                />
                             </Stack>
                         </Box>
 
                         <Box sx={{ flex: 1 }}>
                             <Stack spacing={2}>
-                                <Box>
-                                    <Typography variant="caption" color="text.secondary">
-                                        Status
-                                    </Typography>
-                                    <Box>
-                                        <Chip
-                                            label={project.is_active ? 'Active' : 'Inactive'}
-                                            color={project.is_active ? 'success' : 'default'}
-                                            size="small"
-                                        />
-                                        {project.is_demo && (
+                                <DetailRow
+                                    label="Status"
+                                    value={
+                                        <Box>
                                             <Chip
-                                                label="Demo Project"
-                                                color="secondary"
+                                                label={project.is_active ? 'Active' : 'Inactive'}
+                                                color={project.is_active ? 'success' : 'default'}
                                                 size="small"
-                                                variant="filled"
-                                                sx={{ ml: 1 }}
                                             />
-                                        )}
-                                    </Box>
-                                </Box>
-
-                                <Box>
-                                    <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
-                                        <CalendarToday fontSize="small" />
-                                        Created
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {formatInUserTimezone(
-                                            project.created_at,
-                                            currentUser?.timezone || 'America/Los_Angeles',
-                                            'PP'
-                                        )}
-                                    </Typography>
-                                </Box>
-
-                                <Box>
-                                    <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
-                                        <Description fontSize="small" />
-                                        Documents
-                                    </Typography>
-                                    <Typography variant="body1" fontWeight={500}>
-                                        {project.documents_count}
-                                    </Typography>
-                                </Box>
+                                            {project.is_demo && (
+                                                <Chip
+                                                    label="Demo Project"
+                                                    color="secondary"
+                                                    size="small"
+                                                    variant="filled"
+                                                    sx={{ ml: 1 }}
+                                                />
+                                            )}
+                                        </Box>
+                                    }
+                                />
+                                <DetailRow
+                                    icon={<CalendarToday fontSize="small" />}
+                                    label="Created"
+                                    value={formatInUserTimezone(
+                                        project.created_at,
+                                        currentUser?.timezone || 'America/Los_Angeles',
+                                        'PP'
+                                    )}
+                                />
+                                <DetailRow
+                                    icon={<Description fontSize="small" />}
+                                    label="Documents"
+                                    value={project.documents_count}
+                                    valueProps={{ fontWeight: 500 }}
+                                />
                             </Stack>
                         </Box>
                     </Stack>
+                </InfoSection>
 
-                    {project.description && (
-                        <>
-                            <Divider sx={{ my: 3 }} />
-                            <Box>
-                                <Typography variant="caption" color="text.secondary">
-                                    Description
-                                </Typography>
-                                <Typography variant="body1" sx={{ mt: 1 }}>
-                                    {project.description}
-                                </Typography>
-                            </Box>
-                        </>
-                    )}
-                </Paper>
+                {project.description && (
+                    <>
+                        <Divider sx={{ my: 3 }} />
+                        <Box>
+                            <Typography variant="caption" color="text.secondary">
+                                Description
+                            </Typography>
+                            <Typography variant="body1" sx={{ mt: 1 }}>
+                                {project.description}
+                            </Typography>
+                        </Box>
+                    </>
+                )}
 
                 {/* Branding Details */}
                 <Paper elevation={2} sx={{ p: 3, mb: 4 }}>

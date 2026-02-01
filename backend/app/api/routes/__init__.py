@@ -6,7 +6,6 @@ from app.api.routes import (
     users,
     admin,
     customers,
-    projects,
 )
 
 __all__ = [

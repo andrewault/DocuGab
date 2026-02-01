@@ -10,7 +10,6 @@ import {
     Alert,
     Button,
     Stack,
-    Divider,
     Table,
     TableBody,
     TableCell,
@@ -38,6 +37,9 @@ import {
 } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { StatusBanner } from '../../components/admin/StatusBanner';
+import { InfoSection } from '../../components/admin/InfoSection';
+import { DetailRow } from '../../components/admin/DetailRow';
 import { useAuth } from '../../context/AuthContext';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
@@ -179,22 +181,10 @@ export default function CustomerDetail() {
 
     return (
         <Container maxWidth={false} sx={{ mt: 4, mb: 8, px: 3 }}>
-            {customer.is_docutok_customer && (
-                <Alert
-                    severity="info"
-                    sx={{
-                        mb: 3,
-                        backgroundColor: '#1976d2',
-                        color: 'white',
-                        fontWeight: 600,
-                        '& .MuiAlert-icon': {
-                            color: 'white'
-                        }
-                    }}
-                >
-                    Internal DocuTok Customer
-                </Alert>
-            )}
+            <StatusBanner
+                message="Internal DocuTok Customer • Internal use only, not billed"
+                visible={customer.is_docutok_customer}
+            />
             <AdminBreadcrumbs
                 items={[
                     { label: 'Customers', path: '/admin/customers' },
@@ -252,112 +242,76 @@ export default function CustomerDetail() {
             </Stack>
 
             {/* Customer Details */}
-            <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-                <Typography variant="h6" gutterBottom>
-                    Customer Details
-                </Typography>
-                <Divider sx={{ mb: 3 }} />
-
+            <InfoSection title="Customer Details" icon={<Business />}>
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
                     <Box sx={{ flex: 1 }}>
                         <Stack spacing={2}>
-                            <Box>
-                                <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
-                                    <Business fontSize="small" />
-                                    Customer Name
-                                </Typography>
-                                <Typography variant="body1" fontWeight={500}>
-                                    {customer.name}
-                                </Typography>
-                            </Box>
-
-                            <Box>
-                                <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
-                                    <Person fontSize="small" />
-                                    Contact Name
-                                </Typography>
-                                <Typography variant="body1">
-                                    {customer.contact_name || '—'}
-                                </Typography>
-                            </Box>
-
-                            <Box>
-                                <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
-                                    <Phone fontSize="small" />
-                                    Contact Phone
-                                </Typography>
-                                <Typography variant="body1">
-                                    {customer.contact_phone || '—'}
-                                </Typography>
-                            </Box>
-
-                            <Box>
-                                <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
-                                    <Person fontSize="small" />
-                                    Email
-                                </Typography>
-                                <Typography variant="body1">
-                                    {customer.email || '—'}
-                                </Typography>
-                            </Box>
+                            <DetailRow
+                                icon={<Business fontSize="small" />}
+                                label="Customer Name"
+                                value={customer.name}
+                                valueProps={{ fontWeight: 500 }}
+                            />
+                            <DetailRow
+                                icon={<Person fontSize="small" />}
+                                label="Contact Name"
+                                value={customer.contact_name}
+                            />
+                            <DetailRow
+                                icon={<Phone fontSize="small" />}
+                                label="Contact Phone"
+                                value={customer.contact_phone}
+                            />
+                            <DetailRow
+                                icon={<Person fontSize="small" />}
+                                label="Email"
+                                value={customer.email}
+                            />
                         </Stack>
                     </Box>
 
                     <Box sx={{ flex: 1 }}>
                         <Stack spacing={2}>
-                            <Box>
-                                <Typography variant="caption" color="text.secondary">
-                                    Type
-                                </Typography>
-                                <Box>
+                            <DetailRow
+                                label="Type"
+                                value={
                                     <Chip
                                         label={customer.is_docutok_customer ? 'Internal Organization' : 'Customer'}
                                         color={customer.is_docutok_customer ? 'secondary' : 'default'}
                                         size="small"
                                         variant={customer.is_docutok_customer ? 'filled' : 'outlined'}
                                     />
-                                </Box>
-                            </Box>
-
-                            <Box>
-                                <Typography variant="caption" color="text.secondary">
-                                    Status
-                                </Typography>
-                                <Box>
+                                }
+                            />
+                            <DetailRow
+                                label="Status"
+                                value={
                                     <Chip
                                         label={customer.is_active ? 'Active' : 'Inactive'}
                                         color={customer.is_active ? 'success' : 'default'}
                                         size="small"
                                     />
-                                </Box>
-                            </Box>
-
-                            <Box>
-                                <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
-                                    <CalendarToday fontSize="small" />
-                                    Created
-                                </Typography>
-                                <Typography variant="body1">
-                                    {formatInUserTimezone(
-                                        customer.created_at,
-                                        currentUser?.timezone || 'America/Los_Angeles',
-                                        'PP'
-                                    )}
-                                </Typography>
-                            </Box>
-
-                            <Box>
-                                <Typography variant="caption" color="text.secondary">
-                                    Total Projects
-                                </Typography>
-                                <Typography variant="body1" fontWeight={500}>
-                                    {customer.projects_count}
-                                </Typography>
-                            </Box>
+                                }
+                            />
+                            <DetailRow
+                                icon={<CalendarToday fontSize="small" />}
+                                label="Created"
+                                value={formatInUserTimezone(
+                                    customer.created_at,
+                                    currentUser?.timezone || 'America/Los_Angeles',
+                                    'PP'
+                                )}
+                            />
+                            <DetailRow
+                                icon={<Folder fontSize="small" />}
+                                label="Total Projects"
+                                value={customer.projects_count}
+                                valueProps={{ fontWeight: 500 }}
+                            />
                         </Stack>
                     </Box>
                 </Stack>
-            </Paper>
+            </InfoSection>
 
             {/* Projects List */}
             <Paper elevation={2} sx={{ p: 3, mt: 3 }}>
