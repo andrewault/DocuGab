@@ -11,6 +11,7 @@ import {
     TableHead,
     TableRow,
     TablePagination,
+    TableSortLabel,
     Chip,
     TextField,
     Stack,
@@ -58,6 +59,7 @@ interface Project {
     return_link: string | null;
     return_link_text: string | null;
     is_active: boolean;
+    is_demo: boolean;
     created_at: string;
     updated_at: string;
     documents_count: number;
@@ -138,6 +140,8 @@ export default function Projects() {
     const [editingProject, setEditingProject] = useState<Project | null>(null);
     const [formData, setFormData] = useState<ProjectFormData>(DEFAULT_FORM_DATA);
     const [tabValue, setTabValue] = useState(0);
+    const [orderBy, setOrderBy] = useState<keyof Project>('name');
+    const [order, setOrder] = useState<'asc' | 'desc'>('asc');
 
     const fetchCustomers = useCallback(async () => {
         try {
@@ -419,11 +423,47 @@ export default function Projects() {
                                 <Table>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell>Name</TableCell>
+                                            <TableCell>
+                                                <TableSortLabel
+                                                    active={orderBy === 'name'}
+                                                    direction={orderBy === 'name' ? order : 'asc'}
+                                                    onClick={() => {
+                                                        const isAsc = orderBy === 'name' && order === 'asc';
+                                                        setOrder(isAsc ? 'desc' : 'asc');
+                                                        setOrderBy('name');
+                                                    }}
+                                                >
+                                                    Name
+                                                </TableSortLabel>
+                                            </TableCell>
                                             <TableCell>Customer</TableCell>
                                             <TableCell>Title</TableCell>
-                                            <TableCell>Documents</TableCell>
-                                            <TableCell>Created at</TableCell>
+                                            <TableCell>
+                                                <TableSortLabel
+                                                    active={orderBy === 'documents_count'}
+                                                    direction={orderBy === 'documents_count' ? order : 'asc'}
+                                                    onClick={() => {
+                                                        const isAsc = orderBy === 'documents_count' && order === 'asc';
+                                                        setOrder(isAsc ? 'desc' : 'asc');
+                                                        setOrderBy('documents_count');
+                                                    }}
+                                                >
+                                                    Documents
+                                                </TableSortLabel>
+                                            </TableCell>
+                                            <TableCell>
+                                                <TableSortLabel
+                                                    active={orderBy === 'created_at'}
+                                                    direction={orderBy === 'created_at' ? order : 'asc'}
+                                                    onClick={() => {
+                                                        const isAsc = orderBy === 'created_at' && order === 'asc';
+                                                        setOrder(isAsc ? 'desc' : 'asc');
+                                                        setOrderBy('created_at');
+                                                    }}
+                                                >
+                                                    Created at
+                                                </TableSortLabel>
+                                            </TableCell>
                                             <TableCell>Updated at</TableCell>
                                             <TableCell>Status</TableCell>
                                             <TableCell align="right">Actions</TableCell>
@@ -439,84 +479,112 @@ export default function Projects() {
                                                 </TableCell>
                                             </TableRow>
                                         ) : (
-                                            projects.map((project) => (
-                                                <TableRow
-                                                    key={project.id}
-                                                    hover
-                                                    sx={{ cursor: 'pointer' }}
-                                                    onClick={() => navigate(`/admin/projects/${project.uuid}`)}
-                                                >
-                                                    <TableCell>
-                                                        <Typography fontWeight={500}>
-                                                            {project.name}
-                                                        </Typography>
-                                                        <Typography variant="caption" color="textSecondary">
-                                                            {project.slug}
-                                                        </Typography>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {project.customer_name || '—'}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {project.title}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Chip
-                                                            label={project.documents_count}
-                                                            size="small"
-                                                            color="primary"
-                                                            variant="outlined"
-                                                        />
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Typography variant="body2">
-                                                            {formatInUserTimezone(
-                                                                project.created_at,
-                                                                currentUser?.timezone || 'America/Los_Angeles',
-                                                                'PP'
-                                                            )}
-                                                        </Typography>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Typography variant="body2">
-                                                            {formatInUserTimezone(
-                                                                project.updated_at,
-                                                                currentUser?.timezone || 'America/Los_Angeles',
-                                                                'PP'
-                                                            )}
-                                                        </Typography>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Chip
-                                                            label={project.is_active ? 'Active' : 'Inactive'}
-                                                            color={project.is_active ? 'success' : 'default'}
-                                                            size="small"
-                                                        />
-                                                    </TableCell>
-                                                    <TableCell align="right">
-                                                        <IconButton
-                                                            size="small"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                navigate(`/admin/projects/${project.uuid}/edit`);
-                                                            }}
-                                                            color="primary"
-                                                        >
-                                                            <Edit />
-                                                        </IconButton>
-                                                        <IconButton
-                                                            size="small"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleDelete(project.id);
-                                                            }}
-                                                            color="error"
-                                                        >
-                                                            <Delete />
-                                                        </IconButton>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))
+                                            [...projects]
+                                                .sort((a, b) => {
+                                                    const aVal = a[orderBy];
+                                                    const bVal = b[orderBy];
+                                                    if (aVal === null || aVal === undefined) return 1;
+                                                    if (bVal === null || bVal === undefined) return -1;
+                                                    if (typeof aVal === 'string' && typeof bVal === 'string') {
+                                                        return order === 'asc'
+                                                            ? aVal.localeCompare(bVal)
+                                                            : bVal.localeCompare(aVal);
+                                                    }
+                                                    if (aVal < bVal) return order === 'asc' ? -1 : 1;
+                                                    if (aVal > bVal) return order === 'asc' ? 1 : -1;
+                                                    return 0;
+                                                })
+                                                .map((project) => (
+                                                    <TableRow
+                                                        key={project.id}
+                                                        hover
+                                                        sx={{ cursor: 'pointer' }}
+                                                        onClick={() => navigate(`/admin/projects/${project.uuid}`)}
+                                                    >
+                                                        <TableCell>
+                                                            <Typography fontWeight={500}>
+                                                                {project.name}
+                                                            </Typography>
+                                                            <Typography variant="caption" color="textSecondary">
+                                                                {project.slug}
+                                                            </Typography>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {project.customer_name || '—'}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {project.title}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Chip
+                                                                label={project.documents_count}
+                                                                size="small"
+                                                                color="primary"
+                                                                variant="outlined"
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Typography variant="body2">
+                                                                {formatInUserTimezone(
+                                                                    project.created_at,
+                                                                    currentUser?.timezone || 'America/Los_Angeles',
+                                                                    'PP'
+                                                                )}
+                                                            </Typography>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Typography variant="body2">
+                                                                {formatInUserTimezone(
+                                                                    project.updated_at,
+                                                                    currentUser?.timezone || 'America/Los_Angeles',
+                                                                    'PP'
+                                                                )}
+                                                            </Typography>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Stack direction="row" spacing={1}>
+                                                                <Chip
+                                                                    label={project.is_active ? 'Active' : 'Inactive'}
+                                                                    color={project.is_active ? 'success' : 'default'}
+                                                                    size="small"
+                                                                />
+                                                                {project.is_demo && (
+                                                                    <Chip
+                                                                        label="Internal"
+                                                                        size="small"
+                                                                        sx={{
+                                                                            backgroundColor: '#1976d2',
+                                                                            color: 'white',
+                                                                            fontWeight: 600
+                                                                        }}
+                                                                    />
+                                                                )}
+                                                            </Stack>
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    navigate(`/admin/projects/${project.uuid}/edit`);
+                                                                }}
+                                                                color="primary"
+                                                            >
+                                                                <Edit />
+                                                            </IconButton>
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDelete(project.id);
+                                                                }}
+                                                                color="error"
+                                                            >
+                                                                <Delete />
+                                                            </IconButton>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))
                                         )}
                                     </TableBody>
                                 </Table>

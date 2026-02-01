@@ -149,7 +149,7 @@ export default function CustomerProjectEdit() {
 
             setSuccess(true);
             setTimeout(() => {
-                navigate(`/customer/${user?.customer_uuid}/projects/${uuid}`);
+                navigate(`/customer/${uuid}`);
             }, 1500);
         } catch (err) {
             setSaveError(err instanceof Error ? err.message : 'Failed to save changes');
@@ -287,7 +287,7 @@ export default function CustomerProjectEdit() {
                     <Button
                         variant="outlined"
                         startIcon={<ArrowBack />}
-                        onClick={() => navigate(`/customer/${user?.customer_uuid}/projects`)}
+                        onClick={() => navigate(`/customer`)}
                         sx={{ mt: 2 }}
                     >
                         Back to Chatbot Projects
@@ -311,8 +311,8 @@ export default function CustomerProjectEdit() {
                 {/* Breadcrumbs */}
                 <CustomerBreadcrumbs
                     items={[
-                        { label: 'Chatbot Projects', path: `/customer/${user?.customer_uuid}/projects` },
-                        { label: name, path: `/customer/${user?.customer_uuid}/projects/${uuid}` },
+                        { label: 'Chatbot Projects', path: `/customer` },
+                        { label: name, path: `/customer/${uuid}` },
                         { label: 'Edit' },
                     ]}
                 />
@@ -597,7 +597,7 @@ export default function CustomerProjectEdit() {
                             <Button
                                 variant="outlined"
                                 startIcon={<ArrowBack />}
-                                onClick={() => navigate(`/customer/${user?.customer_uuid}/projects/${uuid}`)}
+                                onClick={() => navigate(`/customer/${uuid}`)}
                                 disabled={saving}
                             >
                                 Cancel

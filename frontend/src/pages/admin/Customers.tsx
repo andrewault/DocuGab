@@ -11,6 +11,7 @@ import {
     TableHead,
     TableRow,
     TablePagination,
+    TableSortLabel,
     Chip,
     TextField,
     Stack,
@@ -41,6 +42,7 @@ interface Customer {
     contact_phone: string | null;
     email: string | null;
     is_active: boolean;
+    is_docutok_customer: boolean;
     created_at: string;
     updated_at: string;
     projects_count: number;
@@ -67,6 +69,8 @@ export default function Customers() {
     const [error, setError] = useState<string | null>(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+    const [orderBy, setOrderBy] = useState<keyof Customer>('name');
+    const [order, setOrder] = useState<'asc' | 'desc'>('asc');
     const [formData, setFormData] = useState<CustomerFormData>({
         name: '',
         contact_name: '',
@@ -298,12 +302,48 @@ export default function Customers() {
                             <Table>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Name</TableCell>
+                                        <TableCell>
+                                            <TableSortLabel
+                                                active={orderBy === 'name'}
+                                                direction={orderBy === 'name' ? order : 'asc'}
+                                                onClick={() => {
+                                                    const isAsc = orderBy === 'name' && order === 'asc';
+                                                    setOrder(isAsc ? 'desc' : 'asc');
+                                                    setOrderBy('name');
+                                                }}
+                                            >
+                                                Name
+                                            </TableSortLabel>
+                                        </TableCell>
                                         <TableCell>Contact Name</TableCell>
                                         <TableCell>Email</TableCell>
                                         <TableCell>Contact Phone</TableCell>
-                                        <TableCell>Projects</TableCell>
-                                        <TableCell>Created at</TableCell>
+                                        <TableCell>
+                                            <TableSortLabel
+                                                active={orderBy === 'projects_count'}
+                                                direction={orderBy === 'projects_count' ? order : 'asc'}
+                                                onClick={() => {
+                                                    const isAsc = orderBy === 'projects_count' && order === 'asc';
+                                                    setOrder(isAsc ? 'desc' : 'asc');
+                                                    setOrderBy('projects_count');
+                                                }}
+                                            >
+                                                Projects
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell>
+                                            <TableSortLabel
+                                                active={orderBy === 'created_at'}
+                                                direction={orderBy === 'created_at' ? order : 'asc'}
+                                                onClick={() => {
+                                                    const isAsc = orderBy === 'created_at' && order === 'asc';
+                                                    setOrder(isAsc ? 'desc' : 'asc');
+                                                    setOrderBy('created_at');
+                                                }}
+                                            >
+                                                Created at
+                                            </TableSortLabel>
+                                        </TableCell>
                                         <TableCell>Updated at</TableCell>
                                         <TableCell>Status</TableCell>
                                         <TableCell align="right">Actions</TableCell>
@@ -319,84 +359,112 @@ export default function Customers() {
                                             </TableCell>
                                         </TableRow>
                                     ) : (
-                                        customers.map((customer) => (
-                                            <TableRow
-                                                key={customer.id}
-                                                hover
-                                                sx={{ cursor: 'pointer' }}
-                                                onClick={() => navigate(`/admin/customers/${customer.uuid}`)}
-                                            >
-                                                <TableCell>
-                                                    <Typography fontWeight={500}>
-                                                        {customer.name}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {customer.contact_name || '—'}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {customer.email || '—'}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {customer.contact_phone || '—'}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Chip
-                                                        label={customer.projects_count}
-                                                        size="small"
-                                                        color="primary"
-                                                        variant="outlined"
-                                                    />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography variant="body2">
-                                                        {formatInUserTimezone(
-                                                            customer.created_at,
-                                                            currentUser?.timezone || 'America/Los_Angeles',
-                                                            'PP'
-                                                        )}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography variant="body2">
-                                                        {formatInUserTimezone(
-                                                            customer.updated_at,
-                                                            currentUser?.timezone || 'America/Los_Angeles',
-                                                            'PP'
-                                                        )}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Chip
-                                                        label={customer.is_active ? 'Active' : 'Inactive'}
-                                                        color={customer.is_active ? 'success' : 'default'}
-                                                        size="small"
-                                                    />
-                                                </TableCell>
-                                                <TableCell align="right">
-                                                    <IconButton
-                                                        size="small"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleOpenDialog(customer);
-                                                        }}
-                                                        color="primary"
-                                                    >
-                                                        <Edit />
-                                                    </IconButton>
-                                                    <IconButton
-                                                        size="small"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDelete(customer.id);
-                                                        }}
-                                                        color="error"
-                                                    >
-                                                        <Delete />
-                                                    </IconButton>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
+                                        [...customers]
+                                            .sort((a, b) => {
+                                                const aVal = a[orderBy];
+                                                const bVal = b[orderBy];
+                                                if (aVal === null || aVal === undefined) return 1;
+                                                if (bVal === null || bVal === undefined) return -1;
+                                                if (typeof aVal === 'string' && typeof bVal === 'string') {
+                                                    return order === 'asc'
+                                                        ? aVal.localeCompare(bVal)
+                                                        : bVal.localeCompare(aVal);
+                                                }
+                                                if (aVal < bVal) return order === 'asc' ? -1 : 1;
+                                                if (aVal > bVal) return order === 'asc' ? 1 : -1;
+                                                return 0;
+                                            })
+                                            .map((customer) => (
+                                                <TableRow
+                                                    key={customer.id}
+                                                    hover
+                                                    sx={{ cursor: 'pointer' }}
+                                                    onClick={() => navigate(`/admin/customers/${customer.uuid}`)}
+                                                >
+                                                    <TableCell>
+                                                        <Typography fontWeight={500}>
+                                                            {customer.name}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {customer.contact_name || '—'}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {customer.email || '—'}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {customer.contact_phone || '—'}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Chip
+                                                            label={customer.projects_count}
+                                                            size="small"
+                                                            color="primary"
+                                                            variant="outlined"
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography variant="body2">
+                                                            {formatInUserTimezone(
+                                                                customer.created_at,
+                                                                currentUser?.timezone || 'America/Los_Angeles',
+                                                                'PP'
+                                                            )}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography variant="body2">
+                                                            {formatInUserTimezone(
+                                                                customer.updated_at,
+                                                                currentUser?.timezone || 'America/Los_Angeles',
+                                                                'PP'
+                                                            )}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Stack direction="row" spacing={1}>
+                                                            <Chip
+                                                                label={customer.is_active ? 'Active' : 'Inactive'}
+                                                                color={customer.is_active ? 'success' : 'default'}
+                                                                size="small"
+                                                            />
+                                                            {customer.is_docutok_customer && (
+                                                                <Chip
+                                                                    label="Internal"
+                                                                    size="small"
+                                                                    sx={{
+                                                                        backgroundColor: '#1976d2',
+                                                                        color: 'white',
+                                                                        fontWeight: 600
+                                                                    }}
+                                                                />
+                                                            )}
+                                                        </Stack>
+                                                    </TableCell>
+                                                    <TableCell align="right">
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                navigate(`/admin/customers/${customer.uuid}/edit`);
+                                                            }}
+                                                            color="primary"
+                                                        >
+                                                            <Edit />
+                                                        </IconButton>
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDelete(customer.id);
+                                                            }}
+                                                            color="error"
+                                                        >
+                                                            <Delete />
+                                                        </IconButton>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
                                     )}
                                 </TableBody>
                             </Table>

@@ -17,6 +17,7 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    TableSortLabel,
     Tabs,
     Tab,
 } from '@mui/material';
@@ -76,6 +77,8 @@ export default function CustomerProjectDetail() {
     const [documents, setDocuments] = useState<Document[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [orderBy, setOrderBy] = useState<keyof Document>('filename');
+    const [order, setOrder] = useState<'asc' | 'desc'>('asc');
 
     const fetchProject = useCallback(async () => {
         if (!uuid || !user) return;
@@ -156,7 +159,7 @@ export default function CustomerProjectDetail() {
                     <Button
                         variant="outlined"
                         startIcon={<ArrowBack />}
-                        onClick={() => navigate(`/customer/${user?.customer_uuid}/projects`)}
+                        onClick={() => navigate(`/customer`)}
                         sx={{ mt: 2 }}
                     >
                         Back to Chatbot Projects
@@ -180,7 +183,7 @@ export default function CustomerProjectDetail() {
                 {/* Breadcrumbs */}
                 <CustomerBreadcrumbs
                     items={[
-                        { label: 'Chatbot Projects', path: `/customer/${user?.customer_uuid}/projects` },
+                        { label: 'Chatbot Projects', path: `/customer` },
                         { label: project.name },
                     ]}
                 />
@@ -206,14 +209,14 @@ export default function CustomerProjectDetail() {
                         <Button
                             variant="outlined"
                             startIcon={<Forum />}
-                            onClick={() => navigate(`/customer/${user?.customer_uuid}/projects/${project.uuid}/test`)}
+                            onClick={() => navigate(`/customer/${project.uuid}/test`)}
                         >
                             Test Chat
                         </Button>
                         <Button
                             variant="outlined"
                             startIcon={<Edit />}
-                            onClick={() => navigate(`/customer/${user?.customer_uuid}/projects/${project.uuid}/edit`)}
+                            onClick={() => navigate(`/customer/${project.uuid}/edit`)}
                         >
                             Edit
                         </Button>
@@ -233,7 +236,7 @@ export default function CustomerProjectDetail() {
                         value={currentTab}
                         onChange={(_, newValue) => {
                             navigate(
-                                `/customer/${user?.customer_uuid}/projects/${uuid}/${newValue}`,
+                                `/customer/${uuid}/${newValue}`,
                                 { replace: true }
                             );
                         }}
@@ -527,7 +530,7 @@ export default function CustomerProjectDetail() {
                                         startIcon={<Add />}
                                         onClick={() =>
                                             navigate(
-                                                `/customer/${user?.customer_uuid}/projects/${project.uuid}/documents/new`
+                                                `/customer/${project.uuid}/documents/new`
                                             )
                                         }
                                     >
@@ -543,43 +546,92 @@ export default function CustomerProjectDetail() {
                                             <TableHead>
                                                 <TableRow>
                                                     <TableCell>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                            <DocumentIcon fontSize="small" />
-                                                            Filename
-                                                        </Box>
+                                                        <TableSortLabel
+                                                            active={orderBy === 'filename'}
+                                                            direction={orderBy === 'filename' ? order : 'asc'}
+                                                            onClick={() => {
+                                                                const isAsc = orderBy === 'filename' && order === 'asc';
+                                                                setOrder(isAsc ? 'desc' : 'asc');
+                                                                setOrderBy('filename');
+                                                            }}
+                                                        >
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                                <DocumentIcon fontSize="small" />
+                                                                Filename
+                                                            </Box>
+                                                        </TableSortLabel>
                                                     </TableCell>
                                                     <TableCell>Status</TableCell>
-                                                    <TableCell>Size</TableCell>
-                                                    <TableCell>Uploaded</TableCell>
+                                                    <TableCell>
+                                                        <TableSortLabel
+                                                            active={orderBy === 'file_size'}
+                                                            direction={orderBy === 'file_size' ? order : 'asc'}
+                                                            onClick={() => {
+                                                                const isAsc = orderBy === 'file_size' && order === 'asc';
+                                                                setOrder(isAsc ? 'desc' : 'asc');
+                                                                setOrderBy('file_size');
+                                                            }}
+                                                        >
+                                                            Size
+                                                        </TableSortLabel>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <TableSortLabel
+                                                            active={orderBy === 'created_at'}
+                                                            direction={orderBy === 'created_at' ? order : 'asc'}
+                                                            onClick={() => {
+                                                                const isAsc = orderBy === 'created_at' && order === 'asc';
+                                                                setOrder(isAsc ? 'desc' : 'asc');
+                                                                setOrderBy('created_at');
+                                                            }}
+                                                        >
+                                                            Uploaded
+                                                        </TableSortLabel>
+                                                    </TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
-                                                {documents.map((doc) => (
-                                                    <TableRow key={doc.id} hover>
-                                                        <TableCell>{doc.filename}</TableCell>
-                                                        <TableCell>
-                                                            <Chip
-                                                                label={doc.status}
-                                                                color={
-                                                                    doc.status === 'processed'
-                                                                        ? 'success'
-                                                                        : doc.status === 'processing'
-                                                                            ? 'warning'
-                                                                            : doc.status === 'failed'
-                                                                                ? 'error'
-                                                                                : 'default'
-                                                                }
-                                                                size="small"
-                                                            />
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {(doc.file_size / 1024 / 1024).toFixed(2)} MB
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {formatInUserTimezone(doc.created_at, user?.timezone || 'UTC')}
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
+                                                {[...documents]
+                                                    .sort((a, b) => {
+                                                        const aVal = a[orderBy];
+                                                        const bVal = b[orderBy];
+                                                        if (aVal === null || aVal === undefined) return 1;
+                                                        if (bVal === null || bVal === undefined) return -1;
+                                                        if (typeof aVal === 'string' && typeof bVal === 'string') {
+                                                            return order === 'asc'
+                                                                ? aVal.localeCompare(bVal)
+                                                                : bVal.localeCompare(aVal);
+                                                        }
+                                                        if (aVal < bVal) return order === 'asc' ? -1 : 1;
+                                                        if (aVal > bVal) return order === 'asc' ? 1 : -1;
+                                                        return 0;
+                                                    })
+                                                    .map((doc) => (
+                                                        <TableRow key={doc.id} hover>
+                                                            <TableCell>{doc.filename}</TableCell>
+                                                            <TableCell>
+                                                                <Chip
+                                                                    label={doc.status}
+                                                                    color={
+                                                                        doc.status === 'processed'
+                                                                            ? 'success'
+                                                                            : doc.status === 'processing'
+                                                                                ? 'warning'
+                                                                                : doc.status === 'failed'
+                                                                                    ? 'error'
+                                                                                    : 'default'
+                                                                    }
+                                                                    size="small"
+                                                                />
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {(doc.file_size / 1024 / 1024).toFixed(2)} MB
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {formatInUserTimezone(doc.created_at, user?.timezone || 'UTC')}
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
                                             </TableBody>
                                         </Table>
                                     </TableContainer>

@@ -10,6 +10,7 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    TableSortLabel,
     Chip,
     CircularProgress,
     Alert,
@@ -44,6 +45,8 @@ export default function CustomerProjects() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [orderBy, setOrderBy] = useState<keyof Project>('name');
+    const [order, setOrder] = useState<'asc' | 'desc'>('asc');
 
     const fetchProjects = useCallback(async () => {
         if (!user?.customer_id) {
@@ -142,15 +145,49 @@ export default function CustomerProjects() {
                         <TableHead>
                             <TableRow>
                                 <TableCell>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <RecordVoiceOver fontSize="small" />
-                                        Chatbot Project Name
-                                    </Box>
+                                    <TableSortLabel
+                                        active={orderBy === 'name'}
+                                        direction={orderBy === 'name' ? order : 'asc'}
+                                        onClick={() => {
+                                            const isAsc = orderBy === 'name' && order === 'asc';
+                                            setOrder(isAsc ? 'desc' : 'asc');
+                                            setOrderBy('name');
+                                        }}
+                                    >
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <RecordVoiceOver fontSize="small" />
+                                            Chatbot Project Name
+                                        </Box>
+                                    </TableSortLabel>
                                 </TableCell>
                                 <TableCell>Description</TableCell>
                                 <TableCell>Status</TableCell>
-                                <TableCell>Created</TableCell>
-                                <TableCell>Updated</TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={orderBy === 'created_at'}
+                                        direction={orderBy === 'created_at' ? order : 'asc'}
+                                        onClick={() => {
+                                            const isAsc = orderBy === 'created_at' && order === 'asc';
+                                            setOrder(isAsc ? 'desc' : 'asc');
+                                            setOrderBy('created_at');
+                                        }}
+                                    >
+                                        Created
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={orderBy === 'updated_at'}
+                                        direction={orderBy === 'updated_at' ? order : 'asc'}
+                                        onClick={() => {
+                                            const isAsc = orderBy === 'updated_at' && order === 'asc';
+                                            setOrder(isAsc ? 'desc' : 'asc');
+                                            setOrderBy('updated_at');
+                                        }}
+                                    >
+                                        Updated
+                                    </TableSortLabel>
+                                </TableCell>
                                 <TableCell align="right">Actions</TableCell>
                             </TableRow>
                         </TableHead>
@@ -164,69 +201,84 @@ export default function CustomerProjects() {
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                projects.map((project) => (
-                                    <TableRow
-                                        key={project.uuid}
-                                        hover
-                                        sx={{
-                                            cursor: 'pointer',
-                                            '&:hover': {
-                                                bgcolor: isDark
-                                                    ? 'rgba(99, 102, 241, 0.1)'
-                                                    : 'rgba(99, 102, 241, 0.05)',
-                                            },
-                                        }}
-                                        onClick={() => navigate(`/customer/${user?.customer_uuid}/projects/${project.uuid}`)}
-                                    >
-                                        <TableCell>
-                                            <Typography variant="body1" fontWeight={600}>
-                                                {project.name}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography
-                                                variant="body2"
-                                                color="text.secondary"
-                                                sx={{
-                                                    maxWidth: 400,
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis',
-                                                    whiteSpace: 'nowrap',
-                                                }}
-                                            >
-                                                {project.description || 'No description'}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                label={project.is_active ? 'Active' : 'Inactive'}
-                                                color={project.is_active ? 'success' : 'default'}
-                                                size="small"
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography variant="body2">
-                                                {formatInUserTimezone(project.created_at, user?.timezone || 'UTC')}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography variant="body2">
-                                                {formatInUserTimezone(project.updated_at, user?.timezone || 'UTC')}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            <IconButton
-                                                size="small"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    navigate(`/customer/${user?.customer_uuid}/projects/${project.uuid}`);
-                                                }}
-                                            >
-                                                <Visibility fontSize="small" />
-                                            </IconButton>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
+                                [...projects]
+                                    .sort((a, b) => {
+                                        const aVal = a[orderBy];
+                                        const bVal = b[orderBy];
+                                        if (aVal === null || aVal === undefined) return 1;
+                                        if (bVal === null || bVal === undefined) return -1;
+                                        if (typeof aVal === 'string' && typeof bVal === 'string') {
+                                            return order === 'asc'
+                                                ? aVal.localeCompare(bVal)
+                                                : bVal.localeCompare(aVal);
+                                        }
+                                        if (aVal < bVal) return order === 'asc' ? -1 : 1;
+                                        if (aVal > bVal) return order === 'asc' ? 1 : -1;
+                                        return 0;
+                                    })
+                                    .map((project) => (
+                                        <TableRow
+                                            key={project.uuid}
+                                            hover
+                                            sx={{
+                                                cursor: 'pointer',
+                                                '&:hover': {
+                                                    bgcolor: isDark
+                                                        ? 'rgba(99, 102, 241, 0.1)'
+                                                        : 'rgba(99, 102, 241, 0.05)',
+                                                },
+                                            }}
+                                            onClick={() => navigate(`/customer/projects/${project.uuid}`)}
+                                        >
+                                            <TableCell>
+                                                <Typography variant="body1" fontWeight={600}>
+                                                    {project.name}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    sx={{
+                                                        maxWidth: 400,
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                    }}
+                                                >
+                                                    {project.description || 'No description'}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    label={project.is_active ? 'Active' : 'Inactive'}
+                                                    color={project.is_active ? 'success' : 'default'}
+                                                    size="small"
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2">
+                                                    {formatInUserTimezone(project.created_at, user?.timezone || 'UTC')}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2">
+                                                    {formatInUserTimezone(project.updated_at, user?.timezone || 'UTC')}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        navigate(`/customer/projects/${project.uuid}`);
+                                                    }}
+                                                >
+                                                    <Visibility fontSize="small" />
+                                                </IconButton>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
                             )}
                         </TableBody>
                     </Table>

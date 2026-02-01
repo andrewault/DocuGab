@@ -16,6 +16,7 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    TableSortLabel,
     IconButton,
     Dialog,
     DialogTitle,
@@ -62,6 +63,7 @@ interface Project {
     uuid: string;
     name: string;
     is_active: boolean;
+    is_demo: boolean;
     created_at: string;
     documents_count: number;
 }
@@ -93,6 +95,10 @@ export default function CustomerDetail() {
     const [editForm, setEditForm] = useState({ name: '', contact_name: '', contact_phone: '', email: '', is_active: true, is_docutok_customer: false });
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
+    const [projectsOrderBy, setProjectsOrderBy] = useState<keyof Project>('name');
+    const [projectsOrder, setProjectsOrder] = useState<'asc' | 'desc'>('asc');
+    const [usersOrderBy, setUsersOrderBy] = useState<keyof User>('full_name');
+    const [usersOrder, setUsersOrder] = useState<'asc' | 'desc'>('asc');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -221,20 +227,7 @@ export default function CustomerDetail() {
                     <Button
                         variant="contained"
                         startIcon={<Edit />}
-                        onClick={() => {
-                            if (customer) {
-                                setEditForm({
-                                    name: customer.name,
-                                    contact_name: customer.contact_name || '',
-                                    contact_phone: customer.contact_phone || '',
-                                    is_active: customer.is_active,
-                                    email: customer.email || '',
-                                    is_docutok_customer: customer.is_docutok_customer,
-                                });
-                                setEditDialogOpen(true);
-                                setSaveError(null);
-                            }
-                        }}
+                        onClick={() => navigate(`/admin/customers/${uuid}/edit`)}
                     >
                         Edit Customer
                     </Button>
@@ -339,65 +332,129 @@ export default function CustomerDetail() {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>Name</TableCell>
-                                    <TableCell>Documents</TableCell>
+                                    <TableCell>
+                                        <TableSortLabel
+                                            active={projectsOrderBy === 'name'}
+                                            direction={projectsOrderBy === 'name' ? projectsOrder : 'asc'}
+                                            onClick={() => {
+                                                const isAsc = projectsOrderBy === 'name' && projectsOrder === 'asc';
+                                                setProjectsOrder(isAsc ? 'desc' : 'asc');
+                                                setProjectsOrderBy('name');
+                                            }}
+                                        >
+                                            Name
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell>
+                                        <TableSortLabel
+                                            active={projectsOrderBy === 'documents_count'}
+                                            direction={projectsOrderBy === 'documents_count' ? projectsOrder : 'asc'}
+                                            onClick={() => {
+                                                const isAsc = projectsOrderBy === 'documents_count' && projectsOrder === 'asc';
+                                                setProjectsOrder(isAsc ? 'desc' : 'asc');
+                                                setProjectsOrderBy('documents_count');
+                                            }}
+                                        >
+                                            Documents
+                                        </TableSortLabel>
+                                    </TableCell>
                                     <TableCell>Status</TableCell>
-                                    <TableCell>Created</TableCell>
+                                    <TableCell>
+                                        <TableSortLabel
+                                            active={projectsOrderBy === 'created_at'}
+                                            direction={projectsOrderBy === 'created_at' ? projectsOrder : 'asc'}
+                                            onClick={() => {
+                                                const isAsc = projectsOrderBy === 'created_at' && projectsOrder === 'asc';
+                                                setProjectsOrder(isAsc ? 'desc' : 'asc');
+                                                setProjectsOrderBy('created_at');
+                                            }}
+                                        >
+                                            Created
+                                        </TableSortLabel>
+                                    </TableCell>
                                     <TableCell align="right">Actions</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {projects.map((project) => (
-                                    <TableRow
-                                        key={project.id}
-                                        hover
-                                        sx={{ cursor: 'pointer' }}
-                                        onClick={() => navigate(`/admin/projects/${project.uuid}`)}
-                                    >
-                                        <TableCell>
-                                            <Stack direction="row" alignItems="center" gap={1}>
-                                                <Folder color="primary" fontSize="small" />
-                                                <Typography fontWeight={500}>
-                                                    {project.name}
-                                                </Typography>
-                                            </Stack>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                label={project.documents_count}
-                                                size="small"
-                                                color="primary"
-                                                variant="outlined"
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                label={project.is_active ? 'Active' : 'Inactive'}
-                                                color={project.is_active ? 'success' : 'default'}
-                                                size="small"
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            {formatInUserTimezone(
-                                                project.created_at,
-                                                currentUser?.timezone || 'America/Los_Angeles',
-                                                'PP'
-                                            )}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            <IconButton
-                                                size="small"
-                                                color="primary"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    navigate(`/admin/projects/${project.uuid}/edit`);
-                                                }}
-                                            >
-                                                <Edit />
-                                            </IconButton>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                {[...projects]
+                                    .sort((a, b) => {
+                                        const aVal = a[projectsOrderBy];
+                                        const bVal = b[projectsOrderBy];
+                                        if (aVal === null || aVal === undefined) return 1;
+                                        if (bVal === null || bVal === undefined) return -1;
+                                        if (typeof aVal === 'string' && typeof bVal === 'string') {
+                                            return projectsOrder === 'asc'
+                                                ? aVal.localeCompare(bVal)
+                                                : bVal.localeCompare(aVal);
+                                        }
+                                        if (aVal < bVal) return projectsOrder === 'asc' ? -1 : 1;
+                                        if (aVal > bVal) return projectsOrder === 'asc' ? 1 : -1;
+                                        return 0;
+                                    })
+                                    .map((project) => (
+                                        <TableRow
+                                            key={project.id}
+                                            hover
+                                            sx={{ cursor: 'pointer' }}
+                                            onClick={() => navigate(`/admin/projects/${project.uuid}`)}
+                                        >
+                                            <TableCell>
+                                                <Stack direction="row" alignItems="center" gap={1}>
+                                                    <Folder color="primary" fontSize="small" />
+                                                    <Typography fontWeight={500}>
+                                                        {project.name}
+                                                    </Typography>
+                                                </Stack>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    label={project.documents_count}
+                                                    size="small"
+                                                    color="primary"
+                                                    variant="outlined"
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Stack direction="row" spacing={1}>
+                                                    <Chip
+                                                        label={project.is_active ? 'Active' : 'Inactive'}
+                                                        color={project.is_active ? 'success' : 'default'}
+                                                        size="small"
+                                                    />
+                                                    {project.is_demo && (
+                                                        <Chip
+                                                            label="Internal"
+                                                            size="small"
+                                                            sx={{
+                                                                backgroundColor: '#1976d2',
+                                                                color: 'white',
+                                                                fontWeight: 600
+                                                            }}
+                                                        />
+                                                    )}
+                                                </Stack>
+                                            </TableCell>
+                                            <TableCell>
+                                                {formatInUserTimezone(
+                                                    project.created_at,
+                                                    currentUser?.timezone || 'America/Los_Angeles',
+                                                    'PP'
+                                                )}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                <IconButton
+                                                    size="small"
+                                                    color="primary"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        navigate(`/admin/projects/${project.uuid}/edit`);
+                                                    }}
+                                                >
+                                                    <Edit />
+                                                </IconButton>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
                             </TableBody>
                         </Table>
                     </TableContainer>
@@ -433,8 +490,32 @@ export default function CustomerDetail() {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>Email</TableCell>
-                                    <TableCell>Name</TableCell>
+                                    <TableCell>
+                                        <TableSortLabel
+                                            active={usersOrderBy === 'email'}
+                                            direction={usersOrderBy === 'email' ? usersOrder : 'asc'}
+                                            onClick={() => {
+                                                const isAsc = usersOrderBy === 'email' && usersOrder === 'asc';
+                                                setUsersOrder(isAsc ? 'desc' : 'asc');
+                                                setUsersOrderBy('email');
+                                            }}
+                                        >
+                                            Email
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell>
+                                        <TableSortLabel
+                                            active={usersOrderBy === 'full_name'}
+                                            direction={usersOrderBy === 'full_name' ? usersOrder : 'asc'}
+                                            onClick={() => {
+                                                const isAsc = usersOrderBy === 'full_name' && usersOrder === 'asc';
+                                                setUsersOrder(isAsc ? 'desc' : 'asc');
+                                                setUsersOrderBy('full_name');
+                                            }}
+                                        >
+                                            Name
+                                        </TableSortLabel>
+                                    </TableCell>
                                     <TableCell>Role</TableCell>
                                     <TableCell>Status</TableCell>
                                     <TableCell>Created</TableCell>
@@ -442,62 +523,77 @@ export default function CustomerDetail() {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {users.map((user) => (
-                                    <TableRow
-                                        key={user.id}
-                                        hover
-                                        sx={{ cursor: 'pointer' }}
-                                        onClick={() => navigate(`/admin/users/${user.uuid}`)}
-                                    >
-                                        <TableCell>
-                                            <Typography fontWeight={500}>
-                                                {user.email}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            {user.full_name || '-'}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                label={user.role}
-                                                size="small"
-                                                color={
-                                                    user.role === 'admin'
-                                                        ? 'warning'
-                                                        : user.role === 'customer'
-                                                            ? 'info'
-                                                            : 'default'
-                                                }
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                label={user.is_active ? 'Active' : 'Inactive'}
-                                                color={user.is_active ? 'success' : 'default'}
-                                                size="small"
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            {formatInUserTimezone(
-                                                user.created_at,
-                                                currentUser?.timezone || 'America/Los_Angeles',
-                                                'PP'
-                                            )}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            <IconButton
-                                                size="small"
-                                                color="primary"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    navigate(`/admin/users/${user.uuid}`);
-                                                }}
-                                            >
-                                                <Edit fontSize="small" />
-                                            </IconButton>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                {[...users]
+                                    .sort((a, b) => {
+                                        const aVal = a[usersOrderBy];
+                                        const bVal = b[usersOrderBy];
+                                        if (aVal === null || aVal === undefined) return 1;
+                                        if (bVal === null || bVal === undefined) return -1;
+                                        if (typeof aVal === 'string' && typeof bVal === 'string') {
+                                            return usersOrder === 'asc'
+                                                ? aVal.localeCompare(bVal)
+                                                : bVal.localeCompare(aVal);
+                                        }
+                                        if (aVal < bVal) return usersOrder === 'asc' ? -1 : 1;
+                                        if (aVal > bVal) return usersOrder === 'asc' ? 1 : -1;
+                                        return 0;
+                                    })
+                                    .map((user) => (
+                                        <TableRow
+                                            key={user.id}
+                                            hover
+                                            sx={{ cursor: 'pointer' }}
+                                            onClick={() => navigate(`/admin/users/${user.uuid}`)}
+                                        >
+                                            <TableCell>
+                                                <Typography fontWeight={500}>
+                                                    {user.email}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                {user.full_name || '-'}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    label={user.role}
+                                                    size="small"
+                                                    color={
+                                                        user.role === 'admin'
+                                                            ? 'warning'
+                                                            : user.role === 'customer'
+                                                                ? 'info'
+                                                                : 'default'
+                                                    }
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    label={user.is_active ? 'Active' : 'Inactive'}
+                                                    color={user.is_active ? 'success' : 'default'}
+                                                    size="small"
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                {formatInUserTimezone(
+                                                    user.created_at,
+                                                    currentUser?.timezone || 'America/Los_Angeles',
+                                                    'PP'
+                                                )}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                <IconButton
+                                                    size="small"
+                                                    color="primary"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        navigate(`/admin/users/${user.uuid}`);
+                                                    }}
+                                                >
+                                                    <Edit fontSize="small" />
+                                                </IconButton>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
                             </TableBody>
                         </Table>
                     </TableContainer>

@@ -18,6 +18,7 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    TableSortLabel,
     Dialog,
     DialogTitle,
     DialogContent,
@@ -106,6 +107,8 @@ export default function ProjectDetail() {
     const [testingVoice, setTestingVoice] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [documentToDelete, setDocumentToDelete] = useState<Document | null>(null);
+    const [documentsOrderBy, setDocumentsOrderBy] = useState<keyof Document>('filename');
+    const [documentsOrder, setDocumentsOrder] = useState<'asc' | 'desc'>('asc');
     const [deleting, setDeleting] = useState(false);
 
 
@@ -685,77 +688,140 @@ export default function ProjectDetail() {
                             <Table>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Filename</TableCell>
+                                        <TableCell>
+                                            <TableSortLabel
+                                                active={documentsOrderBy === 'filename'}
+                                                direction={documentsOrderBy === 'filename' ? documentsOrder : 'asc'}
+                                                onClick={() => {
+                                                    const isAsc = documentsOrderBy === 'filename' && documentsOrder === 'asc';
+                                                    setDocumentsOrder(isAsc ? 'desc' : 'asc');
+                                                    setDocumentsOrderBy('filename');
+                                                }}
+                                            >
+                                                Filename
+                                            </TableSortLabel>
+                                        </TableCell>
                                         <TableCell>Type</TableCell>
-                                        <TableCell>Size</TableCell>
-                                        <TableCell>Chunks</TableCell>
+                                        <TableCell>
+                                            <TableSortLabel
+                                                active={documentsOrderBy === 'file_size'}
+                                                direction={documentsOrderBy === 'file_size' ? documentsOrder : 'asc'}
+                                                onClick={() => {
+                                                    const isAsc = documentsOrderBy === 'file_size' && documentsOrder === 'asc';
+                                                    setDocumentsOrder(isAsc ? 'desc' : 'asc');
+                                                    setDocumentsOrderBy('file_size');
+                                                }}
+                                            >
+                                                Size
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell>
+                                            <TableSortLabel
+                                                active={documentsOrderBy === 'chunks_count'}
+                                                direction={documentsOrderBy === 'chunks_count' ? documentsOrder : 'asc'}
+                                                onClick={() => {
+                                                    const isAsc = documentsOrderBy === 'chunks_count' && documentsOrder === 'asc';
+                                                    setDocumentsOrder(isAsc ? 'desc' : 'asc');
+                                                    setDocumentsOrderBy('chunks_count');
+                                                }}
+                                            >
+                                                Chunks
+                                            </TableSortLabel>
+                                        </TableCell>
                                         <TableCell>Status</TableCell>
-                                        <TableCell>Uploaded</TableCell>
+                                        <TableCell>
+                                            <TableSortLabel
+                                                active={documentsOrderBy === 'created_at'}
+                                                direction={documentsOrderBy === 'created_at' ? documentsOrder : 'asc'}
+                                                onClick={() => {
+                                                    const isAsc = documentsOrderBy === 'created_at' && documentsOrder === 'asc';
+                                                    setDocumentsOrder(isAsc ? 'desc' : 'asc');
+                                                    setDocumentsOrderBy('created_at');
+                                                }}
+                                            >
+                                                Uploaded
+                                            </TableSortLabel>
+                                        </TableCell>
                                         <TableCell align="right">Actions</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {documents.map((doc) => (
-                                        <TableRow key={doc.id} hover>
-                                            <TableCell>
-                                                <Typography variant="body2" fontWeight={500}>
-                                                    {doc.original_filename}
-                                                </Typography>
-                                                <Typography variant="caption" color="text.secondary" fontFamily="monospace">
-                                                    {doc.uuid}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Chip
-                                                    label={doc.content_type}
-                                                    size="small"
-                                                    variant="outlined"
-                                                    sx={{ fontFamily: 'monospace', fontSize: '0.7rem' }}
-                                                />
-                                            </TableCell>
-                                            <TableCell>
-                                                {(doc.file_size / 1024).toFixed(1)} KB
-                                            </TableCell>
-                                            <TableCell>
-                                                <Chip
-                                                    label={doc.chunks_count}
-                                                    size="small"
-                                                    color="primary"
-                                                    variant="outlined"
-                                                />
-                                            </TableCell>
-                                            <TableCell>
-                                                <Chip
-                                                    label={doc.status}
-                                                    size="small"
-                                                    color={doc.status === 'processed' ? 'success' : doc.status === 'processing' ? 'info' : 'default'}
-                                                />
-                                            </TableCell>
-                                            <TableCell>
-                                                {formatInUserTimezone(
-                                                    doc.created_at,
-                                                    currentUser?.timezone || 'America/Los_Angeles',
-                                                    'PPpp'
-                                                )}
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                <Tooltip title="Delete Document">
-                                                    <IconButton
-                                                        edge="end"
-                                                        aria-label="delete"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDeleteClick(doc);
-                                                        }}
-                                                        color="error"
+                                    {[...documents]
+                                        .sort((a, b) => {
+                                            const aVal = a[documentsOrderBy];
+                                            const bVal = b[documentsOrderBy];
+                                            if (aVal === null || aVal === undefined) return 1;
+                                            if (bVal === null || bVal === undefined) return -1;
+                                            if (typeof aVal === 'string' && typeof bVal === 'string') {
+                                                return documentsOrder === 'asc'
+                                                    ? aVal.localeCompare(bVal)
+                                                    : bVal.localeCompare(aVal);
+                                            }
+                                            if (aVal < bVal) return documentsOrder === 'asc' ? -1 : 1;
+                                            if (aVal > bVal) return documentsOrder === 'asc' ? 1 : -1;
+                                            return 0;
+                                        })
+                                        .map((doc) => (
+                                            <TableRow key={doc.id} hover>
+                                                <TableCell>
+                                                    <Typography variant="body2" fontWeight={500}>
+                                                        {doc.original_filename}
+                                                    </Typography>
+                                                    <Typography variant="caption" color="text.secondary" fontFamily="monospace">
+                                                        {doc.uuid}
+                                                    </Typography>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Chip
+                                                        label={doc.content_type}
                                                         size="small"
-                                                    >
-                                                        <Delete />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
+                                                        variant="outlined"
+                                                        sx={{ fontFamily: 'monospace', fontSize: '0.7rem' }}
+                                                    />
+                                                </TableCell>
+                                                <TableCell>
+                                                    {(doc.file_size / 1024).toFixed(1)} KB
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Chip
+                                                        label={doc.chunks_count}
+                                                        size="small"
+                                                        color="primary"
+                                                        variant="outlined"
+                                                    />
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Chip
+                                                        label={doc.status}
+                                                        size="small"
+                                                        color={doc.status === 'processed' ? 'success' : doc.status === 'processing' ? 'info' : 'default'}
+                                                    />
+                                                </TableCell>
+                                                <TableCell>
+                                                    {formatInUserTimezone(
+                                                        doc.created_at,
+                                                        currentUser?.timezone || 'America/Los_Angeles',
+                                                        'PPpp'
+                                                    )}
+                                                </TableCell>
+                                                <TableCell align="right">
+                                                    <Tooltip title="Delete Document">
+                                                        <IconButton
+                                                            edge="end"
+                                                            aria-label="delete"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDeleteClick(doc);
+                                                            }}
+                                                            color="error"
+                                                            size="small"
+                                                        >
+                                                            <Delete />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
                                 </TableBody>
                             </Table>
                         </TableContainer>

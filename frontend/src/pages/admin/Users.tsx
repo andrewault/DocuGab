@@ -11,6 +11,7 @@ import {
     TableHead,
     TableRow,
     TablePagination,
+    TableSortLabel,
     Chip,
     TextField,
     Select,
@@ -68,6 +69,8 @@ export default function Users() {
     const [roleFilter, setRoleFilter] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [orderBy, setOrderBy] = useState<keyof User>('full_name');
+    const [order, setOrder] = useState<'asc' | 'desc'>('asc');
 
     const navigate = useNavigate();
     const theme = useTheme();
@@ -230,11 +233,47 @@ export default function Users() {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell>Email</TableCell>
-                                <TableCell>Name</TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={orderBy === 'email'}
+                                        direction={orderBy === 'email' ? order : 'asc'}
+                                        onClick={() => {
+                                            const isAsc = orderBy === 'email' && order === 'asc';
+                                            setOrder(isAsc ? 'desc' : 'asc');
+                                            setOrderBy('email');
+                                        }}
+                                    >
+                                        Email
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={orderBy === 'full_name'}
+                                        direction={orderBy === 'full_name' ? order : 'asc'}
+                                        onClick={() => {
+                                            const isAsc = orderBy === 'full_name' && order === 'asc';
+                                            setOrder(isAsc ? 'desc' : 'asc');
+                                            setOrderBy('full_name');
+                                        }}
+                                    >
+                                        Name
+                                    </TableSortLabel>
+                                </TableCell>
                                 <TableCell>Role</TableCell>
                                 <TableCell>Customer</TableCell>
-                                <TableCell>Created at</TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={orderBy === 'created_at'}
+                                        direction={orderBy === 'created_at' ? order : 'asc'}
+                                        onClick={() => {
+                                            const isAsc = orderBy === 'created_at' && order === 'asc';
+                                            setOrder(isAsc ? 'desc' : 'asc');
+                                            setOrderBy('created_at');
+                                        }}
+                                    >
+                                        Created at
+                                    </TableSortLabel>
+                                </TableCell>
                                 <TableCell>Updated at</TableCell>
                                 <TableCell>Status</TableCell>
                                 <TableCell align="right">Actions</TableCell>
@@ -254,76 +293,91 @@ export default function Users() {
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                users.map((user) => (
-                                    <TableRow
-                                        key={user.id}
-                                        hover
-                                        onClick={() => navigate(`/admin/users/${user.uuid}`)}
-                                        sx={{ cursor: 'pointer' }}
-                                    >
-                                        <TableCell>{user.email}</TableCell>
-                                        <TableCell>{user.full_name || '-'}</TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                label={user.role}
-                                                size="small"
-                                                color={
-                                                    user.role === 'superadmin'
-                                                        ? 'error'
-                                                        : user.role === 'admin'
-                                                            ? 'warning'
-                                                            : user.role === 'customer'
-                                                                ? 'info'
-                                                                : 'default'
-                                                }
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            {user.customer_name ? (
-                                                <Typography variant="body2">{user.customer_name}</Typography>
-                                            ) : (
-                                                <Typography variant="body2" color="text.secondary">-</Typography>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography variant="body2">
-                                                {formatInUserTimezone(
-                                                    user.created_at,
-                                                    currentUser?.timezone || 'America/Los_Angeles',
-                                                    'PP'
+                                [...users]
+                                    .sort((a, b) => {
+                                        const aVal = a[orderBy];
+                                        const bVal = b[orderBy];
+                                        if (aVal === null || aVal === undefined) return 1;
+                                        if (bVal === null || bVal === undefined) return -1;
+                                        if (typeof aVal === 'string' && typeof bVal === 'string') {
+                                            return order === 'asc'
+                                                ? aVal.localeCompare(bVal)
+                                                : bVal.localeCompare(aVal);
+                                        }
+                                        if (aVal < bVal) return order === 'asc' ? -1 : 1;
+                                        if (aVal > bVal) return order === 'asc' ? 1 : -1;
+                                        return 0;
+                                    })
+                                    .map((user) => (
+                                        <TableRow
+                                            key={user.id}
+                                            hover
+                                            onClick={() => navigate(`/admin/users/${user.uuid}`)}
+                                            sx={{ cursor: 'pointer' }}
+                                        >
+                                            <TableCell>{user.email}</TableCell>
+                                            <TableCell>{user.full_name || '-'}</TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    label={user.role}
+                                                    size="small"
+                                                    color={
+                                                        user.role === 'superadmin'
+                                                            ? 'error'
+                                                            : user.role === 'admin'
+                                                                ? 'warning'
+                                                                : user.role === 'customer'
+                                                                    ? 'info'
+                                                                    : 'default'
+                                                    }
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                {user.customer_name ? (
+                                                    <Typography variant="body2">{user.customer_name}</Typography>
+                                                ) : (
+                                                    <Typography variant="body2" color="text.secondary">-</Typography>
                                                 )}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography variant="body2">
-                                                {formatInUserTimezone(
-                                                    user.updated_at,
-                                                    currentUser?.timezone || 'America/Los_Angeles',
-                                                    'PP'
-                                                )}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                label={user.is_active ? 'Active' : 'Inactive'}
-                                                size="small"
-                                                color={user.is_active ? 'success' : 'default'}
-                                            />
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            <IconButton
-                                                size="small"
-                                                color="primary"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    navigate(`/admin/users/${user.uuid}`);
-                                                }}
-                                            >
-                                                <Edit />
-                                            </IconButton>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2">
+                                                    {formatInUserTimezone(
+                                                        user.created_at,
+                                                        currentUser?.timezone || 'America/Los_Angeles',
+                                                        'PP'
+                                                    )}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2">
+                                                    {formatInUserTimezone(
+                                                        user.updated_at,
+                                                        currentUser?.timezone || 'America/Los_Angeles',
+                                                        'PP'
+                                                    )}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    label={user.is_active ? 'Active' : 'Inactive'}
+                                                    size="small"
+                                                    color={user.is_active ? 'success' : 'default'}
+                                                />
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                <IconButton
+                                                    size="small"
+                                                    color="primary"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        navigate(`/admin/users/${user.uuid}`);
+                                                    }}
+                                                >
+                                                    <Edit />
+                                                </IconButton>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
                             )}
                         </TableBody>
                     </Table>

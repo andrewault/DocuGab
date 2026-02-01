@@ -17,7 +17,6 @@ import FAQ from './pages/FAQ';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import AdminHome from './pages/admin/AdminHome';
-import CustomerHome from './pages/customer/CustomerHome';
 import CustomerProjects from './pages/customer/CustomerProjects';
 import CustomerProjectDetail from './pages/customer/CustomerProjectDetail';
 import CustomerProjectEdit from './pages/customer/CustomerProjectEdit';
@@ -30,6 +29,7 @@ import NewUser from './pages/admin/NewUser';
 import FAQManagement from './pages/admin/FAQManagement';
 import Customers from './pages/admin/Customers';
 import CustomerDetail from './pages/admin/CustomerDetail';
+import CustomerEdit from './pages/admin/CustomerEdit';
 import Projects from './pages/admin/Projects';
 import ProjectDetail from './pages/admin/ProjectDetail';
 import ProjectEdit from './pages/admin/ProjectEdit';
@@ -101,35 +101,30 @@ export default function App() {
             } />
             <Route path="/customer" element={
               <ProtectedRoute requireCustomer>
-                <CustomerHome />
-              </ProtectedRoute>
-            } />
-            <Route path="/customer/:customer_uuid/projects" element={
-              <ProtectedRoute requireCustomer>
                 <CustomerProjects />
               </ProtectedRoute>
             } />
-            <Route path="/customer/:customer_uuid/projects/:uuid" element={
+            <Route path="/customer/projects/:uuid" element={
               <ProtectedRoute requireCustomer>
                 <CustomerProjectDetail />
               </ProtectedRoute>
             } />
-            <Route path="/customer/:customer_uuid/projects/:uuid/:tab" element={
+            <Route path="/customer/projects/:uuid/:tab" element={
               <ProtectedRoute requireCustomer>
                 <CustomerProjectDetail />
               </ProtectedRoute>
             } />
-            <Route path="/customer/:customer_uuid/projects/:uuid/edit" element={
+            <Route path="/customer/projects/:uuid/edit" element={
               <ProtectedRoute requireCustomer>
                 <CustomerProjectEdit />
               </ProtectedRoute>
             } />
-            <Route path="/customer/:customer_uuid/projects/:uuid/test" element={
+            <Route path="/customer/projects/:uuid/test" element={
               <ProtectedRoute requireCustomer>
                 <CustomerTestChat />
               </ProtectedRoute>
             } />
-            <Route path="/customer/:customer_uuid/projects/:project_uuid/documents/new" element={
+            <Route path="/customer/projects/:project_uuid/documents/new" element={
               <ProtectedRoute requireCustomer>
                 <CustomerDocumentUpload />
               </ProtectedRoute>
@@ -162,6 +157,11 @@ export default function App() {
             <Route path="/admin/customers/:uuid" element={
               <ProtectedRoute requireAdmin>
                 <CustomerDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/customers/:uuid/edit" element={
+              <ProtectedRoute requireAdmin>
+                <CustomerEdit />
               </ProtectedRoute>
             } />
             <Route path="/admin/projects" element={

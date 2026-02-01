@@ -18,7 +18,7 @@ import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function CustomerDocumentUpload() {
-    const { customer_uuid, project_uuid } = useParams<{ customer_uuid: string; project_uuid: string }>();
+    const { project_uuid } = useParams<{ project_uuid: string }>();
     const { user } = useAuth();
     const navigate = useNavigate();
     const theme = useTheme();
@@ -105,7 +105,7 @@ export default function CustomerDocumentUpload() {
 
             // Redirect back to project detail after 2 seconds
             setTimeout(() => {
-                navigate(`/customer/${customer_uuid}/projects/${project_uuid}`);
+                navigate(`/customer/projects/${project_uuid}`);
             }, 2000);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to upload document');
@@ -128,8 +128,8 @@ export default function CustomerDocumentUpload() {
                 {/* Breadcrumbs */}
                 <CustomerBreadcrumbs
                     items={[
-                        { label: 'Chatbot Projects', path: `/customer/${customer_uuid}/projects` },
-                        { label: 'Chatbot Project', path: `/customer/${customer_uuid}/projects/${project_uuid}` },
+                        { label: 'Chatbot Projects', path: `/customer/projects` },
+                        { label: 'Chatbot Project', path: `/customer/projects/${project_uuid}` },
                         { label: 'Upload Document' },
                     ]}
                 />
@@ -212,7 +212,7 @@ export default function CustomerDocumentUpload() {
                         {/* Cancel Button */}
                         <Button
                             variant="outlined"
-                            onClick={() => navigate(`/customer/${customer_uuid}/projects/${project_uuid}`)}
+                            onClick={() => navigate(`/customer/projects/${project_uuid}`)}
                             disabled={uploading}
                             fullWidth
                         >
