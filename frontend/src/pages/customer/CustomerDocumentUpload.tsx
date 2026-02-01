@@ -14,6 +14,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getAuthHeader } from '../../utils/authUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
+import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
@@ -126,6 +127,7 @@ export default function CustomerDocumentUpload() {
         >
             <Container maxWidth="md" sx={{ px: 3 }}>
                 {/* Breadcrumbs */}
+                <InactiveCustomerBanner />
                 <CustomerBreadcrumbs
                     items={[
                         { label: 'Chatbot Projects', path: `/customer/projects` },

@@ -13,6 +13,7 @@ export interface User {
     customer_id: number | null;
     customer_uuid: string | null;
     customer_name: string | null;
+    customer_is_active: boolean | null;
 }
 
 interface AuthContextType {

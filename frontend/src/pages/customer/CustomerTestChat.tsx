@@ -12,6 +12,7 @@ import { useAuth } from '../../context/AuthContext';
 import TalkingHeadAvatar from '../../components/TalkingHeadAvatar';
 import { getAuthHeader } from '../../utils/authUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
+import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -278,6 +279,7 @@ export default function CustomerTestChat() {
             pt: 4,
             px: 3
         }}>
+            <InactiveCustomerBanner />
             <CustomerBreadcrumbs
                 items={[
                     { label: 'Chatbot Projects', path: `/customer/projects` },

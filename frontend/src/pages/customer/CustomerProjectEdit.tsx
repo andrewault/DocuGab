@@ -28,6 +28,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getAuthHeader } from '../../utils/authUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
 import { VOICE_OPTIONS, VOICE_TEST_TEXT } from '../../constants/voiceConstants';
+import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';
 
 interface Project {
     id: number;
@@ -331,6 +332,7 @@ export default function CustomerProjectEdit() {
             }}
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
+                <InactiveCustomerBanner />
                 {/* Breadcrumbs */}
                 <CustomerBreadcrumbs
                     items={[

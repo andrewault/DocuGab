@@ -24,6 +24,7 @@ import {
 } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
+import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';
 import { useAuth } from '../../context/AuthContext';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
@@ -116,6 +117,7 @@ export default function CustomerUserDetail() {
 
     return (
         <Container maxWidth={false} sx={{ mt: 4, mb: 8, px: 3 }}>
+            <InactiveCustomerBanner />
             <CustomerBreadcrumbs
                 items={[
                     { label: 'Account', path: '/customer/account' },

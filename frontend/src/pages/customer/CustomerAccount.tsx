@@ -39,6 +39,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getAuthHeader } from '../../utils/authUtils';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
+import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
@@ -269,6 +270,7 @@ export default function CustomerAccount() {
             }}
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
+                <InactiveCustomerBanner />
                 {/* Breadcrumbs */}
                 <CustomerBreadcrumbs items={[{ label: 'Account' }]} />
 

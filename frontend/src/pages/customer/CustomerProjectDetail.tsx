@@ -28,6 +28,7 @@ import { getAuthHeader } from '../../utils/authUtils';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
 import AvatarUpload from '../../components/AvatarUpload';
+import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';
 import { getVoiceLabel } from '../../constants/voiceConstants';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
@@ -182,6 +183,7 @@ export default function CustomerProjectDetail() {
             }}
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
+                <InactiveCustomerBanner />
                 {/* Breadcrumbs */}
                 <CustomerBreadcrumbs
                     items={[

@@ -19,6 +19,7 @@ import {
 import { Save } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
+import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';
 
 interface AccountUser {
     id: number;
@@ -185,6 +186,7 @@ export default function CustomerUserEdit() {
             }}
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
+                <InactiveCustomerBanner />
                 <CustomerBreadcrumbs items={[
                     { label: 'Account', path: '/customer/account' },
                     { label: user.email, path: `/customer/account/users/${uuid}` },
