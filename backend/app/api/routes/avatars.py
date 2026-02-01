@@ -17,8 +17,8 @@ from app.services.storage import save_avatar_file, get_avatar_path
 from app.schemas.avatar import AvatarResponse, AvatarListResponse
 
 
-router = APIRouter(prefix="/admin/avatars", tags=["admin", "avatars"])
-customer_router = APIRouter(prefix="/customer/avatars", tags=["customer", "avatars"])
+router = APIRouter(tags=["admin", "avatars"])
+customer_router = APIRouter(tags=["customer", "avatars"])
 
 # File size limit: 50MB
 MAX_FILE_SIZE = 50 * 1024 * 1024

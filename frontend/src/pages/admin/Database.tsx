@@ -58,7 +58,7 @@ export default function Database() {
             setError(null);
 
             const token = localStorage.getItem('access_token');
-            const response = await fetch(`${API_BASE}/api/admin/database/backups`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/database/backups`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
@@ -88,7 +88,7 @@ export default function Database() {
             setSuccess(null);
 
             const token = localStorage.getItem('access_token');
-            const response = await fetch(`${API_BASE}/api/admin/database/backup`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/database/backup`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -116,7 +116,7 @@ export default function Database() {
             setSuccess(null);
 
             const token = localStorage.getItem('access_token');
-            const response = await fetch(`${API_BASE}/api/admin/database/vacuum`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/database/vacuum`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -140,7 +140,7 @@ export default function Database() {
         try {
             const token = localStorage.getItem('access_token');
             const response = await fetch(
-                `${API_BASE}/api/admin/database/backups/${filename}`,
+                `${API_BASE}/api/v1/admin/database/backups/${filename}`,
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -173,7 +173,7 @@ export default function Database() {
 
             const token = localStorage.getItem('access_token');
             const response = await fetch(
-                `${API_BASE}/api/admin/database/backups/${filename}`,
+                `${API_BASE}/api/v1/admin/database/backups/${filename}`,
                 {
                     method: 'DELETE',
                     headers: {
@@ -284,7 +284,7 @@ export default function Database() {
                                         formData.append('file', file);
 
                                         const token = localStorage.getItem('access_token');
-                                        const response = await fetch(`${API_BASE}/api/admin/database/restore`, {
+                                        const response = await fetch(`${API_BASE}/api/v1/admin/database/restore`, {
                                             method: 'POST',
                                             headers: {
                                                 'Authorization': `Bearer ${token}`,

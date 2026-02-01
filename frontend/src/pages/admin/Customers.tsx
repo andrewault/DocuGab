@@ -88,7 +88,7 @@ export default function Customers() {
             });
 
             const response = await fetch(
-                `${API_BASE}/api/admin/customers?${params}`,
+                `${API_BASE}/api/v1/admin/customers?${params}`,
                 { headers: getAuthHeader() }
             );
 
@@ -147,8 +147,8 @@ export default function Customers() {
     const handleSubmit = async () => {
         try {
             const url = editingCustomer
-                ? `${API_BASE}/api/admin/customers/${editingCustomer.uuid}`
-                : `${API_BASE}/api/admin/customers`;
+                ? `${API_BASE}/api/v1/admin/customers/${editingCustomer.uuid}`
+                : `${API_BASE}/api/v1/admin/customers`;
 
             const method = editingCustomer ? 'PATCH' : 'POST';
 
@@ -179,7 +179,7 @@ export default function Customers() {
         }
 
         try {
-            const response = await fetch(`${API_BASE}/api/admin/customers/${id}`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/customers/${id}`, {
                 method: 'DELETE',
                 headers: getAuthHeader(),
             });

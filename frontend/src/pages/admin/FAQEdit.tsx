@@ -52,7 +52,7 @@ export default function FAQEdit() {
         const fetchFaq = async () => {
             try {
                 setLoading(true);
-                const res = await fetch(`${API_BASE}/api/faq/${uuid}`, {
+                const res = await fetch(`${API_BASE}/api/v1/faq/${uuid}`, {
                     headers: getAuthHeader(),
                 });
 
@@ -82,8 +82,8 @@ export default function FAQEdit() {
             setError('');
 
             const url = isEditing
-                ? `${API_BASE}/api/faq/${uuid}`
-                : `${API_BASE}/api/faq/`;
+                ? `${API_BASE}/api/v1/faq/${uuid}`
+                : `${API_BASE}/api/v1/faq/`;
             const method = isEditing ? 'PATCH' : 'POST';
 
             const res = await fetch(url, {

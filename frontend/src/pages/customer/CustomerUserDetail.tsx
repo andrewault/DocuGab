@@ -58,7 +58,7 @@ export default function CustomerUserDetail() {
             try {
                 setLoading(true);
                 // Fetch from account endpoint to get all users
-                const response = await fetch(`${API_BASE}/api/customer/account`, {
+                const response = await fetch(`${API_BASE}/api/v1/customer/account`, {
                     headers: getAuthHeader(),
                 });
                 if (!response.ok) {

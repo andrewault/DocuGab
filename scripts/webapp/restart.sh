@@ -30,6 +30,12 @@ echo ""
 echo "⏳ Waiting for services to be healthy..."
 sleep 5
 
+# Install frontend dependencies (required after container recreate)
+echo ""
+echo "📦 Installing frontend dependencies..."
+docker exec docutok-frontend npm install > /dev/null 2>&1
+echo "   Frontend dependencies installed"
+
 echo ""
 # Run health check
 ./scripts/webapp/health.sh

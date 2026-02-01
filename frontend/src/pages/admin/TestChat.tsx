@@ -67,7 +67,7 @@ export default function TestChat() {
             if (!uuid) return;
             try {
                 setLoadingProject(true);
-                const res = await fetch(`${API_BASE}/api/admin/projects/${uuid}`, {
+                const res = await fetch(`${API_BASE}/api/v1/admin/projects/${uuid}`, {
                     headers: getAuthHeader()
                 });
                 if (!res.ok) throw new Error('Failed to load project');

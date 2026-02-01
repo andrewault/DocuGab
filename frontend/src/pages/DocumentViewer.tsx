@@ -95,7 +95,7 @@ export default function DocumentViewer() {
                 setError(null);
 
                 // Fetch document metadata
-                const metaRes = await fetch(`${API_BASE}/api/documents/by-uuid/${uuid}`);
+                const metaRes = await fetch(`${API_BASE}/api/v1/documents/by-uuid/${uuid}`);
                 if (!metaRes.ok) {
                     throw new Error('Document not found');
                 }
@@ -107,7 +107,7 @@ export default function DocumentViewer() {
                     docData.content_type === 'text/markdown' ||
                     docData.filename.endsWith('.md') ||
                     docData.filename.endsWith('.txt')) {
-                    const contentRes = await fetch(`${API_BASE}/api/documents/by-uuid/${uuid}/content`);
+                    const contentRes = await fetch(`${API_BASE}/api/v1/documents/by-uuid/${uuid}/content`);
                     if (contentRes.ok) {
                         const text = await contentRes.text();
                         setContent(text);
@@ -131,7 +131,7 @@ export default function DocumentViewer() {
 
     const handleDownload = () => {
         if (uuid) {
-            window.open(`${API_BASE}/api/documents/by-uuid/${uuid}/content`, '_blank');
+            window.open(`${API_BASE}/api/v1/documents/by-uuid/${uuid}/content`, '_blank');
         }
     };
 
@@ -146,7 +146,7 @@ export default function DocumentViewer() {
             return (
                 <Box sx={{ height: '100%' }}>
                     <iframe
-                        src={`${API_BASE}/api/documents/by-uuid/${uuid}/content`}
+                        src={`${API_BASE}/api/v1/documents/by-uuid/${uuid}/content`}
                         style={{
                             width: '100%',
                             height: '100%',

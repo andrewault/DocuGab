@@ -55,7 +55,7 @@ export default function Settings() {
             setError(null);
             setSuccess(null);
 
-            const response = await fetch(`${API_BASE}/api/users/me/settings`, {
+            const response = await fetch(`${API_BASE}/api/v1/users/me/settings`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

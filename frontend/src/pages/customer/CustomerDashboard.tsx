@@ -76,7 +76,7 @@ export default function CustomerDashboard() {
 
             // Fetch projects to calculate stats and get recent projects
             const projectsResponse = await fetch(
-                `${API_BASE}/api/customer/projects`,
+                `${API_BASE}/api/v1/customer/projects`,
                 { headers: getAuthHeader() }
             );
 

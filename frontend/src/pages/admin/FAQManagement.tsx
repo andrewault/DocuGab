@@ -163,7 +163,7 @@ export default function FAQManagement() {
 
     const fetchFaqs = async () => {
         try {
-            const res = await fetch(`${API_BASE}/api/faq/?include_inactive=true`, {
+            const res = await fetch(`${API_BASE}/api/v1/faq/?include_inactive=true`, {
                 headers: getAuthHeader(),
             });
             if (res.ok) {
@@ -185,7 +185,7 @@ export default function FAQManagement() {
         if (!window.confirm('Are you sure you want to delete this FAQ?')) return;
 
         try {
-            const res = await fetch(`${API_BASE}/api/faq/${uuid}`, {
+            const res = await fetch(`${API_BASE}/api/v1/faq/${uuid}`, {
                 method: 'DELETE',
                 headers: getAuthHeader(),
             });
@@ -220,7 +220,7 @@ export default function FAQManagement() {
 
         // Send to backend
         try {
-            await fetch(`${API_BASE}/api/faq/reorder`, {
+            await fetch(`${API_BASE}/api/v1/faq/reorder`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

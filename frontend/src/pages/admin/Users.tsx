@@ -78,7 +78,7 @@ export default function Users() {
 
     const fetchStats = async () => {
         try {
-            const response = await fetch(`${API_BASE}/api/admin/stats`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/stats`, {
                 headers: getAuthHeader(),
             });
             if (!response.ok) throw new Error('Failed to fetch stats');
@@ -99,7 +99,7 @@ export default function Users() {
             if (search) params.append('search', search);
             if (roleFilter) params.append('role', roleFilter);
 
-            const response = await fetch(`${API_BASE}/api/admin/users?${params}`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/users?${params}`, {
                 headers: getAuthHeader(),
             });
             if (!response.ok) throw new Error('Failed to fetch users');

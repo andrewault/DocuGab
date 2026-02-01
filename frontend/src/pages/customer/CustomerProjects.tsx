@@ -62,7 +62,7 @@ export default function CustomerProjects() {
         try {
             setLoading(true);
             const response = await fetch(
-                `${API_BASE}/api/customer/projects`,
+                `${API_BASE}/api/v1/customer/projects`,
                 { headers: getAuthHeader() }
             );
 

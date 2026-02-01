@@ -30,7 +30,7 @@ export default function FAQ() {
     useEffect(() => {
         const fetchFaqs = async () => {
             try {
-                const res = await fetch(`${API_BASE}/api/faq/`);
+                const res = await fetch(`${API_BASE}/api/v1/faq/`);
                 if (res.ok) {
                     const data = await res.json();
                     setFaqs(data.faqs);

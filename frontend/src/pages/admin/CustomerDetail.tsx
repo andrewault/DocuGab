@@ -31,7 +31,6 @@ import {
     Phone,
     Person,
     CalendarToday,
-    ArrowBack,
     Add,
     Folder,
     Edit,
@@ -107,7 +106,7 @@ export default function CustomerDetail() {
 
                 // Fetch customer details
                 const customerResponse = await fetch(
-                    `${API_BASE}/api/admin/customers/${uuid}`,
+                    `${API_BASE}/api/v1/admin/customers/${uuid}`,
                     { headers: getAuthHeader() }
                 );
 
@@ -120,7 +119,7 @@ export default function CustomerDetail() {
 
                 // Fetch customer's projects using the customer's integer ID
                 const projectsResponse = await fetch(
-                    `${API_BASE}/api/admin/projects?customer_id=${customerData.id}`,
+                    `${API_BASE}/api/v1/admin/projects?customer_id=${customerData.id}`,
                     { headers: getAuthHeader() }
                 );
 
@@ -134,7 +133,7 @@ export default function CustomerDetail() {
 
                 // Fetch customer's users
                 const usersResponse = await fetch(
-                    `${API_BASE}/api/admin/users?page=1&per_page=100`,
+                    `${API_BASE}/api/v1/admin/users?page=1&per_page=100`,
                     { headers: getAuthHeader() }
                 );
 
@@ -169,18 +168,10 @@ export default function CustomerDetail() {
             </Container>
         );
     }
-
     if (error || !customer) {
         return (
             <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: 3 }}>
                 <Alert severity="error">{error || 'Customer not found'}</Alert>
-                <Button
-                    startIcon={<ArrowBack />}
-                    onClick={() => navigate('/admin/customers')}
-                    sx={{ mt: 2 }}
-                >
-                    Back to Customers
-                </Button>
             </Container>
         );
     }
@@ -217,13 +208,6 @@ export default function CustomerDetail() {
                     </Typography>
                 </Box>
                 <Stack direction="row" spacing={2}>
-                    <Button
-                        variant="outlined"
-                        startIcon={<ArrowBack />}
-                        onClick={() => navigate(-1)}
-                    >
-                        Back
-                    </Button>
                     <Button
                         variant="contained"
                         startIcon={<Edit />}
@@ -710,7 +694,7 @@ export default function CustomerDetail() {
                             setSaveError(null);
                             try {
                                 const response = await fetch(
-                                    `${API_BASE}/api/admin/customers/${uuid}`,
+                                    `${API_BASE}/api/v1/admin/customers/${uuid}`,
                                     {
                                         method: 'PATCH',
                                         headers: {

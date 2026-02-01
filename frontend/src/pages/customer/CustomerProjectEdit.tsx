@@ -106,7 +106,7 @@ export default function CustomerProjectEdit() {
 
             try {
                 setLoading(true);
-                const response = await fetch(`${API_BASE}/api/customer/projects/${uuid}`, {
+                const response = await fetch(`${API_BASE}/api/v1/customer/projects/${uuid}`, {
                     headers: getAuthHeader(),
                 });
 
@@ -145,7 +145,7 @@ export default function CustomerProjectEdit() {
             setSaving(true);
             setSaveError(null);
 
-            const response = await fetch(`${API_BASE}/api/customer/projects/${uuid}`, {
+            const response = await fetch(`${API_BASE}/api/v1/customer/projects/${uuid}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -230,7 +230,7 @@ export default function CustomerProjectEdit() {
             const formData = new FormData();
             formData.append('file', logoFile);
 
-            const response = await fetch(`${API_BASE}/api/customer/projects/${uuid}/logo`, {
+            const response = await fetch(`${API_BASE}/api/v1/customer/projects/${uuid}/logo`, {
                 method: 'POST',
                 headers: getAuthHeader(),
                 body: formData,
@@ -242,7 +242,7 @@ export default function CustomerProjectEdit() {
             }
 
             // Refresh logo
-            setCurrentLogo(`/api/customer/projects/${uuid}/logo?t=${Date.now()}`);
+            setCurrentLogo(`/api/v1/customer/projects/${uuid}/logo?t=${Date.now()}`);
             setLogoModalOpen(false);
             setLogoFile(null);
             setLogoPreview(null);
@@ -256,7 +256,7 @@ export default function CustomerProjectEdit() {
     const testVoice = async (voiceValue: string) => {
         setTestingVoice(true);
         try {
-            const res = await fetch(`${API_BASE}/api/speech/synthesize`, {
+            const res = await fetch(`${API_BASE}/api/v1/speech/synthesize`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: VOICE_TEST_TEXT, voice: voiceValue }),

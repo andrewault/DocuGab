@@ -9,14 +9,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
 
     const fetchCurrentUser = async () => {
-        const response = await authFetch(`${API_BASE}/api/auth/me`);
+        const response = await authFetch(`${API_BASE}/api/v1/auth/me`);
         if (!response.ok) throw new Error('Failed to fetch user');
         const userData = await response.json();
         setUser(userData);
     };
 
     const refreshTokens = async (refreshToken: string) => {
-        const response = await fetch(`${API_BASE}/api/auth/refresh`, {
+        const response = await fetch(`${API_BASE}/api/v1/auth/refresh`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ refresh_token: refreshToken }),
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const login = async (email: string, password: string) => {
-        const response = await fetch(`${API_BASE}/api/auth/login`, {
+        const response = await fetch(`${API_BASE}/api/v1/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const register = async (email: string, password: string, fullName?: string) => {
-        const response = await fetch(`${API_BASE}/api/auth/register`, {
+        const response = await fetch(`${API_BASE}/api/v1/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password, full_name: fullName }),
@@ -104,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     headers.Authorization = auth.Authorization;
                 }
 
-                await fetch(`${API_BASE}/api/auth/logout`, {
+                await fetch(`${API_BASE}/api/v1/auth/logout`, {
                     method: 'POST',
                     headers,
                     body: JSON.stringify({ refresh_token: refreshToken }),

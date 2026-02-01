@@ -37,7 +37,7 @@ export default function PublicChat() {
         setIsLoading(true);
 
         try {
-            const response = await fetch(`${API_BASE}/api/chat`, {
+            const response = await fetch(`${API_BASE}/api/v1/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

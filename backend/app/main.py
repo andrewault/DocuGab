@@ -1,29 +1,18 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from sqlalchemy import select
+from slowapi.errors import RateLimitExceeded
 
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
 from app.core.security import hash_password
+from app.core.rate_limit import limiter, rate_limit_handler
 from app.models.user import User
-from app.api.routes import (
-    health,
-    documents,
-    chat,
-    auth,
-    users,
-    admin,
-    faq,
-    speech,
-    customers,
-    database,
-    avatars,
-)
-from app.api.routes.admin_routes import projects as admin_projects
-from app.api.routes.customer_routes import projects as customer_projects
-from app.api.routes.customer_routes import account as customer_account
+from app.api import v1 as api_v1
+from app.api.routes import health
 
 
 async def seed_admin_user():
@@ -71,9 +60,13 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="DocuTok API",
     description="RAG-based document intelligence platform",
-    version="0.1.0",
+    version="1.0.0",
     lifespan=lifespan,
 )
+
+# Rate limiting
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
 
 # CORS
 app.add_middleware(
@@ -84,19 +77,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# Backwards compatibility middleware - redirect /api/* to /api/v1/*
+@app.middleware("http")
+async def api_version_redirect(request: Request, call_next):
+    """Redirect /api/* requests to /api/v1/* for backwards compatibility."""
+    path = request.url.path
+    
+    # Skip redirect for CORS preflight (OPTIONS) requests
+    if request.method == "OPTIONS":
+        return await call_next(request)
+    
+    # Skip if already versioned or health check
+    if path.startswith("/api/v1/") or path == "/health":
+        return await call_next(request)
+    
+    # Redirect /api/* to /api/v1/*
+    if path.startswith("/api/"):
+        new_path = path.replace("/api/", "/api/v1/", 1)
+        query = str(request.url.query)
+        redirect_url = f"{new_path}?{query}" if query else new_path
+        return RedirectResponse(url=redirect_url, status_code=307)
+    
+    return await call_next(request)
+
+
 # Routes
-app.include_router(health.router, tags=["Health"])
-app.include_router(auth.router, prefix="/api", tags=["Auth"])
-app.include_router(users.router, prefix="/api", tags=["Users"])
-app.include_router(admin.router, prefix="/api", tags=["Admin"])
-app.include_router(database.router, prefix="/api/admin/database", tags=["Database"])
-app.include_router(customers.router, prefix="/api", tags=["Customers"])
-app.include_router(admin_projects.router, prefix="/api", tags=["Admin Projects"])
-app.include_router(customer_projects.router, prefix="/api", tags=["Customer Projects"])
-app.include_router(customer_account.router, prefix="/api", tags=["Customer Account"])
-app.include_router(documents.router, prefix="/api/documents", tags=["Documents"])
-app.include_router(chat.router, prefix="/api/chat", tags=["Chat"])
-app.include_router(speech.router, prefix="/api/speech", tags=["Speech"])
-app.include_router(faq.router, tags=["FAQ"])
-app.include_router(avatars.router, prefix="/api", tags=["Avatars"])
-app.include_router(avatars.customer_router, prefix="/api", tags=["Customer Avatars"])
+app.include_router(health.router, tags=["Health"])  # Keep health at root
+app.include_router(api_v1.router)  # All API routes under /api/v1

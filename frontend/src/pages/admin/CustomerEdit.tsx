@@ -14,7 +14,7 @@ import {
     FormControlLabel,
     useTheme,
 } from '@mui/material';
-import { ArrowBack, Save, Business } from '@mui/icons-material';
+import { Save, Business } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
@@ -63,7 +63,7 @@ export default function CustomerEdit() {
             try {
                 setLoading(true);
                 const response = await fetch(
-                    `${API_BASE}/api/admin/customers/${uuid}`,
+                    `${API_BASE}/api/v1/admin/customers/${uuid}`,
                     { headers: getAuthHeader() }
                 );
 
@@ -98,7 +98,7 @@ export default function CustomerEdit() {
             setError(null);
 
             const response = await fetch(
-                `${API_BASE}/api/admin/customers/${uuid}`,
+                `${API_BASE}/api/v1/admin/customers/${uuid}`,
                 {
                     method: 'PATCH',
                     headers: {
@@ -149,7 +149,7 @@ export default function CustomerEdit() {
                 py: 4,
             }}
         >
-            <Container maxWidth="md" sx={{ px: 3 }}>
+            <Container maxWidth="lg" sx={{ px: 3 }}>
                 <AdminBreadcrumbs
                     items={[
                         { label: 'Customers', path: '/admin/customers' },
@@ -240,7 +240,6 @@ export default function CustomerEdit() {
                             <Stack direction="row" spacing={2} justifyContent="flex-end">
                                 <Button
                                     variant="outlined"
-                                    startIcon={<ArrowBack />}
                                     onClick={() => navigate(`/admin/customers/${uuid}`)}
                                     disabled={saving}
                                 >

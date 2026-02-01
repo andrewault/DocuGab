@@ -148,7 +148,7 @@ export default function Projects() {
     const fetchCustomers = useCallback(async () => {
         try {
             const response = await fetch(
-                `${API_BASE}/api/admin/customers?per_page=1000`,
+                `${API_BASE}/api/v1/admin/customers?per_page=1000`,
                 { headers: getAuthHeader() }
             );
             if (!response.ok) throw new Error('Failed to fetch customers');
@@ -170,7 +170,7 @@ export default function Projects() {
             });
 
             const response = await fetch(
-                `${API_BASE}/api/admin/projects?${params}`,
+                `${API_BASE}/api/v1/admin/projects?${params}`,
                 { headers: getAuthHeader() }
             );
 
@@ -241,8 +241,8 @@ export default function Projects() {
     const handleSubmit = async () => {
         try {
             const url = editingProject
-                ? `${API_BASE}/api/admin/projects/${editingProject.id}`
-                : `${API_BASE}/api/admin/projects`;
+                ? `${API_BASE}/api/v1/admin/projects/${editingProject.id}`
+                : `${API_BASE}/api/v1/admin/projects`;
 
             const method = editingProject ? 'PATCH' : 'POST';
 
@@ -273,7 +273,7 @@ export default function Projects() {
         }
 
         try {
-            const response = await fetch(`${API_BASE}/api/admin/projects/${id}`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/projects/${id}`, {
                 method: 'DELETE',
                 headers: getAuthHeader(),
             });

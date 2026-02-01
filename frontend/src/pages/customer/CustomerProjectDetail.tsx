@@ -88,7 +88,7 @@ export default function CustomerProjectDetail() {
 
         try {
             setLoading(true);
-            const response = await fetch(`${API_BASE}/api/customer/projects/${uuid}`, {
+            const response = await fetch(`${API_BASE}/api/v1/customer/projects/${uuid}`, {
                 headers: getAuthHeader(),
             });
 
@@ -111,7 +111,7 @@ export default function CustomerProjectDetail() {
 
             // Fetch documents for this project
             const docsResponse = await fetch(
-                `${API_BASE}/api/documents?project_id=${data.id}`,
+                `${API_BASE}/api/v1/documents?project_id=${data.id}`,
                 { headers: getAuthHeader() }
             );
             if (docsResponse.ok) {

@@ -61,7 +61,7 @@ export default function CustomerUserEdit() {
         try {
             setLoading(true);
             // Fetch from account endpoint to get all users
-            const response = await fetch(`${API_BASE}/api/customer/account`, {
+            const response = await fetch(`${API_BASE}/api/v1/customer/account`, {
                 headers: getAuthHeader(),
             });
             if (!response.ok) {
@@ -97,7 +97,7 @@ export default function CustomerUserEdit() {
             setError(null);
 
             // Update full name via the user info endpoint
-            const infoResponse = await fetch(`${API_BASE}/api/customer/account/users/${uuid}`, {
+            const infoResponse = await fetch(`${API_BASE}/api/v1/customer/account/users/${uuid}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ export default function CustomerUserEdit() {
             }
 
             // Update role via API (placeholder for now)
-            const roleResponse = await fetch(`${API_BASE}/api/customer/account/users/${uuid}/role`, {
+            const roleResponse = await fetch(`${API_BASE}/api/v1/customer/account/users/${uuid}/role`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

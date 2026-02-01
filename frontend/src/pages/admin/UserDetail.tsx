@@ -67,7 +67,7 @@ export default function UserDetail() {
         const fetchUser = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`${API_BASE}/api/admin/users/${uuid}`, {
+                const response = await fetch(`${API_BASE}/api/v1/admin/users/${uuid}`, {
                     headers: getAuthHeader(),
                 });
                 if (!response.ok) {
@@ -100,7 +100,7 @@ export default function UserDetail() {
 
         try {
             setDeleting(true);
-            const response = await fetch(`${API_BASE}/api/admin/users/${user.uuid}`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/users/${user.uuid}`, {
                 method: 'DELETE',
                 headers: getAuthHeader(),
             });

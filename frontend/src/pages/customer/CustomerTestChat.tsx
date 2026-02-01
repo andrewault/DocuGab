@@ -70,7 +70,7 @@ export default function CustomerTestChat() {
             try {
                 setLoadingProject(true);
                 // Use customer endpoint
-                const res = await fetch(`${API_BASE}/api/customer/projects/${uuid}`, {
+                const res = await fetch(`${API_BASE}/api/v1/customer/projects/${uuid}`, {
                     headers: getAuthHeader()
                 });
                 if (!res.ok) throw new Error('Failed to load project');
@@ -128,7 +128,7 @@ export default function CustomerTestChat() {
         setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
         try {
-            const response = await fetch(`${API_BASE}/api/chat/`, {
+            const response = await fetch(`${API_BASE}/api/v1/chat/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -211,7 +211,7 @@ export default function CustomerTestChat() {
         try {
             const formData = new FormData();
             formData.append('audio', audioBlob, 'recording.webm');
-            const res = await fetch(`${API_BASE}/api/speech/transcribe`, {
+            const res = await fetch(`${API_BASE}/api/v1/speech/transcribe`, {
                 method: 'POST',
                 body: formData,
             });

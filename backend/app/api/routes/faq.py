@@ -13,7 +13,7 @@ from app.core.deps import get_admin_user
 from app.models.faq import FAQ
 from app.models.user import User
 
-router = APIRouter(prefix="/api/faq", tags=["faq"])
+router = APIRouter(tags=["faq"])
 
 
 class FAQCreate(BaseModel):

@@ -45,7 +45,7 @@ export default function NewUser() {
 
     const fetchCustomers = useCallback(async () => {
         try {
-            const response = await fetch(`${API_BASE}/api/admin/customers?page=1&per_page=100`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/customers?page=1&per_page=100`, {
                 headers: getAuthHeader(),
             });
             if (!response.ok) throw new Error('Failed to fetch customers');
@@ -82,7 +82,7 @@ export default function NewUser() {
             setSaving(true);
             setError(null);
 
-            const response = await fetch(`${API_BASE}/api/auth/register`, {
+            const response = await fetch(`${API_BASE}/api/v1/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ export default function NewUser() {
 
             // Update the user's role, active status, verified status, and customer if needed
             if (role !== 'user' || !isActive || isVerified || customerId !== null) {
-                const updateResponse = await fetch(`${API_BASE}/api/admin/users/${newUser.uuid}`, {
+                const updateResponse = await fetch(`${API_BASE}/api/v1/admin/users/${newUser.uuid}`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',

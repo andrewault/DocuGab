@@ -73,7 +73,7 @@ export default function CustomerDocumentUpload() {
 
             // First, get the project details to get the project ID
             const projectResponse = await fetch(
-                `${API_BASE}/api/customer/projects/${project_uuid}`,
+                `${API_BASE}/api/v1/customer/projects/${project_uuid}`,
                 { headers: getAuthHeader() }
             );
 
@@ -88,7 +88,7 @@ export default function CustomerDocumentUpload() {
             formData.append('file', fileToUpload);
             formData.append('project_id', projectData.id.toString());
 
-            const uploadResponse = await fetch(`${API_BASE}/api/documents/upload`, {
+            const uploadResponse = await fetch(`${API_BASE}/api/v1/documents/upload`, {
                 method: 'POST',
                 headers: {
                     ...getAuthHeader(),

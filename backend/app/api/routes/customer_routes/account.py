@@ -68,7 +68,7 @@ class UpdateUserInfoRequest(BaseModel):
     full_name: str | None = None
 
 
-router = APIRouter(prefix="/customer/account", tags=["customer", "account"])
+router = APIRouter(tags=["customer", "account"])
 
 
 def get_user_customer_role(user: User) -> str:

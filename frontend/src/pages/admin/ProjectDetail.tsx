@@ -119,7 +119,7 @@ export default function ProjectDetail() {
 
         try {
             const docsResponse = await fetch(
-                `${API_BASE}/api/documents?project_id=${project.id}`,
+                `${API_BASE}/api/v1/documents?project_id=${project.id}`,
                 { headers: getAuthHeader() }
             );
 
@@ -145,7 +145,7 @@ export default function ProjectDetail() {
                 formData.append('file', file);
 
                 const response = await fetch(
-                    `${API_BASE}/api/documents/upload?project_id=${project.id}`,
+                    `${API_BASE}/api/v1/documents/upload?project_id=${project.id}`,
                     {
                         method: 'POST',
                         headers: getAuthHeader(),
@@ -243,7 +243,7 @@ export default function ProjectDetail() {
 
         setDeleting(true);
         try {
-            const response = await fetch(`${API_BASE}/api/documents/${documentToDelete.id}`, {
+            const response = await fetch(`${API_BASE}/api/v1/documents/${documentToDelete.id}`, {
                 method: 'DELETE',
                 headers: getAuthHeader(),
             });
@@ -271,7 +271,7 @@ export default function ProjectDetail() {
 
                 // Fetch project details by UUID
                 const projectResponse = await fetch(
-                    `${API_BASE}/api/admin/projects/${uuid}`,
+                    `${API_BASE}/api/v1/admin/projects/${uuid}`,
                     { headers: getAuthHeader() }
                 );
 
@@ -284,7 +284,7 @@ export default function ProjectDetail() {
 
                 // Fetch documents for this project using integer ID
                 const docsResponse = await fetch(
-                    `${API_BASE}/api/documents?project_id=${projectData.id}`,
+                    `${API_BASE}/api/v1/documents?project_id=${projectData.id}`,
                     { headers: getAuthHeader() }
                 );
 

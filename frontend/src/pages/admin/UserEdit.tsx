@@ -87,7 +87,7 @@ export default function UserEdit() {
     const fetchUser = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${API_BASE}/api/admin/users/${uuid}`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/users/${uuid}`, {
                 headers: getAuthHeader(),
             });
             if (!response.ok) {
@@ -112,7 +112,7 @@ export default function UserEdit() {
 
     const fetchCustomers = useCallback(async () => {
         try {
-            const response = await fetch(`${API_BASE}/api/admin/customers?page=1&per_page=100`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/customers?page=1&per_page=100`, {
                 headers: getAuthHeader(),
             });
             if (!response.ok) throw new Error('Failed to fetch customers');
@@ -144,7 +144,7 @@ export default function UserEdit() {
             setError(null);
             setSuccess(null);
 
-            const response = await fetch(`${API_BASE}/api/admin/users/${uuid}`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/users/${uuid}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -184,7 +184,7 @@ export default function UserEdit() {
 
         try {
             setSaving(true);
-            const response = await fetch(`${API_BASE}/api/admin/users/${uuid}`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/users/${uuid}`, {
                 method: 'DELETE',
                 headers: getAuthHeader(),
             });

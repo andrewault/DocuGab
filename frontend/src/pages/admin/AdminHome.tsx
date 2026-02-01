@@ -21,7 +21,7 @@ export default function AdminHome() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await fetch(`${API_BASE}/api/admin/stats`, {
+                const res = await fetch(`${API_BASE}/api/v1/admin/stats`, {
                     headers: getAuthHeader(),
                 });
                 if (res.ok) {

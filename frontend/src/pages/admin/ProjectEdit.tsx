@@ -144,7 +144,7 @@ export default function ProjectEdit() {
 
                 // Fetch project
                 const projectResponse = await fetch(
-                    `${API_BASE}/api/admin/projects/${uuid}`,
+                    `${API_BASE}/api/v1/admin/projects/${uuid}`,
                     { headers: getAuthHeader() }
                 );
                 if (!projectResponse.ok) throw new Error('Failed to fetch project');
@@ -176,7 +176,7 @@ export default function ProjectEdit() {
 
                 // Fetch customers
                 const customersResponse = await fetch(
-                    `${API_BASE}/api/admin/customers?per_page=100`,
+                    `${API_BASE}/api/v1/admin/customers?per_page=100`,
                     { headers: getAuthHeader() }
                 );
                 if (!customersResponse.ok) throw new Error('Failed to fetch customers');
@@ -202,7 +202,7 @@ export default function ProjectEdit() {
         setSaveError(null);
         try {
             const response = await fetch(
-                `${API_BASE}/api/admin/projects/${uuid}`,
+                `${API_BASE}/api/v1/admin/projects/${uuid}`,
                 {
                     method: 'PATCH',
                     headers: {
@@ -266,7 +266,7 @@ export default function ProjectEdit() {
             setLogoError(null);
             const formData = new FormData();
             formData.append('file', logoFile);
-            const response = await fetch(`${API_BASE}/api/admin/projects/${uuid}/logo`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/projects/${uuid}/logo`, {
                 method: 'POST',
                 headers: getAuthHeader(),
                 body: formData,
@@ -275,7 +275,7 @@ export default function ProjectEdit() {
                 const data = await response.json();
                 throw new Error(data.detail || 'Failed to upload logo');
             }
-            setCurrentLogo(`/api/admin/projects/${uuid}/logo?t=${Date.now()}`);
+            setCurrentLogo(`/api/v1/admin/projects/${uuid}/logo?t=${Date.now()}`);
             setLogoModalOpen(false);
             setLogoFile(null);
             setLogoPreview(null);

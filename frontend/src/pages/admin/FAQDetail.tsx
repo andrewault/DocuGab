@@ -54,7 +54,7 @@ export default function FAQDetail() {
 
             try {
                 setLoading(true);
-                const res = await fetch(`${API_BASE}/api/faq/${uuid}`, {
+                const res = await fetch(`${API_BASE}/api/v1/faq/${uuid}`, {
                     headers: getAuthHeader(),
                 });
 
@@ -78,7 +78,7 @@ export default function FAQDetail() {
         if (!uuid) return;
 
         try {
-            const res = await fetch(`${API_BASE}/api/faq/${uuid}`, {
+            const res = await fetch(`${API_BASE}/api/v1/faq/${uuid}`, {
                 method: 'DELETE',
                 headers: getAuthHeader(),
             });

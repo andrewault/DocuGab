@@ -18,7 +18,7 @@ from app.schemas.auth import (
 from app.services import auth as auth_service
 
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(tags=["auth"])
 
 
 @router.post(

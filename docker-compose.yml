@@ -16,6 +16,20 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: docutok-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    command: redis-server --appendonly yes
+
   # Ollama service - commented out, using native Ollama for GPU acceleration on Mac
   # To use Docker Ollama instead, uncomment and add 'ollama: condition: service_healthy' to backend depends_on
   # ollama:
@@ -56,8 +70,14 @@ services:
       # Google Cloud Speech APIs
       GOOGLE_APPLICATION_CREDENTIALS: /app/credentials/dokutok-e20fc8113919.json
       TTS_VOICE: ${TTS_VOICE:-en-US-Neural2-F}
+      # Redis and Celery
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     volumes:
       - ./backend:/app
@@ -66,6 +86,30 @@ services:
       - ./dbbackups:/app/dbbackups
       - ./scripts:/app/scripts:ro
     command: sh -c "uv run python -m alembic upgrade head && uv run uvicorn app.main:app --host 0.0.0.0 --port ${BACKEND_PORT} --reload"
+
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: docutok-celery
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL}
+      LLM_MODEL: ${LLM_MODEL}
+      SECRET_KEY: ${SECRET_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ./uploads:/app/uploads
+    command: uv run celery -A app.core.celery_app worker --loglevel=info
 
   frontend:
     build:
@@ -86,4 +130,5 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
   # ollama_data:  # Commented out - using native Ollama

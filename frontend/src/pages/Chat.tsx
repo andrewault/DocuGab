@@ -64,7 +64,7 @@ export default function Chat() {
             if (user && token) {
                 // Authenticated user - load from API
                 try {
-                    const res = await fetch(`${API_BASE}/api/chat/history`, {
+                    const res = await fetch(`${API_BASE}/api/v1/chat/history`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (res.ok) {
@@ -99,7 +99,7 @@ export default function Chat() {
         }
 
         try {
-            await fetch(`${API_BASE}/api/chat/history`, {
+            await fetch(`${API_BASE}/api/v1/chat/history`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ export default function Chat() {
         if (user && token) {
             // Clear from API
             try {
-                await fetch(`${API_BASE}/api/chat/history`, {
+                await fetch(`${API_BASE}/api/v1/chat/history`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });

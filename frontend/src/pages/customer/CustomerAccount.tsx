@@ -98,7 +98,7 @@ export default function CustomerAccount() {
         try {
             setLoading(true);
             const response = await fetch(
-                `${API_BASE}/api/customer/account`,
+                `${API_BASE}/api/v1/customer/account`,
                 { headers: getAuthHeader() }
             );
 
@@ -128,7 +128,7 @@ export default function CustomerAccount() {
         try {
             setInviting(true);
             const response = await fetch(
-                `${API_BASE}/api/customer/account/invite`,
+                `${API_BASE}/api/v1/customer/account/invite`,
                 {
                     method: 'POST',
                     headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
@@ -167,7 +167,7 @@ export default function CustomerAccount() {
 
         try {
             const response = await fetch(
-                `${API_BASE}/api/customer/account/users/${userUuid}/deactivate`,
+                `${API_BASE}/api/v1/customer/account/users/${userUuid}/deactivate`,
                 {
                     method: 'PATCH',
                     headers: getAuthHeader(),
@@ -189,7 +189,7 @@ export default function CustomerAccount() {
     const handleReactivateUser = async (userUuid: string) => {
         try {
             const response = await fetch(
-                `${API_BASE}/api/customer/account/users/${userUuid}/reactivate`,
+                `${API_BASE}/api/v1/customer/account/users/${userUuid}/reactivate`,
                 {
                     method: 'PATCH',
                     headers: getAuthHeader(),
