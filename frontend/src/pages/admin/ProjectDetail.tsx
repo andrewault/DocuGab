@@ -65,6 +65,7 @@ interface Project {
     return_link: string | null;
     return_link_text: string | null;
     is_active: boolean;
+    is_demo: boolean;
     created_at: string;
     updated_at: string;
     documents_count: number;
@@ -352,7 +353,23 @@ export default function ProjectDetail() {
                 py: 4,
             }}
         >
-            <Container maxWidth={false} sx={{ px: 3 }}>
+            <Container maxWidth={false} sx={{ mt: 4, mb: 8, px: 3 }}>
+                {project.is_demo && (
+                    <Alert
+                        severity="info"
+                        sx={{
+                            mb: 3,
+                            backgroundColor: '#1976d2',
+                            color: 'white',
+                            fontWeight: 600,
+                            '& .MuiAlert-icon': {
+                                color: 'white'
+                            }
+                        }}
+                    >
+                        Demo Project • This is the chatbot demo that is linked from the home page.
+                    </Alert>
+                )}
                 <AdminBreadcrumbs
                     items={[
                         { label: 'Customers', path: '/admin/customers' },
@@ -451,6 +468,15 @@ export default function ProjectDetail() {
                                             color={project.is_active ? 'success' : 'default'}
                                             size="small"
                                         />
+                                        {project.is_demo && (
+                                            <Chip
+                                                label="Demo Project"
+                                                color="secondary"
+                                                size="small"
+                                                variant="filled"
+                                                sx={{ ml: 1 }}
+                                            />
+                                        )}
                                     </Box>
                                 </Box>
 

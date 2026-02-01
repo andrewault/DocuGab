@@ -6,7 +6,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, update
 
 from app.core.database import get_db
 from app.core.deps import get_admin_user, get_current_user
@@ -61,6 +61,7 @@ async def _build_project_response(project: Project, db: AsyncSession) -> dict:
         "voice": project.voice,
         "return_link": project.return_link,
         "return_link_text": project.return_link_text,
+        "is_demo": project.is_demo,
         "is_active": project.is_active,
         "created_at": project.created_at,
         "updated_at": project.updated_at,
@@ -160,6 +161,9 @@ async def create_project(
             detail=f"Customer with ID {data.customer_id} not found",
         )
 
+    # Internal Flags Exclusivity
+    if data.is_demo:
+        await db.execute(update(Project).values(is_demo=False))
 
     # Create project
     project = Project(
@@ -179,6 +183,7 @@ async def create_project(
         return_link=data.return_link,
         return_link_text=data.return_link_text,
         is_active=True,
+        is_demo=data.is_demo,
     )
 
     db.add(project)
@@ -209,6 +214,15 @@ async def update_project(
 
     # Update fields
     update_data = data.model_dump(exclude_unset=True)
+    
+    # Internal Flags Exclusivity
+    if update_data.get("is_demo"):
+        await db.execute(
+            update(Project)
+            .where(Project.id != project.id)
+            .values(is_demo=False)
+        )
+
     for field, value in update_data.items():
         setattr(project, field, value)
 

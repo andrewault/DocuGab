@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 import uuid as uuid_lib
-from sqlalchemy import Integer, String, Boolean, DateTime, Text, ForeignKey, func
+from sqlalchemy import Integer, String, Boolean, DateTime, Text, ForeignKey, func, sql
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.database import Base
@@ -58,6 +58,11 @@ class Project(Base):
     # Navigation
     return_link: Mapped[str | None] = mapped_column(String(500), nullable=True)
     return_link_text: Mapped[str | None] = mapped_column(String(100), nullable=True)
+
+    # Internal Flags
+    is_demo: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=sql.false(), nullable=False
+    )
 
     # Metadata
     is_active: Mapped[bool] = mapped_column(

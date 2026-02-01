@@ -52,6 +52,7 @@ interface Customer {
     created_at: string;
     updated_at: string;
     projects_count: number;
+    is_docutok_customer: boolean;
 }
 
 interface Project {
@@ -87,7 +88,7 @@ export default function CustomerDetail() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
-    const [editForm, setEditForm] = useState({ name: '', contact_name: '', contact_phone: '', email: '', is_active: true });
+    const [editForm, setEditForm] = useState({ name: '', contact_name: '', contact_phone: '', email: '', is_active: true, is_docutok_customer: false });
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -178,6 +179,22 @@ export default function CustomerDetail() {
 
     return (
         <Container maxWidth={false} sx={{ mt: 4, mb: 8, px: 3 }}>
+            {customer.is_docutok_customer && (
+                <Alert
+                    severity="info"
+                    sx={{
+                        mb: 3,
+                        backgroundColor: '#1976d2',
+                        color: 'white',
+                        fontWeight: 600,
+                        '& .MuiAlert-icon': {
+                            color: 'white'
+                        }
+                    }}
+                >
+                    Internal DocuTok Customer
+                </Alert>
+            )}
             <AdminBreadcrumbs
                 items={[
                     { label: 'Customers', path: '/admin/customers' },
@@ -222,6 +239,7 @@ export default function CustomerDetail() {
                                     contact_phone: customer.contact_phone || '',
                                     is_active: customer.is_active,
                                     email: customer.email || '',
+                                    is_docutok_customer: customer.is_docutok_customer,
                                 });
                                 setEditDialogOpen(true);
                                 setSaveError(null);
@@ -287,6 +305,20 @@ export default function CustomerDetail() {
 
                     <Box sx={{ flex: 1 }}>
                         <Stack spacing={2}>
+                            <Box>
+                                <Typography variant="caption" color="text.secondary">
+                                    Type
+                                </Typography>
+                                <Box>
+                                    <Chip
+                                        label={customer.is_docutok_customer ? 'Internal Organization' : 'Customer'}
+                                        color={customer.is_docutok_customer ? 'secondary' : 'default'}
+                                        size="small"
+                                        variant={customer.is_docutok_customer ? 'filled' : 'outlined'}
+                                    />
+                                </Box>
+                            </Box>
+
                             <Box>
                                 <Typography variant="caption" color="text.secondary">
                                     Status
@@ -592,6 +624,23 @@ export default function CustomerDetail() {
                             }
                             label="Active"
                         />
+                        <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={editForm.is_docutok_customer}
+                                        onChange={(e) => setEditForm({ ...editForm, is_docutok_customer: e.target.checked })}
+                                        disabled={saving}
+                                        color="secondary"
+                                    />
+                                }
+                                label="Internal DocuTok Customer"
+                            />
+                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+                                Warning: Designates this organization as the internal platform owner.
+                                Only one customer can hold this status at a time.
+                            </Typography>
+                        </Box>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
@@ -624,6 +673,7 @@ export default function CustomerDetail() {
                                             contact_phone: editForm.contact_phone || null,
                                             email: editForm.email || null,
                                             is_active: editForm.is_active,
+                                            is_docutok_customer: editForm.is_docutok_customer,
                                         }),
                                     }
                                 );

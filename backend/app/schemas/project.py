@@ -26,6 +26,7 @@ class ProjectBase(BaseModel):
     voice: str = Field(min_length=1, max_length=100)
     return_link: Optional[str] = Field(None, max_length=500)
     return_link_text: Optional[str] = Field(None, max_length=100)
+    is_demo: bool = False
 
 
     @field_validator("slug")
@@ -71,6 +72,7 @@ class ProjectUpdate(BaseModel):
     return_link: Optional[str] = Field(None, max_length=500)
     return_link_text: Optional[str] = Field(None, max_length=100)
     is_active: Optional[bool] = None
+    is_demo: Optional[bool] = None
 
 
     @field_validator("slug")

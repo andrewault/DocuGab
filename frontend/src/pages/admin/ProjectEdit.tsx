@@ -20,6 +20,8 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
+    Switch,
+    FormControlLabel,
 } from '@mui/material';
 import { ArrowBack, Save, CloudUpload, Image as ImageIcon, VolumeUp } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
@@ -45,6 +47,7 @@ interface Project {
     return_link: string | null;
     return_link_text: string | null;
     is_active: boolean;
+    is_demo: boolean;
     customer_name: string | null;
 }
 
@@ -70,6 +73,7 @@ interface ProjectFormData {
     voice: string;
     return_link: string;
     return_link_text: string;
+    is_demo: boolean;
 }
 
 interface TabPanelProps {
@@ -124,6 +128,7 @@ export default function ProjectEdit() {
         voice: 'alloy',
         return_link: '',
         return_link_text: '',
+        is_demo: false,
     });
 
     useEffect(() => {
@@ -158,6 +163,7 @@ export default function ProjectEdit() {
                     voice: projectData.voice,
                     return_link: projectData.return_link || '',
                     return_link_text: projectData.return_link_text || '',
+                    is_demo: projectData.is_demo || false,
                 });
                 setCurrentLogo(projectData.logo);
 
@@ -430,6 +436,24 @@ export default function ProjectEdit() {
                             rows={3}
                             disabled={saving}
                         />
+
+                        <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={formData.is_demo}
+                                        onChange={(e) => setFormData({ ...formData, is_demo: e.target.checked })}
+                                        disabled={saving}
+                                        color="secondary"
+                                    />
+                                }
+                                label="Demo Project"
+                            />
+                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+                                Warning: Designates this as the public demo project.
+                                Only one project can be the demo at a time.
+                            </Typography>
+                        </Box>
                     </Stack>
                 </TabPanel>
 

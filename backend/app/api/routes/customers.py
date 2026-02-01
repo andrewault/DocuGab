@@ -5,7 +5,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, update
 
 from app.core.database import get_db
 from app.core.deps import get_admin_user
@@ -71,6 +71,7 @@ async def list_customers(
             "contact_name": customer.contact_name,
             "contact_phone": customer.contact_phone,
             "email": customer.email,
+            "is_docutok_customer": customer.is_docutok_customer,
             "is_active": customer.is_active,
             "created_at": customer.created_at,
             "updated_at": customer.updated_at,
@@ -116,6 +117,7 @@ async def get_customer(
         "contact_name": customer.contact_name,
         "contact_phone": customer.contact_phone,
         "email": customer.email,
+        "is_docutok_customer": customer.is_docutok_customer,
         "is_active": customer.is_active,
         "created_at": customer.created_at,
         "updated_at": customer.updated_at,
@@ -139,7 +141,12 @@ async def create_customer(
         contact_phone=data.contact_phone,
         email=data.email,
         is_active=True,
+        is_docutok_customer=data.is_docutok_customer,
     )
+
+    # Internal Flags Exclusivity
+    if data.is_docutok_customer:
+        await db.execute(update(Customer).values(is_docutok_customer=False))
 
     db.add(customer)
     await db.commit()
@@ -153,6 +160,7 @@ async def create_customer(
         "contact_name": customer.contact_name,
         "contact_phone": customer.contact_phone,
         "email": customer.email,
+        "is_docutok_customer": customer.is_docutok_customer,
         "is_active": customer.is_active,
         "created_at": customer.created_at,
         "updated_at": customer.updated_at,
@@ -182,6 +190,15 @@ async def update_customer(
     # Update fields
     if data.name is not None:
         customer.name = data.name
+    
+    # Internal Flags Exclusivity
+    if data.is_docutok_customer:
+        await db.execute(
+            update(Customer)
+            .where(Customer.id != customer.id)
+            .values(is_docutok_customer=False)
+        )
+
     if data.contact_name is not None:
         customer.contact_name = data.contact_name
     if data.contact_phone is not None:
@@ -190,6 +207,8 @@ async def update_customer(
         customer.email = data.email
     if data.is_active is not None:
         customer.is_active = data.is_active
+    if data.is_docutok_customer is not None:
+        customer.is_docutok_customer = data.is_docutok_customer
 
     await db.commit()
     await db.refresh(customer)
@@ -208,6 +227,7 @@ async def update_customer(
         "contact_name": customer.contact_name,
         "contact_phone": customer.contact_phone,
         "email": customer.email,
+        "is_docutok_customer": customer.is_docutok_customer,
         "is_active": customer.is_active,
         "created_at": customer.created_at,
         "updated_at": customer.updated_at,

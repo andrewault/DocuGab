@@ -13,6 +13,7 @@ class CustomerBase(BaseModel):
     contact_name: Optional[str] = Field(None, max_length=255)
     contact_phone: Optional[str] = Field(None, max_length=50)
     email: Optional[str] = Field(None, max_length=255)
+    is_docutok_customer: bool = False
 
 
 class CustomerCreate(CustomerBase):
@@ -28,6 +29,7 @@ class CustomerUpdate(BaseModel):
     contact_name: Optional[str] = Field(None, max_length=255)
     contact_phone: Optional[str] = Field(None, max_length=50)
     email: Optional[str] = Field(None, max_length=255)
+    is_docutok_customer: Optional[bool] = None
     is_active: Optional[bool] = None
 
 

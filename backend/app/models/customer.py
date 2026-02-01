@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 import uuid as uuid_lib
-from sqlalchemy import Integer, String, Boolean, DateTime, func
+from sqlalchemy import Integer, String, Boolean, DateTime, func, sql
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.database import Base
@@ -33,6 +33,11 @@ class Customer(Base):
     contact_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     contact_phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     email: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    
+    # Internal Flags
+    is_docutok_customer: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=sql.false(), nullable=False
+    )
 
     # Metadata
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
