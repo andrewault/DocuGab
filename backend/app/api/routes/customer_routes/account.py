@@ -1,11 +1,10 @@
 """Customer account management API routes (customer-facing)."""
 
-from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import select
 
 from app.core.database import get_db
 from app.core.deps import get_current_user
@@ -17,6 +16,7 @@ from pydantic import BaseModel, EmailStr
 # Schemas
 class UserAccountResponse(BaseModel):
     """Customer user response for account page."""
+
     id: int
     uuid: UUID
     email: str
@@ -32,6 +32,7 @@ class UserAccountResponse(BaseModel):
 
 class CustomerAccountResponse(BaseModel):
     """Customer account information response."""
+
     id: int
     uuid: UUID
     name: str
@@ -46,6 +47,7 @@ class CustomerAccountResponse(BaseModel):
 
 class AccountInfoResponse(BaseModel):
     """Complete account information including customer and users."""
+
     customer: CustomerAccountResponse
     users: list[UserAccountResponse]
     current_user_role: str  # owner, admin, member
@@ -53,6 +55,7 @@ class AccountInfoResponse(BaseModel):
 
 class InviteUserRequest(BaseModel):
     """Request to invite a new user to the customer account."""
+
     email: EmailStr
     full_name: str
     customer_role: str = "member"  # owner, admin, member
@@ -60,11 +63,13 @@ class InviteUserRequest(BaseModel):
 
 class UpdateUserRoleRequest(BaseModel):
     """Request to update a user's role within the customer account."""
+
     customer_role: str  # owner, admin, member
 
 
 class UpdateUserInfoRequest(BaseModel):
     """Request to update a user's information."""
+
     full_name: str | None = None
 
 
@@ -73,7 +78,7 @@ router = APIRouter(tags=["customer", "account"])
 
 def get_user_customer_role(user: User) -> str:
     """Determine user's role within their customer account.
-    
+
     Returns the customer_role from the database, with fallback logic:
     - If customer_role is set, use it
     - If user is admin, treat as owner
@@ -81,10 +86,10 @@ def get_user_customer_role(user: User) -> str:
     """
     if user.customer_role:
         return user.customer_role
-    
+
     if user.role == "admin":
         return "owner"  # Admins are treated as owners
-    
+
     return "member"
 
 
@@ -101,9 +106,7 @@ async def get_account_info(
         )
 
     # Get customer
-    result = await db.execute(
-        select(Customer).where(Customer.id == user.customer_id)
-    )
+    result = await db.execute(select(Customer).where(Customer.id == user.customer_id))
     customer = result.scalar_one_or_none()
 
     if not customer:
@@ -114,7 +117,9 @@ async def get_account_info(
 
     # Get all users for this customer
     result = await db.execute(
-        select(User).where(User.customer_id == user.customer_id).order_by(User.created_at)
+        select(User)
+        .where(User.customer_id == user.customer_id)
+        .order_by(User.created_at)
     )
     users = list(result.scalars().all())
 
@@ -122,19 +127,21 @@ async def get_account_info(
     user_responses = []
     for u in users:
         user_role = get_user_customer_role(u)
-        user_responses.append(UserAccountResponse(
-            id=u.id,
-            uuid=u.uuid,
-            email=u.email,
-            full_name=u.full_name,
-            avatar_url=u.avatar_url,
-            role=u.role,
-            is_active=u.is_active,
-            is_verified=u.is_verified,
-            created_at=u.created_at.isoformat(),
-            last_login_at=u.last_login_at.isoformat() if u.last_login_at else None,
-            customer_role=user_role,
-        ))
+        user_responses.append(
+            UserAccountResponse(
+                id=u.id,
+                uuid=u.uuid,
+                email=u.email,
+                full_name=u.full_name,
+                avatar_url=u.avatar_url,
+                role=u.role,
+                is_active=u.is_active,
+                is_verified=u.is_verified,
+                created_at=u.created_at.isoformat(),
+                last_login_at=u.last_login_at.isoformat() if u.last_login_at else None,
+                customer_role=user_role,
+            )
+        )
 
     # Build customer response
     customer_response = CustomerAccountResponse(
@@ -164,7 +171,7 @@ async def invite_user(
     db: AsyncSession = Depends(get_db),
 ):
     """Invite a new user to the customer account.
-    
+
     Note: For security, only owners and admins can invite users.
     TODO: Implement email verification flow.
     """
@@ -185,7 +192,7 @@ async def invite_user(
     # Check if email already exists
     result = await db.execute(select(User).where(User.email == request.email))
     existing_user = result.scalar_one_or_none()
-    
+
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -194,8 +201,9 @@ async def invite_user(
 
     # Create temporary password (should be sent via email in production)
     from app.core.security import get_password_hash
+
     temp_password = "ChangeMe123!"  # TODO: Generate random password and send via email
-    
+
     # Create new user
     new_user = User(
         email=request.email,
@@ -230,7 +238,7 @@ async def update_user_info(
     db: AsyncSession = Depends(get_db),
 ):
     """Update a user's information (full_name, etc.).
-    
+
     Users can update their own information, or owners/admins can update others.
     """
     if not user.customer_id:
@@ -289,7 +297,7 @@ async def update_user_role(
     db: AsyncSession = Depends(get_db),
 ):
     """Update a user's role within the customer account.
-    
+
     Only owners can change roles.
     """
     if not user.customer_id:
@@ -334,7 +342,7 @@ async def update_user_role(
     target_user.customer_role = request.customer_role
     await db.commit()
     await db.refresh(target_user)
-    
+
     return {
         "message": "User role updated successfully",
         "user": {
@@ -352,7 +360,7 @@ async def deactivate_user(
     db: AsyncSession = Depends(get_db),
 ):
     """Deactivate a user in the customer account.
-    
+
     Only owners and admins can deactivate users.
     Users cannot deactivate themselves.
     """
@@ -415,7 +423,7 @@ async def reactivate_user(
     db: AsyncSession = Depends(get_db),
 ):
     """Reactivate a previously deactivated user.
-    
+
     Only owners and admins can reactivate users.
     """
     if not user.customer_id:

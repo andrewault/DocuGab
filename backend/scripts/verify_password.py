@@ -12,7 +12,7 @@ from app.core.security import verify_password
 if __name__ == "__main__":
     password = "godzilla"
     stored_hash = "$2b$12$a3ej29uRxTrM/YJF32fLt.XGnx4F9cJ3HHYVnxeOg88a5UjdinGmS"
-    
+
     result = verify_password(password, stored_hash)
     print(f"Password: {password}")
     print(f"Hash: {stored_hash}")

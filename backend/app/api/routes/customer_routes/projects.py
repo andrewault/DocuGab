@@ -208,7 +208,7 @@ async def upload_project_logo(
 
     # Save the logo file
     filename = await save_logo_file(file, str(project_uuid))
-    
+
     # Update project logo field
     project.logo = f"/api/customer/projects/{project_uuid}/logo"
     await db.commit()

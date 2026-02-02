@@ -33,7 +33,7 @@ class Customer(Base):
     contact_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     contact_phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     email: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    
+
     # Internal Flags
     is_docutok_customer: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default=sql.false(), nullable=False

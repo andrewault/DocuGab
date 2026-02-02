@@ -23,16 +23,13 @@ from app.schemas.customer import (
 router = APIRouter(tags=["admin", "customers"])
 
 
-def _build_customer_response(
-    customer: Customer, 
-    projects_count: int = 0
-) -> dict:
+def _build_customer_response(customer: Customer, projects_count: int = 0) -> dict:
     """Build standardized customer response dictionary.
-    
+
     Args:
         customer: Customer model instance
         projects_count: Number of projects for this customer
-        
+
     Returns:
         Dictionary with all customer fields for API response
     """
@@ -180,7 +177,7 @@ async def update_customer(
     # Update fields
     if data.name is not None:
         customer.name = data.name
-    
+
     # Internal Flags Exclusivity
     if data.is_docutok_customer:
         await db.execute(

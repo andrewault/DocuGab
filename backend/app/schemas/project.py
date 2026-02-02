@@ -29,7 +29,6 @@ class ProjectBase(BaseModel):
     is_demo: bool = False
     is_enabled: bool = True
 
-
     @field_validator("slug")
     @classmethod
     def validate_slug(cls, v: str) -> str:
@@ -75,7 +74,6 @@ class ProjectUpdate(BaseModel):
     is_active: Optional[bool] = None
     is_demo: Optional[bool] = None
     is_enabled: Optional[bool] = None
-
 
     @field_validator("slug")
     @classmethod

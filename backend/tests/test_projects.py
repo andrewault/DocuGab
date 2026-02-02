@@ -9,8 +9,7 @@ from httpx import AsyncClient
 VALID_PROJECT_DATA = {
     "customer_id": 1,
     "name": "Test Project",
-    "slug": "test-project",
-    "subdomain": "test-proj",
+    "slug": "test-proj",
     "title": "Test Title",
     "subtitle": "Test Subtitle",
     "body": "Test body content",
@@ -29,7 +28,9 @@ class TestProjectList:
         self, client: AsyncClient, admin_auth_headers
     ):
         """Test admin can list projects."""
-        response = await client.get("/api/admin/projects", headers=admin_auth_headers)
+        response = await client.get(
+            "/api/v1/admin/projects", headers=admin_auth_headers
+        )
         assert response.status_code == 200
         data = response.json()
         assert "projects" in data
@@ -43,7 +44,7 @@ class TestProjectList:
     ):
         """Test project list pagination."""
         response = await client.get(
-            "/api/admin/projects?page=1&per_page=10",
+            "/api/v1/admin/projects?page=1&per_page=10",
             headers=admin_auth_headers,
         )
         assert response.status_code == 200
@@ -56,7 +57,7 @@ class TestProjectList:
     ):
         """Test filtering projects by customer ID."""
         response = await client.get(
-            "/api/admin/projects?customer_id=1",
+            "/api/v1/admin/projects?customer_id=1",
             headers=admin_auth_headers,
         )
         assert response.status_code == 200
@@ -66,7 +67,7 @@ class TestProjectList:
     async def test_list_projects_search(self, client: AsyncClient, admin_auth_headers):
         """Test project search."""
         response = await client.get(
-            "/api/admin/projects?search=demo",
+            "/api/v1/admin/projects?search=demo",
             headers=admin_auth_headers,
         )
         assert response.status_code == 200
@@ -77,7 +78,7 @@ class TestProjectList:
         self, client: AsyncClient, auth_headers
     ):
         """Test regular user cannot list projects."""
-        response = await client.get("/api/admin/projects", headers=auth_headers)
+        response = await client.get("/api/v1/admin/projects", headers=auth_headers)
         assert response.status_code == 403
 
 
@@ -88,7 +89,7 @@ class TestProjectCreate:
         """Test admin can create project."""
         # First create a customer
         customer_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "Test Customer"},
         )
@@ -97,14 +98,14 @@ class TestProjectCreate:
         # Create project
         project_data = {**VALID_PROJECT_DATA, "customer_id": customer_id}
         response = await client.post(
-            "/api/admin/projects",
+            "/api/v1/admin/projects",
             headers=admin_auth_headers,
             json=project_data,
         )
         assert response.status_code == 201
         data = response.json()
         assert data["name"] == "Test Project"
-        assert data["subdomain"] == "test-proj"
+        assert data["slug"] == "test-proj"
         assert data["title"] == "Test Title"
         assert data["color_primary"] == "#1976d2"
         assert data["is_active"] is True
@@ -118,19 +119,19 @@ class TestProjectCreate:
         """Test creating project with non-existent customer fails."""
         project_data = {**VALID_PROJECT_DATA, "customer_id": 99999}
         response = await client.post(
-            "/api/admin/projects",
+            "/api/v1/admin/projects",
             headers=admin_auth_headers,
             json=project_data,
         )
         assert response.status_code == 404
 
-    async def test_create_project_duplicate_subdomain(
+    async def test_create_project_duplicate_slug(
         self, client: AsyncClient, admin_auth_headers
     ):
-        """Test creating project with duplicate subdomain fails."""
+        """Test creating project with duplicate slug fails."""
         # Create customer
         customer_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "Test Customer"},
         )
@@ -139,25 +140,25 @@ class TestProjectCreate:
         # Create first project
         project_data = {**VALID_PROJECT_DATA, "customer_id": customer_id}
         await client.post(
-            "/api/admin/projects",
+            "/api/v1/admin/projects",
             headers=admin_auth_headers,
             json=project_data,
         )
 
-        # Try to create second with same subdomain
+        # Try to create second with same slug
         response = await client.post(
-            "/api/admin/projects",
+            "/api/v1/admin/projects",
             headers=admin_auth_headers,
             json=project_data,
         )
         assert response.status_code == 409
 
-    async def test_create_project_invalid_subdomain(
+    async def test_create_project_invalid_slug(
         self, client: AsyncClient, admin_auth_headers
     ):
-        """Test creating project with invalid subdomain fails."""
+        """Test creating project with invalid slug fails."""
         customer_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "Test Customer"},
         )
@@ -166,10 +167,10 @@ class TestProjectCreate:
         invalid_data = {
             **VALID_PROJECT_DATA,
             "customer_id": customer_id,
-            "subdomain": "Invalid_Subdomain!",
+            "slug": "Invalid_Subdomain!",
         }
         response = await client.post(
-            "/api/admin/projects",
+            "/api/v1/admin/projects",
             headers=admin_auth_headers,
             json=invalid_data,
         )
@@ -180,7 +181,7 @@ class TestProjectCreate:
     ):
         """Test creating project with invalid hex color fails."""
         customer_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "Test Customer"},
         )
@@ -192,7 +193,7 @@ class TestProjectCreate:
             "color_primary": "red",
         }
         response = await client.post(
-            "/api/admin/projects",
+            "/api/v1/admin/projects",
             headers=admin_auth_headers,
             json=invalid_data,
         )
@@ -206,7 +207,7 @@ class TestProjectGet:
         """Test admin can get project by ID."""
         # Create customer
         customer_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "Test Customer"},
         )
@@ -216,10 +217,10 @@ class TestProjectGet:
         project_data = {
             **VALID_PROJECT_DATA,
             "customer_id": customer_id,
-            "subdomain": "get-test",
+            "slug": "get-test",
         }
         create_response = await client.post(
-            "/api/admin/projects",
+            "/api/v1/admin/projects",
             headers=admin_auth_headers,
             json=project_data,
         )
@@ -227,7 +228,7 @@ class TestProjectGet:
 
         # Fetch project
         response = await client.get(
-            f"/api/admin/projects/{project_uuid}",
+            f"/api/v1/admin/projects/{project_uuid}",
             headers=admin_auth_headers,
         )
         assert response.status_code == 200
@@ -241,7 +242,7 @@ class TestProjectGet:
     ):
         """Test getting non-existent project returns 404."""
         response = await client.get(
-            "/api/admin/projects/00000000-0000-0000-0000-000000000000",
+            "/api/v1/admin/projects/00000000-0000-0000-0000-000000000000",
             headers=admin_auth_headers,
         )
         assert response.status_code == 404
@@ -254,7 +255,7 @@ class TestProjectUpdate:
         """Test admin can update project."""
         # Create customer and project
         customer_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "Test Customer"},
         )
@@ -263,10 +264,10 @@ class TestProjectUpdate:
         project_data = {
             **VALID_PROJECT_DATA,
             "customer_id": customer_id,
-            "subdomain": "update-test",
+            "slug": "update-test",
         }
         create_response = await client.post(
-            "/api/admin/projects",
+            "/api/v1/admin/projects",
             headers=admin_auth_headers,
             json=project_data,
         )
@@ -278,7 +279,7 @@ class TestProjectUpdate:
             "color_primary": "#ff5722",
         }
         response = await client.patch(
-            f"/api/admin/projects/{project_uuid}",
+            f"/api/v1/admin/projects/{project_uuid}",
             headers=admin_auth_headers,
             json=update_data,
         )
@@ -288,13 +289,11 @@ class TestProjectUpdate:
         assert data["color_primary"] == "#ff5722"
         assert data["name"] == "Test Project"  # Unchanged
 
-    async def test_update_project_subdomain(
-        self, client: AsyncClient, admin_auth_headers
-    ):
-        """Test updating project subdomain."""
+    async def test_update_project_slug(self, client: AsyncClient, admin_auth_headers):
+        """Test updating project slug."""
         # Create customer and project
         customer_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "Test Customer"},
         )
@@ -303,31 +302,31 @@ class TestProjectUpdate:
         project_data = {
             **VALID_PROJECT_DATA,
             "customer_id": customer_id,
-            "subdomain": "old-subdomain",
+            "slug": "old-slug",
         }
         create_response = await client.post(
-            "/api/admin/projects",
+            "/api/v1/admin/projects",
             headers=admin_auth_headers,
             json=project_data,
         )
         project_uuid = create_response.json()["uuid"]
 
-        # Update subdomain
+        # Update slug
         response = await client.patch(
-            f"/api/admin/projects/{project_uuid}",
+            f"/api/v1/admin/projects/{project_uuid}",
             headers=admin_auth_headers,
-            json={"subdomain": "new-subdomain"},
+            json={"slug": "new-slug"},
         )
         assert response.status_code == 200
-        assert response.json()["subdomain"] == "new-subdomain"
+        assert response.json()["slug"] == "new-slug"
 
-    async def test_update_project_duplicate_subdomain(
+    async def test_update_project_duplicate_slug(
         self, client: AsyncClient, admin_auth_headers
     ):
-        """Test updating project to duplicate subdomain fails."""
+        """Test updating project to duplicate slug fails."""
         # Create customer and two projects
         customer_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "Test Customer"},
         )
@@ -337,10 +336,10 @@ class TestProjectUpdate:
         project1_data = {
             **VALID_PROJECT_DATA,
             "customer_id": customer_id,
-            "subdomain": "proj1",
+            "slug": "proj1",
         }
         await client.post(
-            "/api/admin/projects",
+            "/api/v1/admin/projects",
             headers=admin_auth_headers,
             json=project1_data,
         )
@@ -349,20 +348,20 @@ class TestProjectUpdate:
         project2_data = {
             **VALID_PROJECT_DATA,
             "customer_id": customer_id,
-            "subdomain": "proj2",
+            "slug": "proj2",
         }
         create_response = await client.post(
-            "/api/admin/projects",
+            "/api/v1/admin/projects",
             headers=admin_auth_headers,
             json=project2_data,
         )
         project2_uuid = create_response.json()["uuid"]
 
-        # Try to update project2's subdomain to proj1
+        # Try to update project2's slug to proj1
         response = await client.patch(
-            f"/api/admin/projects/{project2_uuid}",
+            f"/api/v1/admin/projects/{project2_uuid}",
             headers=admin_auth_headers,
-            json={"subdomain": "proj1"},
+            json={"slug": "proj1"},
         )
         assert response.status_code == 409
 
@@ -374,7 +373,7 @@ class TestProjectDelete:
         """Test admin can delete project."""
         # Create customer and project
         customer_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "Test Customer"},
         )
@@ -383,10 +382,10 @@ class TestProjectDelete:
         project_data = {
             **VALID_PROJECT_DATA,
             "customer_id": customer_id,
-            "subdomain": "delete-test",
+            "slug": "delete-test",
         }
         create_response = await client.post(
-            "/api/admin/projects",
+            "/api/v1/admin/projects",
             headers=admin_auth_headers,
             json=project_data,
         )
@@ -394,14 +393,14 @@ class TestProjectDelete:
 
         # Delete
         response = await client.delete(
-            f"/api/admin/projects/{project_uuid}",
+            f"/api/v1/admin/projects/{project_uuid}",
             headers=admin_auth_headers,
         )
         assert response.status_code == 204
 
         # Verify deleted
         get_response = await client.get(
-            f"/api/admin/projects/{project_uuid}",
+            f"/api/v1/admin/projects/{project_uuid}",
             headers=admin_auth_headers,
         )
         assert get_response.status_code == 404
@@ -411,7 +410,7 @@ class TestProjectDelete:
     ):
         """Test deleting non-existent project returns 404."""
         response = await client.delete(
-            "/api/admin/projects/00000000-0000-0000-0000-000000000000",
+            "/api/v1/admin/projects/00000000-0000-0000-0000-000000000000",
             headers=admin_auth_headers,
         )
         assert response.status_code == 404

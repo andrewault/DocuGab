@@ -10,11 +10,11 @@ from app.models.document import Document
 
 async def build_project_response(project: Project, db: AsyncSession) -> dict:
     """Build standardized project response dictionary with counts and customer info.
-    
+
     Args:
         project: Project model instance
         db: Database session for querying related data
-        
+
     Returns:
         Dictionary with all project fields for API response
     """

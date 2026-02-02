@@ -11,7 +11,7 @@ class TestAuthRegister:
     async def test_register_success(self, client: AsyncClient):
         """Test successful user registration."""
         response = await client.post(
-            "/api/auth/register",
+            "/api/v1/auth/register",
             json={
                 "email": "newuser@example.com",
                 "password": "securepassword123",
@@ -28,7 +28,7 @@ class TestAuthRegister:
     async def test_register_duplicate_email(self, client: AsyncClient, test_user):
         """Test registration fails with duplicate email."""
         response = await client.post(
-            "/api/auth/register",
+            "/api/v1/auth/register",
             json={
                 "email": "test@example.com",  # Already exists
                 "password": "anotherpassword",
@@ -40,7 +40,7 @@ class TestAuthRegister:
     async def test_register_invalid_email(self, client: AsyncClient):
         """Test registration fails with invalid email."""
         response = await client.post(
-            "/api/auth/register",
+            "/api/v1/auth/register",
             json={
                 "email": "notanemail",
                 "password": "password123",
@@ -55,7 +55,7 @@ class TestAuthLogin:
     async def test_login_success(self, client: AsyncClient, test_user):
         """Test successful login."""
         response = await client.post(
-            "/api/auth/login",
+            "/api/v1/auth/login",
             json={"email": "test@example.com", "password": "testpassword"},
         )
         assert response.status_code == 200
@@ -66,7 +66,7 @@ class TestAuthLogin:
     async def test_login_wrong_password(self, client: AsyncClient, test_user):
         """Test login fails with wrong password."""
         response = await client.post(
-            "/api/auth/login",
+            "/api/v1/auth/login",
             json={"email": "test@example.com", "password": "wrongpassword"},
         )
         assert response.status_code == 401
@@ -74,7 +74,7 @@ class TestAuthLogin:
     async def test_login_user_not_found(self, client: AsyncClient):
         """Test login fails for non-existent user."""
         response = await client.post(
-            "/api/auth/login",
+            "/api/v1/auth/login",
             json={"email": "nobody@example.com", "password": "password"},
         )
         assert response.status_code == 401
@@ -85,7 +85,7 @@ class TestAuthMe:
 
     async def test_get_current_user(self, client: AsyncClient, auth_headers):
         """Test getting current user info."""
-        response = await client.get("/api/auth/me", headers=auth_headers)
+        response = await client.get("/api/v1/auth/me", headers=auth_headers)
         assert response.status_code == 200
         data = response.json()
         assert data["email"] == "test@example.com"
@@ -95,7 +95,7 @@ class TestAuthMe:
 
     async def test_get_current_user_no_auth(self, client: AsyncClient):
         """Test getting current user without auth fails."""
-        response = await client.get("/api/auth/me")
+        response = await client.get("/api/v1/auth/me")
         assert response.status_code == 401
 
 
@@ -106,14 +106,14 @@ class TestAuthRefresh:
         """Test token refresh."""
         # First login to get tokens
         login_response = await client.post(
-            "/api/auth/login",
+            "/api/v1/auth/login",
             json={"email": "test@example.com", "password": "testpassword"},
         )
         refresh_token = login_response.json()["refresh_token"]
 
         # Refresh
         response = await client.post(
-            "/api/auth/refresh",
+            "/api/v1/auth/refresh",
             json={"refresh_token": refresh_token},
         )
         assert response.status_code == 200
@@ -124,7 +124,7 @@ class TestAuthRefresh:
     async def test_refresh_invalid_token(self, client: AsyncClient):
         """Test refresh fails with invalid token."""
         response = await client.post(
-            "/api/auth/refresh",
+            "/api/v1/auth/refresh",
             json={"refresh_token": "invalid-token"},
         )
         assert response.status_code == 401

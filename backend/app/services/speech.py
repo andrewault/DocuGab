@@ -33,7 +33,7 @@ async def transcribe_audio(
         encoding = speech.RecognitionConfig.AudioEncoding.MP3
     elif "wav" in mime_type or "x-wav" in mime_type:
         encoding = speech.RecognitionConfig.AudioEncoding.LINEAR16
-    
+
     # Note: MP4/AAC is not directly supported by standard RecognitionConfig without ffmpeg conversion
     # unless using V2 API. For now, we default to WEBM_OPUS which covers most modern browsers.
 

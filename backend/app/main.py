@@ -83,22 +83,22 @@ app.add_middleware(
 async def api_version_redirect(request: Request, call_next):
     """Redirect /api/* requests to /api/v1/* for backwards compatibility."""
     path = request.url.path
-    
+
     # Skip redirect for CORS preflight (OPTIONS) requests
     if request.method == "OPTIONS":
         return await call_next(request)
-    
+
     # Skip if already versioned or health check
     if path.startswith("/api/v1/") or path == "/health":
         return await call_next(request)
-    
+
     # Redirect /api/* to /api/v1/*
     if path.startswith("/api/"):
         new_path = path.replace("/api/", "/api/v1/", 1)
         query = str(request.url.query)
         redirect_url = f"{new_path}?{query}" if query else new_path
         return RedirectResponse(url=redirect_url, status_code=307)
-    
+
     return await call_next(request)
 
 

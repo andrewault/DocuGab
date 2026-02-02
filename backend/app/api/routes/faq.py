@@ -91,7 +91,7 @@ async def reorder_faqs(
         faq = result.scalar_one_or_none()
         if faq:
             faq.order = item.order
-    
+
     await db.commit()
     return {"status": "success", "updated": len(items)}
 
@@ -107,7 +107,7 @@ async def create_faq(
     result = await db.execute(select(FAQ))
     existing_faqs = result.scalars().all()
     max_order = max([f.order for f in existing_faqs], default=-1)
-    
+
     faq = FAQ(
         question=data.question,
         answer=data.answer,

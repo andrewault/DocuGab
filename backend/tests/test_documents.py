@@ -10,7 +10,7 @@ class TestDocumentList:
 
     async def test_list_documents_empty(self, client: AsyncClient):
         """Test listing documents when none exist."""
-        response = await client.get("/api/documents/")
+        response = await client.get("/api/v1/documents/")
         assert response.status_code == 200
         data = response.json()
         assert "documents" in data
@@ -24,14 +24,14 @@ class TestDocumentUpload:
         """Test uploading a text file."""
         # Create customer and project first
         customer_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "Test Customer"},
         )
         customer_id = customer_response.json()["id"]
 
         project_response = await client.post(
-            "/api/admin/projects",
+            "/api/v1/admin/projects",
             headers=admin_auth_headers,
             json={
                 "customer_id": customer_id,
@@ -58,7 +58,7 @@ class TestDocumentUpload:
         files = {"file": ("test.txt", content, "text/plain")}
 
         response = await client.post(
-            f"/api/documents/upload?project_id={project_id}", files=files
+            f"/api/v1/documents/upload?project_id={project_id}", files=files
         )
         assert response.status_code == 200
         response_data = response.json()
@@ -71,14 +71,14 @@ class TestDocumentUpload:
         """Test uploading unsupported file type fails."""
         # Create customer and project first
         customer_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "Test Customer"},
         )
         customer_id = customer_response.json()["id"]
 
         project_response = await client.post(
-            "/api/admin/projects",
+            "/api/v1/admin/projects",
             headers=admin_auth_headers,
             json={
                 "customer_id": customer_id,
@@ -105,7 +105,7 @@ class TestDocumentUpload:
         files = {"file": ("test.jpg", content, "image/jpeg")}
 
         response = await client.post(
-            f"/api/documents/upload?project_id={project_id}", files=files
+            f"/api/v1/documents/upload?project_id={project_id}", files=files
         )
         assert response.status_code == 400
         detail = response.json().get("detail", "").lower()
@@ -117,5 +117,5 @@ class TestDocumentDelete:
 
     async def test_delete_nonexistent(self, client: AsyncClient):
         """Test deleting non-existent document returns 404."""
-        response = await client.delete("/api/documents/99999")
+        response = await client.delete("/api/v1/documents/99999")
         assert response.status_code == 404

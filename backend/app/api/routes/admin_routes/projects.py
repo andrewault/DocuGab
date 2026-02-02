@@ -116,6 +116,15 @@ async def create_project(
             detail=f"Customer with ID {data.customer_id} not found",
         )
 
+    # Check for duplicate slug
+    slug_result = await db.execute(select(Project).where(Project.slug == data.slug))
+    existing_project = slug_result.scalar_one_or_none()
+    if existing_project:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Project with slug '{data.slug}' already exists",
+        )
+
     # Internal Flags Exclusivity
     if data.is_demo:
         await db.execute(update(Project).values(is_demo=False))
@@ -125,7 +134,6 @@ async def create_project(
         customer_id=data.customer_id,
         name=data.name,
         slug=data.slug,
-        description=data.description,
         logo=data.logo,
         title=data.title,
         subtitle=data.subtitle,
@@ -168,13 +176,25 @@ async def update_project(
 
     # Update fields
     update_data = data.model_dump(exclude_unset=True)
-    
+
+    # Check for duplicate slug if slug is being updated
+    if "slug" in update_data:
+        slug_result = await db.execute(
+            select(Project).where(
+                and_(Project.slug == update_data["slug"], Project.id != project.id)
+            )
+        )
+        existing_project = slug_result.scalar_one_or_none()
+        if existing_project:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Project with slug '{update_data['slug']}' already exists",
+            )
+
     # Internal Flags Exclusivity
     if update_data.get("is_demo"):
         await db.execute(
-            update(Project)
-            .where(Project.id != project.id)
-            .values(is_demo=False)
+            update(Project).where(Project.id != project.id).values(is_demo=False)
         )
 
     for field, value in update_data.items():
@@ -236,7 +256,7 @@ async def upload_project_logo(
 
     # Save the logo file
     filename = await save_logo_file(file, str(project_uuid))
-    
+
     # Update project logo field
     project.logo = f"/api/admin/projects/{project_uuid}/logo"
     await db.commit()

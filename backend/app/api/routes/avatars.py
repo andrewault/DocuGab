@@ -1,6 +1,5 @@
 """Avatar management API routes (admin and customer)."""
 
-from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
@@ -40,7 +39,11 @@ async def _build_avatar_response(avatar: Avatar) -> dict:
 
 
 # Admin endpoints
-@router.post("/projects/{project_uuid}/upload", response_model=AvatarResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/projects/{project_uuid}/upload",
+    response_model=AvatarResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def upload_avatar_admin(
     project_uuid: UUID,
     file: UploadFile = File(...),
@@ -49,10 +52,10 @@ async def upload_avatar_admin(
 ):
     """Upload an avatar for a project (admin only)."""
     # Validate file extension
-    if not file.filename or not file.filename.lower().endswith('.gab'):
+    if not file.filename or not file.filename.lower().endswith(".gab"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only .gab files are allowed"
+            detail="Only .gab files are allowed",
         )
 
     # Verify project exists
@@ -60,19 +63,18 @@ async def upload_avatar_admin(
     project = result.scalar_one_or_none()
     if not project:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
 
     # Check file size
     file_size = 0
     content = await file.read()
     file_size = len(content)
-    
+
     if file_size > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File size exceeds maximum of {MAX_FILE_SIZE / 1024 / 1024}MB"
+            detail=f"File size exceeds maximum of {MAX_FILE_SIZE / 1024 / 1024}MB",
         )
 
     # Reset file pointer
@@ -110,20 +112,27 @@ async def list_avatars_admin(
     project = result.scalar_one_or_none()
     if not project:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
 
     # Get avatars
-    query = select(Avatar).where(Avatar.project_id == project.id).order_by(Avatar.created_at.desc())
+    query = (
+        select(Avatar)
+        .where(Avatar.project_id == project.id)
+        .order_by(Avatar.created_at.desc())
+    )
     result = await db.execute(query)
     avatars = list(result.scalars().all())
 
     # Get total count
-    count_result = await db.execute(select(func.count(Avatar.id)).where(Avatar.project_id == project.id))
+    count_result = await db.execute(
+        select(func.count(Avatar.id)).where(Avatar.project_id == project.id)
+    )
     total = count_result.scalar() or 0
 
-    avatar_responses = [AvatarResponse(**await _build_avatar_response(avatar)) for avatar in avatars]
+    avatar_responses = [
+        AvatarResponse(**await _build_avatar_response(avatar)) for avatar in avatars
+    ]
     return AvatarListResponse(avatars=avatar_responses, total=total)
 
 
@@ -139,8 +148,7 @@ async def delete_avatar_admin(
 
     if not avatar:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Avatar not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Avatar not found"
         )
 
     # Delete physical file
@@ -167,15 +175,13 @@ async def download_avatar_admin(
 
     if not avatar:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Avatar not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Avatar not found"
         )
 
     file_path = get_avatar_path(avatar.filename)
     if not file_path.exists():
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Avatar file not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Avatar file not found"
         )
 
     # Read file content
@@ -187,12 +193,16 @@ async def download_avatar_admin(
         media_type="application/octet-stream",
         headers={
             "Content-Disposition": f'attachment; filename="{avatar.original_filename}"'
-        }
+        },
     )
 
 
 # Customer endpoints
-@customer_router.post("/projects/{project_uuid}/upload", response_model=AvatarResponse, status_code=status.HTTP_201_CREATED)
+@customer_router.post(
+    "/projects/{project_uuid}/upload",
+    response_model=AvatarResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def upload_avatar_customer(
     project_uuid: UUID,
     file: UploadFile = File(...),
@@ -203,14 +213,14 @@ async def upload_avatar_customer(
     if not user.customer_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is not associated with a customer"
+            detail="User is not associated with a customer",
         )
 
     # Validate file extension
-    if not file.filename or not file.filename.lower().endswith('.gab'):
+    if not file.filename or not file.filename.lower().endswith(".gab"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only .gab files are allowed"
+            detail="Only .gab files are allowed",
         )
 
     # Verify project exists and belongs to customer
@@ -218,25 +228,23 @@ async def upload_avatar_customer(
     project = result.scalar_one_or_none()
     if not project:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
 
     if project.customer_id != user.customer_id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
         )
 
     # Check file size
     file_size = 0
     content = await file.read()
     file_size = len(content)
-    
+
     if file_size > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File size exceeds maximum of {MAX_FILE_SIZE / 1024 / 1024}MB"
+            detail=f"File size exceeds maximum of {MAX_FILE_SIZE / 1024 / 1024}MB",
         )
 
     # Reset file pointer
@@ -272,7 +280,7 @@ async def list_avatars_customer(
     if not user.customer_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is not associated with a customer"
+            detail="User is not associated with a customer",
         )
 
     # Verify project exists and belongs to customer
@@ -280,26 +288,32 @@ async def list_avatars_customer(
     project = result.scalar_one_or_none()
     if not project:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
 
     if project.customer_id != user.customer_id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
         )
 
     # Get avatars
-    query = select(Avatar).where(Avatar.project_id == project.id).order_by(Avatar.created_at.desc())
+    query = (
+        select(Avatar)
+        .where(Avatar.project_id == project.id)
+        .order_by(Avatar.created_at.desc())
+    )
     result = await db.execute(query)
     avatars = list(result.scalars().all())
 
     # Get total count
-    count_result = await db.execute(select(func.count(Avatar.id)).where(Avatar.project_id == project.id))
+    count_result = await db.execute(
+        select(func.count(Avatar.id)).where(Avatar.project_id == project.id)
+    )
     total = count_result.scalar() or 0
 
-    avatar_responses = [AvatarResponse(**await _build_avatar_response(avatar)) for avatar in avatars]
+    avatar_responses = [
+        AvatarResponse(**await _build_avatar_response(avatar)) for avatar in avatars
+    ]
     return AvatarListResponse(avatars=avatar_responses, total=total)
 
 
@@ -313,7 +327,7 @@ async def delete_avatar_customer(
     if not user.customer_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is not associated with a customer"
+            detail="User is not associated with a customer",
         )
 
     result = await db.execute(select(Avatar).where(Avatar.uuid == avatar_uuid))
@@ -321,18 +335,18 @@ async def delete_avatar_customer(
 
     if not avatar:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Avatar not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Avatar not found"
         )
 
     # Verify project belongs to customer
-    project_result = await db.execute(select(Project).where(Project.id == avatar.project_id))
+    project_result = await db.execute(
+        select(Project).where(Project.id == avatar.project_id)
+    )
     project = project_result.scalar_one_or_none()
-    
+
     if not project or project.customer_id != user.customer_id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
         )
 
     # Delete physical file
@@ -357,7 +371,7 @@ async def download_avatar_customer(
     if not user.customer_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is not associated with a customer"
+            detail="User is not associated with a customer",
         )
 
     result = await db.execute(select(Avatar).where(Avatar.uuid == avatar_uuid))
@@ -365,25 +379,24 @@ async def download_avatar_customer(
 
     if not avatar:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Avatar not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Avatar not found"
         )
 
     # Verify project belongs to customer
-    project_result = await db.execute(select(Project).where(Project.id == avatar.project_id))
+    project_result = await db.execute(
+        select(Project).where(Project.id == avatar.project_id)
+    )
     project = project_result.scalar_one_or_none()
-    
+
     if not project or project.customer_id != user.customer_id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
         )
 
     file_path = get_avatar_path(avatar.filename)
     if not file_path.exists():
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Avatar file not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Avatar file not found"
         )
 
     # Read file content
@@ -395,5 +408,5 @@ async def download_avatar_customer(
         media_type="application/octet-stream",
         headers={
             "Content-Disposition": f'attachment; filename="{avatar.original_filename}"'
-        }
+        },
     )

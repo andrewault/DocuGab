@@ -47,12 +47,12 @@ class Settings(BaseSettings):
 
     # Redis Configuration
     redis_url: str = "redis://redis:6379/0"
-    
+
     # Rate Limiting
     rate_limit_default: str = "100/minute"
     rate_limit_chat: str = "10/minute"
     rate_limit_auth: str = "5/minute"
-    
+
     # Celery Configuration
     celery_broker_url: str = "redis://redis:6379/1"
     celery_result_backend: str = "redis://redis:6379/2"

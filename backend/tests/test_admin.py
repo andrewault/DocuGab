@@ -10,7 +10,7 @@ class TestAdminStats:
 
     async def test_stats_as_admin(self, client: AsyncClient, admin_auth_headers):
         """Test admin can access stats."""
-        response = await client.get("/api/admin/stats", headers=admin_auth_headers)
+        response = await client.get("/api/v1/admin/stats", headers=admin_auth_headers)
         assert response.status_code == 200
         data = response.json()
         assert "total_users" in data
@@ -18,12 +18,12 @@ class TestAdminStats:
 
     async def test_stats_as_user_forbidden(self, client: AsyncClient, auth_headers):
         """Test regular user cannot access admin stats."""
-        response = await client.get("/api/admin/stats", headers=auth_headers)
+        response = await client.get("/api/v1/admin/stats", headers=auth_headers)
         assert response.status_code == 403
 
     async def test_stats_no_auth(self, client: AsyncClient):
         """Test unauthenticated access is rejected."""
-        response = await client.get("/api/admin/stats")
+        response = await client.get("/api/v1/admin/stats")
         assert response.status_code == 401
 
 
@@ -34,7 +34,7 @@ class TestAdminUserList:
         self, client: AsyncClient, admin_auth_headers, test_user
     ):
         """Test admin can list users."""
-        response = await client.get("/api/admin/users", headers=admin_auth_headers)
+        response = await client.get("/api/v1/admin/users", headers=admin_auth_headers)
         assert response.status_code == 200
         data = response.json()
         assert "users" in data
@@ -49,7 +49,7 @@ class TestAdminUserUpdate:
     ):
         """Test admin can update user role."""
         response = await client.patch(
-            f"/api/admin/users/{test_user.uuid}",
+            f"/api/v1/admin/users/{test_user.uuid}",
             headers=admin_auth_headers,
             json={"role": "admin"},
         )
@@ -62,7 +62,7 @@ class TestAdminUserUpdate:
     ):
         """Test updating non-existent user returns 404."""
         response = await client.patch(
-            "/api/admin/users/00000000-0000-0000-0000-000000000000",
+            "/api/v1/admin/users/00000000-0000-0000-0000-000000000000",
             headers=admin_auth_headers,
             json={"role": "admin"},
         )
@@ -77,7 +77,7 @@ class TestAdminUserDelete:
     ):
         """Test admin can delete user."""
         response = await client.delete(
-            f"/api/admin/users/{test_user.uuid}",
+            f"/api/v1/admin/users/{test_user.uuid}",
             headers=admin_auth_headers,
         )
         assert response.status_code in [200, 204]
@@ -87,7 +87,7 @@ class TestAdminUserDelete:
     ):
         """Test regular user cannot delete other users."""
         response = await client.delete(
-            f"/api/admin/users/{admin_user.uuid}",
+            f"/api/v1/admin/users/{admin_user.uuid}",
             headers=auth_headers,
         )
         assert response.status_code == 403

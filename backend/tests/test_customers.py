@@ -12,7 +12,9 @@ class TestCustomerList:
         self, client: AsyncClient, admin_auth_headers
     ):
         """Test admin can list customers."""
-        response = await client.get("/api/admin/customers", headers=admin_auth_headers)
+        response = await client.get(
+            "/api/v1/admin/customers", headers=admin_auth_headers
+        )
         assert response.status_code == 200
         data = response.json()
         assert "customers" in data
@@ -26,7 +28,7 @@ class TestCustomerList:
     ):
         """Test customer list pagination."""
         response = await client.get(
-            "/api/admin/customers?page=1&per_page=10",
+            "/api/v1/admin/customers?page=1&per_page=10",
             headers=admin_auth_headers,
         )
         assert response.status_code == 200
@@ -37,7 +39,7 @@ class TestCustomerList:
     async def test_list_customers_search(self, client: AsyncClient, admin_auth_headers):
         """Test customer list search."""
         response = await client.get(
-            "/api/admin/customers?search=Demo",
+            "/api/v1/admin/customers?search=Demo",
             headers=admin_auth_headers,
         )
         assert response.status_code == 200
@@ -48,12 +50,12 @@ class TestCustomerList:
         self, client: AsyncClient, auth_headers
     ):
         """Test regular user cannot list customers."""
-        response = await client.get("/api/admin/customers", headers=auth_headers)
+        response = await client.get("/api/v1/admin/customers", headers=auth_headers)
         assert response.status_code == 403
 
     async def test_list_customers_no_auth(self, client: AsyncClient):
         """Test unauthenticated access is rejected."""
-        response = await client.get("/api/admin/customers")
+        response = await client.get("/api/v1/admin/customers")
         assert response.status_code == 401
 
 
@@ -68,7 +70,7 @@ class TestCustomerCreate:
             "contact_phone": "+1-555-0123",
         }
         response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json=customer_data,
         )
@@ -89,7 +91,7 @@ class TestCustomerCreate:
         """Test creating customer with only required fields."""
         customer_data = {"name": "Minimal Customer"}
         response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json=customer_data,
         )
@@ -105,7 +107,7 @@ class TestCustomerCreate:
         """Test creating customer with invalid data."""
         customer_data = {"name": ""}  # Empty name should fail
         response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json=customer_data,
         )
@@ -117,7 +119,7 @@ class TestCustomerCreate:
         """Test regular user cannot create customer."""
         customer_data = {"name": "Test Customer"}
         response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=auth_headers,
             json=customer_data,
         )
@@ -131,7 +133,7 @@ class TestCustomerGet:
         """Test admin can get customer by ID."""
         # First create a customer
         create_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "Get Test Customer"},
         )
@@ -139,7 +141,7 @@ class TestCustomerGet:
 
         # Then fetch it
         response = await client.get(
-            f"/api/admin/customers/{customer_uuid}",
+            f"/api/v1/admin/customers/{customer_uuid}",
             headers=admin_auth_headers,
         )
         assert response.status_code == 200
@@ -153,7 +155,7 @@ class TestCustomerGet:
     ):
         """Test getting non-existent customer returns 404."""
         response = await client.get(
-            "/api/admin/customers/00000000-0000-0000-0000-000000000000",
+            "/api/v1/admin/customers/00000000-0000-0000-0000-000000000000",
             headers=admin_auth_headers,
         )
         assert response.status_code == 404
@@ -166,7 +168,7 @@ class TestCustomerUpdate:
         """Test admin can update customer."""
         # Create customer
         create_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "Original Name"},
         )
@@ -179,7 +181,7 @@ class TestCustomerUpdate:
             "contact_phone": "+1-555-9999",
         }
         response = await client.patch(
-            f"/api/admin/customers/{customer_uuid}",
+            f"/api/v1/admin/customers/{customer_uuid}",
             headers=admin_auth_headers,
             json=update_data,
         )
@@ -195,7 +197,7 @@ class TestCustomerUpdate:
         """Test partial update of customer."""
         # Create customer
         create_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "Test", "contact_name": "Original"},
         )
@@ -203,7 +205,7 @@ class TestCustomerUpdate:
 
         # Update only name
         response = await client.patch(
-            f"/api/admin/customers/{customer_uuid}",
+            f"/api/v1/admin/customers/{customer_uuid}",
             headers=admin_auth_headers,
             json={"name": "New Name"},
         )
@@ -218,7 +220,7 @@ class TestCustomerUpdate:
         """Test updating customer active status."""
         # Create customer
         create_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "Test Customer"},
         )
@@ -226,7 +228,7 @@ class TestCustomerUpdate:
 
         # Deactivate
         response = await client.patch(
-            f"/api/admin/customers/{customer_uuid}",
+            f"/api/v1/admin/customers/{customer_uuid}",
             headers=admin_auth_headers,
             json={"is_active": False},
         )
@@ -238,7 +240,7 @@ class TestCustomerUpdate:
     ):
         """Test updating non-existent customer returns 404."""
         response = await client.patch(
-            "/api/admin/customers/00000000-0000-0000-0000-000000000000",
+            "/api/v1/admin/customers/00000000-0000-0000-0000-000000000000",
             headers=admin_auth_headers,
             json={"name": "Updated"},
         )
@@ -252,7 +254,7 @@ class TestCustomerDelete:
         """Test admin can delete customer."""
         # Create customer
         create_response = await client.post(
-            "/api/admin/customers",
+            "/api/v1/admin/customers",
             headers=admin_auth_headers,
             json={"name": "To Delete"},
         )
@@ -260,14 +262,14 @@ class TestCustomerDelete:
 
         # Delete
         response = await client.delete(
-            f"/api/admin/customers/{customer_uuid}",
+            f"/api/v1/admin/customers/{customer_uuid}",
             headers=admin_auth_headers,
         )
         assert response.status_code == 204
 
         # Verify deleted
         get_response = await client.get(
-            f"/api/admin/customers/{customer_uuid}",
+            f"/api/v1/admin/customers/{customer_uuid}",
             headers=admin_auth_headers,
         )
         assert get_response.status_code == 404
@@ -277,7 +279,7 @@ class TestCustomerDelete:
     ):
         """Test deleting non-existent customer returns 404."""
         response = await client.delete(
-            "/api/admin/customers/00000000-0000-0000-0000-000000000000",
+            "/api/v1/admin/customers/00000000-0000-0000-0000-000000000000",
             headers=admin_auth_headers,
         )
         assert response.status_code == 404
@@ -287,7 +289,7 @@ class TestCustomerDelete:
     ):
         """Test regular user cannot delete customer."""
         response = await client.delete(
-            "/api/admin/customers/1",
+            "/api/v1/admin/customers/1",
             headers=auth_headers,
         )
         assert response.status_code == 403
