@@ -171,10 +171,9 @@ export default function Users() {
                     </Box>
                     <Button
                         variant="contained"
-                        startIcon={<Add />}
                         onClick={() => navigate('/admin/users/new')}
                     >
-                        Add User
+                        <Add />
                     </Button>
                 </Stack>
 

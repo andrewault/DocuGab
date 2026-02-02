@@ -20,6 +20,9 @@ depends_on = None
 
 
 def upgrade() -> None:
+    # Enable pgvector extension
+    op.execute("CREATE EXTENSION IF NOT EXISTS vector")
+
     # Users table
     op.create_table(
         "users",
