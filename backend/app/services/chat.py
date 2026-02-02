@@ -22,7 +22,7 @@ def get_llm() -> ChatOllama:
 
 SYSTEM_PROMPT = """You are a friendly and conversational assistant. Answer questions based ONLY on the provided context. 
 If the answer is not in the context, say "I couldn't find that information in the documents."
-Always cite your sources using [Source: filename, Page X] format.While you must still answer based ONLY on the provided 
+Always cite your sources using [Source: filename] or [Source: filename, Page X] format. While you must still answer based ONLY on the provided 
 context, you should engage the user warmly, use natural language, and be helpful.
 """
 
@@ -49,9 +49,14 @@ async def generate_response(
         return
 
     # Build context from retrieved chunks
-    context = "\n\n---\n\n".join(
-        [f"[{c['filename']}, Page {c['page']}]:\n{c['content']}" for c in chunks]
-    )
+    context_parts = []
+    for c in chunks:
+        source_ref = c['filename']
+        if not c['filename'].strip().lower().endswith('.md'):
+            source_ref += f", Page {c['page']}"
+        context_parts.append(f"[{source_ref}]:\n{c['content']}")
+
+    context = "\n\n---\n\n".join(context_parts)
 
     # Build messages
     messages = [
@@ -72,4 +77,9 @@ async def generate_response(
         doc_key = c["document_uuid"]
         if doc_key not in seen_docs:
             seen_docs.add(doc_key)
-            yield f"- [{c['filename']}](/documents/{c['document_uuid']}), Page {c['page']}\n"
+            filename_clean = c['filename'].strip().lower()
+            print(f"DEBUG: Checking filename '{c['filename']}' (clean: '{filename_clean}') for .md extension")
+            if filename_clean.endswith('.md'):
+                yield f"- [{c['filename']}](/documents/{c['document_uuid']})\n"
+            else:
+                yield f"- [{c['filename']}](/documents/{c['document_uuid']}), Page {c['page']}\n"

@@ -610,113 +610,169 @@ export default function Chat() {
                                     </Box>
                                 )}
 
-                                {messages.map((msg, i) => (
-                                    <Box
-                                        key={i}
-                                        sx={{
-                                            mb: 2,
-                                            display: 'flex',
-                                            justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start'
-                                        }}
-                                    >
-                                        <Paper
-                                            elevation={1}
+                                {messages.map((msg, i) => {
+                                    const isUser = msg.role === 'user';
+                                    const splitContent = !isUser ? msg.content.split('\n\n**Sources:**\n') : [msg.content];
+                                    const mainContent = splitContent[0];
+                                    const sourcesContent = splitContent.length > 1 ? splitContent[1] : null;
+
+                                    return (
+                                        <Box
+                                            key={i}
                                             sx={{
-                                                p: 2,
-                                                maxWidth: '80%',
-                                                bgcolor: msg.role === 'user'
-                                                    ? 'primary.main'
-                                                    : isDark ? 'grey.800' : 'grey.100',
-                                                borderRadius: 2,
+                                                mb: 2,
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: isUser ? 'flex-end' : 'flex-start',
                                             }}
                                         >
-                                            {msg.role === 'user' ? (
-                                                <Typography
-                                                    variant="body1"
-                                                    sx={{ whiteSpace: 'pre-wrap', color: '#fff' }}
-                                                >
-                                                    {msg.content}
-                                                </Typography>
-                                            ) : (
-                                                <Box
-                                                    sx={{
-                                                        position: 'relative',  // Needed for speaker button positioning
-                                                        '& p': { m: 0, mb: 1 },
-                                                        '& p:last-child': { mb: 0 },
-                                                        '& a': { color: isDark ? '#f97316' : '#2563eb', textDecoration: 'underline', cursor: 'pointer' },
-                                                        '& strong': { fontWeight: 600 },
-                                                        '& ul, & ol': { pl: 3, my: 1 },
-                                                        '& code': {
-                                                            bgcolor: isDark ? 'grey.900' : 'grey.200',
-                                                            px: 0.5,
-                                                            borderRadius: 0.5,
-                                                            fontFamily: 'monospace',
-                                                        },
-                                                        '& pre': {
-                                                            bgcolor: isDark ? 'grey.900' : 'grey.200',
-                                                            p: 1,
-                                                            borderRadius: 1,
-                                                            overflow: 'auto',
-                                                        },
-                                                    }}
-                                                >
-                                                    <ReactMarkdown
-                                                        components={{
-                                                            a: ({ href, children }) => {
-                                                                // Check if it's an internal document link
-                                                                if (href?.startsWith('/documents/')) {
-                                                                    return (
-                                                                        <Link
-                                                                            component={RouterLink}
-                                                                            to={href}
-                                                                            sx={{ cursor: 'pointer' }}
-                                                                        >
-                                                                            {children}
-                                                                        </Link>
-                                                                    );
-                                                                }
-                                                                return <a href={href}>{children}</a>;
+                                            <Paper
+                                                elevation={1}
+                                                sx={{
+                                                    p: 2,
+                                                    maxWidth: '80%',
+                                                    bgcolor: isUser
+                                                        ? 'primary.main'
+                                                        : isDark ? 'grey.800' : 'grey.100',
+                                                    borderRadius: 2,
+                                                }}
+                                            >
+                                                {isUser ? (
+                                                    <Typography
+                                                        variant="body1"
+                                                        sx={{ whiteSpace: 'pre-wrap', color: '#fff' }}
+                                                    >
+                                                        {mainContent}
+                                                    </Typography>
+                                                ) : (
+                                                    <Box
+                                                        sx={{
+                                                            position: 'relative',  // Needed for speaker button positioning
+                                                            '& p': { m: 0, mb: 1 },
+                                                            '& p:last-child': { mb: 0 },
+                                                            '& a': { color: isDark ? '#f97316' : '#2563eb', textDecoration: 'underline', cursor: 'pointer' },
+                                                            '& strong': { fontWeight: 600 },
+                                                            '& ul, & ol': { pl: 3, my: 1 },
+                                                            '& code': {
+                                                                bgcolor: isDark ? 'grey.900' : 'grey.200',
+                                                                px: 0.5,
+                                                                borderRadius: 0.5,
+                                                                fontFamily: 'monospace',
+                                                            },
+                                                            '& pre': {
+                                                                bgcolor: isDark ? 'grey.900' : 'grey.200',
+                                                                p: 1,
+                                                                borderRadius: 1,
+                                                                overflow: 'auto',
                                                             },
                                                         }}
                                                     >
-                                                        {msg.content || (isLoading && i === messages.length - 1 ? '...' : '')}
-                                                    </ReactMarkdown>
-                                                    {/* Speaker button for TTS */}
-                                                    {msg.content && !isLoading && (
-                                                        <IconButton
-                                                            size="small"
-                                                            onClick={() => playAssistantAudio(msg.content, i)}
-                                                            disabled={isSynthesizing && playingMessageIndex === i}
-                                                            sx={{
-                                                                position: 'absolute',
-                                                                bottom: 4,
-                                                                right: 4,
-                                                                opacity: playingMessageIndex === i ? 1 : 0.6,
-                                                                '&:hover': { opacity: 1 },
-                                                                color: playingMessageIndex === i && !isSynthesizing ? 'error.main' : 'inherit',
+                                                        <ReactMarkdown
+                                                            components={{
+                                                                a: ({ href, children }) => {
+                                                                    // Check if it's an internal document link
+                                                                    if (href?.startsWith('/documents/')) {
+                                                                        return (
+                                                                            <Link
+                                                                                component={RouterLink}
+                                                                                to={href}
+                                                                                sx={{ cursor: 'pointer' }}
+                                                                            >
+                                                                                {children}
+                                                                            </Link>
+                                                                        );
+                                                                    }
+                                                                    return <a href={href}>{children}</a>;
+                                                                },
                                                             }}
-                                                            title={
-                                                                isSynthesizing && playingMessageIndex === i
-                                                                    ? 'Loading...'
-                                                                    : playingMessageIndex === i
-                                                                        ? 'Stop playback'
-                                                                        : 'Listen to response'
-                                                            }
                                                         >
-                                                            {isSynthesizing && playingMessageIndex === i ? (
-                                                                <CircularProgress size={18} color="inherit" />
-                                                            ) : playingMessageIndex === i ? (
-                                                                <Stop fontSize="small" />
-                                                            ) : (
-                                                                <VolumeUp fontSize="small" />
-                                                            )}
-                                                        </IconButton>
-                                                    )}
-                                                </Box>
+                                                            {mainContent || (isLoading && i === messages.length - 1 ? '...' : '')}
+                                                        </ReactMarkdown>
+                                                        {/* Speaker button for TTS */}
+                                                        {mainContent && !isLoading && (
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={() => playAssistantAudio(mainContent, i)}
+                                                                disabled={isSynthesizing && playingMessageIndex === i}
+                                                                sx={{
+                                                                    position: 'absolute',
+                                                                    bottom: -8,
+                                                                    right: -8,
+                                                                    opacity: playingMessageIndex === i ? 1 : 0.6,
+                                                                    '&:hover': { opacity: 1 },
+                                                                    color: playingMessageIndex === i && !isSynthesizing ? 'error.main' : 'inherit',
+                                                                }}
+                                                                title={
+                                                                    isSynthesizing && playingMessageIndex === i
+                                                                        ? 'Loading...'
+                                                                        : playingMessageIndex === i
+                                                                            ? 'Stop playback'
+                                                                            : 'Listen to response'
+                                                                }
+                                                            >
+                                                                {isSynthesizing && playingMessageIndex === i ? (
+                                                                    <CircularProgress size={18} color="inherit" />
+                                                                ) : playingMessageIndex === i ? (
+                                                                    <Stop fontSize="small" />
+                                                                ) : (
+                                                                    <VolumeUp fontSize="small" />
+                                                                )}
+                                                            </IconButton>
+                                                        )}
+                                                    </Box>
+                                                )}
+                                            </Paper>
+
+                                            {/* Sources Bubble */}
+                                            {sourcesContent && (
+                                                <Paper
+                                                    elevation={1}
+                                                    sx={{
+                                                        mt: 1,
+                                                        p: 2,
+                                                        maxWidth: '80%',
+                                                        bgcolor: 'secondary.main',
+                                                        color: 'white',
+                                                        borderRadius: 2,
+                                                    }}
+                                                >
+                                                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
+                                                        Sources
+                                                    </Typography>
+                                                    <Box
+                                                        sx={{
+                                                            '& a': { color: 'white', textDecoration: 'underline', cursor: 'pointer' },
+                                                            '& p': { m: 0, mb: 0.5 },
+                                                            '& ul, & ol': { pl: 3, my: 0 },
+                                                            '& li': { mb: 0.5 },
+                                                        }}
+                                                    >
+                                                        <ReactMarkdown
+                                                            components={{
+                                                                a: ({ href, children }) => {
+                                                                    if (href?.startsWith('/documents/')) {
+                                                                        return (
+                                                                            <Link
+                                                                                component={RouterLink}
+                                                                                to={href}
+                                                                                sx={{ cursor: 'pointer', color: 'white', fontWeight: 500 }}
+                                                                            >
+                                                                                {children}
+                                                                            </Link>
+                                                                        );
+                                                                    }
+                                                                    return <a href={href}>{children}</a>;
+                                                                },
+                                                            }}
+                                                        >
+                                                            {sourcesContent}
+                                                        </ReactMarkdown>
+                                                    </Box>
+                                                </Paper>
                                             )}
-                                        </Paper>
-                                    </Box>
-                                ))}
+                                        </Box>
+                                    );
+                                })}
 
                                 {isLoading && messages[messages.length - 1]?.content === '' && (
                                     <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>

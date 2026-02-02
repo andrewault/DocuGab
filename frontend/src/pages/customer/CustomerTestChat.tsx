@@ -343,39 +343,92 @@ export default function CustomerTestChat() {
                             </Box>
                         )}
 
-                        {messages.map((msg, i) => (
-                            <Box key={i} sx={{ mb: 2, display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
-                                <Paper sx={{
-                                    p: 2, maxWidth: '80%', borderRadius: 2,
-                                    bgcolor: msg.role === 'user' ? 'primary.main' : (isDark ? 'grey.800' : 'grey.100'),
-                                    color: msg.role === 'user' ? '#fff' : 'text.primary',
-                                    '& a': { color: isDark ? '#f97316' : '#2563eb', textDecoration: 'underline', cursor: 'pointer' },
-                                    '& code': { bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)', px: 0.5, borderRadius: 0.5, fontFamily: 'monospace' },
-                                    '& pre': { bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)', p: 1, borderRadius: 1, overflow: 'auto' }
-                                }}>
-                                    <ReactMarkdown components={{
-                                        a: ({ href, children }) => {
-                                            if (href?.startsWith('/documents/')) {
-                                                return <Link component={RouterLink} to={href} sx={{ cursor: 'pointer', color: 'inherit' }}>{children}</Link>;
-                                            }
-                                            return <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>;
-                                        }
-                                    }}>
-                                        {msg.content}
-                                    </ReactMarkdown>
+                        {messages.map((msg, i) => {
+                            const isUser = msg.role === 'user';
+                            const splitContent = !isUser ? msg.content.split('\n\n**Sources:**\n') : [msg.content];
+                            const mainContent = splitContent[0];
+                            const sourcesContent = splitContent.length > 1 ? splitContent[1] : null;
 
-                                    {msg.role === 'assistant' && msg.content && !isLoading && (
-                                        <IconButton
-                                            size="small"
-                                            onClick={() => playAssistantAudio(msg.content, i)}
-                                            sx={{ float: 'right', ml: 1, opacity: 0.7 }}
+                            return (
+                                <Box key={i} sx={{ mb: 2, display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start' }}>
+                                    <Paper sx={{
+                                        p: 2, maxWidth: '80%', borderRadius: 2,
+                                        bgcolor: isUser ? 'primary.main' : (isDark ? 'grey.800' : 'grey.100'),
+                                        color: isUser ? '#fff' : 'text.primary',
+                                        '& a': { color: isDark ? '#f97316' : '#2563eb', textDecoration: 'underline', cursor: 'pointer' },
+                                        '& code': { bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)', px: 0.5, borderRadius: 0.5, fontFamily: 'monospace' },
+                                        '& pre': { bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)', p: 1, borderRadius: 1, overflow: 'auto' }
+                                    }}>
+                                        <ReactMarkdown components={{
+                                            a: ({ href, children }) => {
+                                                if (href?.startsWith('/documents/')) {
+                                                    return <Link component={RouterLink} to={href} sx={{ cursor: 'pointer', color: 'inherit' }}>{children}</Link>;
+                                                }
+                                                return <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>;
+                                            }
+                                        }}>
+                                            {mainContent}
+                                        </ReactMarkdown>
+
+                                        {!isUser && mainContent && !isLoading && (
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => playAssistantAudio(mainContent, i)}
+                                                sx={{ float: 'right', ml: 1, opacity: 0.7 }}
+                                            >
+                                                <VolumeUp fontSize="small" />
+                                            </IconButton>
+                                        )}
+                                    </Paper>
+
+                                    {/* Sources Bubble */}
+                                    {sourcesContent && (
+                                        <Paper
+                                            elevation={1}
+                                            sx={{
+                                                mt: 1,
+                                                p: 2,
+                                                maxWidth: '80%',
+                                                bgcolor: 'secondary.main',
+                                                color: 'white',
+                                                borderRadius: 2,
+                                            }}
                                         >
-                                            <VolumeUp fontSize="small" />
-                                        </IconButton>
+                                            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
+                                                Sources
+                                            </Typography>
+                                            <Box
+                                                sx={{
+                                                    '& a': { color: 'white', textDecoration: 'underline', cursor: 'pointer' },
+                                                    '& p': { m: 0, mb: 0.5 },
+                                                    '& ul, & ol': { pl: 3, my: 0 },
+                                                    '& li': { mb: 0.5 },
+                                                }}
+                                            >
+                                                <ReactMarkdown components={{
+                                                    a: ({ href, children }) => {
+                                                        if (href?.startsWith('/documents/')) {
+                                                            return (
+                                                                <Link
+                                                                    component={RouterLink}
+                                                                    to={href}
+                                                                    sx={{ cursor: 'pointer', color: 'white', fontWeight: 500 }}
+                                                                >
+                                                                    {children}
+                                                                </Link>
+                                                            );
+                                                        }
+                                                        return <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>;
+                                                    }
+                                                }}>
+                                                    {sourcesContent}
+                                                </ReactMarkdown>
+                                            </Box>
+                                        </Paper>
                                     )}
-                                </Paper>
-                            </Box>
-                        ))}
+                                </Box>
+                            );
+                        })}
                         {isLoading && messages[messages.length - 1]?.content === '' && (
                             <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
                                 <CircularProgress size={20} />
