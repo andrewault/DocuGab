@@ -27,7 +27,7 @@ import {
     Button,
     IconButton,
 } from '@mui/material';
-import { Group, PersonAdd, Description, Pending, Edit } from '@mui/icons-material';
+import { Group, PersonAdd, Description, Pending, Edit, Add } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { useAuth } from '../../context/AuthProvider';
@@ -171,7 +171,7 @@ export default function Users() {
                     </Box>
                     <Button
                         variant="contained"
-                        startIcon={<PersonAdd />}
+                        startIcon={<Add />}
                         onClick={() => navigate('/admin/users/new')}
                     >
                         Add User

@@ -48,13 +48,6 @@ interface Customer {
     projects_count: number;
 }
 
-interface CustomerFormData {
-    name: string;
-    contact_name: string;
-    contact_phone: string;
-    email: string;
-}
-
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function Customers() {
@@ -67,19 +60,11 @@ export default function Customers() {
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [openDialog, setOpenDialog] = useState(false);
-    const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
     const [deleteConfirmText, setDeleteConfirmText] = useState('');
     const [orderBy, setOrderBy] = useState<keyof Customer>('name');
     const [order, setOrder] = useState<'asc' | 'desc'>('asc');
-    const [formData, setFormData] = useState<CustomerFormData>({
-        name: '',
-        contact_name: '',
-        contact_phone: '',
-        email: '',
-    });
 
     const fetchCustomers = useCallback(async () => {
         try {
@@ -119,61 +104,6 @@ export default function Customers() {
     const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
-    };
-
-    const handleOpenDialog = (customer?: Customer) => {
-        if (customer) {
-            setEditingCustomer(customer);
-            setFormData({
-                name: customer.name,
-                contact_name: customer.contact_name || '',
-                contact_phone: customer.contact_phone || '',
-                email: customer.email || '',
-            });
-        } else {
-            setEditingCustomer(null);
-            setFormData({
-                name: '',
-                contact_name: '',
-                contact_phone: '',
-                email: '',
-            });
-        }
-        setOpenDialog(true);
-    };
-
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-        setEditingCustomer(null);
-    };
-
-    const handleSubmit = async () => {
-        try {
-            const url = editingCustomer
-                ? `${API_BASE}/api/v1/admin/customers/${editingCustomer.uuid}`
-                : `${API_BASE}/api/v1/admin/customers`;
-
-            const method = editingCustomer ? 'PATCH' : 'POST';
-
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    ...getAuthHeader(),
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.detail || `Failed to save customer (${response.status})`);
-            }
-
-            handleCloseDialog();
-            fetchCustomers();
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to save customer');
-        }
     };
 
     const handleDeleteClick = (customer: Customer) => {
@@ -263,7 +193,7 @@ export default function Customers() {
                     <Button
                         variant="contained"
                         startIcon={<Add />}
-                        onClick={() => handleOpenDialog()}
+                        onClick={() => navigate('/admin/customers/new')}
                     >
                         Add Customer
                     </Button>
@@ -499,77 +429,6 @@ export default function Customers() {
                         />
                     </Paper>
                 )}
-
-                {/* Create/Edit Dialog */}
-                <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-                    <DialogTitle>
-                        {editingCustomer ? 'Edit Customer' : 'Add Customer'}
-                    </DialogTitle>
-                    <DialogContent>
-                        <Stack spacing={3} sx={{ mt: 2 }}>
-                            <TextField
-                                fullWidth
-                                label="Customer Name"
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !e.shiftKey) {
-                                        e.preventDefault();
-                                        handleSubmit();
-                                    }
-                                }}
-                                required
-                            />
-                            <TextField
-                                fullWidth
-                                label="Contact Name"
-                                value={formData.contact_name}
-                                onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !e.shiftKey) {
-                                        e.preventDefault();
-                                        handleSubmit();
-                                    }
-                                }}
-                            />
-                            <TextField
-                                fullWidth
-                                label="Contact Phone"
-                                value={formData.contact_phone}
-                                onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !e.shiftKey) {
-                                        e.preventDefault();
-                                        handleSubmit();
-                                    }
-                                }}
-                            />
-                            <TextField
-                                fullWidth
-                                label="Email"
-                                type="email"
-                                value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !e.shiftKey) {
-                                        e.preventDefault();
-                                        handleSubmit();
-                                    }
-                                }}
-                            />
-                        </Stack>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCloseDialog}>Cancel</Button>
-                        <Button
-                            onClick={handleSubmit}
-                            variant="contained"
-                            disabled={!formData.name}
-                        >
-                            {editingCustomer ? 'Save' : 'Create'}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
 
                 {/* Delete Confirmation Dialog */}
                 <Dialog

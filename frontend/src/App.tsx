@@ -34,6 +34,7 @@ import FAQManagement from './pages/admin/FAQManagement';
 import FAQEdit from './pages/admin/FAQEdit';
 import FAQDetail from './pages/admin/FAQDetail';
 import Customers from './pages/admin/Customers';
+import NewCustomer from './pages/admin/NewCustomer';
 import CustomerDetail from './pages/admin/CustomerDetail';
 import CustomerEdit from './pages/admin/CustomerEdit';
 import Projects from './pages/admin/Projects';
@@ -178,6 +179,11 @@ export default function App() {
             <Route path="/admin/customers" element={
               <ProtectedRoute requireAdmin>
                 <Customers />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/customers/new" element={
+              <ProtectedRoute requireAdmin>
+                <NewCustomer />
               </ProtectedRoute>
             } />
             <Route path="/admin/customers/:uuid" element={

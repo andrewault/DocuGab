@@ -64,6 +64,7 @@ export default function NewUser() {
         if (state?.customerId) {
             setCustomerId(state.customerId);
             setRole('customer'); // Default to customer role when coming from customer page
+            setError(null);
         }
     }, [fetchCustomers, location.state]);
 
@@ -160,27 +161,45 @@ export default function NewUser() {
                     { label: 'New User' }
                 ]} />
 
-                {/* Header with Title */}
-                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-                    <Typography
-                        variant="h4"
-                        sx={{
-                            fontWeight: 700,
-                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                            backgroundClip: 'text',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                        }}
-                    >
-                        {(() => {
-                            const state = location.state as { customerId?: number; customerUuid?: string; customerName?: string } | null;
-                            return state?.customerName ? `New User for ${state.customerName}` : 'New User';
-                        })()}
-                    </Typography>
+                {/* Header */}
+                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <PersonAdd sx={{ fontSize: 32, color: '#6366f1' }} />
+                        <Typography
+                            variant="h4"
+                            component="h1"
+                            sx={{
+                                fontWeight: 700,
+                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}
+                        >
+                            {(() => {
+                                const state = location.state as { customerId?: number; customerUuid?: string; customerName?: string } | null;
+                                return state?.customerName ? `New User for ${state.customerName}` : 'New User';
+                            })()}
+                        </Typography>
+                    </Box>
+                    <Stack direction="row" spacing={2}>
+                        <Button
+                            variant="outlined"
+                            startIcon={<ArrowBack />}
+                            onClick={() => navigate(-1)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="contained"
+                            startIcon={<PersonAdd />}
+                            onClick={handleSubmit}
+                            disabled={saving}
+                        >
+                            {saving ? 'Creating...' : 'Create User'}
+                        </Button>
+                    </Stack>
                 </Stack>
-                <Typography variant="body2" color="text.secondary" mb={3}>
-                    Create a new user account
-                </Typography>
 
                 <Paper
                     elevation={3}
@@ -190,7 +209,6 @@ export default function NewUser() {
                         bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
                     }}
                 >
-
                     {error && (
                         <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
                             {error}
@@ -307,24 +325,6 @@ export default function NewUser() {
                             }
                             label="Verified"
                         />
-
-                        <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-                            <Button
-                                variant="outlined"
-                                startIcon={<ArrowBack />}
-                                onClick={() => navigate(-1)}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                variant="contained"
-                                startIcon={<PersonAdd />}
-                                onClick={handleSubmit}
-                                disabled={saving}
-                            >
-                                {saving ? 'Creating...' : 'Create User'}
-                            </Button>
-                        </Stack>
                     </Stack>
                 </Paper>
             </Container>
