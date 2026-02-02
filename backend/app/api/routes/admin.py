@@ -222,7 +222,7 @@ async def update_user(
             select(func.count(User.id)).where(User.customer_id == data.customer_id)
         )
         existing_count = existing_users_result.scalar() or 0
-        
+
         # If no users exist (or only this one if we just set it but haven't committed... wait, we haven't committed yet)
         # Note: we just set user.customer_id in memory, but DB query won't see it yet unless flushed?
         # Actually count query is against DB. existing_count is count of users ALREADY in DB with this customer_id.

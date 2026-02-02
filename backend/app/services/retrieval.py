@@ -39,7 +39,6 @@ async def search_similar_chunks(
     # pgvector cosine similarity search
     # Note: embedding_str is constructed from numeric array, not user input
     # where_clause is built from hardcoded strings with parameterized user inputs
-    # nosec B608
     query_sql = f"""
         SELECT 
             c.id,
@@ -54,7 +53,7 @@ async def search_similar_chunks(
         WHERE {where_clause}
         ORDER BY c.embedding <=> '{embedding_str}'::vector
         LIMIT :limit
-    """
+    """ # nosec B608
     sql = text(query_sql)
 
     result = await db.execute(sql, params)

@@ -53,8 +53,12 @@ async def list_documents(
         query = query.where(Document.project_id == project_id)
 
     result = await db.execute(query)
-    
-    return {"documents": [document_to_dict(row[0], chunks_count=row[1]) for row in result.all()]}
+
+    return {
+        "documents": [
+            document_to_dict(row[0], chunks_count=row[1]) for row in result.all()
+        ]
+    }
 
 
 @router.get("/by-uuid/{uuid}")
@@ -213,4 +217,4 @@ async def delete_document(uuid: UUID, db: AsyncSession = Depends(get_db)):
     await db.delete(document)
     await db.commit()
 
-    return {"message": "Document deleted", "id": document_id}
+    return {"message": "Document deleted", "id": document.id}

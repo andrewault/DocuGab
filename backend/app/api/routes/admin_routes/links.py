@@ -12,6 +12,7 @@ from app.schemas.link import LinkCreate, LinkResponse
 
 router = APIRouter(tags=["admin", "projects"])
 
+
 @router.get("/projects/{project_uuid}/links", response_model=list[LinkResponse])
 async def list_project_links(
     project_uuid: UUID,
@@ -22,17 +23,24 @@ async def list_project_links(
     # Get project
     result = await db.execute(select(Project).where(Project.uuid == project_uuid))
     project = result.scalar_one_or_none()
-    
+
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Project not found",
         )
-        
-    links_result = await db.execute(select(ProjectLink).where(ProjectLink.project_id == project.id))
+
+    links_result = await db.execute(
+        select(ProjectLink).where(ProjectLink.project_id == project.id)
+    )
     return links_result.scalars().all()
 
-@router.post("/projects/{project_uuid}/links", response_model=LinkResponse, status_code=status.HTTP_201_CREATED)
+
+@router.post(
+    "/projects/{project_uuid}/links",
+    response_model=LinkResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_project_link(
     project_uuid: UUID,
     data: LinkCreate,
@@ -43,25 +51,23 @@ async def create_project_link(
     # Get project
     result = await db.execute(select(Project).where(Project.uuid == project_uuid))
     project = result.scalar_one_or_none()
-    
+
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Project not found",
         )
-        
+
     link = ProjectLink(
-        project_id=project.id,
-        name=data.name,
-        url=data.url,
-        keywords=data.keywords
+        project_id=project.id, name=data.name, url=data.url, keywords=data.keywords
     )
-    
+
     db.add(link)
     await db.commit()
     await db.refresh(link)
-    
+
     return link
+
 
 @router.put("/projects/{project_uuid}/links/{link_id}", response_model=LinkResponse)
 async def update_project_link(
@@ -73,36 +79,40 @@ async def update_project_link(
 ):
     """Update a link in a project."""
     # Verify project exists
-    project_result = await db.execute(select(Project).where(Project.uuid == project_uuid))
+    project_result = await db.execute(
+        select(Project).where(Project.uuid == project_uuid)
+    )
     project = project_result.scalar_one_or_none()
-    
+
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
     # Get link and verify ownership
     result = await db.execute(
         select(ProjectLink).where(
-            ProjectLink.id == link_id,
-            ProjectLink.project_id == project.id
+            ProjectLink.id == link_id, ProjectLink.project_id == project.id
         )
     )
     link = result.scalar_one_or_none()
-    
+
     if not link:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Link not found",
         )
-        
+
     for key, value in data.model_dump().items():
         setattr(link, key, value)
-        
+
     await db.commit()
     await db.refresh(link)
-    
+
     return link
 
-@router.delete("/projects/{project_uuid}/links/{link_id}", status_code=status.HTTP_204_NO_CONTENT)
+
+@router.delete(
+    "/projects/{project_uuid}/links/{link_id}", status_code=status.HTTP_204_NO_CONTENT
+)
 async def delete_project_link(
     project_uuid: UUID,
     link_id: int,
@@ -111,26 +121,27 @@ async def delete_project_link(
 ):
     """Delete link from a project."""
     # Verify project exists
-    project_result = await db.execute(select(Project).where(Project.uuid == project_uuid))
+    project_result = await db.execute(
+        select(Project).where(Project.uuid == project_uuid)
+    )
     project = project_result.scalar_one_or_none()
-    
+
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
     # Get link and verify ownership
     result = await db.execute(
         select(ProjectLink).where(
-            ProjectLink.id == link_id,
-            ProjectLink.project_id == project.id
+            ProjectLink.id == link_id, ProjectLink.project_id == project.id
         )
     )
     link = result.scalar_one_or_none()
-    
+
     if not link:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Link not found",
         )
-        
+
     await db.delete(link)
     await db.commit()

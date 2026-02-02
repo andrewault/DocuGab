@@ -19,7 +19,9 @@ from app.models import User
 
 
 # Test database URL (Postgres test DB)
-TEST_DATABASE_URL = "postgresql+asyncpg://docutok:docutok_secret@localhost:5433/docutok_test"
+TEST_DATABASE_URL = (
+    "postgresql+asyncpg://docutok:docutok_secret@localhost:5433/docutok_test"
+)
 
 
 @pytest.fixture(scope="session")

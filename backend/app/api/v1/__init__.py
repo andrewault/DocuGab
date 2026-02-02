@@ -32,12 +32,8 @@ router.include_router(customers.router, prefix="/admin/customers", tags=["Custom
 router.include_router(
     admin_projects.router, prefix="/admin/projects", tags=["Admin Projects"]
 )
-router.include_router(
-    admin_media.router, prefix="/admin", tags=["Admin Projects"]
-)
-router.include_router(
-    admin_links.router, prefix="/admin", tags=["Admin Projects"]
-)
+router.include_router(admin_media.router, prefix="/admin", tags=["Admin Projects"])
+router.include_router(admin_links.router, prefix="/admin", tags=["Admin Projects"])
 router.include_router(
     customer_projects.router, prefix="/customer/projects", tags=["Customer Projects"]
 )

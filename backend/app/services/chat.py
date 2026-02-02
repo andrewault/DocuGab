@@ -50,13 +50,26 @@ async def generate_response(
     """
 
     # Built-in Responses: Check for greetings to skip retrieval and sources
-    builtin_keywords = {"hello", "hi", "hey", "greetings", "good morning", "good afternoon", "good evening", "how are you", "how are you?", "how are you doing"}
+    builtin_keywords = {
+        "hello",
+        "hi",
+        "hey",
+        "greetings",
+        "good morning",
+        "good afternoon",
+        "good evening",
+        "how are you",
+        "how are you?",
+        "how are you doing",
+    }
     cleaned_query = query.strip().lower().rstrip("?!.,")
-    
+
     if cleaned_query in builtin_keywords:
         # Direct chat without RAG (Built-in Response)
         messages = [
-            SystemMessage(content="You are a friendly assistant. Respond naturally to the user's greeting."),
+            SystemMessage(
+                content="You are a friendly assistant. Respond naturally to the user's greeting."
+            ),
             HumanMessage(content=query),
         ]
         llm = get_llm()
@@ -78,17 +91,21 @@ async def generate_response(
     media_items = []
     link_items = []
     if project_id:
-        result_media = await db.execute(select(ProjectMedia).where(ProjectMedia.project_id == project_id))
+        result_media = await db.execute(
+            select(ProjectMedia).where(ProjectMedia.project_id == project_id)
+        )
         media_items = result_media.scalars().all()
-        
-        result_links = await db.execute(select(ProjectLink).where(ProjectLink.project_id == project_id))
+
+        result_links = await db.execute(
+            select(ProjectLink).where(ProjectLink.project_id == project_id)
+        )
         link_items = result_links.scalars().all()
 
     # Build context from retrieved chunks
     context_parts = []
     for c in chunks:
-        source_ref = c['filename']
-        if not c['filename'].strip().lower().endswith('.md'):
+        source_ref = c["filename"]
+        if not c["filename"].strip().lower().endswith(".md"):
             source_ref += f", Page {c['page']}"
         context_parts.append(f"[{source_ref}]:\n{c['content']}")
 
@@ -116,8 +133,8 @@ async def generate_response(
         doc_key = c["document_uuid"]
         if doc_key not in seen_docs:
             seen_docs.add(doc_key)
-            filename_clean = c['filename'].strip().lower()
-            if filename_clean.endswith('.md'):
+            filename_clean = c["filename"].strip().lower()
+            if filename_clean.endswith(".md"):
                 yield f"- [{c['filename']}](/documents/{c['document_uuid']})\n"
             else:
                 yield f"- [{c['filename']}](/documents/{c['document_uuid']}), Page {c['page']}\n"
@@ -125,39 +142,31 @@ async def generate_response(
     # Ancillary Matching Logic
     found_media = []
     found_links = []
-    
+
     # Simple word boundary matching
-    # We combine the query and the response to find keywords? 
+    # We combine the query and the response to find keywords?
     # The plan says "If the Chat response has a key word".
     text_to_scan = full_response_text.lower()
-    
+
     for m in media_items:
         # Check if any keyword matches
         for kw in m.keywords:
             # Escape keyword for regex and look for word boundaries
-            pattern = r'\b' + re.escape(kw.lower()) + r'\b'
+            pattern = r"\b" + re.escape(kw.lower()) + r"\b"
             if re.search(pattern, text_to_scan):
-                found_media.append({
-                    "type": m.type,
-                    "url": m.url,
-                    "description": m.description
-                })
-                break # Only add media item once even if multiple keywords match
+                found_media.append(
+                    {"type": m.type, "url": m.url, "description": m.description}
+                )
+                break  # Only add media item once even if multiple keywords match
 
-    for l in link_items:
-        for kw in l.keywords:
-            pattern = r'\b' + re.escape(kw.lower()) + r'\b'
+    for link_item in link_items:
+        for kw in link_item.keywords:
+            pattern = r"\b" + re.escape(kw.lower()) + r"\b"
             if re.search(pattern, text_to_scan):
-                found_links.append({
-                    "name": l.name,
-                    "url": l.url
-                })
+                found_links.append({"name": link_item.name, "url": link_item.url})
                 break
 
     if found_media or found_links:
-        ancillary_payload = {
-            "media": found_media,
-            "links": found_links
-        }
+        ancillary_payload = {"media": found_media, "links": found_links}
         # Append as a special section that frontend can parse
         yield f"\n\n**Ancillary:**\n{json.dumps(ancillary_payload)}"

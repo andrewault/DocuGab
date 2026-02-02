@@ -10,8 +10,9 @@ from app.services.embedding import generate_embedding
 from app.services.chat import get_llm
 from langchain_core.messages import HumanMessage
 
+
 async def main():
-    print(f"Checking Ollama Configuration:")
+    print("Checking Ollama Configuration:")
     print(f"  Base URL: {settings.ollama_base_url}")
     print(f"  LLM Model: {settings.llm_model}")
     print(f"  Embedding Model: {settings.embedding_model}")
@@ -25,6 +26,7 @@ async def main():
         print(f"  [FAILURE] Embedding generation failed: {e}")
         # Print traceback
         import traceback
+
         traceback.print_exc()
 
     print("\nTest 2: Connection to Ollama (Chat)...")
@@ -38,7 +40,9 @@ async def main():
     except Exception as e:
         print(f"\n  [FAILURE] Chat generation failed: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

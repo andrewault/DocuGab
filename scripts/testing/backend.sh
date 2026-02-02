@@ -121,10 +121,12 @@ if [ "$RUN_LINT" = true ]; then
     echo "----------------------"
     
     if [ "$FIX_ISSUES" = true ]; then
-        run_check "Ruff (auto-fix)" uv run ruff check --fix || FAILED=true
-    else
-        run_check "Ruff" uv run ruff check || FAILED=true
+        echo "🛠️ Applying automatic lint fixes..."
+        uv run ruff check --fix || true
+        echo ""
     fi
+
+    run_check "Ruff" uv run ruff check || FAILED=true
 fi
 
 # Tests

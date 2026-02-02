@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     database_url: str
 
     # API
-    api_host: str = "0.0.0.0"  #nosec B104
+    api_host: str = "0.0.0.0"  # nosec B104
     backend_port: int = 8007  # Match .env default
     debug: bool = False
 
