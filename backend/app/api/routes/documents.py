@@ -1,11 +1,11 @@
 from pathlib import Path
 from uuid import UUID
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, BackgroundTasks
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.models import Document
+from app.models import Document, Chunk
 from app.services.storage import save_uploaded_file, get_file_path
 from app.services.processor import process_document
 
@@ -16,18 +16,20 @@ router = APIRouter()
 ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md"}
 
 
-def document_to_dict(doc: Document) -> dict:
+def document_to_dict(doc: Document, chunks_count: int = 0) -> dict:
     """Convert document to API response dict."""
     return {
         "id": doc.id,
         "uuid": str(doc.uuid),
-        "filename": doc.original_filename,
+        "filename": doc.filename,
+        "original_filename": doc.original_filename,
         "status": doc.status,
         "error_message": doc.error_message,
         "file_size": doc.file_size,
         "content_type": doc.content_type,
         "created_at": doc.created_at.isoformat() if doc.created_at else None,
         "updated_at": doc.updated_at.isoformat() if doc.updated_at else None,
+        "chunks_count": chunks_count,
     }
 
 
@@ -40,15 +42,19 @@ async def list_documents(
 
     For multi-tenant security, pass project_id to filter documents.
     """
-    query = select(Document).order_by(Document.created_at.desc())
+    query = (
+        select(Document, func.count(Chunk.id).label("chunks_count"))
+        .outerjoin(Chunk)
+        .group_by(Document.id)
+        .order_by(Document.created_at.desc())
+    )
 
     if project_id is not None:
         query = query.where(Document.project_id == project_id)
 
     result = await db.execute(query)
-    documents = result.scalars().all()
-
-    return {"documents": [document_to_dict(doc) for doc in documents]}
+    
+    return {"documents": [document_to_dict(row[0], chunks_count=row[1]) for row in result.all()]}
 
 
 @router.get("/by-uuid/{uuid}")
@@ -190,10 +196,11 @@ async def process_document_background(document_id: int):
             print(f"Error processing document {document_id}: {e}")
 
 
-@router.delete("/{document_id}")
-async def delete_document(document_id: int, db: AsyncSession = Depends(get_db)):
+@router.delete("/{uuid}")
+async def delete_document(uuid: UUID, db: AsyncSession = Depends(get_db)):
     """Delete a document, its chunks, and the physical file."""
-    document = await db.get(Document, document_id)
+    result = await db.execute(select(Document).where(Document.uuid == uuid))
+    document = result.scalar_one_or_none()
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
 

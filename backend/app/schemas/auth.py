@@ -52,6 +52,7 @@ class UserResponse(BaseModel):
     customer_uuid: Optional[UUID] = None
     customer_name: Optional[str] = None
     customer_is_active: Optional[bool] = None
+    customer_role: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     last_login_at: Optional[datetime] = None

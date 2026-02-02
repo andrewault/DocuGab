@@ -290,6 +290,15 @@ export default function CustomerAccount() {
                         >
                             Account
                         </Typography>
+                        {accountData?.current_user_role && (
+                            <Chip
+                                label={accountData.current_user_role.toUpperCase()}
+                                size="small"
+                                color="primary"
+                                variant="outlined"
+                                sx={{ ml: 2, fontWeight: 700 }}
+                            />
+                        )}
                     </Box>
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         {accountData?.current_user_role === 'owner' && (

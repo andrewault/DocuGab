@@ -29,6 +29,7 @@ interface Project {
     documents_count: number;
     customer_name: string;
     customer_uuid: string | null;
+    show_animation: boolean;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
@@ -119,7 +120,7 @@ export default function TestChat() {
         setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
         try {
-            const response = await fetch(`${API_BASE}/api/chat/`, {
+            const response = await fetch(`${API_BASE}/api/v1/chat/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -202,7 +203,7 @@ export default function TestChat() {
         try {
             const formData = new FormData();
             formData.append('audio', audioBlob, 'recording.webm');
-            const res = await fetch(`${API_BASE}/api/speech/transcribe`, {
+            const res = await fetch(`${API_BASE}/api/v1/speech/transcribe`, {
                 method: 'POST',
                 body: formData,
             });
@@ -309,21 +310,23 @@ export default function TestChat() {
 
             <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden', gap: 3 }}>
                 {/* Avatar Panel */}
-                <Box sx={{ width: '30%', display: { xs: 'none', md: 'flex' }, flexDirection: 'column' }}>
-                    <Paper sx={{
-                        flex: 1,
-                        bgcolor: isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(248, 250, 252, 0.8)',
-                        borderRadius: 3,
-                        overflow: 'hidden'
-                    }}>
-                        <TalkingHeadAvatar
-                            text={playingMessageText}
-                            voice={project.voice}
-                            avatarUrl={project.avatar || '/assets/avatars/avatar.glb'}
-                            isPlaying={playingMessageIndex !== null}
-                        />
-                    </Paper>
-                </Box>
+                {project.show_animation && (
+                    <Box sx={{ width: '30%', display: { xs: 'none', md: 'flex' }, flexDirection: 'column' }}>
+                        <Paper sx={{
+                            flex: 1,
+                            bgcolor: isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(248, 250, 252, 0.8)',
+                            borderRadius: 3,
+                            overflow: 'hidden'
+                        }}>
+                            <TalkingHeadAvatar
+                                text={playingMessageText}
+                                voice={project.voice}
+                                avatarUrl={project.avatar || '/assets/avatars/avatar.glb'}
+                                isPlaying={playingMessageIndex !== null}
+                            />
+                        </Paper>
+                    </Box>
+                )}
 
                 {/* Chat Area */}
                 <Paper sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: 3 }}>

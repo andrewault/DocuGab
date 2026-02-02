@@ -210,6 +210,7 @@ async def invite_user(
         full_name=request.full_name,
         password_hash=get_password_hash(temp_password),
         role="customer",
+        customer_role=request.customer_role,
         customer_id=user.customer_id,
         is_active=True,
         is_verified=False,  # Require email verification

@@ -130,5 +130,6 @@ async def get_current_user_info(
             user_dict["customer_uuid"] = customer.uuid
             user_dict["customer_name"] = customer.name
             user_dict["customer_is_active"] = customer.is_active
+            user_dict["customer_role"] = current_user.customer_role
 
     return UserResponse(**user_dict)

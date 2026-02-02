@@ -217,6 +217,20 @@ async def update_user(
         user.is_verified = data.is_verified
     if data.customer_id is not None:
         user.customer_id = data.customer_id
+        # If this is the first user for the customer, make them owner
+        existing_users_result = await db.execute(
+            select(func.count(User.id)).where(User.customer_id == data.customer_id)
+        )
+        existing_count = existing_users_result.scalar() or 0
+        
+        # If no users exist (or only this one if we just set it but haven't committed... wait, we haven't committed yet)
+        # Note: we just set user.customer_id in memory, but DB query won't see it yet unless flushed?
+        # Actually count query is against DB. existing_count is count of users ALREADY in DB with this customer_id.
+        # So if count is 0, this is the first one.
+        if existing_count == 0:
+            user.customer_role = "owner"
+        elif not user.customer_role:
+            user.customer_role = "member"
 
     await db.commit()
     await db.refresh(user)

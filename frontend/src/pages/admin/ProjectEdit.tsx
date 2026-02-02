@@ -294,7 +294,7 @@ export default function ProjectEdit() {
     const testVoice = async (voice: string) => {
         setTestingVoice(true);
         try {
-            const res = await fetch(`${API_BASE}/api/speech/synthesize`, {
+            const res = await fetch(`${API_BASE}/api/v1/speech/synthesize`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: VOICE_TEST_TEXT, voice }),

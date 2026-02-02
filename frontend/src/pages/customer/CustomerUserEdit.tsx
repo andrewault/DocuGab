@@ -45,6 +45,7 @@ export default function CustomerUserEdit() {
     // Form state
     const [fullName, setFullName] = useState('');
     const [customerRole, setCustomerRole] = useState('member');
+    const [currentUserRole, setCurrentUserRole] = useState<string>('member');
 
     // Escape key to go back
     useEffect(() => {
@@ -78,6 +79,7 @@ export default function CustomerUserEdit() {
             setUser(targetUser);
             setFullName(targetUser.full_name || '');
             setCustomerRole(targetUser.customer_role || 'member');
+            setCurrentUserRole(data.current_user_role || 'member');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load user');
         } finally {
@@ -241,7 +243,7 @@ export default function CustomerUserEdit() {
                             fullWidth
                         />
 
-                        <FormControl fullWidth>
+                        <FormControl fullWidth disabled={currentUserRole !== 'owner'}>
                             <InputLabel>Role</InputLabel>
                             <Select
                                 value={customerRole}
@@ -251,6 +253,11 @@ export default function CustomerUserEdit() {
                                 <MenuItem value="member">Member</MenuItem>
                                 <MenuItem value="owner">Owner</MenuItem>
                             </Select>
+                            {currentUserRole !== 'owner' && (
+                                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, ml: 1 }}>
+                                    Only owners can change user roles.
+                                </Typography>
+                            )}
                         </FormControl>
 
 

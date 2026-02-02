@@ -81,7 +81,7 @@ describe('Chat Component', () => {
 
         await waitFor(() => {
             expect(mockFetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/chat/'),
+                expect.stringContaining('/api/v1/chat/'),
                 expect.objectContaining({
                     method: 'POST',
                     body: expect.stringContaining('Test question'),

@@ -280,7 +280,7 @@ export default function Chat() {
             const formData = new FormData();
             formData.append('audio', audioBlob, 'recording.webm');
 
-            const res = await fetch(`${API_BASE}/api/speech/transcribe`, {
+            const res = await fetch(`${API_BASE}/api/v1/speech/transcribe`, {
                 method: 'POST',
                 body: formData,
             });
@@ -327,7 +327,7 @@ export default function Chat() {
         setIsSynthesizing(true);
 
         try {
-            const res = await fetch(`${API_BASE}/api/speech/synthesize`, {
+            const res = await fetch(`${API_BASE}/api/v1/speech/synthesize`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text, voice: selectedVoice }),
@@ -374,7 +374,7 @@ export default function Chat() {
         setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
         try {
-            const response = await fetch(`${API_BASE}/api/chat/`, {
+            const response = await fetch(`${API_BASE}/api/v1/chat/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

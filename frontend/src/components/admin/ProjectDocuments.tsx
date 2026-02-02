@@ -286,7 +286,13 @@ export function ProjectDocuments({ project, documents, currentUser, onRefresh }:
                                                 <Chip
                                                     label={doc.status}
                                                     size="small"
-                                                    color={doc.status === 'processed' ? 'success' : doc.status === 'processing' ? 'info' : 'default'}
+                                                    color={
+                                                        doc.status === 'processed' || doc.status === 'ready'
+                                                            ? 'success'
+                                                            : doc.status === 'processing'
+                                                                ? 'info'
+                                                                : 'default'
+                                                    }
                                                 />
                                             </TableCell>
                                             <TableCell>
