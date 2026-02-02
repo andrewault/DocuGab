@@ -22,9 +22,9 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localho
 export async function apiFetch(url: string, options: RequestInit = {}) {
     const token = localStorage.getItem('access_token');
 
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        ...options.headers,
+        ...(options.headers as Record<string, string>),
     };
 
     if (token) {
@@ -57,7 +57,7 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
                     headers['Authorization'] = `Bearer ${data.access_token}`;
                     return fetch(`${API_BASE_URL}${url}`, { ...options, headers });
                 }
-            } catch (err) {
+            } catch {
                 // Refresh failed, logout
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('refresh_token');
@@ -85,7 +85,7 @@ export const api = {
         return response.json();
     },
 
-    post: async <T>(url: string, data?: any): Promise<T> => {
+    post: async <T>(url: string, data?: unknown): Promise<T> => {
         const response = await apiFetch(url, {
             method: 'POST',
             body: data ? JSON.stringify(data) : undefined,
@@ -97,7 +97,7 @@ export const api = {
         return response.json();
     },
 
-    put: async <T>(url: string, data?: any): Promise<T> => {
+    put: async <T>(url: string, data?: unknown): Promise<T> => {
         const response = await apiFetch(url, {
             method: 'PUT',
             body: data ? JSON.stringify(data) : undefined,

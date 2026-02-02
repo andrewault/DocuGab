@@ -99,7 +99,7 @@ export default function NewUser() {
                 const data = await response.json();
                 // Handle validation errors from FastAPI
                 if (data.detail && Array.isArray(data.detail)) {
-                    const errors = data.detail.map((err: any) => err.msg).join(', ');
+                    const errors = data.detail.map((err: { msg: string }) => err.msg).join(', ');
                     throw new Error(errors);
                 }
                 throw new Error(data.detail || 'Failed to create user');

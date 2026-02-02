@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
     Box,
@@ -40,20 +40,20 @@ export default function ProjectDetail() {
     const [error, setError] = useState<string | null>(null);
 
     // Tab management with URL sync
-    const getTabFromPath = () => {
+    const getTabFromPath = useCallback(() => {
         const path = location.pathname;
         if (path.endsWith('/documents')) return 'documents';
         if (path.endsWith('/branding')) return 'branding';
         if (path.endsWith('/voice')) return 'voice';
         return 'overview';
-    };
+    }, [location.pathname]);
 
     const [currentTab, setCurrentTab] = useState(getTabFromPath());
 
     // Sync tab with URL changes
     useEffect(() => {
         setCurrentTab(getTabFromPath());
-    }, [location.pathname]);
+    }, [getTabFromPath]);
 
     const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
         setCurrentTab(newValue);

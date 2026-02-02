@@ -16,7 +16,6 @@ import {
     Alert,
     CircularProgress,
     Stack,
-    Divider,
     Dialog,
     DialogTitle,
     DialogContent,
@@ -27,8 +26,6 @@ import {
 import { Save, Delete, Person } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
-import { useAuth } from '../../context/AuthProvider';
-import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface User {
     id: number;
@@ -52,7 +49,6 @@ interface Customer {
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function UserEdit() {
-    const { user: currentUser } = useAuth();
     const { uuid } = useParams<{ uuid: string }>();
     const navigate = useNavigate();
     const theme = useTheme();

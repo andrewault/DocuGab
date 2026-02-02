@@ -185,7 +185,11 @@ export const useAuthStore = create<AuthState>()(
                 set({ accessToken: data.access_token });
             },
 
-            setUser: (user: User | null) => set({ user }),
+            setUser: (user: User | null) => set({
+                user,
+                isAdmin: user?.role === 'admin' || user?.role === 'superadmin',
+                isCustomer: user?.role === 'customer',
+            }),
         }),
         {
             name: 'auth-storage',
@@ -194,6 +198,13 @@ export const useAuthStore = create<AuthState>()(
                 accessToken: state.accessToken,
                 user: state.user,
             }),
+            onRehydrateStorage: () => (state) => {
+                // After rehydration, update computed flags based on persisted user
+                if (state?.user) {
+                    state.isAdmin = state.user.role === 'admin' || state.user.role === 'superadmin';
+                    state.isCustomer = state.user.role === 'customer';
+                }
+            },
         }
     )
 );

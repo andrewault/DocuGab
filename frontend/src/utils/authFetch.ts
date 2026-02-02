@@ -77,7 +77,7 @@ export async function authFetch(url: string, options: RequestInit = {}): Promise
             // Retry the original request with new token
             headers.set('Authorization', `Bearer ${accessToken}`);
             response = await fetch(url, { ...options, headers });
-        } catch (error) {
+        } catch {
             // Refresh failed, return the 401 response
             return response;
         }

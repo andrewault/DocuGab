@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { InfoCard } from './InfoCard';
 import { Business, Person, Phone, Email } from '@mui/icons-material';
-import { Typography, Stack, Button, Chip } from '@mui/material';
+import { Typography, Stack, Button, Chip, Box } from '@mui/material';
 
 const meta: Meta<typeof InfoCard> = {
     title: 'UI/Card/InfoCard',
@@ -72,5 +72,3 @@ export const DetailFields: Story = {
         ),
     },
 };
-
-const Box = ({ sx, children }: any) => <div style={sx}>{children}</div>;

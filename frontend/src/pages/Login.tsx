@@ -122,7 +122,7 @@ export default function Login() {
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                     e.preventDefault();
-                                    handleSubmit(e as any);
+                                    handleSubmit(e as React.FormEvent);
                                 }
                             }}
                             required
@@ -137,7 +137,7 @@ export default function Login() {
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                     e.preventDefault();
-                                    handleSubmit(e as any);
+                                    handleSubmit(e as React.FormEvent);
                                 }
                             }}
                             required

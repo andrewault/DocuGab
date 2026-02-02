@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
     Box,
@@ -17,15 +17,6 @@ import {
 import { Save, HelpOutline } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
-
-interface FAQItem {
-    id: number;
-    uuid: string;
-    question: string;
-    answer: string;
-    order: number;
-    is_active: boolean;
-}
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
@@ -109,13 +100,13 @@ export default function FAQEdit() {
         }
     };
 
-    const handleCancel = () => {
+    const handleCancel = useCallback(() => {
         if (isEditing && uuid) {
             navigate(`/admin/faq/${uuid}`);
         } else {
             navigate('/admin/faq');
         }
-    };
+    }, [isEditing, uuid, navigate]);
 
     // Handle Escape key
     useEffect(() => {
@@ -126,7 +117,7 @@ export default function FAQEdit() {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
+    }, [handleCancel]);
 
     if (loading) {
         return (

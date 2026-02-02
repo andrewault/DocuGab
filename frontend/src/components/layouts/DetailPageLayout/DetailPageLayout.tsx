@@ -1,10 +1,5 @@
 import { Box, Container, Stack, Typography } from '@mui/material';
-import { ReactNode } from 'react';
-
-interface BreadcrumbItem {
-    label: string;
-    path?: string;
-}
+import type { ReactNode } from 'react';
 
 interface DetailPageLayoutProps {
     breadcrumbs?: ReactNode; // Allow passing custom breadcrumb component

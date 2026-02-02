@@ -49,7 +49,6 @@ export default function CustomerUserDetail() {
     const { uuid } = useParams<{ uuid: string }>();
     const navigate = useNavigate();
     const [user, setUser] = useState<AccountUser | null>(null);
-    const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -110,10 +109,6 @@ export default function CustomerUserDetail() {
             </Container>
         );
     }
-
-    // Determine if current user can edit this user
-    // Owners can edit anyone, Members can only edit themselves
-    const canEdit = currentUserRole === 'owner' || currentUser?.id === user.id;
 
     return (
         <Container maxWidth={false} sx={{ mt: 4, mb: 8, px: 3 }}>

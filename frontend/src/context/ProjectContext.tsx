@@ -77,7 +77,8 @@ export function ProjectProvider({ children }: ProjectProviderProps) {
     }, []); // No dependencies as subdomain is removed
 
     useEffect(() => {
-        fetchProject();
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        void fetchProject(); // Fire-and-forget async initialization
     }, [fetchProject]);
 
     const value: ProjectContextType = {

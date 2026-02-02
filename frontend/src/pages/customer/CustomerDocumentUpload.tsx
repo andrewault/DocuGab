@@ -11,7 +11,6 @@ import {
 } from '@mui/material';
 import { Upload, CheckCircle } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../../context/AuthProvider';
 import { getAuthHeader } from '../../utils/authUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
 import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';
@@ -20,7 +19,6 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function CustomerDocumentUpload() {
     const { project_uuid } = useParams<{ project_uuid: string }>();
-    const { user } = useAuth();
     const navigate = useNavigate();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';

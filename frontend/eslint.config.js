@@ -20,4 +20,9 @@ export default defineConfig([globalIgnores(['dist']), {
     ecmaVersion: 2020,
     globals: globals.browser,
   },
-}, ...storybook.configs["flat/recommended"]])
+}, ...storybook.configs["flat/recommended"], {
+  files: ['**/*.stories.{ts,tsx}'],
+  rules: {
+    'storybook/no-renderer-packages': 'off',
+  },
+}])

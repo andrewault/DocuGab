@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, type NavigateFunction } from 'react-router-dom';
 import {
     Box,
     Container,
@@ -18,7 +19,6 @@ import {
     CircularProgress,
 } from '@mui/material';
 import { Add, Edit, Delete, QuestionAnswer, Search, DragIndicator } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
 import {
     DndContext,
     closestCenter,
@@ -26,8 +26,8 @@ import {
     PointerSensor,
     useSensor,
     useSensors,
+    type DragEndEvent,
 } from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
 import {
     arrayMove,
     SortableContext,
@@ -54,7 +54,7 @@ interface FAQItem {
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
-function SortableRow({
+function SortableFAQRow({
     faq,
     isDark,
     currentUser,
@@ -63,8 +63,8 @@ function SortableRow({
 }: {
     faq: FAQItem;
     isDark: boolean;
-    currentUser: any;
-    navigate: any;
+    currentUser: { email: string; role: string; timezone?: string } | null;
+    navigate: NavigateFunction;
     handleDelete: (uuid: string) => void;
 }) {
     const {
@@ -341,7 +341,7 @@ export default function FAQManagement() {
                                             strategy={verticalListSortingStrategy}
                                         >
                                             {filteredFaqs.map((faq) => (
-                                                <SortableRow
+                                                <SortableFAQRow
                                                     key={faq.uuid}
                                                     faq={faq}
                                                     isDark={isDark}

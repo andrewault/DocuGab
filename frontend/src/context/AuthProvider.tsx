@@ -13,8 +13,8 @@ interface AuthProviderProps {
  * a migration path from the old Context API to Zustand.
  * 
  * Usage:
- * - Old: const { user, login, logout } = useAuth();
- * - New: const { user, login, logout } = useAuthStore();
+ * - import { useAuth } from '../hooks/useAuth';
+ * - const { user, login, logout } = useAuth();
  */
 export function AuthProvider({ children }: AuthProviderProps) {
     const refreshUser = useAuthStore((state) => state.refreshUser);
@@ -27,7 +27,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return <>{children}</>;
 }
 
-// Re-export the hook for backwards compatibility
-// This allows existing code to continue using useAuth() 
-// while we migrate to direct useAuthStore() usage
-export { useAuthStore as useAuth };
+// Export separately to avoid Fast Refresh warning
+// eslint-disable-next-line react-refresh/only-export-components
+export { useAuthStore as useAuth } from '../stores/authStore';

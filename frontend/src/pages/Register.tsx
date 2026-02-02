@@ -106,7 +106,7 @@ export default function Register() {
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                     e.preventDefault();
-                                    handleSubmit(e as any);
+                                    handleSubmit(e as React.FormEvent);
                                 }
                             }}
                             sx={{ mb: 2 }}
@@ -120,7 +120,7 @@ export default function Register() {
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                     e.preventDefault();
-                                    handleSubmit(e as any);
+                                    handleSubmit(e as React.FormEvent);
                                 }
                             }}
                             required
@@ -135,7 +135,7 @@ export default function Register() {
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                     e.preventDefault();
-                                    handleSubmit(e as any);
+                                    handleSubmit(e as React.FormEvent);
                                 }
                             }}
                             required
@@ -151,7 +151,7 @@ export default function Register() {
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                     e.preventDefault();
-                                    handleSubmit(e as any);
+                                    handleSubmit(e as React.FormEvent);
                                 }
                             }}
                             required

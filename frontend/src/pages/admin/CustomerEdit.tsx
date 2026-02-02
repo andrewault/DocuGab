@@ -186,7 +186,7 @@ export default function CustomerEdit() {
                         <Button
                             variant="contained"
                             startIcon={<Save />}
-                            onClick={(e) => handleSubmit(e as any)}
+                            onClick={(e) => handleSubmit(e as React.FormEvent)}
                             disabled={saving || !formData.name}
                         >
                             {saving ? 'Saving...' : 'Save'}
