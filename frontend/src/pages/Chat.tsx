@@ -24,6 +24,22 @@ interface Document {
     status: string;
 }
 
+interface AncillaryMedia {
+    type: 'photo' | 'youtube';
+    url: string;
+    description?: string;
+}
+
+interface AncillaryLink {
+    name: string;
+    url: string;
+}
+
+interface AncillaryContent {
+    media?: AncillaryMedia[];
+    links?: AncillaryLink[];
+}
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 const CHAT_STORAGE_KEY = 'docutok_chat_messages';
 const SESSION_ID_KEY = 'docutok_chat_session_id';
@@ -616,7 +632,7 @@ export default function Chat() {
                                     // Parse Message Content
                                     let mainContent = msg.content;
                                     let sourcesContent: string | null = null;
-                                    let ancillaryContent: any = null;
+                                    let ancillaryContent: AncillaryContent | null = null;
 
                                     if (!isUser) {
                                         // 1. Extract Ancillary Data (always at the end)
@@ -808,12 +824,12 @@ export default function Chat() {
                                                 >
                                                     {/* Media Section */}
                                                     {ancillaryContent.media && ancillaryContent.media.length > 0 && (
-                                                        <Box mb={ancillaryContent.links?.length > 0 ? 2 : 0}>
+                                                        <Box mb={ancillaryContent.links?.length && ancillaryContent.links.length > 0 ? 2 : 0}>
                                                             <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
                                                                 Media
                                                             </Typography>
                                                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                                                {ancillaryContent.media.map((media: any, idx: number) => (
+                                                                {ancillaryContent.media.map((media: AncillaryMedia, idx: number) => (
                                                                     <Box key={idx} sx={{ borderRadius: 1, overflow: 'hidden' }}>
                                                                         {media.type === 'photo' ? (
                                                                             <img
@@ -851,7 +867,7 @@ export default function Chat() {
                                                                 Related Links
                                                             </Typography>
                                                             <Box component="ul" sx={{ m: 0, pl: 2 }}>
-                                                                {ancillaryContent.links.map((link: any, idx: number) => (
+                                                                {ancillaryContent.links.map((link: AncillaryLink, idx: number) => (
                                                                     <li key={idx}>
                                                                         <Link
                                                                             href={link.url}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
     Box,
     Paper,
@@ -43,18 +43,18 @@ export function ProjectMediaManager({ project }: ProjectMediaManagerProps) {
     const [keywordInput, setKeywordInput] = useState('');
     const [keywords, setKeywords] = useState<string[]>([]);
 
-    const fetchMedia = async () => {
+    const fetchMedia = useCallback(async () => {
         try {
             const data = await ancillaryApi.getMedia(project.uuid);
             setMediaItems(data);
         } catch (err) {
             console.error('Failed to fetch media:', err);
         }
-    };
+    }, [project.uuid]);
 
     useEffect(() => {
         fetchMedia();
-    }, [project.uuid]);
+    }, [fetchMedia]);
 
     const handleAddKeyword = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && keywordInput.trim()) {
@@ -185,7 +185,7 @@ export function ProjectMediaManager({ project }: ProjectMediaManagerProps) {
                             select
                             label="Type"
                             value={type}
-                            onChange={(e) => setType(e.target.value as any)}
+                            onChange={(e) => setType(e.target.value as 'photo' | 'youtube')}
                         >
                             <MenuItem value="photo">Photo (Image URL)</MenuItem>
                             <MenuItem value="youtube">YouTube (Video URL)</MenuItem>

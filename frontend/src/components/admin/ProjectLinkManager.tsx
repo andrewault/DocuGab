@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
     Box,
     Paper,
@@ -42,18 +42,18 @@ export function ProjectLinkManager({ project }: ProjectLinkManagerProps) {
     const [keywordInput, setKeywordInput] = useState('');
     const [keywords, setKeywords] = useState<string[]>([]);
 
-    const fetchLinks = async () => {
+    const fetchLinks = useCallback(async () => {
         try {
             const data = await ancillaryApi.getLinks(project.uuid);
             setLinkItems(data);
         } catch (err) {
             console.error('Failed to fetch links:', err);
         }
-    };
+    }, [project.uuid]);
 
     useEffect(() => {
         fetchLinks();
-    }, [project.uuid]);
+    }, [fetchLinks]);
 
     const handleOpenDialog = (item?: ProjectLink) => {
         if (item) {

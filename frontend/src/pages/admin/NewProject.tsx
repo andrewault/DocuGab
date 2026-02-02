@@ -104,7 +104,7 @@ export default function NewProject() {
         fetchCustomers();
     }, [fetchCustomers]);
 
-    const handleChange = (field: keyof ProjectFormData, value: any) => {
+    const handleChange = (field: keyof ProjectFormData, value: string | number) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
