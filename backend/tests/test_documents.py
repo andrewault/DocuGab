@@ -117,5 +117,7 @@ class TestDocumentDelete:
 
     async def test_delete_nonexistent(self, client: AsyncClient):
         """Test deleting non-existent document returns 404."""
-        response = await client.delete("/api/v1/documents/99999")
+        import uuid
+        random_uuid = str(uuid.uuid4())
+        response = await client.delete(f"/api/v1/documents/{random_uuid}")
         assert response.status_code == 404

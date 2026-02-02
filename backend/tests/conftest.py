@@ -4,6 +4,7 @@ Pytest fixtures for DocuTok backend tests.
 
 import asyncio
 from typing import AsyncGenerator, Generator
+import unittest
 
 import pytest
 from fastapi.testclient import TestClient
@@ -17,8 +18,8 @@ from app.core.security import hash_password
 from app.models import User
 
 
-# Test database URL (in-memory SQLite for speed)
-TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+# Test database URL (Postgres test DB)
+TEST_DATABASE_URL = "postgresql+asyncpg://docutok:docutok_secret@localhost:5433/docutok_test"
 
 
 @pytest.fixture(scope="session")
@@ -34,7 +35,6 @@ async def test_engine():
     """Create a test database engine."""
     engine = create_async_engine(
         TEST_DATABASE_URL,
-        connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
 
@@ -58,8 +58,11 @@ async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
         expire_on_commit=False,
     )
 
-    async with async_session() as session:
-        yield session
+    # Patch the global AsyncSessionLocal to use our test engine
+    # This protects background tasks and other direct users
+    with unittest.mock.patch("app.core.database.AsyncSessionLocal", async_session):
+        async with async_session() as session:
+            yield session
 
 
 @pytest.fixture
