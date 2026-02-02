@@ -19,6 +19,7 @@ NC='\033[0m' # No Color
 RUN_TESTS=true
 RUN_LINT=true
 RUN_TYPE_CHECK=true
+RUN_SECURITY=true
 RUN_BUILD=false
 FIX_ISSUES=false
 
@@ -36,6 +37,10 @@ while [[ $# -gt 0 ]]; do
             RUN_TYPE_CHECK=false
             shift
             ;;
+        --no-security)
+            RUN_SECURITY=false
+            shift
+            ;;
         --build)
             RUN_BUILD=true
             shift
@@ -46,7 +51,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         *)
             echo "Unknown option: $1"
-            echo "Usage: $0 [--no-tests] [--no-lint] [--no-type-check] [--build] [--fix]"
+            echo "Usage: $0 [--no-tests] [--no-lint] [--no-type-check] [--no-security] [--build] [--fix]"
             exit 1
             ;;
     esac
@@ -70,6 +75,28 @@ run_check() {
 }
 
 FAILED=false
+
+# Security Checks (Bearer)
+if [ "$RUN_SECURITY" = true ]; then
+    echo "🔒 Security Checks (Bearer)"
+    echo "---------------------------"
+    
+    # Check if bearer is installed
+    if ! command -v bearer &> /dev/null; then
+        echo -e "${YELLOW}Bearer not found. Installing...${NC}"
+        echo "Visit https://github.com/Bearer/bearer for installation instructions"
+        echo ""
+        echo "Quick install:"
+        echo "  macOS: brew install bearer/tap/bearer"
+        echo "  Linux: curl -sfL https://raw.githubusercontent.com/Bearer/bearer/main/contrib/install.sh | sh"
+        echo ""
+        echo -e "${YELLOW}⚠ Skipping Bearer security scan${NC}"
+        echo ""
+    else
+        # Run Bearer security scanner
+        run_check "Bearer Security Scanner" bearer scan . || FAILED=true
+    fi
+fi
 
 # Linting
 if [ "$RUN_LINT" = true ]; then

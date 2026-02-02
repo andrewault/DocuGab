@@ -67,7 +67,7 @@ export default function DocumentUpload({ onUploadComplete, projectId }: Document
                 status: 'error'
             }]);
         }
-    }, [onUploadComplete]);
+    }, [onUploadComplete, projectId]);
 
     const pollStatus = async (docId: number) => {
         const checkStatus = async () => {
