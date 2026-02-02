@@ -69,6 +69,9 @@ export default function Customers() {
     const [error, setError] = useState<string | null>(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+    const [deleteConfirmText, setDeleteConfirmText] = useState('');
     const [orderBy, setOrderBy] = useState<keyof Customer>('name');
     const [order, setOrder] = useState<'asc' | 'desc'>('asc');
     const [formData, setFormData] = useState<CustomerFormData>({
@@ -173,23 +176,37 @@ export default function Customers() {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!confirm('Are you sure you want to delete this customer? This will also delete all associated projects and documents.')) {
-            return;
-        }
+    const handleDeleteClick = (customer: Customer) => {
+        setCustomerToDelete(customer);
+        setDeleteConfirmText('');
+        setDeleteDialogOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!customerToDelete) return;
 
         try {
-            const response = await fetch(`${API_BASE}/api/v1/admin/customers/${id}`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/customers/${customerToDelete.id}`, {
                 method: 'DELETE',
                 headers: getAuthHeader(),
             });
 
             if (!response.ok) throw new Error('Failed to delete customer');
 
+            setDeleteDialogOpen(false);
+            setCustomerToDelete(null);
             fetchCustomers();
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to delete customer');
+            setDeleteDialogOpen(false);
+            setCustomerToDelete(null);
         }
+    };
+
+    const handleDeleteCancel = () => {
+        setDeleteDialogOpen(false);
+        setCustomerToDelete(null);
+        setDeleteConfirmText('');
     };
 
     const theme = useTheme();
@@ -452,16 +469,18 @@ export default function Customers() {
                                                         >
                                                             <Edit />
                                                         </IconButton>
-                                                        <IconButton
-                                                            size="small"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleDelete(customer.id);
-                                                            }}
-                                                            color="error"
-                                                        >
-                                                            <Delete />
-                                                        </IconButton>
+                                                        {currentUser?.role === 'superadmin' && (
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDeleteClick(customer);
+                                                                }}
+                                                                color="error"
+                                                            >
+                                                                <Delete />
+                                                            </IconButton>
+                                                        )}
                                                     </TableCell>
                                                 </TableRow>
                                             ))
@@ -548,6 +567,47 @@ export default function Customers() {
                             disabled={!formData.name}
                         >
                             {editingCustomer ? 'Save' : 'Create'}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                {/* Delete Confirmation Dialog */}
+                <Dialog
+                    open={deleteDialogOpen}
+                    onClose={handleDeleteCancel}
+                    maxWidth="sm"
+                    fullWidth
+                >
+                    <DialogTitle sx={{ color: 'error.main' }}>Delete Customer</DialogTitle>
+                    <DialogContent>
+                        <Typography>
+                            Are you sure you want to delete <strong>{customerToDelete?.name}</strong>?
+                        </Typography>
+                        <Typography color="error" sx={{ mt: 2, fontWeight: 500 }}>
+                            ⚠️ This will also delete all associated projects and documents.
+                        </Typography>
+                        <Typography color="text.secondary" sx={{ mt: 1, fontSize: '0.875rem' }}>
+                            This action cannot be undone.
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            label='Type "DELETE" to confirm'
+                            value={deleteConfirmText}
+                            onChange={(e) => setDeleteConfirmText(e.target.value)}
+                            sx={{ mt: 3 }}
+                            autoFocus
+                            placeholder="DELETE"
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleDeleteCancel}>Cancel</Button>
+                        <Button
+                            onClick={handleDeleteConfirm}
+                            variant="contained"
+                            color="error"
+                            disabled={deleteConfirmText !== 'DELETE'}
+                        >
+                            Delete
                         </Button>
                     </DialogActions>
                 </Dialog>

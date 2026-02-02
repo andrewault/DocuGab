@@ -15,6 +15,125 @@ DocuTok is a RAG (Retrieval-Augmented Generation) application that lets you uplo
 - 🔒 **100% Local** — All AI runs on your machine via Ollama
 - 🐳 **Fully Dockerized** — One command to start everything
 
+## Docker Architecture
+
+DocuTok uses a **multi-container Docker Compose setup** for simplified deployment and development. All services (except Ollama) run in Docker containers with automatic health checks and dependency management.
+
+### Container Overview
+
+The application consists of **5 Docker services**:
+
+```
+┌─────────────────────────────────────────────────────┐
+│                    Host Machine                      │
+│  ┌────────────┐                                      │
+│  │   Ollama   │ Native app (GPU acceleration)       │
+│  │ :11434     │ Models: nomic-embed-text, llama3.2  │
+│  └─────▲──────┘                                      │
+│        │                                             │
+│  ┌─────┴──────────────────────────────────────────┐ │
+│  │           Docker Compose Network               │ │
+│  │                                                 │ │
+│  │  ┌──────────────┐      ┌──────────────┐       │ │
+│  │  │   Frontend   │◀─────│   Backend    │       │ │
+│  │  │  React/Vite  │      │   FastAPI    │       │ │
+│  │  │   :5177      │      │    :8007     │       │ │
+│  │  └──────────────┘      └───────┬──────┘       │ │
+│  │                                 │              │ │
+│  │  ┌──────────────┐      ┌───────▼──────┐       │ │
+│  │  │    Redis     │◀─────│    Celery    │       │ │
+│  │  │   :6379      │      │   Worker     │       │ │
+│  │  └──────────────┘      └───────┬──────┘       │ │
+│  │                                 │              │ │
+│  │  ┌──────────────────────────────▼──────┐      │ │
+│  │  │          PostgreSQL + pgvector       │      │ │
+│  │  │              :5432 → :5433           │      │ │
+│  │  └──────────────────────────────────────┘      │ │
+│  └─────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────┘
+```
+
+### Service Details
+
+| Service | Container Name | Image | Port Mapping | Purpose |
+|---------|----------------|-------|--------------|---------|
+| **db** | `docutok-db` | `pgvector/pgvector:pg16` | `5433:5432` | PostgreSQL with vector similarity search |
+| **redis** | `docutok-redis` | `redis:7-alpine` | `6379:6379` | Cache and message broker for Celery |
+| **backend** | `docutok-backend` | Built from `backend/Dockerfile` | `8007:8007` | FastAPI server with RAG pipeline |
+| **celery_worker** | `docutok-celery` | Built from `backend/Dockerfile` | - | Background task processing |
+| **frontend** | `docutok-frontend` | Built from `frontend/Dockerfile` | `5177:5177` | React UI with Vite dev server |
+
+### Why Ollama Runs Natively
+
+**Ollama runs on the host** (not in Docker) to leverage **GPU acceleration** (Metal on Mac, CUDA on Linux). This provides:
+- ⚡ **10-50x faster inference** compared to CPU-only Docker
+- 🎯 **Direct GPU access** for embeddings and LLM generation
+- 💾 **Shared model cache** across projects
+
+The backend container connects to Ollama via `host.docker.internal:11434`.
+
+### Health Checks and Dependencies
+
+All services have **health checks** to ensure proper startup ordering:
+
+```yaml
+# PostgreSQL: Checks if database accepts connections
+healthcheck:
+  test: ["CMD-SHELL", "pg_isready -U docutok"]
+  interval: 5s
+  
+# Redis: Pings Redis server
+healthcheck:
+  test: ["CMD", "redis-cli", "ping"]
+  interval: 5s
+```
+
+**Startup Sequence:**
+1. `db` and `redis` start and wait until healthy
+2. `backend` starts after db + redis are healthy
+   - Runs migrations: `alembic upgrade head`
+   - Starts FastAPI server with auto-reload
+3. `celery_worker` starts after db + redis are healthy
+4. `frontend` starts after backend is up
+
+### Volume Mounts
+
+**Persistent Data:**
+- `postgres_data:/var/lib/postgresql/data` — Database files
+- `redis_data:/data` — Redis persistence (AOF enabled)
+
+**Development Bind Mounts:**
+- `./backend:/app` — Backend hot reload
+- `./frontend:/app` — Frontend hot reload
+- `./uploads:/app/uploads` — Uploaded documents
+- `./credentials:/app/credentials:ro` — Google Cloud credentials (read-only)
+- `./dbbackups:/app/dbbackups` — Database backup directory
+
+### Environment Variables
+
+All configuration is managed via the root `.env` file and injected into containers:
+
+**Backend:**
+- `DATABASE_URL` — Connection to PostgreSQL (with async support)
+- `OLLAMA_BASE_URL` — Points to `host.docker.internal:11434`
+- `REDIS_URL`, `CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND` — Redis connections
+- `ADMIN_USERNAME`, `ADMIN_PASSWORD` — Initial superadmin user
+- Model settings, ports, secrets, etc.
+
+**Frontend:**
+- `VITE_API_BASE_URL` — Backend API endpoint
+- `VITE_PORT` — Dev server port
+
+### Management Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/webapp/start.sh` | Start all services + Ollama |
+| `scripts/webapp/stop.sh` | Stop all services |
+| `scripts/webapp/restart.sh` | Restart services (preserves data) |
+| `scripts/webapp/health.sh` | Check service health status |
+| `scripts/webapp/ollama-pull-models.sh` | Download AI models |
+
 ## Tech Stack
 
 | Layer | Technology |
