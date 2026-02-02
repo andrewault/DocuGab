@@ -53,6 +53,9 @@ class Project(Base):
     # Avatar & Voice
     avatar: Mapped[str] = mapped_column(String(500), nullable=False)
     voice: Mapped[str] = mapped_column(String(100), nullable=False)
+    show_animation: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default=sql.true(), nullable=False
+    )
 
     # Navigation
     return_link: Mapped[str | None] = mapped_column(String(500), nullable=True)

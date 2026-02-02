@@ -32,8 +32,13 @@ async def build_project_response(project: Project, db: AsyncSession) -> dict:
     customer_name = customer_data[0] if customer_data else None
     customer_uuid = customer_data[1] if customer_data else None
 
-    # Compute ready status (requires avatar, voice, and at least 1 document)
-    is_ready = bool(project.avatar and project.voice and documents_count > 0)
+    # Compute ready status
+    # If show_animation is True: requires avatar, voice, and at least 1 document
+    # If show_animation is False: only requires at least 1 document
+    if project.show_animation:
+        is_ready = bool(project.avatar and project.voice and documents_count > 0)
+    else:
+        is_ready = documents_count > 0
 
     return {
         "id": project.id,
@@ -51,6 +56,7 @@ async def build_project_response(project: Project, db: AsyncSession) -> dict:
         "color_background": project.color_background,
         "avatar": project.avatar,
         "voice": project.voice,
+        "show_animation": project.show_animation,
         "return_link": project.return_link,
         "return_link_text": project.return_link_text,
         "is_demo": project.is_demo,

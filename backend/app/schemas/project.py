@@ -24,6 +24,7 @@ class ProjectBase(BaseModel):
     )
     avatar: str = Field(min_length=1, max_length=500)
     voice: str = Field(min_length=1, max_length=100)
+    show_animation: bool = True
     return_link: Optional[str] = Field(None, max_length=500)
     return_link_text: Optional[str] = Field(None, max_length=100)
     is_demo: bool = False
@@ -69,6 +70,7 @@ class ProjectUpdate(BaseModel):
     )
     avatar: Optional[str] = Field(None, min_length=1, max_length=500)
     voice: Optional[str] = Field(None, min_length=1, max_length=100)
+    show_animation: Optional[bool] = None
     return_link: Optional[str] = Field(None, max_length=500)
     return_link_text: Optional[str] = Field(None, max_length=100)
     is_active: Optional[bool] = None

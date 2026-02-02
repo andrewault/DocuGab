@@ -46,6 +46,7 @@ interface Project {
     color_background: string;
     avatar: string;
     voice: string;
+    show_animation: boolean;
     return_link: string | null;
     return_link_text: string | null;
     is_active: boolean;
@@ -76,6 +77,7 @@ interface ProjectFormData {
     color_background: string;
     avatar: string;
     voice: string;
+    show_animation: boolean;
     return_link: string;
     return_link_text: string;
     is_demo: boolean;
@@ -132,6 +134,7 @@ export default function ProjectEdit() {
         color_background: '#ffffff',
         avatar: 'male',
         voice: 'alloy',
+        show_animation: true,
         return_link: '',
         return_link_text: '',
         is_demo: false,
@@ -168,6 +171,7 @@ export default function ProjectEdit() {
                     color_background: projectData.color_background,
                     avatar: projectData.avatar,
                     voice: projectData.voice,
+                    show_animation: projectData.show_animation ?? true,
                     return_link: projectData.return_link || '',
                     return_link_text: projectData.return_link_text || '',
                     is_demo: projectData.is_demo || false,
@@ -521,6 +525,24 @@ export default function ProjectEdit() {
                             <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
                                 Warning: Designates this as the public demo project.
                                 Only one project can be the demo at a time.
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={formData.show_animation}
+                                        onChange={(e) => setFormData({ ...formData, show_animation: e.target.checked })}
+                                        disabled={saving}
+                                        color="primary"
+                                    />
+                                }
+                                label="Show Animation"
+                            />
+                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+                                When disabled, projects don't require animations to be marked as ready.
+                                Only documents will be required.
                             </Typography>
                         </Box>
                     </Stack>

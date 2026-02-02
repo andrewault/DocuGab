@@ -22,6 +22,8 @@ import {
     Chip,
     Tabs,
     Tab,
+    Switch,
+    FormControlLabel,
 } from '@mui/material';
 import { ArrowBack, Save, Edit as EditIcon, CloudUpload, Image as ImageIcon, VolumeUp } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthProvider';
@@ -43,6 +45,7 @@ interface Project {
     color_secondary: string;
     color_background: string;
     voice: string;
+    show_animation: boolean;
     return_link: string | null;
     return_link_text: string | null;
     is_ready: boolean;
@@ -98,6 +101,7 @@ export default function CustomerProjectEdit() {
     const [dragActive, setDragActive] = useState(false);
     const [currentLogo, setCurrentLogo] = useState<string | null>(null);
     const [testingVoice, setTestingVoice] = useState(false);
+    const [showAnimation, setShowAnimation] = useState(true);
     const [project, setProject] = useState<Project | null>(null);
 
     useEffect(() => {
@@ -125,6 +129,7 @@ export default function CustomerProjectEdit() {
                 setColorSecondary(data.color_secondary);
                 setColorBackground(data.color_background);
                 setVoice(data.voice || 'en-US-Neural2-F');
+                setShowAnimation(data.show_animation ?? true);
                 setReturnLink(data.return_link || '');
                 setReturnLinkText(data.return_link_text || '');
                 setCurrentLogo(data.logo);
@@ -161,6 +166,7 @@ export default function CustomerProjectEdit() {
                     color_secondary: colorSecondary,
                     color_background: colorBackground,
                     voice,
+                    show_animation: showAnimation,
                     return_link: returnLink || null,
                     return_link_text: returnLinkText || null,
                 }),
@@ -645,6 +651,24 @@ export default function CustomerProjectEdit() {
                                             Test
                                         </Button>
                                     </Stack>
+                                </Box>
+
+                                <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={showAnimation}
+                                                onChange={(e) => setShowAnimation(e.target.checked)}
+                                                disabled={saving || success}
+                                                color="primary"
+                                            />
+                                        }
+                                        label="Require Animation"
+                                    />
+                                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+                                        When disabled, your project doesn't require an animation to be marked as ready.
+                                        Only documents will be required.
+                                    </Typography>
                                 </Box>
                             </Stack>
                         </TabPanel>

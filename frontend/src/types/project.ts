@@ -18,6 +18,7 @@ export interface Project {
     color_background: string;
     avatar: string;
     voice: string;
+    show_animation: boolean;
     return_link: string | null;
     return_link_text: string | null;
     is_active: boolean;
