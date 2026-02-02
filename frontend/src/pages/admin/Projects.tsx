@@ -19,21 +19,15 @@ import {
     CircularProgress,
     Alert,
     IconButton,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     MenuItem,
     Select,
     FormControl,
     InputLabel,
-    Tabs,
-    Tab,
     Card,
     CardContent,
     useTheme,
 } from '@mui/material';
-import { Add, Edit, Delete, Folder, Palette, RecordVoiceOver } from '@mui/icons-material';
+import { Add, Edit, Delete, Folder, RecordVoiceOver } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
@@ -73,58 +67,7 @@ interface Customer {
     name: string;
 }
 
-interface ProjectFormData {
-    customer_id: number | '';
-    name: string;
-    slug: string;
-    description: string;
-    logo: string;
-    title: string;
-    subtitle: string;
-    body: string;
-    color_primary: string;
-    color_secondary: string;
-    color_background: string;
-    avatar: string;
-    voice: string;
-    return_link: string;
-    return_link_text: string;
-}
-
-interface TabPanelProps {
-    children?: React.ReactNode;
-    index: number;
-    value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-    const { children, value, index, ...other } = props;
-    return (
-        <div hidden={value !== index} {...other}>
-            {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
-        </div>
-    );
-}
-
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
-
-const DEFAULT_FORM_DATA: ProjectFormData = {
-    customer_id: '',
-    name: '',
-    slug: '',
-    description: '',
-    logo: '',
-    title: '',
-    subtitle: '',
-    body: '',
-    color_primary: '#1976d2',
-    color_secondary: '#dc004e',
-    color_background: '#ffffff',
-    avatar: '/assets/avatars/default.glb',
-    voice: 'en-US-Neural2-F',
-    return_link: '',
-    return_link_text: '',
-};
 
 export default function Projects() {
     const { user: currentUser } = useAuth();
@@ -138,10 +81,7 @@ export default function Projects() {
     const [customerFilter, setCustomerFilter] = useState<number | ''>('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [openDialog, setOpenDialog] = useState(false);
-    const [editingProject, setEditingProject] = useState<Project | null>(null);
-    const [formData, setFormData] = useState<ProjectFormData>(DEFAULT_FORM_DATA);
-    const [tabValue, setTabValue] = useState(0);
+    // Dialog state removed in favor of /admin/projects/new page
     const [orderBy, setOrderBy] = useState<keyof Project>('name');
     const [order, setOrder] = useState<'asc' | 'desc'>('asc');
 
@@ -204,68 +144,6 @@ export default function Projects() {
         setPage(0);
     };
 
-    const handleOpenDialog = (project?: Project) => {
-        if (project) {
-            setEditingProject(project);
-            setFormData({
-                customer_id: project.customer_id,
-                name: project.name,
-                slug: project.slug,
-                description: project.description || '',
-                logo: project.logo || '',
-                title: project.title,
-                subtitle: project.subtitle || '',
-                body: project.body || '',
-                color_primary: project.color_primary,
-                color_secondary: project.color_secondary,
-                color_background: project.color_background,
-                avatar: project.avatar,
-                voice: project.voice,
-                return_link: project.return_link || '',
-                return_link_text: project.return_link_text || '',
-            });
-        } else {
-            setEditingProject(null);
-            setFormData(DEFAULT_FORM_DATA);
-        }
-        setTabValue(0);
-        setOpenDialog(true);
-    };
-
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-        setEditingProject(null);
-        setTabValue(0);
-    };
-
-    const handleSubmit = async () => {
-        try {
-            const url = editingProject
-                ? `${API_BASE}/api/v1/admin/projects/${editingProject.id}`
-                : `${API_BASE}/api/v1/admin/projects`;
-
-            const method = editingProject ? 'PATCH' : 'POST';
-
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    ...getAuthHeader(),
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || 'Failed to save project');
-            }
-
-            handleCloseDialog();
-            fetchProjects();
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to save project');
-        }
-    };
 
     const handleDelete = async (id: number) => {
         if (!confirm('Are you sure you want to delete this project? This will also delete all associated documents.')) {
@@ -284,18 +162,6 @@ export default function Projects() {
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to delete project');
         }
-    };
-
-    const isFormValid = () => {
-        return (
-            formData.customer_id !== '' &&
-            formData.name.trim() !== '' &&
-            formData.slug.trim() !== '' &&
-            formData.slug.trim() !== '' &&
-            formData.title.trim() !== '' &&
-            formData.avatar.trim() !== '' &&
-            formData.voice.trim() !== ''
-        );
     };
 
     const theme = useTheme();
@@ -349,7 +215,7 @@ export default function Projects() {
                     <Button
                         variant="contained"
                         startIcon={<Add />}
-                        onClick={() => handleOpenDialog()}
+                        onClick={() => navigate('/admin/projects/new')}
                     >
                         Add Chatbot Project
                     </Button>
@@ -621,182 +487,6 @@ export default function Projects() {
                     )}
                 </Box>
 
-                {/* Create/Edit Dialog */}
-                <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-                    <DialogTitle>
-                        {editingProject ? 'Edit Chatbot Project' : 'Add Chatbot Project'}
-                    </DialogTitle>
-                    <DialogContent>
-                        <Tabs value={tabValue} onChange={(_e, newValue) => setTabValue(newValue)} sx={{ mb: 2 }}>
-                            <Tab label="Basic Info" />
-                            <Tab label="Branding" icon={<Palette />} iconPosition="start" />
-                            <Tab label="Advanced" />
-                        </Tabs>
-
-                        {/* Tab 0: Basic Info */}
-                        <TabPanel value={tabValue} index={0}>
-                            <Stack spacing={3}>
-                                <FormControl fullWidth required>
-                                    <InputLabel>Customer</InputLabel>
-                                    <Select
-                                        value={formData.customer_id}
-                                        label="Customer"
-                                        onChange={(e) => setFormData({ ...formData, customer_id: e.target.value as number })}
-                                    >
-                                        {customers.map((customer) => (
-                                            <MenuItem key={customer.id} value={customer.id}>
-                                                {customer.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-
-                                <TextField
-                                    fullWidth
-                                    label="Chatbot Project Name"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    required
-                                    helperText="e.g., Employee Handbook"
-                                />
-
-                                <TextField
-                                    fullWidth
-                                    label="Slug"
-                                    value={formData.slug}
-                                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                                    required
-                                    helperText="URL-friendly identifier (lowercase, hyphens only)"
-                                />
-
-                                <TextField
-                                    fullWidth
-                                    label="Description"
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    multiline
-                                    rows={2}
-                                />
-                            </Stack>
-                        </TabPanel>
-
-                        {/* Tab 1: Branding */}
-                        <TabPanel value={tabValue} index={1}>
-                            <Stack spacing={3}>
-                                <TextField
-                                    fullWidth
-                                    label="Title"
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    required
-                                    helperText="Chat interface title"
-                                />
-
-                                <TextField
-                                    fullWidth
-                                    label="Subtitle"
-                                    value={formData.subtitle}
-                                    onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                                    helperText="Optional subtitle"
-                                />
-
-                                <TextField
-                                    fullWidth
-                                    label="Body Text"
-                                    value={formData.body}
-                                    onChange={(e) => setFormData({ ...formData, body: e.target.value })}
-                                    multiline
-                                    rows={3}
-                                    helperText="Additional instructions or information"
-                                />
-
-                                <Stack direction="row" spacing={2}>
-                                    <TextField
-                                        fullWidth
-                                        type="color"
-                                        label="Primary Color"
-                                        value={formData.color_primary}
-                                        onChange={(e) => setFormData({ ...formData, color_primary: e.target.value })}
-                                        required
-                                    />
-                                    <TextField
-                                        fullWidth
-                                        type="color"
-                                        label="Secondary Color"
-                                        value={formData.color_secondary}
-                                        onChange={(e) => setFormData({ ...formData, color_secondary: e.target.value })}
-                                        required
-                                    />
-                                    <TextField
-                                        fullWidth
-                                        type="color"
-                                        label="Background Color"
-                                        value={formData.color_background}
-                                        onChange={(e) => setFormData({ ...formData, color_background: e.target.value })}
-                                        required
-                                    />
-                                </Stack>
-
-                                <TextField
-                                    fullWidth
-                                    label="Logo Path"
-                                    value={formData.logo}
-                                    onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-                                    helperText="Path to logo file (optional)"
-                                />
-                            </Stack>
-                        </TabPanel>
-
-                        {/* Tab 2: Advanced */}
-                        <TabPanel value={tabValue} index={2}>
-                            <Stack spacing={3}>
-                                <TextField
-                                    fullWidth
-                                    label="Avatar Path"
-                                    value={formData.avatar}
-                                    onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
-                                    required
-                                    helperText="Path to GLB avatar file"
-                                />
-
-                                <TextField
-                                    fullWidth
-                                    label="Voice ID"
-                                    value={formData.voice}
-                                    onChange={(e) => setFormData({ ...formData, voice: e.target.value })}
-                                    required
-                                    helperText="Google TTS voice ID (e.g., en-US-Neural2-F)"
-                                />
-
-                                <TextField
-                                    fullWidth
-                                    label="Return Link URL"
-                                    value={formData.return_link}
-                                    onChange={(e) => setFormData({ ...formData, return_link: e.target.value })}
-                                    helperText="Optional return link override"
-                                />
-
-                                <TextField
-                                    fullWidth
-                                    label="Return Link Text"
-                                    value={formData.return_link_text}
-                                    onChange={(e) => setFormData({ ...formData, return_link_text: e.target.value })}
-                                    helperText="Text for return link button"
-                                />
-                            </Stack>
-                        </TabPanel>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCloseDialog}>Cancel</Button>
-                        <Button
-                            onClick={handleSubmit}
-                            variant="contained"
-                            disabled={!isFormValid()}
-                        >
-                            {editingProject ? 'Update' : 'Create'}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
             </Container >
         </Box >
     );

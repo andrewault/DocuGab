@@ -51,7 +51,7 @@ def _build_customer_response(customer: Customer, projects_count: int = 0) -> dic
 @router.get("", response_model=CustomerListResponse)
 async def list_customers(
     page: int = Query(1, ge=1, description="Page number"),
-    per_page: int = Query(20, ge=1, le=100, description="Items per page"),
+    per_page: int = Query(20, ge=1, le=1000, description="Items per page"),
     search: Optional[str] = Query(None, description="Search by name"),
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),

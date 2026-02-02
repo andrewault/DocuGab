@@ -11,7 +11,7 @@ import {
     Alert,
     useTheme,
 } from '@mui/material';
-import { Business, ArrowBack, Save } from '@mui/icons-material';
+import { Business, Save } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
@@ -104,7 +104,6 @@ export default function NewCustomer() {
                     <Stack direction="row" spacing={2}>
                         <Button
                             variant="outlined"
-                            startIcon={<ArrowBack />}
                             onClick={() => navigate('/admin/customers')}
                         >
                             Cancel

@@ -19,7 +19,7 @@ import {
     InputAdornment,
     IconButton,
 } from '@mui/material';
-import { PersonAdd, ArrowBack, Visibility, VisibilityOff } from '@mui/icons-material';
+import { PersonAdd, Visibility, VisibilityOff } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
@@ -185,7 +185,6 @@ export default function NewUser() {
                     <Stack direction="row" spacing={2}>
                         <Button
                             variant="outlined"
-                            startIcon={<ArrowBack />}
                             onClick={() => navigate(-1)}
                         >
                             Cancel

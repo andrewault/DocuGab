@@ -370,7 +370,7 @@ export default function Users() {
                                                     color="primary"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        navigate(`/admin/users/${user.uuid}`);
+                                                        navigate(`/admin/users/${user.uuid}/edit`);
                                                     }}
                                                 >
                                                     <Edit />

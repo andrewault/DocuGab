@@ -38,6 +38,7 @@ import NewCustomer from './pages/admin/NewCustomer';
 import CustomerDetail from './pages/admin/CustomerDetail';
 import CustomerEdit from './pages/admin/CustomerEdit';
 import Projects from './pages/admin/Projects';
+import NewProject from './pages/admin/NewProject';
 import ProjectDetail from './pages/admin/ProjectDetail';
 import ProjectEdit from './pages/admin/ProjectEdit';
 import TestChat from './pages/admin/TestChat';
@@ -199,6 +200,11 @@ export default function App() {
             <Route path="/admin/projects" element={
               <ProtectedRoute requireAdmin>
                 <Projects />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/projects/new" element={
+              <ProtectedRoute requireAdmin>
+                <NewProject />
               </ProtectedRoute>
             } />
             <Route path="/admin/projects/:uuid" element={

@@ -394,6 +394,7 @@ export default function ProjectEdit() {
                 </Stack>
                 <Stack direction="row" spacing={2}>
                     <Button
+                        variant="outlined"
                         onClick={() => navigate(`/admin/projects/${uuid}`)}
                         disabled={saving}
                     >

@@ -149,7 +149,7 @@ export default function CustomerEdit() {
                 py: 4,
             }}
         >
-            <Container maxWidth="lg" sx={{ px: 3 }}>
+            <Container maxWidth={false} sx={{ px: 3 }}>
                 <AdminBreadcrumbs
                     items={[
                         { label: 'Customers', path: '/admin/customers' },
