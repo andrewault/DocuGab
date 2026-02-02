@@ -13,8 +13,13 @@ import {
     Tabs,
     Tab,
     Badge,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    IconButton,
 } from '@mui/material';
-import { Edit, Forum } from '@mui/icons-material';
+import { Edit, Forum, HelpOutline } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { StatusBanner } from '../../components/admin/StatusBanner';
@@ -41,6 +46,9 @@ export default function ProjectDetail() {
     const [documents, setDocuments] = useState<Document[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    // Help Modal State
+    const [helpTab, setHelpTab] = useState<string | null>(null);
 
     // Tab management with URL sync
     const getTabFromPath = useCallback(() => {
@@ -128,6 +136,56 @@ export default function ProjectDetail() {
     }, [uuid]);
 
     usePageTitle(project ? `${project.name} • Chatbot Project` : 'Loading Project...');
+
+    // Help Helper Functions
+    const handleHelpClick = (e: React.MouseEvent, tab: string) => {
+        e.stopPropagation();
+        setHelpTab(tab);
+    };
+
+    const getHelpContent = (tab: string) => {
+        switch (tab) {
+            case 'documents':
+                return {
+                    title: 'About Documents',
+                    content: 'Documents uploaded here are processed into searchable chunks. When a user asks a question, the system searches these chunks to find relevant answers. Ensure your documents are clear and concise for best results.'
+                };
+            case 'media':
+                return {
+                    title: 'About Media',
+                    content: 'Media items (images, YouTube videos) are displayed in an "Ancillary" bubble when their keywords match the user\'s query. This allows you to visually enhance responses with diagrams, product photos, or tutorial videos.'
+                };
+            case 'links':
+                return {
+                    title: 'About Links',
+                    content: 'Links are displayed in the "Ancillary" bubble when their keywords match the user\'s query. Use this to provide direct access to portals, forms, or external reference material related to the topic.'
+                };
+            default:
+                return { title: '', content: '' };
+        }
+    };
+
+    const renderTabLabel = (label: string | React.ReactNode, value: string, hasHelp: boolean = false) => {
+        if (!hasHelp) return label;
+
+        return (
+            <Stack direction="row" alignItems="center" gap={1}>
+                {label}
+                <IconButton
+                    size="small"
+                    component="span"
+                    onClick={(e) => handleHelpClick(e, value)}
+                    sx={{
+                        color: 'text.secondary',
+                        p: 0.5,
+                        '&:hover': { color: 'primary.main' }
+                    }}
+                >
+                    <HelpOutline fontSize="small" />
+                </IconButton>
+            </Stack>
+        );
+    };
 
     if (loading) {
         return (
@@ -242,15 +300,17 @@ export default function ProjectDetail() {
                         <Tab label="Branding" value="branding" />
                         <Tab label="Voice & Avatar" value="voice" />
                         <Tab
-                            label={
+                            label={renderTabLabel(
                                 <Badge badgeContent={documents.length} color="primary">
                                     Documents
-                                </Badge>
-                            }
+                                </Badge>,
+                                'documents',
+                                true
+                            )}
                             value="documents"
                         />
-                        <Tab label="Media" value="media" />
-                        <Tab label="Links" value="links" />
+                        <Tab label={renderTabLabel('Media', 'media', true)} value="media" />
+                        <Tab label={renderTabLabel('Links', 'links', true)} value="links" />
                     </Tabs>
                 </Box>
 
@@ -283,6 +343,19 @@ export default function ProjectDetail() {
                 {currentTab === 'links' && (
                     <ProjectLinkManager project={project} />
                 )}
+
+                {/* Help Modal */}
+                <Dialog open={!!helpTab} onClose={() => setHelpTab(null)} maxWidth="sm" fullWidth>
+                    <DialogTitle>{helpTab && getHelpContent(helpTab).title}</DialogTitle>
+                    <DialogContent>
+                        <Typography>
+                            {helpTab && getHelpContent(helpTab).content}
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setHelpTab(null)}>Close</Button>
+                    </DialogActions>
+                </Dialog>
             </Container>
         </Box>
     );
