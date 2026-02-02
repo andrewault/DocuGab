@@ -33,6 +33,7 @@ import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
+import usePageTitle from '../../hooks/usePageTitle';
 
 interface Project {
     id: number;
@@ -130,6 +131,8 @@ export default function Projects() {
     useEffect(() => {
         fetchCustomers();
     }, [fetchCustomers]);
+
+    usePageTitle('Chatbot Projects');
 
     useEffect(() => {
         fetchProjects();

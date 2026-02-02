@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthProvider';
+import usePageTitle from '../hooks/usePageTitle';
 
 export default function Register() {
     const [email, setEmail] = useState('');
@@ -25,6 +26,7 @@ export default function Register() {
     const navigate = useNavigate();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    usePageTitle('Create Account');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -43,7 +45,7 @@ export default function Register() {
         setIsLoading(true);
 
         try {
-            await register(email, password, fullName || undefined);
+            await register(email, password, fullName);
             navigate('/');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Registration failed');

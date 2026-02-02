@@ -33,6 +33,7 @@ import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
+import usePageTitle from '../../hooks/usePageTitle';
 
 interface Customer {
     id: number;
@@ -141,6 +142,7 @@ export default function Customers() {
 
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    usePageTitle('Customers');
 
     const StatCard = ({ title, value, icon }: { title: string; value: number; icon: React.ReactNode }) => (
         <Card sx={{ bgcolor: isDark ? 'rgba(30, 41, 59, 0.8)' : 'background.paper' }}>

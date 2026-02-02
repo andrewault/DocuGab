@@ -4,6 +4,10 @@
 
 RAG (Retrieval-Augmented Generation) chat with streaming responses and source citations.
 
+## Built-in Responses
+
+Certain queries (e.g., greetings like "Hello", "How are you") triggers **Built-in Responses**. These skip the retrieval pipeline directly to the LLM and suppress the "Sources" output to maintain a natural conversational flow.
+
 ## Endpoints
 
 | Method | Endpoint | Description |

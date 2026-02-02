@@ -4,6 +4,29 @@ Transform your documents into intelligent conversations using local AI.
 
 DocuTok is a RAG (Retrieval-Augmented Generation) application that lets you upload documents and ask questions about them. All AI processing runs locally using Ollama—no API keys required, your data stays private.
 
+## Chat Responses
+
+### LLM Response Bubble
+
+LLM Responses come from the Large Language Model (LLM) running locally via Ollama. The LLM generates answers based on the uploaded documents and user queries, ensuring that all processing remains private and secure.
+
+## Sources Bubble
+
+If the Response Bubble has links to documents, they are shown in a separate white on blue bubble after the LLM response in the chat.
+
+## Built-in Responses
+
+Chat should reply to "hello" (and variants) with a natural greeting.
+
+"How are you?" and variants should have a conversational, friendly response.
+
+These are show the same way as LLM Responses.
+
+## Ancillary Responses
+
+Ancillary Responses are links and images shown after the LLM Response bubble and 
+
+
 ![DocuTok](docs/screenshot.png)
 
 ## Features
@@ -24,33 +47,33 @@ DocuTok uses a **multi-container Docker Compose setup** for simplified deploymen
 The application consists of **5 Docker services**:
 
 ```
-┌─────────────────────────────────────────────────────┐
+┌──────────────────────────────────────────────────────┐
 │                    Host Machine                      │
 │  ┌────────────┐                                      │
-│  │   Ollama   │ Native app (GPU acceleration)       │
-│  │ :11434     │ Models: nomic-embed-text, llama3.2  │
+│  │   Ollama   │ Native app (GPU acceleration)        │
+│  │ :11434     │ Models: nomic-embed-text, llama3.2   │
 │  └─────▲──────┘                                      │
 │        │                                             │
-│  ┌─────┴──────────────────────────────────────────┐ │
-│  │           Docker Compose Network               │ │
+│  ┌─────┴───────────────────────────────────────────┐ │
+│  │           Docker Compose Network                │ │
 │  │                                                 │ │
-│  │  ┌──────────────┐      ┌──────────────┐       │ │
-│  │  │   Frontend   │◀─────│   Backend    │       │ │
-│  │  │  React/Vite  │      │   FastAPI    │       │ │
-│  │  │   :5177      │      │    :8007     │       │ │
-│  │  └──────────────┘      └───────┬──────┘       │ │
-│  │                                 │              │ │
-│  │  ┌──────────────┐      ┌───────▼──────┐       │ │
-│  │  │    Redis     │◀─────│    Celery    │       │ │
-│  │  │   :6379      │      │   Worker     │       │ │
-│  │  └──────────────┘      └───────┬──────┘       │ │
-│  │                                 │              │ │
-│  │  ┌──────────────────────────────▼──────┐      │ │
-│  │  │          PostgreSQL + pgvector       │      │ │
-│  │  │              :5432 → :5433           │      │ │
-│  │  └──────────────────────────────────────┘      │ │
+│  │  ┌──────────────┐      ┌──────────────┐         │ │
+│  │  │   Frontend   │◀─────│   Backend    │         │ │
+│  │  │  React/Vite  │      │   FastAPI    │         │ │
+│  │  │   :5177      │      │    :8007     │         │ │
+│  │  └──────────────┘      └───────┬──────┘         │ │
+│  │                                │                │ │
+│  │  ┌──────────────┐      ┌───────▼──────┐         │ │
+│  │  │    Redis     │◀─────│    Celery    │         │ │
+│  │  │   :6379      │      │   Worker     │         │ │
+│  │  └──────────────┘      └───────┬──────┘         │ │
+│  │                                 │               │ │
+│  │  ┌──────────────────────────────▼──────┐        │ │
+│  │  │          PostgreSQL + pgvector       │       │ │
+│  │  │              :5432 → :5433           │       │ │
+│  │  └──────────────────────────────────────┘       │ │
 │  └─────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────┘
+└──────────────────────────────────────────────────────┘
 ```
 
 ### Service Details

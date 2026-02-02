@@ -1,6 +1,7 @@
 import { Box, Container, Typography, Paper, Stack, useTheme, keyframes } from '@mui/material';
 import { Person, Upload, Chat, ArrowForward } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import usePageTitle from '../hooks/usePageTitle';
 
 // Animations
 const fadeInUp = keyframes`
@@ -49,6 +50,7 @@ const gradientShift = keyframes`
 export default function Home() {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    usePageTitle('DocuTok');
 
     const steps = [
         {

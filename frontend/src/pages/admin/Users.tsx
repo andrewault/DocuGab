@@ -33,6 +33,7 @@ import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 import { getAuthHeader } from '../../utils/authUtils';
+import usePageTitle from '../../hooks/usePageTitle';
 
 interface Stats {
     total_users: number;
@@ -75,6 +76,7 @@ export default function Users() {
     const navigate = useNavigate();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    usePageTitle('Users');
 
     const fetchStats = async () => {
         try {

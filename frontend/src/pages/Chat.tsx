@@ -612,9 +612,31 @@ export default function Chat() {
 
                                 {messages.map((msg, i) => {
                                     const isUser = msg.role === 'user';
-                                    const splitContent = !isUser ? msg.content.split('\n\n**Sources:**\n') : [msg.content];
-                                    const mainContent = splitContent[0];
-                                    const sourcesContent = splitContent.length > 1 ? splitContent[1] : null;
+
+                                    // Parse Message Content
+                                    let mainContent = msg.content;
+                                    let sourcesContent: string | null = null;
+                                    let ancillaryContent: any = null;
+
+                                    if (!isUser) {
+                                        // 1. Extract Ancillary Data (always at the end)
+                                        const ancillarySplit = mainContent.split('\n\n**Ancillary:**\n');
+                                        if (ancillarySplit.length > 1) {
+                                            mainContent = ancillarySplit[0];
+                                            try {
+                                                ancillaryContent = JSON.parse(ancillarySplit[1]);
+                                            } catch (e) {
+                                                console.error('Failed to parse ancillary JSON', e);
+                                            }
+                                        }
+
+                                        // 2. Extract Sources
+                                        const sourcesSplit = mainContent.split('\n\n**Sources:**\n');
+                                        if (sourcesSplit.length > 1) {
+                                            mainContent = sourcesSplit[0];
+                                            sourcesContent = sourcesSplit[1];
+                                        }
+                                    }
 
                                     return (
                                         <Box
@@ -768,6 +790,82 @@ export default function Chat() {
                                                             {sourcesContent}
                                                         </ReactMarkdown>
                                                     </Box>
+                                                </Paper>
+                                            )}
+
+                                            {/* Ancillary Bubble */}
+                                            {ancillaryContent && (
+                                                <Paper
+                                                    elevation={1}
+                                                    sx={{
+                                                        mt: 1,
+                                                        p: 2,
+                                                        maxWidth: '80%',
+                                                        bgcolor: '#1e3a8a', // Dark Blue
+                                                        color: 'white',
+                                                        borderRadius: 2,
+                                                    }}
+                                                >
+                                                    {/* Media Section */}
+                                                    {ancillaryContent.media && ancillaryContent.media.length > 0 && (
+                                                        <Box mb={ancillaryContent.links?.length > 0 ? 2 : 0}>
+                                                            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
+                                                                Media
+                                                            </Typography>
+                                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                                                {ancillaryContent.media.map((media: any, idx: number) => (
+                                                                    <Box key={idx} sx={{ borderRadius: 1, overflow: 'hidden' }}>
+                                                                        {media.type === 'photo' ? (
+                                                                            <img
+                                                                                src={media.url}
+                                                                                alt={media.description || 'Reference image'}
+                                                                                style={{ width: '100%', maxHeight: 300, objectFit: 'contain', backgroundColor: 'black' }}
+                                                                            />
+                                                                        ) : (
+                                                                            <Box sx={{ position: 'relative', pb: '56.25%', height: 0 }}>
+                                                                                <iframe
+                                                                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                                                                                    src={media.url.replace('watch?v=', 'embed/')}
+                                                                                    title="YouTube video player"
+                                                                                    frameBorder="0"
+                                                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                                    allowFullScreen
+                                                                                />
+                                                                            </Box>
+                                                                        )}
+                                                                        {media.description && (
+                                                                            <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.9 }}>
+                                                                                {media.description}
+                                                                            </Typography>
+                                                                        )}
+                                                                    </Box>
+                                                                ))}
+                                                            </Box>
+                                                        </Box>
+                                                    )}
+
+                                                    {/* Links Section */}
+                                                    {ancillaryContent.links && ancillaryContent.links.length > 0 && (
+                                                        <Box>
+                                                            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
+                                                                Related Links
+                                                            </Typography>
+                                                            <Box component="ul" sx={{ m: 0, pl: 2 }}>
+                                                                {ancillaryContent.links.map((link: any, idx: number) => (
+                                                                    <li key={idx}>
+                                                                        <Link
+                                                                            href={link.url}
+                                                                            target="_blank"
+                                                                            rel="noopener noreferrer"
+                                                                            sx={{ color: 'white', textDecoration: 'underline' }}
+                                                                        >
+                                                                            {link.name}
+                                                                        </Link>
+                                                                    </li>
+                                                                ))}
+                                                            </Box>
+                                                        </Box>
+                                                    )}
                                                 </Paper>
                                             )}
                                         </Box>

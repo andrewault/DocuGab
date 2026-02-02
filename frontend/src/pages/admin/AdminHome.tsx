@@ -3,6 +3,7 @@ import { Box, Container, Typography, Paper, Stack, useTheme, Grid, Card, CardCon
 import { Group, QuestionAnswer, Business, Folder, RecordVoiceOver, Dashboard, Storage } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { getAuthHeader } from '../../utils/authUtils';
+import usePageTitle from '../../hooks/usePageTitle';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
@@ -16,6 +17,7 @@ interface AdminStats {
 export default function AdminHome() {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    usePageTitle('Admin Dashboard');
     const [stats, setStats] = useState<AdminStats | null>(null);
 
     useEffect(() => {

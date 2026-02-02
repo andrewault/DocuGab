@@ -12,6 +12,7 @@ import { useAuth } from '../../context/AuthProvider';
 import TalkingHeadAvatar from '../../components/TalkingHeadAvatar';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import usePageTitle from '../../hooks/usePageTitle';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -40,6 +41,7 @@ export default function TestChat() {
     useAuth();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    usePageTitle('Test Chat');
 
     const [project, setProject] = useState<Project | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);

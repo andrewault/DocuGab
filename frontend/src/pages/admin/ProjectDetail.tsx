@@ -22,7 +22,10 @@ import { ProjectOverview } from '../../components/admin/ProjectOverview';
 import { ProjectBranding } from '../../components/admin/ProjectBranding';
 import { ProjectVoice } from '../../components/admin/ProjectVoice';
 import { ProjectDocuments } from '../../components/admin/ProjectDocuments';
+import { ProjectMediaManager } from '../../components/admin/ProjectMediaManager';
+import { ProjectLinkManager } from '../../components/admin/ProjectLinkManager';
 import { useAuth } from '../../context/AuthProvider';
+import usePageTitle from '../../hooks/usePageTitle';
 import type { Project, Document } from '../../types/project';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
@@ -45,6 +48,8 @@ export default function ProjectDetail() {
         if (path.endsWith('/documents')) return 'documents';
         if (path.endsWith('/branding')) return 'branding';
         if (path.endsWith('/voice')) return 'voice';
+        if (path.endsWith('/media')) return 'media';
+        if (path.endsWith('/links')) return 'links';
         return 'overview';
     }, [location.pathname]);
 
@@ -121,6 +126,8 @@ export default function ProjectDetail() {
 
         fetchData();
     }, [uuid]);
+
+    usePageTitle(project ? `${project.name} • Chatbot Project` : 'Loading Project...');
 
     if (loading) {
         return (
@@ -225,7 +232,12 @@ export default function ProjectDetail() {
 
                 {/* Tabs */}
                 <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
-                    <Tabs value={currentTab} onChange={handleTabChange}>
+                    <Tabs
+                        value={currentTab}
+                        onChange={handleTabChange}
+                        variant="scrollable"
+                        scrollButtons="auto"
+                    >
                         <Tab label="Basic Info" value="overview" />
                         <Tab label="Branding" value="branding" />
                         <Tab label="Voice & Avatar" value="voice" />
@@ -237,6 +249,8 @@ export default function ProjectDetail() {
                             }
                             value="documents"
                         />
+                        <Tab label="Media" value="media" />
+                        <Tab label="Links" value="links" />
                     </Tabs>
                 </Box>
 
@@ -260,6 +274,14 @@ export default function ProjectDetail() {
                         currentUser={currentUser}
                         onRefresh={fetchDocuments}
                     />
+                )}
+
+                {currentTab === 'media' && (
+                    <ProjectMediaManager project={project} />
+                )}
+
+                {currentTab === 'links' && (
+                    <ProjectLinkManager project={project} />
                 )}
             </Container>
         </Box>

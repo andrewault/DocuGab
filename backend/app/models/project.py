@@ -12,6 +12,8 @@ if TYPE_CHECKING:
     from app.models.customer import Customer
     from app.models.document import Document
     from app.models.avatar import Avatar
+    from app.models.media import ProjectMedia
+    from app.models.link import ProjectLink
 
 
 class Project(Base):
@@ -86,5 +88,11 @@ class Project(Base):
         back_populates="project", cascade="all, delete-orphan"
     )
     avatars: Mapped[list["Avatar"]] = relationship(
+        back_populates="project", cascade="all, delete-orphan"
+    )
+    media: Mapped[list["ProjectMedia"]] = relationship(
+        back_populates="project", cascade="all, delete-orphan"
+    )
+    links: Mapped[list["ProjectLink"]] = relationship(
         back_populates="project", cascade="all, delete-orphan"
     )

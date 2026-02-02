@@ -15,6 +15,7 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthProvider';
+import usePageTitle from '../hooks/usePageTitle';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -28,6 +29,7 @@ export default function Login() {
     const location = useLocation();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    usePageTitle('Login');
 
     const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
 
