@@ -625,7 +625,7 @@ export default function Chat() {
                                                 p: 2,
                                                 maxWidth: '80%',
                                                 bgcolor: msg.role === 'user'
-                                                    ? 'primary.dark'
+                                                    ? 'primary.main'
                                                     : isDark ? 'grey.800' : 'grey.100',
                                                 borderRadius: 2,
                                             }}

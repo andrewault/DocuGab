@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Typography,
@@ -37,6 +38,7 @@ interface ProjectDocumentsProps {
 }
 
 export function ProjectDocuments({ project, documents, currentUser, onRefresh }: ProjectDocumentsProps) {
+    const navigate = useNavigate();
     const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState<string | null>(null);
@@ -46,6 +48,7 @@ export function ProjectDocuments({ project, documents, currentUser, onRefresh }:
     const [documentsOrderBy, setDocumentsOrderBy] = useState<keyof Document>('filename');
     const [documentsOrder, setDocumentsOrder] = useState<'asc' | 'desc'>('asc');
     const [deleting, setDeleting] = useState(false);
+
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
@@ -153,6 +156,11 @@ export function ProjectDocuments({ project, documents, currentUser, onRefresh }:
         }
     };
 
+    const handleViewDocument = (doc: Document) => {
+        // Navigate to the deep link URL as requested
+        navigate(`/admin/projects/${project.uuid}/documents/${doc.uuid}`);
+    };
+
     return (
         <>
             <Paper elevation={2} sx={{ p: 3 }}>
@@ -254,7 +262,12 @@ export function ProjectDocuments({ project, documents, currentUser, onRefresh }:
                                         return 0;
                                     })
                                     .map((doc) => (
-                                        <TableRow key={doc.id} hover>
+                                        <TableRow
+                                            key={doc.id}
+                                            hover
+                                            onClick={() => handleViewDocument(doc)}
+                                            sx={{ cursor: 'pointer' }}
+                                        >
                                             <TableCell>
                                                 <Typography variant="body2" fontWeight={500}>
                                                     {doc.original_filename}

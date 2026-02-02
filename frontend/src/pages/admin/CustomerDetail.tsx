@@ -213,7 +213,7 @@ export default function CustomerDetail() {
                         startIcon={<Edit />}
                         onClick={() => navigate(`/admin/customers/${uuid}/edit`)}
                     >
-                        Edit Customer
+                        Edit
                     </Button>
                 </Stack>
             </Stack>

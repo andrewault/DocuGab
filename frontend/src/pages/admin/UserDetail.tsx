@@ -177,7 +177,7 @@ export default function UserDetail() {
                         startIcon={<Edit />}
                         onClick={() => navigate(`/admin/users/${user.uuid}/edit`)}
                     >
-                        Edit User
+                        Edit
                     </Button>
                     <Button
                         variant="outlined"

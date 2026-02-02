@@ -2,6 +2,7 @@
 
 export interface Project {
     id: number;
+    uuid: string;
     customer_id: number;
     customer_name: string;
     customer_uuid: string | null;

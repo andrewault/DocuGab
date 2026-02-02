@@ -341,7 +341,7 @@ export default function TestChat() {
                             <Box key={i} sx={{ mb: 2, display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
                                 <Paper sx={{
                                     p: 2, maxWidth: '80%', borderRadius: 2,
-                                    bgcolor: msg.role === 'user' ? (project.color_primary || 'primary.main') : (isDark ? 'grey.800' : 'grey.100'),
+                                    bgcolor: msg.role === 'user' ? 'primary.main' : (isDark ? 'grey.800' : 'grey.100'),
                                     color: msg.role === 'user' ? '#fff' : 'text.primary',
                                     '& a': { color: isDark ? '#f97316' : '#2563eb', textDecoration: 'underline', cursor: 'pointer' },
                                     '& code': { bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)', px: 0.5, borderRadius: 0.5, fontFamily: 'monospace' },

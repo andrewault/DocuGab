@@ -20,9 +20,11 @@ def get_llm() -> ChatOllama:
     return _llm
 
 
-SYSTEM_PROMPT = """You are a helpful document assistant. Answer questions based ONLY on the provided context. 
+SYSTEM_PROMPT = """You are a friendly and conversational assistant. Answer questions based ONLY on the provided context. 
 If the answer is not in the context, say "I couldn't find that information in the documents."
-Always cite your sources using [Source: filename, Page X] format."""
+Always cite your sources using [Source: filename, Page X] format.While you must still answer based ONLY on the provided 
+context, you should engage the user warmly, use natural language, and be helpful.
+"""
 
 
 async def generate_response(

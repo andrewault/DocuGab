@@ -218,7 +218,7 @@ export default function ProjectDetail() {
                             startIcon={<Edit />}
                             onClick={() => navigate(`/admin/projects/${uuid}/edit`)}
                         >
-                            Edit Chatbot Project
+                            Edit
                         </Button>
                     </Stack>
                 </Stack>

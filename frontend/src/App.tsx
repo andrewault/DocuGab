@@ -42,6 +42,7 @@ import NewProject from './pages/admin/NewProject';
 import ProjectDetail from './pages/admin/ProjectDetail';
 import ProjectEdit from './pages/admin/ProjectEdit';
 import TestChat from './pages/admin/TestChat';
+import AdminDocumentViewer from './pages/admin/AdminDocumentViewer';
 import Database from './pages/admin/Database';
 import { useAuth } from './context/AuthProvider';
 
@@ -225,6 +226,11 @@ export default function App() {
             <Route path="/admin/projects/:uuid/test" element={
               <ProtectedRoute requireAdmin>
                 <TestChat />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/projects/:uuid/documents/:document_uuid" element={
+              <ProtectedRoute requireAdmin>
+                <AdminDocumentViewer />
               </ProtectedRoute>
             } />
             <Route path="/admin/faq" element={
