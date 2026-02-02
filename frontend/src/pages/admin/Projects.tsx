@@ -37,7 +37,7 @@ import { Add, Edit, Delete, Folder, Palette, RecordVoiceOver } from '@mui/icons-
 import { useNavigate } from 'react-router-dom';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface Project {

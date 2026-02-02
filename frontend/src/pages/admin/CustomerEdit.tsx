@@ -175,6 +175,23 @@ export default function CustomerEdit() {
                             Edit Customer
                         </Typography>
                     </Box>
+                    <Stack direction="row" spacing={2}>
+                        <Button
+                            variant="outlined"
+                            onClick={() => navigate(`/admin/customers/${uuid}`)}
+                            disabled={saving}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="contained"
+                            startIcon={<Save />}
+                            onClick={(e) => handleSubmit(e as any)}
+                            disabled={saving || !formData.name}
+                        >
+                            {saving ? 'Saving...' : 'Save'}
+                        </Button>
+                    </Stack>
                 </Stack>
 
                 {error && (
@@ -236,28 +253,10 @@ export default function CustomerEdit() {
                                 }
                                 label="Internal DocuTok Customer"
                             />
-
-                            <Stack direction="row" spacing={2} justifyContent="flex-end">
-                                <Button
-                                    variant="outlined"
-                                    onClick={() => navigate(`/admin/customers/${uuid}`)}
-                                    disabled={saving}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    startIcon={<Save />}
-                                    disabled={saving || !formData.name}
-                                >
-                                    {saving ? 'Saving...' : 'Save Changes'}
-                                </Button>
-                            </Stack>
                         </Stack>
                     </form>
                 </Paper>
             </Container>
-        </Box>
+        </Box >
     );
 }

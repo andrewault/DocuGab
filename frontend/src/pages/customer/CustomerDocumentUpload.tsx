@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { Upload, CheckCircle } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthProvider';
 import { getAuthHeader } from '../../utils/authUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
 import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';

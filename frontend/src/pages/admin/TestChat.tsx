@@ -8,7 +8,7 @@ import {
 import { Send, Delete, Mic, Stop, VolumeUp } from '@mui/icons-material';
 import ReactMarkdown from 'react-markdown';
 import { Link as RouterLink } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthProvider';
 import TalkingHeadAvatar from '../../components/TalkingHeadAvatar';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';

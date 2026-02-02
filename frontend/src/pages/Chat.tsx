@@ -9,7 +9,7 @@ import {
 import { Send, Forum, Delete, Mic, Stop, VolumeUp } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthProvider';
 import TalkingHeadAvatar from '../components/TalkingHeadAvatar';
 import { VOICE_OPTIONS } from '../constants/voiceConstants';
 

@@ -29,7 +29,7 @@ import {
     HourglassEmpty,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthProvider';
 import { getAuthHeader } from '../../utils/authUtils';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';

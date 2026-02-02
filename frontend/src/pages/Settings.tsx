@@ -22,7 +22,7 @@ import { DarkMode, LightMode, SettingsBrightness, Save, Public } from '@mui/icon
 import { useThemeMode } from '../context/ThemeContext';
 import { getAllTimezones, getTimezoneLabel } from '../utils/timezoneUtils';
 import { getAuthHeader } from '../utils/authUtils';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthProvider';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 

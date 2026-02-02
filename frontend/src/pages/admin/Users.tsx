@@ -30,7 +30,7 @@ import {
 import { Group, PersonAdd, Description, Pending, Edit } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 import { getAuthHeader } from '../../utils/authUtils';
 

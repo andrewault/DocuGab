@@ -17,10 +17,10 @@ import {
     DialogContent,
     DialogActions,
 } from '@mui/material';
-import { Edit, Delete, ArrowBack, QuestionAnswer } from '@mui/icons-material';
+import { Edit, Delete, QuestionAnswer } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface FAQItem {
@@ -128,9 +128,6 @@ export default function FAQDetail() {
                     <Alert severity="error" sx={{ mb: 3 }}>
                         {error || 'FAQ not found'}
                     </Alert>
-                    <Button startIcon={<ArrowBack />} onClick={() => navigate('/admin/faq')}>
-                        Back to FAQs
-                    </Button>
                 </Container>
             </Box>
         );
@@ -172,13 +169,6 @@ export default function FAQDetail() {
                         </Typography>
                     </Box>
                     <Stack direction="row" spacing={2}>
-                        <Button
-                            variant="outlined"
-                            startIcon={<ArrowBack />}
-                            onClick={() => navigate('/admin/faq')}
-                        >
-                            Back
-                        </Button>
                         <Button
                             variant="contained"
                             startIcon={<Edit />}

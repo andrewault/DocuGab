@@ -11,7 +11,7 @@ import {
     useTheme,
 } from '@mui/material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthProvider';
 
 export default function Register() {
     const [email, setEmail] = useState('');

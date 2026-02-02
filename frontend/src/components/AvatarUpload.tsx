@@ -10,7 +10,7 @@ import {
     IconButton,
 } from '@mui/material';
 import { Upload, Delete, Download, CheckCircle } from '@mui/icons-material';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthProvider';
 import { getAuthHeader } from '../utils/authUtils';
 import { formatInUserTimezone } from '../utils/timezoneUtils';
 

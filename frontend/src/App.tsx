@@ -41,7 +41,7 @@ import ProjectDetail from './pages/admin/ProjectDetail';
 import ProjectEdit from './pages/admin/ProjectEdit';
 import TestChat from './pages/admin/TestChat';
 import Database from './pages/admin/Database';
-import { useAuth } from './context/AuthContext';
+import { useAuth } from './context/AuthProvider';
 
 export default function App() {
   const { isAdmin, isCustomer } = useAuth();
@@ -196,6 +196,11 @@ export default function App() {
               </ProtectedRoute>
             } />
             <Route path="/admin/projects/:uuid" element={
+              <ProtectedRoute requireAdmin>
+                <ProjectDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/projects/:uuid/:tab" element={
               <ProtectedRoute requireAdmin>
                 <ProjectDetail />
               </ProtectedRoute>

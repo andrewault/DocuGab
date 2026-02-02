@@ -24,10 +24,10 @@ import {
     DialogActions,
     useTheme,
 } from '@mui/material';
-import { Save, Delete } from '@mui/icons-material';
+import { Save, Delete, Person } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface User {
@@ -258,31 +258,53 @@ export default function UserEdit() {
                     { label: 'Edit' }
                 ]} />
 
-                {/* Header with Title */}
-                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-                    <Typography
-                        variant="h4"
-                        sx={{
-                            fontWeight: 700,
-                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                            backgroundClip: 'text',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                        }}
-                    >
-                        Edit User
-                    </Typography>
+
+                {/* Header */}
+                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Person sx={{ fontSize: 32, color: '#6366f1' }} />
+                        <Typography
+                            variant="h4"
+                            component="h1"
+                            sx={{
+                                fontWeight: 700,
+                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}
+                        >
+                            Edit User
+                        </Typography>
+                    </Box>
+                    <Stack direction="row" spacing={2}>
+                        <Button
+                            variant="outlined"
+                            onClick={() => navigate(`/admin/users/${uuid}`)}
+                            disabled={saving}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="contained"
+                            startIcon={<Save />}
+                            onClick={handleSave}
+                            disabled={saving}
+                        >
+                            {saving ? 'Saving...' : 'Save'}
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            color="error"
+                            startIcon={<Delete />}
+                            onClick={handleDeleteClick}
+                            disabled={saving}
+                        >
+                            Delete
+                        </Button>
+                    </Stack>
                 </Stack>
-                <Typography variant="body2" color="text.secondary" mb={0.5}>
-                    {user.email}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" mb={3} display="block">
-                    Joined: {formatInUserTimezone(
-                        user.created_at,
-                        currentUser?.timezone || 'America/Los_Angeles',
-                        'PPpp'
-                    )}
-                </Typography>
+
 
                 <Paper
                     elevation={3}
@@ -368,33 +390,6 @@ export default function UserEdit() {
                             }
                             label="Email Verified"
                         />
-
-                        <Button
-                            variant="contained"
-                            startIcon={<Save />}
-                            onClick={handleSave}
-                            disabled={saving}
-                            sx={{
-                                background: 'linear-gradient(90deg, #6366f1, #4f46e5)',
-                                '&:hover': {
-                                    background: 'linear-gradient(90deg, #4f46e5, #4338ca)',
-                                },
-                            }}
-                        >
-                            {saving ? 'Saving...' : 'Save Changes'}
-                        </Button>
-
-                        <Divider />
-
-                        <Button
-                            variant="outlined"
-                            color="error"
-                            startIcon={<Delete />}
-                            onClick={handleDeleteClick}
-                            disabled={saving}
-                        >
-                            Delete User
-                        </Button>
                     </Stack>
                 </Paper>
 

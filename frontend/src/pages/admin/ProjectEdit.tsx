@@ -24,9 +24,10 @@ import {
     FormControlLabel,
     Chip,
 } from '@mui/material';
-import { ArrowBack, Save, CloudUpload, Image as ImageIcon, VolumeUp } from '@mui/icons-material';
+import { Save, CloudUpload, Image as ImageIcon, VolumeUp } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { StatusBanner } from '../../components/admin/StatusBanner';
 import { VOICE_OPTIONS, VOICE_TEST_TEXT } from '../../constants/voiceConstants';
 
 interface Project {
@@ -331,6 +332,18 @@ export default function ProjectEdit() {
 
     return (
         <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: 3 }}>
+            <StatusBanner
+                message={
+                    project.is_demo
+                        ? 'Demo Project • Internal use only, not billed'
+                        : !project.is_active
+                            ? 'Project Inactive'
+                            : !project.is_enabled
+                                ? 'Project Disabled'
+                                : ''
+                }
+                visible={project.is_demo || !project.is_active || !project.is_enabled}
+            />
             <AdminBreadcrumbs
                 items={[
                     { label: 'Projects', path: '/admin/projects' },
@@ -377,7 +390,6 @@ export default function ProjectEdit() {
                 </Stack>
                 <Stack direction="row" spacing={2}>
                     <Button
-                        startIcon={<ArrowBack />}
                         onClick={() => navigate(`/admin/projects/${uuid}`)}
                         disabled={saving}
                     >

@@ -40,7 +40,7 @@ import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { StatusBanner } from '../../components/admin/StatusBanner';
 import { InfoSection } from '../../components/admin/InfoSection';
 import { DetailRow } from '../../components/admin/DetailRow';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface Customer {

@@ -25,7 +25,7 @@ import {
 import { getAuthHeader } from '../../utils/authUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
 import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface AccountUser {

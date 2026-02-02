@@ -18,7 +18,7 @@ import {
     Menu as MenuIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthProvider';
 
 interface NavbarProps {
     sidebarOpen?: boolean;

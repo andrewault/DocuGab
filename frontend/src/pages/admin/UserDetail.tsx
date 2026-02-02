@@ -22,7 +22,6 @@ import {
     Email,
     Business,
     CalendarToday,
-    ArrowBack,
     Edit,
     Delete,
     CheckCircle,
@@ -31,7 +30,7 @@ import {
 } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 
 interface User {
@@ -136,13 +135,6 @@ export default function UserDetail() {
         return (
             <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: 3 }}>
                 <Alert severity="error">{error || 'User not found'}</Alert>
-                <Button
-                    startIcon={<ArrowBack />}
-                    onClick={() => navigate('/admin/users')}
-                    sx={{ mt: 2 }}
-                >
-                    Back to Users
-                </Button>
             </Container>
         );
     }
@@ -180,13 +172,6 @@ export default function UserDetail() {
                     </Typography>
                 </Box>
                 <Stack direction="row" spacing={2}>
-                    <Button
-                        variant="outlined"
-                        startIcon={<ArrowBack />}
-                        onClick={() => navigate(-1)}
-                    >
-                        Back
-                    </Button>
                     <Button
                         variant="contained"
                         startIcon={<Edit />}

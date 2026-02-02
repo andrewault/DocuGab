@@ -24,7 +24,7 @@ import {
     Tab,
 } from '@mui/material';
 import { ArrowBack, Save, Edit as EditIcon, CloudUpload, Image as ImageIcon, VolumeUp } from '@mui/icons-material';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthProvider';
 import { getAuthHeader } from '../../utils/authUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
 import { VOICE_OPTIONS, VOICE_TEST_TEXT } from '../../constants/voiceConstants';

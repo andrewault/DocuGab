@@ -14,7 +14,7 @@ import {
     Alert,
     Stack,
 } from '@mui/material';
-import { Save, Cancel as CancelIcon } from '@mui/icons-material';
+import { Save, HelpOutline } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
@@ -165,19 +165,44 @@ export default function FAQEdit() {
                     ]}
                 />
 
-                <Typography
-                    variant="h4"
-                    sx={{
-                        fontWeight: 700,
-                        mb: 4,
-                        background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                        backgroundClip: 'text',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                    }}
-                >
-                    {isEditing ? 'Edit FAQ' : 'New FAQ'}
-                </Typography>
+
+                {/* Header */}
+                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <HelpOutline sx={{ fontSize: 32, color: '#6366f1' }} />
+                        <Typography
+                            variant="h4"
+                            component="h1"
+                            sx={{
+                                fontWeight: 700,
+                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}
+                        >
+                            {isEditing ? 'Edit FAQ' : 'New FAQ'}
+                        </Typography>
+                    </Box>
+                    <Stack direction="row" spacing={2}>
+                        <Button
+                            variant="outlined"
+                            onClick={handleCancel}
+                            disabled={saving}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="contained"
+                            startIcon={<Save />}
+                            onClick={handleSave}
+                            disabled={saving}
+                        >
+                            {saving ? 'Saving...' : 'Save'}
+                        </Button>
+                    </Stack>
+                </Stack>
+
 
                 <Paper
                     elevation={3}
@@ -225,31 +250,6 @@ export default function FAQEdit() {
                             }
                             label="Active"
                         />
-
-                        <Stack direction="row" spacing={2}>
-                            <Button
-                                variant="outlined"
-                                startIcon={<CancelIcon />}
-                                onClick={handleCancel}
-                                disabled={saving}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                variant="contained"
-                                startIcon={<Save />}
-                                onClick={handleSave}
-                                disabled={saving}
-                                sx={{
-                                    background: 'linear-gradient(90deg, #6366f1, #4f46e5)',
-                                    '&:hover': {
-                                        background: 'linear-gradient(90deg, #4f46e5, #4338ca)',
-                                    },
-                                }}
-                            >
-                                {saving ? 'Saving...' : 'Save'}
-                            </Button>
-                        </Stack>
                     </Stack>
                 </Paper>
             </Container>

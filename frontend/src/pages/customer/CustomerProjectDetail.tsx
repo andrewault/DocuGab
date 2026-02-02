@@ -23,7 +23,7 @@ import {
 } from '@mui/material';
 import { ArrowBack, RecordVoiceOver, Description as DocumentIcon, Add, Edit, Forum } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthProvider';
 import { getAuthHeader } from '../../utils/authUtils';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
