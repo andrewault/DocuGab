@@ -40,6 +40,26 @@ else
     echo -e "   ${RED}✗ Backend not responding${NC}"
 fi
 
+# Database health
+if DB_RESPONSE=$(curl -s http://localhost:8007/health/db 2>/dev/null); then
+    if [[ "$DB_RESPONSE" =~ "connected" ]]; then
+        echo -e "   ${GREEN}✓ Database connected${NC}"
+    else
+        echo -e "   ${RED}✗ Database issue${NC}"
+        echo "   Response: $DB_RESPONSE"
+    fi
+fi
+
+echo ""
+
+# Frontend health
+echo "🖥️  Frontend:"
+if curl -s -I http://localhost:5177 > /dev/null; then
+    echo -e "   ${GREEN}✓ Frontend is accessible${NC}"
+else
+    echo -e "   ${RED}✗ Frontend not responding${NC}"
+fi
+
 echo ""
 
 # Ollama models (native installation)
