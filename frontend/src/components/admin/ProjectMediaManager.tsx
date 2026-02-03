@@ -1,4 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 import {
     Box,
     Paper,
@@ -11,17 +14,15 @@ import {
     TableRow,
     Button,
     IconButton,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
-    MenuItem,
     Stack,
     Chip,
-    Alert,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
 } from '@mui/material';
-import { Add, Delete, Image as ImageIcon, YouTube as YouTubeIcon } from '@mui/icons-material';
+import { Add, Delete, Edit, Image as ImageIcon, YouTube as YouTubeIcon } from '@mui/icons-material';
 import { ancillaryApi } from '../../api/ancillary';
 import type { ProjectMedia } from '../../api/ancillary';
 import type { Project } from '../../types/project';
@@ -31,17 +32,8 @@ interface ProjectMediaManagerProps {
 }
 
 export function ProjectMediaManager({ project }: ProjectMediaManagerProps) {
+    const navigate = useNavigate();
     const [mediaItems, setMediaItems] = useState<ProjectMedia[]>([]);
-    const [openDiaog, setOpenDialog] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    // Form State
-    const [type, setType] = useState<'photo' | 'youtube'>('photo');
-    const [url, setUrl] = useState('');
-    const [description, setDescription] = useState('');
-    const [keywordInput, setKeywordInput] = useState('');
-    const [keywords, setKeywords] = useState<string[]>([]);
 
     const fetchMedia = useCallback(async () => {
         try {
@@ -56,54 +48,20 @@ export function ProjectMediaManager({ project }: ProjectMediaManagerProps) {
         fetchMedia();
     }, [fetchMedia]);
 
-    const handleAddKeyword = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && keywordInput.trim()) {
-            e.preventDefault();
-            if (!keywords.includes(keywordInput.trim())) {
-                setKeywords([...keywords, keywordInput.trim()]);
-            }
-            setKeywordInput('');
-        }
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+
+    const handleDeleteClick = (uuid: string) => {
+        setItemToDelete(uuid);
+        setDeleteConfirmOpen(true);
     };
 
-    const handleDeleteKeyword = (kwToDelete: string) => {
-        setKeywords(keywords.filter((kw) => kw !== kwToDelete));
-    };
-
-    const handleSubmit = async () => {
-        if (!url || keywords.length === 0) {
-            setError('URL and at least one keyword are required');
-            return;
-        }
-
-        setLoading(true);
-        setError(null);
+    const confirmDelete = async () => {
+        if (!itemToDelete) return;
         try {
-            await ancillaryApi.createMedia(project.uuid, {
-                type,
-                url,
-                description,
-                keywords,
-            });
-            setOpenDialog(false);
-            fetchMedia();
-            // Reset form
-            setUrl('');
-            setDescription('');
-            setKeywords([]);
-            setType('photo');
-        } catch (err) {
-            setError('Failed to create media item');
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDelete = async (id: number) => {
-        if (!confirm('Are you sure you want to delete this media item?')) return;
-        try {
-            await ancillaryApi.deleteMedia(project.uuid, id);
+            await ancillaryApi.deleteMedia(project.uuid, itemToDelete);
+            setDeleteConfirmOpen(false);
+            setItemToDelete(null);
             fetchMedia();
         } catch (err) {
             console.error('Failed to delete media:', err);
@@ -117,7 +75,7 @@ export function ProjectMediaManager({ project }: ProjectMediaManagerProps) {
                 <Button
                     variant="contained"
                     startIcon={<Add />}
-                    onClick={() => setOpenDialog(true)}
+                    onClick={() => navigate(`/admin/projects/${project.uuid}/media/new`)}
                 >
                     Add Media
                 </Button>
@@ -136,13 +94,18 @@ export function ProjectMediaManager({ project }: ProjectMediaManagerProps) {
                     </TableHead>
                     <TableBody>
                         {mediaItems.map((item) => (
-                            <TableRow key={item.id}>
+                            <TableRow
+                                key={item.uuid}
+                                hover
+                                onClick={() => navigate(`/admin/projects/${project.uuid}/media/${item.uuid}`)}
+                                sx={{ cursor: 'pointer' }}
+                            >
                                 <TableCell>
                                     {item.type === 'photo' ? <ImageIcon color="primary" /> : <YouTubeIcon color="error" />}
                                 </TableCell>
                                 <TableCell>
                                     {item.type === 'photo' ? (
-                                        <Box component="img" src={item.url} sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1 }} />
+                                        <Box component="img" src={item.url.startsWith('/') ? `${API_BASE}${item.url}` : item.url} sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1 }} />
                                     ) : (
                                         <Typography variant="body2" color="text.secondary">{item.url}</Typography>
                                     )}
@@ -156,7 +119,25 @@ export function ProjectMediaManager({ project }: ProjectMediaManagerProps) {
                                     </Stack>
                                 </TableCell>
                                 <TableCell align="right">
-                                    <IconButton onClick={() => handleDelete(item.id)} color="error">
+                                    <IconButton
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigate(`/admin/projects/${project.uuid}/media/${item.uuid}/edit`);
+                                        }}
+                                        color="primary"
+                                        sx={{ mr: 1 }}
+                                        title="Edit"
+                                    >
+                                        <Edit />
+                                    </IconButton>
+                                    <IconButton
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteClick(item.uuid);
+                                        }}
+                                        color="error"
+                                        title="Delete"
+                                    >
                                         <Delete />
                                     </IconButton>
                                 </TableCell>
@@ -175,71 +156,29 @@ export function ProjectMediaManager({ project }: ProjectMediaManagerProps) {
                 </Table>
             </TableContainer>
 
-            <Dialog open={openDiaog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-                <DialogTitle>Add Media Response</DialogTitle>
+            <Dialog
+                open={deleteConfirmOpen}
+                onClose={() => setDeleteConfirmOpen(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Confirm Deletion"}
+                </DialogTitle>
                 <DialogContent>
-                    <Stack spacing={2} pt={1}>
-                        {error && <Alert severity="error">{error}</Alert>}
-
-                        <TextField
-                            select
-                            label="Type"
-                            value={type}
-                            onChange={(e) => setType(e.target.value as 'photo' | 'youtube')}
-                        >
-                            <MenuItem value="photo">Photo (Image URL)</MenuItem>
-                            <MenuItem value="youtube">YouTube (Video URL)</MenuItem>
-                        </TextField>
-
-                        <TextField
-                            label="URL"
-                            value={url}
-                            onChange={(e) => setUrl(e.target.value)}
-                            placeholder={type === 'photo' ? 'https://example.com/image.jpg' : 'https://youtube.com/watch?v=...'}
-                            fullWidth
-                        />
-
-                        <TextField
-                            label="Description / Caption"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            multiline
-                            rows={2}
-                            fullWidth
-                        />
-
-                        <Box>
-                            <Typography variant="caption" color="text.secondary" mb={1} display="block">
-                                Keywords (Press Enter to add)
-                            </Typography>
-                            <TextField
-                                value={keywordInput}
-                                onChange={(e) => setKeywordInput(e.target.value)}
-                                onKeyDown={handleAddKeyword}
-                                placeholder="Add trigger keyword..."
-                                fullWidth
-                                size="small"
-                            />
-                            <Stack direction="row" spacing={1} mt={1} flexWrap="wrap" gap={1}>
-                                {keywords.map((kw) => (
-                                    <Chip
-                                        key={kw}
-                                        label={kw}
-                                        onDelete={() => handleDeleteKeyword(kw)}
-                                        size="small"
-                                    />
-                                ))}
-                            </Stack>
-                        </Box>
-                    </Stack>
+                    <DialogContentText id="alert-dialog-description">
+                        Are you sure you want to delete this media item? This action cannot be undone.
+                    </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-                    <Button onClick={handleSubmit} variant="contained" disabled={loading}>
-                        Create
+                    <Button onClick={() => setDeleteConfirmOpen(false)} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={confirmDelete} color="error" autoFocus>
+                        Delete
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Box>
+        </Box >
     );
 }

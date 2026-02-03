@@ -8,7 +8,9 @@ from app.core.deps import get_admin_user
 from app.models.user import User
 from app.models.project import Project
 from app.models.media import ProjectMedia
-from app.schemas.media import MediaCreate, MediaResponse
+from app.models.image import Image
+from app.schemas.media import MediaCreate, MediaResponse, ImageMetadata
+import os
 
 router = APIRouter(tags=["admin", "projects"])
 
@@ -73,12 +75,13 @@ async def create_project_media(
     return media
 
 
+
 @router.delete(
-    "/projects/{project_uuid}/media/{media_id}", status_code=status.HTTP_204_NO_CONTENT
+    "/projects/{project_uuid}/media/{media_uuid}", status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_project_media(
     project_uuid: UUID,
-    media_id: int,
+    media_uuid: UUID,
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -95,7 +98,7 @@ async def delete_project_media(
     # Get media and verify it belongs to project
     result = await db.execute(
         select(ProjectMedia).where(
-            ProjectMedia.id == media_id, ProjectMedia.project_id == project.id
+            ProjectMedia.uuid == media_uuid, ProjectMedia.project_id == project.id
         )
     )
     media = result.scalar_one_or_none()
@@ -108,3 +111,117 @@ async def delete_project_media(
 
     await db.delete(media)
     await db.commit()
+
+
+@router.get("/projects/{project_uuid}/media/{media_uuid}", response_model=MediaResponse)
+async def get_project_media(
+    project_uuid: UUID,
+    media_uuid: UUID,
+    admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get a single media item."""
+    # Verify project exists
+    project_result = await db.execute(
+        select(Project).where(Project.uuid == project_uuid)
+    )
+    project = project_result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+
+    # Get media
+    result = await db.execute(
+        select(ProjectMedia).where(
+            ProjectMedia.uuid == media_uuid, ProjectMedia.project_id == project.id
+        )
+    )
+    media = result.scalar_one_or_none()
+
+    if not media:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Media not found",
+        )
+
+    response = MediaResponse.model_validate(media)
+
+    # If it's a photo and matches our internal image URL pattern, try to get metadata
+    if media.type == "photo" and "/api/v1/images/" in media.url:
+        try:
+            # Extract UUID from URL
+            image_uuid_str = media.url.split("/api/v1/images/")[1]
+            image_uuid = UUID(image_uuid_str)
+            
+            # Look up Image
+            img_result = await db.execute(select(Image).where(Image.uuid == image_uuid))
+            image_record = img_result.scalar_one_or_none()
+            
+            if image_record:
+                size_bytes = None
+                if os.path.exists(image_record.file_path):
+                    size_bytes = os.path.getsize(image_record.file_path)
+                    
+                response.image_metadata = ImageMetadata(
+                    filename=image_record.original_filename,
+                    content_type=image_record.content_type,
+                    size_bytes=size_bytes
+                )
+        except Exception as e:
+            print(f"Error fetching image metadata: {e}")
+            # Non-fatal, just don't return metadata
+
+    return response
+
+
+@router.put(
+    "/projects/{project_uuid}/media/{media_uuid}", response_model=MediaResponse
+)
+async def update_project_media(
+    project_uuid: UUID,
+    media_uuid: UUID,
+    data: MediaCreate,
+    admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update a media item."""
+    # Verify project exists
+    project_result = await db.execute(
+        select(Project).where(Project.uuid == project_uuid)
+    )
+    project = project_result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+
+    # Get media
+    result = await db.execute(
+        select(ProjectMedia).where(
+            ProjectMedia.uuid == media_uuid, ProjectMedia.project_id == project.id
+        )
+    )
+    media = result.scalar_one_or_none()
+
+    if not media:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Media not found",
+        )
+
+    # Update fields
+    media.type = data.type
+    media.url = data.url
+    media.description = data.description
+    media.keywords = data.keywords
+
+    db.add(media)
+    await db.commit()
+    await db.refresh(media)
+
+    return media

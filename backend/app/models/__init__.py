@@ -7,6 +7,9 @@ from app.models.chat_message import ChatMessage
 from app.models.customer import Customer
 from app.models.project import Project
 from app.models.avatar import Avatar
+from app.models.image import Image
+from app.models.media import ProjectMedia
+from app.models.link import ProjectLink
 
 __all__ = [
     "Document",
@@ -18,4 +21,7 @@ __all__ = [
     "Customer",
     "Project",
     "Avatar",
+    "Image",
+    "ProjectMedia",
+    "ProjectLink",
 ]
