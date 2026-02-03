@@ -39,6 +39,10 @@ import CustomerDetail from './pages/admin/CustomerDetail';
 import CustomerEdit from './pages/admin/CustomerEdit';
 import Projects from './pages/admin/Projects';
 import NewProject from './pages/admin/NewProject';
+import NewProjectMedia from './pages/admin/NewProjectMedia';
+import ProjectMediaDetail from './pages/admin/ProjectMediaDetail';
+import ProjectMediaEdit from './pages/admin/ProjectMediaEdit';
+import NewProjectLink from './pages/admin/NewProjectLink';
 import ProjectDetail from './pages/admin/ProjectDetail';
 import ProjectEdit from './pages/admin/ProjectEdit';
 import TestChat from './pages/admin/TestChat';
@@ -211,6 +215,26 @@ export default function App() {
             <Route path="/admin/projects/:uuid" element={
               <ProtectedRoute requireAdmin>
                 <ProjectDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/projects/:uuid/media/new" element={
+              <ProtectedRoute requireAdmin>
+                <NewProjectMedia />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/projects/:uuid/media/:mediaUuid" element={
+              <ProtectedRoute requireAdmin>
+                <ProjectMediaDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/projects/:uuid/media/:mediaUuid/edit" element={
+              <ProtectedRoute requireAdmin>
+                <ProjectMediaEdit />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/projects/:uuid/links/new" element={
+              <ProtectedRoute requireAdmin>
+                <NewProjectLink />
               </ProtectedRoute>
             } />
             <Route path="/admin/projects/:uuid/:tab" element={

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Paper,
@@ -30,13 +31,14 @@ interface ProjectLinkManagerProps {
 }
 
 export function ProjectLinkManager({ project }: ProjectLinkManagerProps) {
+    const navigate = useNavigate();
     const [linkItems, setLinkItems] = useState<ProjectLink[]>([]);
     const [openDialog, setOpenDialog] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [editingItem, setEditingItem] = useState<ProjectLink | null>(null);
 
-    // Form State
+    // Form State (Only for Editing now)
     const [name, setName] = useState('');
     const [url, setUrl] = useState('');
     const [keywordInput, setKeywordInput] = useState('');
@@ -55,18 +57,11 @@ export function ProjectLinkManager({ project }: ProjectLinkManagerProps) {
         fetchLinks();
     }, [fetchLinks]);
 
-    const handleOpenDialog = (item?: ProjectLink) => {
-        if (item) {
-            setEditingItem(item);
-            setName(item.name);
-            setUrl(item.url);
-            setKeywords(item.keywords);
-        } else {
-            setEditingItem(null);
-            setName('');
-            setUrl('');
-            setKeywords([]);
-        }
+    const handleOpenEditDialog = (item: ProjectLink) => {
+        setEditingItem(item);
+        setName(item.name);
+        setUrl(item.url);
+        setKeywords(item.keywords);
         setError(null);
         setOpenDialog(true);
     };
@@ -100,18 +95,12 @@ export function ProjectLinkManager({ project }: ProjectLinkManagerProps) {
                     url,
                     keywords,
                 });
-            } else {
-                await ancillaryApi.createLink(project.uuid, {
-                    name,
-                    url,
-                    keywords,
-                });
+                setOpenDialog(false);
+                fetchLinks();
+                setEditingItem(null); // Reset
             }
-            setOpenDialog(false);
-            fetchLinks();
-            handleOpenDialog(); // Reset form
         } catch (err) {
-            setError(editingItem ? 'Failed to update link' : 'Failed to create link');
+            setError('Failed to update link');
             console.error(err);
         } finally {
             setLoading(false);
@@ -135,7 +124,7 @@ export function ProjectLinkManager({ project }: ProjectLinkManagerProps) {
                 <Button
                     variant="contained"
                     startIcon={<Add />}
-                    onClick={() => handleOpenDialog()}
+                    onClick={() => navigate(`/admin/projects/${project.uuid}/links/new`)}
                 >
                     Add Link
                 </Button>
@@ -157,7 +146,7 @@ export function ProjectLinkManager({ project }: ProjectLinkManagerProps) {
                                 key={item.id}
                                 hover
                                 sx={{ cursor: 'pointer' }}
-                                onClick={() => handleOpenDialog(item)}
+                                onClick={() => handleOpenEditDialog(item)}
                             >
                                 <TableCell>
                                     <Stack direction="row" alignItems="center" spacing={1}>
@@ -203,8 +192,9 @@ export function ProjectLinkManager({ project }: ProjectLinkManagerProps) {
                 </Table>
             </TableContainer>
 
+            {/* Edit Modal - Only for Editing existing items */}
             <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-                <DialogTitle>{editingItem ? 'Edit Link' : 'Add Link Response'}</DialogTitle>
+                <DialogTitle>Edit Link Response</DialogTitle>
                 <DialogContent>
                     <Stack spacing={2} pt={1}>
                         {error && <Alert severity="error">{error}</Alert>}
@@ -253,7 +243,7 @@ export function ProjectLinkManager({ project }: ProjectLinkManagerProps) {
                 <DialogActions>
                     <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
                     <Button onClick={handleSubmit} variant="contained" disabled={loading}>
-                        {editingItem ? 'Update' : 'Create'}
+                        Update
                     </Button>
                 </DialogActions>
             </Dialog>
