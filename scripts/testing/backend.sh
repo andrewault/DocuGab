@@ -10,7 +10,9 @@ echo ""
 # Bypass pyenv and let Poetry use its own virtual environment
 unset PYENV_VERSION
 
-cd "$(dirname "$0")/../../backend" || exit 1
+# Resolve script directory robustly
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/../../backend" || exit 1
 
 # Colors for output
 RED='\033[0;31m'
@@ -133,8 +135,20 @@ fi
 if [ "$RUN_TESTS" = true ]; then
     echo "🧪 Running Tests"
     echo "----------------"
+
+    # Run schema copy from dev to testing
+    echo -e "${YELLOW}Syncing test database schema...${NC}"
+    SCHEMA_SYNC_FAILED=false
+    if "$SCRIPT_DIR/../database/cp-schema-from-dev-to-testing.sh"; then
+        echo -e "${GREEN}✓ Schema synced${NC}"
+        echo ""
+    else
+        echo -e "${RED}✗ Schema sync failed${NC}"
+        FAILED=true
+        SCHEMA_SYNC_FAILED=true
+    fi
     
-    if [ -d "tests" ] && [ "$(ls -A tests)" ]; then
+    if [ "$SCHEMA_SYNC_FAILED" = false ] && [ -d "tests" ] && [ "$(ls -A tests)" ]; then
         # Temporarily disable exit on error for pytest
         set +e
         if [ "$RUN_COVERAGE" = true ]; then
@@ -154,7 +168,15 @@ if [ "$RUN_TESTS" = true ]; then
             FAILED=true
         fi
     else
-        echo -e "${YELLOW}⚠ No tests found - skipping${NC}"
+        echo -e "${YELLOW}⚠ Skipping tests. Debug info:${NC}"
+        echo "FAILED status: $FAILED"
+        if [ ! -d "tests" ]; then
+            echo "tests directory not found at $(pwd)/tests"
+        elif [ -z "$(ls -A tests)" ]; then
+            echo "tests directory is empty"
+        else
+            echo "Unknown reason for skipping tests"
+        fi
         echo ""
     fi
 fi

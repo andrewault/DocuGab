@@ -299,7 +299,7 @@ export default function CustomerDetail() {
                     <Button
                         variant="contained"
                         startIcon={<Add />}
-                        onClick={() => navigate('/admin/projects')}
+                        onClick={() => navigate(`/admin/customers/${uuid}/projects/new`)}
                     >
                         Project
                     </Button>

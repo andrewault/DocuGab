@@ -2,7 +2,7 @@ import os
 import shutil
 import uuid
 import mimetypes
-from typing import Optional
+
 from pathlib import Path
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
@@ -10,7 +10,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
+
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models.user import User
