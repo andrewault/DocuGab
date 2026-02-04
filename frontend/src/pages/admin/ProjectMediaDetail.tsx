@@ -17,6 +17,7 @@ import {
 import { Edit, Image as ImageIcon, YouTube as YouTubeIcon, ArrowBack } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import { ancillaryApi } from '../../api/ancillary';
+import type { ProjectMedia } from '../../api/ancillary';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { StatusBanner } from '../../components/admin/StatusBanner';
 import type { Project } from '../../types/project';
@@ -29,7 +30,7 @@ export default function ProjectMediaDetail() {
     const isDark = theme.palette.mode === 'dark';
 
     const [project, setProject] = useState<Project | null>(null);
-    const [media, setMedia] = useState<any>(null); // TODO: Type properly
+    const [media, setMedia] = useState<ProjectMedia | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {

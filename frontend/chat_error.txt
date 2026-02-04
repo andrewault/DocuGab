@@ -1,0 +1,400 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90m/Users/andrewault/dev/ault/DocuGab/frontend[39m
+
+[90mstderr[2m | src/pages/Chat.test.tsx[2m > [22m[2mChat Component[2m > [22m[2mrenders chat input
+[22m[39m[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+[90mstderr[2m | src/pages/Chat.test.tsx[2m > [22m[2mChat Component[2m > [22m[2mrenders chat input
+[22m[39mFailed to fetch documents: TypeError: Cannot read properties of undefined (reading 'filter')
+    at fetchDocs [90m(/Users/andrewault/dev/ault/DocuGab/frontend/[39msrc/pages/Chat.tsx:170:49[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+
+[90mstderr[2m | src/pages/Chat.test.tsx[2m > [22m[2mChat Component[2m > [22m[2mallows typing in input
+[22m[39m[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+[90mstderr[2m | src/pages/Chat.test.tsx[2m > [22m[2mChat Component[2m > [22m[2mallows typing in input
+[22m[39mFailed to fetch documents: TypeError: Cannot read properties of undefined (reading 'filter')
+    at fetchDocs [90m(/Users/andrewault/dev/ault/DocuGab/frontend/[39msrc/pages/Chat.tsx:170:49[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+
+[90mstderr[2m | src/pages/Chat.test.tsx[2m > [22m[2mChat Component[2m > [22m[2msends message when form is submitted
+[22m[39m[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+[90mstderr[2m | src/pages/Chat.test.tsx[2m > [22m[2mChat Component[2m > [22m[2msends message when form is submitted
+[22m[39mFailed to fetch documents: TypeError: Cannot read properties of undefined (reading 'filter')
+    at fetchDocs [90m(/Users/andrewault/dev/ault/DocuGab/frontend/[39msrc/pages/Chat.tsx:170:49[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+
+ [31m❯[39m src/pages/Chat.test.tsx [2m([22m[2m3 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 175[2mms[22m[39m
+[31m     [31m×[31m renders chat input[39m[32m 139[2mms[22m[39m
+[31m     [31m×[31m allows typing in input[39m[32m 18[2mms[22m[39m
+[31m     [31m×[31m sends message when form is submitted[39m[32m 17[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 3 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/pages/Chat.test.tsx[2m > [22mChat Component[2m > [22mrenders chat input
+{
+  stack: 'AggregateError: \n' +
+    '    at aggregateErrors (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react/cjs/react.development.js:551:11)\n' +
+    '    at process.env.NODE_ENV.exports.act (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react/cjs/react.development.js:897:24)\n' +
+    '    at /Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/act-compat.js:46:25\n' +
+    '    at renderRoot (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/pure.js:189:26)\n' +
+    '    at render (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/pure.js:291:10)\n' +
+    '    at renderWithProviders (/Users/andrewault/dev/ault/DocuGab/frontend/src/pages/Chat.test.tsx:37:12)\n' +
+    '    at /Users/andrewault/dev/ault/DocuGab/frontend/src/pages/Chat.test.tsx:74:9\n' +
+    '    at file:///Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@vitest/runner/dist/index.js:145:11\n' +
+    '    at file:///Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@vitest/runner/dist/index.js:915:26\n' +
+    '    at file:///Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@vitest/runner/dist/index.js:1243:20',
+  errors: [
+    {
+      stack: 'TypeError: () => ({\n' +
+        '  observe: __vite_ssr_import_1__.vi.fn(),\n' +
+        '  unobserve: __vite_ssr_import_1__.vi.fn(),\n' +
+        '  disconnect: __...<omitted>...}) is not a constructor\n' +
+        '    at new Mock (file:///Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@vitest/spy/dist/index.js:262:27)\n' +
+        '    at file:///Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@mui/material/esm/TextareaAutosize/TextareaAutosize.js:152:24\n' +
+        '    at Object.react_stack_bottom_frame (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)\n' +
+        '    at runWithFiberInDEV (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)\n' +
+        '    at commitHookEffectListMount (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)\n' +
+        '    at commitHookLayoutEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13213:11)\n' +
+        '    at commitLayoutEffectOnFiber (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13951:13)\n' +
+        '    at recursivelyTraverseLayoutEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15159:11)\n' +
+        '    at commitLayoutEffectOnFiber (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13949:11)\n' +
+        '    at recursivelyTraverseLayoutEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15159:11)',
+      message: '() => ({\n' +
+        '  observe: __vite_ssr_import_1__.vi.fn(),\n' +
+        '  unobserve: __vite_ssr_import_1__.vi.fn(),\n' +
+        '  disconnect: __...<omitted>...}) is not a constructor',
+      constructor: 'Function<TypeError>',
+      name: 'TypeError',
+      toString: 'Function<toString>'
+    },
+    {
+      stack: 'TypeError: messagesEndRef.current?.scrollIntoView is not a function\n' +
+        '    at /Users/andrewault/dev/ault/DocuGab/frontend/src/pages/Chat.tsx:181:33\n' +
+        '    at Object.react_stack_bottom_frame (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)\n' +
+        '    at runWithFiberInDEV (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)\n' +
+        '    at commitHookEffectListMount (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)\n' +
+        '    at commitHookPassiveMountEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)\n' +
+        '    at commitPassiveMountOnFiber (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)\n' +
+        '    at recursivelyTraversePassiveMountEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)\n' +
+        '    at commitPassiveMountOnFiber (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15718:11)\n' +
+        '    at recursivelyTraversePassiveMountEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)\n' +
+        '    at commitPassiveMountOnFiber (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15718:11)',
+      message: 'messagesEndRef.current?.scrollIntoView is not a function',
+      constructor: 'Function<TypeError>',
+      name: 'TypeError',
+      toString: 'Function<toString>'
+    }
+  ],
+  constructor: 'Function<AggregateError>',
+  name: 'AggregateError',
+  message: '',
+  toString: 'Function<toString>',
+  stacks: [
+    {
+      method: 'aggregateErrors',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react/cjs/react.development.js',
+      line: 551,
+      column: 11
+    },
+    {
+      method: 'process.env.NODE_ENV.exports.act',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react/cjs/react.development.js',
+      line: 897,
+      column: 24
+    },
+    {
+      method: '',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/act-compat.js',
+      line: 46,
+      column: 25
+    },
+    {
+      method: 'renderRoot',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/pure.js',
+      line: 189,
+      column: 26
+    },
+    {
+      method: 'render',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/pure.js',
+      line: 291,
+      column: 10
+    },
+    {
+      method: 'renderWithProviders',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/src/pages/Chat.test.tsx',
+      line: 37,
+      column: 12
+    },
+    {
+      method: '',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/src/pages/Chat.test.tsx',
+      line: 74,
+      column: 9
+    }
+  ]
+}
+[90m [2m❯[22m aggregateErrors node_modules/react/cjs/react.development.js:[2m551:11[22m[39m
+[90m [2m❯[22m process.env.NODE_ENV.exports.act node_modules/react/cjs/react.development.js:[2m897:24[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/dist/act-compat.js:[2m46:25[22m[39m
+[90m [2m❯[22m renderRoot node_modules/@testing-library/react/dist/pure.js:[2m189:26[22m[39m
+[90m [2m❯[22m render node_modules/@testing-library/react/dist/pure.js:[2m291:10[22m[39m
+[36m [2m❯[22m renderWithProviders src/pages/Chat.test.tsx:[2m37:12[22m[39m
+    [90m 35| [39m[35mconst[39m renderWithProviders [33m=[39m (component[33m:[39m [33mReact[39m[33m.[39m[33mReactNode[39m) [33m=>[39m {
+    [90m 36| [39m    [35mconst[39m theme [33m=[39m [34mcreateTheme[39m()[33m;[39m
+    [90m 37| [39m    [35mreturn[39m [34mrender[39m(
+    [90m   | [39m           [31m^[39m
+    [90m 38| [39m        [33m<[39m[33mAuthContext[39m[33m.[39m[33mProvider[39m [33mvalue[39m[33m=[39m[33m{[39m{
+    [90m 39| [39m            user[33m:[39m mockUser[33m,[39m
+[90m [2m❯[22m src/pages/Chat.test.tsx:[2m74:9[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/Chat.test.tsx[2m > [22mChat Component[2m > [22mallows typing in input
+{
+  stack: 'AggregateError: \n' +
+    '    at aggregateErrors (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react/cjs/react.development.js:551:11)\n' +
+    '    at process.env.NODE_ENV.exports.act (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react/cjs/react.development.js:897:24)\n' +
+    '    at /Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/act-compat.js:46:25\n' +
+    '    at renderRoot (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/pure.js:189:26)\n' +
+    '    at render (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/pure.js:291:10)\n' +
+    '    at renderWithProviders (/Users/andrewault/dev/ault/DocuGab/frontend/src/pages/Chat.test.tsx:37:12)\n' +
+    '    at /Users/andrewault/dev/ault/DocuGab/frontend/src/pages/Chat.test.tsx:79:9\n' +
+    '    at file:///Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@vitest/runner/dist/index.js:145:11\n' +
+    '    at file:///Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@vitest/runner/dist/index.js:915:26\n' +
+    '    at file:///Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@vitest/runner/dist/index.js:1243:20',
+  errors: [
+    {
+      stack: 'TypeError: () => ({\n' +
+        '  observe: __vite_ssr_import_1__.vi.fn(),\n' +
+        '  unobserve: __vite_ssr_import_1__.vi.fn(),\n' +
+        '  disconnect: __...<omitted>...}) is not a constructor\n' +
+        '    at new Mock (file:///Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@vitest/spy/dist/index.js:262:27)\n' +
+        '    at file:///Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@mui/material/esm/TextareaAutosize/TextareaAutosize.js:152:24\n' +
+        '    at Object.react_stack_bottom_frame (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)\n' +
+        '    at runWithFiberInDEV (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)\n' +
+        '    at commitHookEffectListMount (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)\n' +
+        '    at commitHookLayoutEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13213:11)\n' +
+        '    at commitLayoutEffectOnFiber (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13951:13)\n' +
+        '    at recursivelyTraverseLayoutEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15159:11)\n' +
+        '    at commitLayoutEffectOnFiber (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13949:11)\n' +
+        '    at recursivelyTraverseLayoutEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15159:11)',
+      message: '() => ({\n' +
+        '  observe: __vite_ssr_import_1__.vi.fn(),\n' +
+        '  unobserve: __vite_ssr_import_1__.vi.fn(),\n' +
+        '  disconnect: __...<omitted>...}) is not a constructor',
+      constructor: 'Function<TypeError>',
+      name: 'TypeError',
+      toString: 'Function<toString>'
+    },
+    {
+      stack: 'TypeError: messagesEndRef.current?.scrollIntoView is not a function\n' +
+        '    at /Users/andrewault/dev/ault/DocuGab/frontend/src/pages/Chat.tsx:181:33\n' +
+        '    at Object.react_stack_bottom_frame (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)\n' +
+        '    at runWithFiberInDEV (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)\n' +
+        '    at commitHookEffectListMount (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)\n' +
+        '    at commitHookPassiveMountEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)\n' +
+        '    at commitPassiveMountOnFiber (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)\n' +
+        '    at recursivelyTraversePassiveMountEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)\n' +
+        '    at commitPassiveMountOnFiber (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15718:11)\n' +
+        '    at recursivelyTraversePassiveMountEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)\n' +
+        '    at commitPassiveMountOnFiber (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15718:11)',
+      message: 'messagesEndRef.current?.scrollIntoView is not a function',
+      constructor: 'Function<TypeError>',
+      name: 'TypeError',
+      toString: 'Function<toString>'
+    }
+  ],
+  constructor: 'Function<AggregateError>',
+  name: 'AggregateError',
+  message: '',
+  toString: 'Function<toString>',
+  stacks: [
+    {
+      method: 'aggregateErrors',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react/cjs/react.development.js',
+      line: 551,
+      column: 11
+    },
+    {
+      method: 'process.env.NODE_ENV.exports.act',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react/cjs/react.development.js',
+      line: 897,
+      column: 24
+    },
+    {
+      method: '',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/act-compat.js',
+      line: 46,
+      column: 25
+    },
+    {
+      method: 'renderRoot',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/pure.js',
+      line: 189,
+      column: 26
+    },
+    {
+      method: 'render',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/pure.js',
+      line: 291,
+      column: 10
+    },
+    {
+      method: 'renderWithProviders',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/src/pages/Chat.test.tsx',
+      line: 37,
+      column: 12
+    },
+    {
+      method: '',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/src/pages/Chat.test.tsx',
+      line: 79,
+      column: 9
+    }
+  ]
+}
+[90m [2m❯[22m aggregateErrors node_modules/react/cjs/react.development.js:[2m551:11[22m[39m
+[90m [2m❯[22m process.env.NODE_ENV.exports.act node_modules/react/cjs/react.development.js:[2m897:24[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/dist/act-compat.js:[2m46:25[22m[39m
+[90m [2m❯[22m renderRoot node_modules/@testing-library/react/dist/pure.js:[2m189:26[22m[39m
+[90m [2m❯[22m render node_modules/@testing-library/react/dist/pure.js:[2m291:10[22m[39m
+[36m [2m❯[22m renderWithProviders src/pages/Chat.test.tsx:[2m37:12[22m[39m
+    [90m 35| [39m[35mconst[39m renderWithProviders [33m=[39m (component[33m:[39m [33mReact[39m[33m.[39m[33mReactNode[39m) [33m=>[39m {
+    [90m 36| [39m    [35mconst[39m theme [33m=[39m [34mcreateTheme[39m()[33m;[39m
+    [90m 37| [39m    [35mreturn[39m [34mrender[39m(
+    [90m   | [39m           [31m^[39m
+    [90m 38| [39m        [33m<[39m[33mAuthContext[39m[33m.[39m[33mProvider[39m [33mvalue[39m[33m=[39m[33m{[39m{
+    [90m 39| [39m            user[33m:[39m mockUser[33m,[39m
+[90m [2m❯[22m src/pages/Chat.test.tsx:[2m79:9[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/Chat.test.tsx[2m > [22mChat Component[2m > [22msends message when form is submitted
+{
+  stack: 'AggregateError: \n' +
+    '    at aggregateErrors (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react/cjs/react.development.js:551:11)\n' +
+    '    at process.env.NODE_ENV.exports.act (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react/cjs/react.development.js:897:24)\n' +
+    '    at /Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/act-compat.js:46:25\n' +
+    '    at renderRoot (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/pure.js:189:26)\n' +
+    '    at render (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/pure.js:291:10)\n' +
+    '    at renderWithProviders (/Users/andrewault/dev/ault/DocuGab/frontend/src/pages/Chat.test.tsx:37:12)\n' +
+    '    at /Users/andrewault/dev/ault/DocuGab/frontend/src/pages/Chat.test.tsx:86:9\n' +
+    '    at file:///Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@vitest/runner/dist/index.js:145:11\n' +
+    '    at file:///Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@vitest/runner/dist/index.js:915:26\n' +
+    '    at file:///Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@vitest/runner/dist/index.js:1243:20',
+  errors: [
+    {
+      stack: 'TypeError: () => ({\n' +
+        '  observe: __vite_ssr_import_1__.vi.fn(),\n' +
+        '  unobserve: __vite_ssr_import_1__.vi.fn(),\n' +
+        '  disconnect: __...<omitted>...}) is not a constructor\n' +
+        '    at new Mock (file:///Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@vitest/spy/dist/index.js:262:27)\n' +
+        '    at file:///Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@mui/material/esm/TextareaAutosize/TextareaAutosize.js:152:24\n' +
+        '    at Object.react_stack_bottom_frame (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)\n' +
+        '    at runWithFiberInDEV (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)\n' +
+        '    at commitHookEffectListMount (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)\n' +
+        '    at commitHookLayoutEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13213:11)\n' +
+        '    at commitLayoutEffectOnFiber (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13951:13)\n' +
+        '    at recursivelyTraverseLayoutEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15159:11)\n' +
+        '    at commitLayoutEffectOnFiber (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13949:11)\n' +
+        '    at recursivelyTraverseLayoutEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15159:11)',
+      message: '() => ({\n' +
+        '  observe: __vite_ssr_import_1__.vi.fn(),\n' +
+        '  unobserve: __vite_ssr_import_1__.vi.fn(),\n' +
+        '  disconnect: __...<omitted>...}) is not a constructor',
+      constructor: 'Function<TypeError>',
+      name: 'TypeError',
+      toString: 'Function<toString>'
+    },
+    {
+      stack: 'TypeError: messagesEndRef.current?.scrollIntoView is not a function\n' +
+        '    at /Users/andrewault/dev/ault/DocuGab/frontend/src/pages/Chat.tsx:181:33\n' +
+        '    at Object.react_stack_bottom_frame (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)\n' +
+        '    at runWithFiberInDEV (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)\n' +
+        '    at commitHookEffectListMount (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)\n' +
+        '    at commitHookPassiveMountEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)\n' +
+        '    at commitPassiveMountOnFiber (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)\n' +
+        '    at recursivelyTraversePassiveMountEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)\n' +
+        '    at commitPassiveMountOnFiber (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15718:11)\n' +
+        '    at recursivelyTraversePassiveMountEffects (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)\n' +
+        '    at commitPassiveMountOnFiber (/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react-dom/cjs/react-dom-client.development.js:15718:11)',
+      message: 'messagesEndRef.current?.scrollIntoView is not a function',
+      constructor: 'Function<TypeError>',
+      name: 'TypeError',
+      toString: 'Function<toString>'
+    }
+  ],
+  constructor: 'Function<AggregateError>',
+  name: 'AggregateError',
+  message: '',
+  toString: 'Function<toString>',
+  stacks: [
+    {
+      method: 'aggregateErrors',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react/cjs/react.development.js',
+      line: 551,
+      column: 11
+    },
+    {
+      method: 'process.env.NODE_ENV.exports.act',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/react/cjs/react.development.js',
+      line: 897,
+      column: 24
+    },
+    {
+      method: '',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/act-compat.js',
+      line: 46,
+      column: 25
+    },
+    {
+      method: 'renderRoot',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/pure.js',
+      line: 189,
+      column: 26
+    },
+    {
+      method: 'render',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/node_modules/@testing-library/react/dist/pure.js',
+      line: 291,
+      column: 10
+    },
+    {
+      method: 'renderWithProviders',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/src/pages/Chat.test.tsx',
+      line: 37,
+      column: 12
+    },
+    {
+      method: '',
+      file: '/Users/andrewault/dev/ault/DocuGab/frontend/src/pages/Chat.test.tsx',
+      line: 86,
+      column: 9
+    }
+  ]
+}
+[90m [2m❯[22m aggregateErrors node_modules/react/cjs/react.development.js:[2m551:11[22m[39m
+[90m [2m❯[22m process.env.NODE_ENV.exports.act node_modules/react/cjs/react.development.js:[2m897:24[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/dist/act-compat.js:[2m46:25[22m[39m
+[90m [2m❯[22m renderRoot node_modules/@testing-library/react/dist/pure.js:[2m189:26[22m[39m
+[90m [2m❯[22m render node_modules/@testing-library/react/dist/pure.js:[2m291:10[22m[39m
+[36m [2m❯[22m renderWithProviders src/pages/Chat.test.tsx:[2m37:12[22m[39m
+    [90m 35| [39m[35mconst[39m renderWithProviders [33m=[39m (component[33m:[39m [33mReact[39m[33m.[39m[33mReactNode[39m) [33m=>[39m {
+    [90m 36| [39m    [35mconst[39m theme [33m=[39m [34mcreateTheme[39m()[33m;[39m
+    [90m 37| [39m    [35mreturn[39m [34mrender[39m(
+    [90m   | [39m           [31m^[39m
+    [90m 38| [39m        [33m<[39m[33mAuthContext[39m[33m.[39m[33mProvider[39m [33mvalue[39m[33m=[39m[33m{[39m{
+    [90m 39| [39m            user[33m:[39m mockUser[33m,[39m
+[90m [2m❯[22m src/pages/Chat.test.tsx:[2m86:9[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[90m (3)[39m
+[2m   Start at [22m 09:42:44
+[2m   Duration [22m 2.67s[2m (transform 75ms, setup 58ms, import 1.94s, tests 175ms, environment 378ms)[22m
+

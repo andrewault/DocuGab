@@ -13,11 +13,23 @@ if [ -z "$ADMIN_USERNAME" ] || [ -z "$ADMIN_PASSWORD" ]; then
     exit 1
 fi
 
+# DB Configuration (Auto-detect from Cluster)
+# We fetch the actual password from the running cluster's secrets
+export POSTGRES_PASSWORD=$(kubectl get secret docutok-secrets -o jsonpath="{.data.POSTGRES_PASSWORD}" | base64 --decode)
+export POSTGRES_DB=${POSTGRES_DB:-"docutok"}
+export POSTGRES_USER=${POSTGRES_USER:-"docutok"}
+
+if [ -z "$POSTGRES_PASSWORD" ]; then
+    echo "❌ Error: Could not fetch POSTGRES_PASSWORD from secret 'docutok-secrets'"
+    exit 1
+fi
+
 echo "🔐 Creating Admin User: $ADMIN_USERNAME"
 
 # Generate Password Hash using Python (matching backend logic: bcrypt)
-# We use python3 -c to run a small script that outputs the hash
-HASH=$(python3 -c "import bcrypt; print(bcrypt.hashpw('$ADMIN_PASSWORD'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'))")
+# Generate Password Hash using Python (matching backend logic: bcrypt)
+# We use uv run to execute in an ephemeral environment with bcrypt installed
+HASH=$(uv run --with bcrypt python3 -c "import bcrypt; print(bcrypt.hashpw('$ADMIN_PASSWORD'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'))")
 echo "   Hash generated."
 
 # SQL Command
@@ -27,13 +39,15 @@ ON CONFLICT (email) DO UPDATE
 SET password_hash = '$HASH', role='admin', is_active=true, is_verified=true, updated_at=NOW();"
 
 # Identify Postgres Pod
-DB_POD=$(kubectl get pods -l app=docutok-db -o jsonpath="{.items[0].metadata.name}")
+# Identify Backend Pod (which has psql installed and network access to RDS)
+DB_POD=$(kubectl get pods -l app=docutok-backend -o jsonpath="{.items[0].metadata.name}")
 if [ -z "$DB_POD" ]; then
-    echo "❌ Error: Could not find postgres pod (app=docutok-db)"
+    echo "❌ Error: Could not find backend pod (app=docutok-backend)"
     exit 1
 fi
 
 echo "🚀 Executing SQL on pod: $DB_POD"
-kubectl exec $DB_POD -- env PGPASSWORD=$POSTGRES_PASSWORD psql -U $POSTGRES_USER -d $POSTGRES_DB -c "$SQL"
+# Use -h docutok-db-postgresql because psql inside the container defaults to localhost (socket)
+kubectl exec $DB_POD -- env PGPASSWORD=$POSTGRES_PASSWORD psql -h docutok-db-postgresql -U $POSTGRES_USER -d $POSTGRES_DB -c "$SQL"
 
 echo "✅ Admin user created/updated successfully."

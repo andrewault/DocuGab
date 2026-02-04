@@ -45,6 +45,7 @@ export function ProjectMediaManager({ project }: ProjectMediaManagerProps) {
     }, [project.uuid]);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchMedia();
     }, [fetchMedia]);
 

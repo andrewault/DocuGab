@@ -1,0 +1,33 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90m/Users/andrewault/dev/ault/DocuGab/frontend[39m
+
+ [31m❯[39m src/pages/Home.test.tsx [2m([22m[2m0 test[22m[2m)[22m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/pages/Home.test.tsx[2m [ src/pages/Home.test.tsx ][22m
+[31m[1mError[22m: Failed to resolve import "@/config/api" from "src/stores/authStore.ts". Does the file exist?[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36m/Users/andrewault/dev/ault/DocuGab/frontend/src/stores/authStore.ts[39m:3:25
+[33m  1  |  import { create } from "zustand";
+  2  |  import { persist } from "zustand/middleware";
+  3  |  import { API_BASE } from "@/config/api";
+     |                            ^
+  4  |  export const useAuthStore = create()(
+  5  |    persist([39m
+[90m [2m❯[22m TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/config.js:[2m28999:43[22m[39m
+[90m [2m❯[22m TransformPluginContext.error node_modules/vite/dist/node/chunks/config.js:[2m28996:14[22m[39m
+[90m [2m❯[22m normalizeUrl node_modules/vite/dist/node/chunks/config.js:[2m27119:18[22m[39m
+[90m [2m❯[22m node_modules/vite/dist/node/chunks/config.js:[2m27177:32[22m[39m
+[90m [2m❯[22m TransformPluginContext.transform node_modules/vite/dist/node/chunks/config.js:[2m27145:4[22m[39m
+[90m [2m❯[22m EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/config.js:[2m28797:14[22m[39m
+[90m [2m❯[22m loadAndTransform node_modules/vite/dist/node/chunks/config.js:[2m22670:26[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 09:39:17
+[2m   Duration [22m 652ms[2m (transform 31ms, setup 90ms, import 0ms, tests 0ms, environment 333ms)[22m
+

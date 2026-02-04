@@ -1,0 +1,32 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90m/Users/andrewault/dev/ault/DocuGab/frontend[39m
+
+(node:70698) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m src/pages/Home.test.tsx [2m([22m[2m0 test[22m[2m)[22m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/pages/Home.test.tsx[2m [ src/pages/Home.test.tsx ][22m
+[31m[1mTypeError[22m: localStorage.getItem is not a function[39m
+[36m [2m❯[22m useAuthStore.name src/stores/authStore.ts:[2m47:39[22m[39m
+    [90m 45| [39m        ([35mset[39m[33m,[39m [35mget[39m) [33m=>[39m ({
+    [90m 46| [39m            user[33m:[39m [35mnull[39m[33m,[39m
+    [90m 47| [39m            accessToken[33m:[39m localStorage[33m.[39m[34mgetItem[39m([32m'access_token'[39m)[33m,[39m
+    [90m   | [39m                                      [31m^[39m
+    [90m 48| [39m            isAuthenticated[33m:[39m [33m![39m[33m![39mlocalStorage[33m.[39m[34mgetItem[39m([32m'access_token'[39m)[33m,[39m
+    [90m 49| [39m            isLoading[33m:[39m [35mfalse[39m[33m,[39m
+[90m [2m❯[22m node_modules/zustand/esm/middleware.mjs:[2m368:24[22m[39m
+[90m [2m❯[22m createStoreImpl node_modules/zustand/esm/vanilla.mjs:[2m19:32[22m[39m
+[90m [2m❯[22m createStore node_modules/zustand/esm/vanilla.mjs:[2m22:53[22m[39m
+[90m [2m❯[22m createImpl node_modules/zustand/esm/react.mjs:[2m15:15[22m[39m
+[90m [2m❯[22m src/stores/authStore.ts:[2m43:47[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 09:41:25
+[2m   Duration [22m 680ms[2m (transform 38ms, setup 0ms, import 0ms, tests 0ms, environment 360ms)[22m
+

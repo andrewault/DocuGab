@@ -59,15 +59,29 @@ const renderWithProviders = (component: React.ReactNode) => {
 describe('Chat Component', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        mockFetch.mockResolvedValue({
-            ok: true,
-            json: async () => ([]),
-            body: {
-                getReader: () => ({
-                    read: () => Promise.resolve({ done: true, value: undefined }),
-                }),
-            },
-        } as unknown as Response);
+        mockFetch.mockImplementation((url: string) => {
+            if (url.includes('/documents')) {
+                return Promise.resolve({
+                    ok: true,
+                    json: async () => ({ documents: [] }),
+                } as Response);
+            }
+            if (url.includes('/chat/history')) {
+                return Promise.resolve({
+                    ok: true,
+                    json: async () => ({ messages: [] }),
+                } as Response);
+            }
+            return Promise.resolve({
+                ok: true,
+                json: async () => ({}),
+                body: {
+                    getReader: () => ({
+                        read: () => Promise.resolve({ done: true, value: undefined }),
+                    }),
+                },
+            } as unknown as Response);
+        });
     });
 
     it('renders chat input', () => {
