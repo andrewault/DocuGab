@@ -16,11 +16,20 @@ global.fetch = mockFetch;
 // Mock Auth Context
 const mockUser = {
     id: 1,
+    uuid: 'test-uuid',
     email: 'test@example.com',
     full_name: 'Test User',
     role: 'user',
     is_active: true,
     is_verified: true,
+    theme: 'light',
+    timezone: 'UTC',
+    avatar_url: null,
+    customer_id: null,
+    customer_uuid: null,
+    customer_name: null,
+    customer_is_active: null,
+    customer_role: null,
 };
 
 const renderWithProviders = (component: React.ReactNode) => {
@@ -35,6 +44,8 @@ const renderWithProviders = (component: React.ReactNode) => {
             register: vi.fn(),
             logout: vi.fn(),
             refreshAuth: vi.fn(),
+            isCustomer: false,
+            updateUser: vi.fn(),
         }}>
             <ThemeProvider theme={theme}>
                 <MemoryRouter>

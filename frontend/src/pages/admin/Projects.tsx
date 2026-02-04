@@ -34,6 +34,7 @@ import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 import usePageTitle from '../../hooks/usePageTitle';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 interface Project {
     id: number;
@@ -61,6 +62,7 @@ interface Project {
     updated_at: string;
     documents_count: number;
     customer_name: string | null;
+    customer_uuid: string | null;
 }
 
 interface Customer {
@@ -68,7 +70,7 @@ interface Customer {
     name: string;
 }
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export default function Projects() {
     const { user: currentUser } = useAuth();
@@ -85,6 +87,10 @@ export default function Projects() {
     // Dialog state removed in favor of /admin/projects/new page
     const [orderBy, setOrderBy] = useState<keyof Project>('name');
     const [order, setOrder] = useState<'asc' | 'desc'>('asc');
+
+    // Delete dialog state
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [projectToDelete, setProjectToDelete] = useState<number | null>(null);
 
     const fetchCustomers = useCallback(async () => {
         try {
@@ -148,13 +154,16 @@ export default function Projects() {
     };
 
 
-    const handleDelete = async (id: number) => {
-        if (!confirm('Are you sure you want to delete this project? This will also delete all associated documents.')) {
-            return;
-        }
+    const handleDeleteClick = (id: number) => {
+        setProjectToDelete(id);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!projectToDelete) return;
 
         try {
-            const response = await fetch(`${API_BASE}/api/v1/admin/projects/${id}`, {
+            const response = await fetch(`${API_BASE}/api/v1/admin/projects/${projectToDelete}`, {
                 method: 'DELETE',
                 headers: getAuthHeader(),
             });
@@ -162,8 +171,11 @@ export default function Projects() {
             if (!response.ok) throw new Error('Failed to delete project');
 
             fetchProjects();
+            setDeleteDialogOpen(false);
+            setProjectToDelete(null);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to delete project');
+            setDeleteDialogOpen(false); // Close dialog even on error, or keep it open? Usually close.
         }
     };
 
@@ -381,7 +393,24 @@ export default function Projects() {
                                                             </Typography>
                                                         </TableCell>
                                                         <TableCell>
-                                                            {project.customer_name || '—'}
+                                                            {project.customer_uuid && project.customer_name ? (
+                                                                <Typography
+                                                                    component="span"
+                                                                    sx={{
+                                                                        cursor: 'pointer',
+                                                                        color: 'primary.main',
+                                                                        '&:hover': { textDecoration: 'underline' },
+                                                                    }}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        navigate(`/admin/customers/${project.customer_uuid}`);
+                                                                    }}
+                                                                >
+                                                                    {project.customer_name}
+                                                                </Typography>
+                                                            ) : (
+                                                                project.customer_name || '—'
+                                                            )}
                                                         </TableCell>
                                                         <TableCell>
                                                             {project.title}
@@ -464,7 +493,7 @@ export default function Projects() {
                                                                 size="small"
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
-                                                                    handleDelete(project.id);
+                                                                    handleDeleteClick(project.id);
                                                                 }}
                                                                 color="error"
                                                             >
@@ -489,6 +518,16 @@ export default function Projects() {
                         </Paper>
                     )}
                 </Box>
+
+                <ConfirmDialog
+                    open={deleteDialogOpen}
+                    title="Delete Project"
+                    content="Are you sure you want to delete this project? This action cannot be undone and will delete all associated documents."
+                    onConfirm={handleConfirmDelete}
+                    onCancel={() => setDeleteDialogOpen(false)}
+                    confirmText="Delete"
+                    confirmColor="error"
+                />
 
             </Container >
         </Box >

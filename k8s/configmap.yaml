@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docutok-config
+data:
+  POSTGRES_USER: "docutok"
+  POSTGRES_DB: "docutok"
+  POSTGRES_DB: "docutok"
+  # DATABASE_URL moved to deployment for password expansion
+  # If using in-cluster Redis:
+  REDIS_URL: "redis://docutok-redis-master.default.svc.cluster.local:6379/0"
+  CELERY_BROKER_URL: "redis://docutok-redis-master.default.svc.cluster.local:6379/1"
+  BACKEND_PORT: "8000"
+  # Update with your Ollama Setup (External or Sidecar)
+  # Allow LoadBalancer and internal domains
+  CORS_ORIGINS: "http://aa601044b65294e63861ea2e52a40739-1671173697.us-west-2.elb.amazonaws.com,http://localhost:5173"

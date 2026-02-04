@@ -506,7 +506,7 @@ export default function CustomerAccount() {
                                                 </TableCell>
                                                 {canManageUsers && (
                                                     <TableCell align="right" onClick={(e) => e.stopPropagation()}>
-                                                        {accountUser.id !== user?.id && (
+                                                        {accountUser.uuid !== user?.uuid && (
                                                             <>
                                                                 <IconButton
                                                                     size="small"

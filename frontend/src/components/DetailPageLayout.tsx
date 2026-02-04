@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Container, Stack, useTheme } from '@mui/material';
-import AdminBreadcrumbs from '../AdminBreadcrumbs';
+import AdminBreadcrumbs from './AdminBreadcrumbs';
 
 interface BreadcrumbItem {
     label: string;

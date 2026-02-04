@@ -1,0 +1,16 @@
+{
+    "repository": {
+        "repositoryArn": "arn:aws:ecr:us-east-1:932380677908:repository/docutok-celery",
+        "registryId": "932380677908",
+        "repositoryName": "docutok-celery",
+        "repositoryUri": "932380677908.dkr.ecr.us-east-1.amazonaws.com/docutok-celery",
+        "createdAt": "2026-02-03T14:54:47.548000-08:00",
+        "imageTagMutability": "MUTABLE",
+        "imageScanningConfiguration": {
+            "scanOnPush": false
+        },
+        "encryptionConfiguration": {
+            "encryptionType": "AES256"
+        }
+    }
+}

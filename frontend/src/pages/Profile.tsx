@@ -20,7 +20,7 @@ import { useAuth } from '../context/AuthProvider';
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function Profile() {
-    const { user, refreshAuth } = useAuth();
+    const { user, refreshUser } = useAuth();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
 
@@ -67,7 +67,7 @@ export default function Profile() {
                 throw new Error('Failed to update profile');
             }
 
-            await refreshAuth();
+            await refreshUser();
             setSuccess('Profile updated successfully');
             setEditing(false);
         } catch (err) {

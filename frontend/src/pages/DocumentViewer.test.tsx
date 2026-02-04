@@ -22,7 +22,23 @@ const renderWithProviders = () => {
     const theme = createTheme();
     return render(
         <AuthContext.Provider value={{
-            user: { id: 1, email: 'test@example.com', full_name: 'Test', role: 'user', is_active: true, is_verified: true },
+            user: {
+                id: 1,
+                uuid: 'test-uuid',
+                email: 'test@example.com',
+                full_name: 'Test',
+                role: 'user',
+                is_active: true,
+                is_verified: true,
+                theme: 'light',
+                timezone: 'UTC',
+                avatar_url: null,
+                customer_id: null,
+                customer_uuid: null,
+                customer_name: null,
+                customer_is_active: null,
+                customer_role: null,
+            },
             isAuthenticated: true,
             isLoading: false,
             isAdmin: false,
@@ -30,6 +46,8 @@ const renderWithProviders = () => {
             register: vi.fn(),
             logout: vi.fn(),
             refreshAuth: vi.fn(),
+            isCustomer: false,
+            updateUser: vi.fn(),
         }}>
             <ThemeProvider theme={theme}>
                 <MemoryRouter initialEntries={['/documents/123-uuid']}>

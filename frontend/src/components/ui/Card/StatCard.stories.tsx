@@ -57,7 +57,7 @@ export const WithNegativeTrend: Story = {
 export const Dashboard: Story = {
     render: () => (
         <Grid container spacing={3}>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <StatCard
                     label="Total Users"
                     value={1234}
@@ -66,7 +66,7 @@ export const Dashboard: Story = {
                     trend={{ value: 5.2, isPositive: true }}
                 />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <StatCard
                     label="Active Customers"
                     value={42}
@@ -75,7 +75,7 @@ export const Dashboard: Story = {
                     trend={{ value: 12.5, isPositive: true }}
                 />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <StatCard
                     label="Total Projects"
                     value={156}
@@ -84,7 +84,7 @@ export const Dashboard: Story = {
                     trend={{ value: 3.8, isPositive: true }}
                 />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <StatCard
                     label="Documents"
                     value="2.4K"

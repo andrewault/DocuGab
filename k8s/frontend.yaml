@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docutok-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: docutok-frontend
+  template:
+    metadata:
+      labels:
+        app: docutok-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-frontend:v9
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80

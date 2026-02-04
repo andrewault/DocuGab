@@ -1,5 +1,6 @@
-import { Paper, Typography, Stack, Box, SxProps, Theme } from '@mui/material';
-import { ReactNode } from 'react';
+import { Paper, Typography, Stack, Box } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material';
+import type { ReactNode } from 'react';
 
 export interface InfoCardProps {
     title?: string;

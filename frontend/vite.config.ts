@@ -12,7 +12,11 @@ export default defineConfig(({ mode }) => {
     server: {
       port: parseInt(env.VITE_PORT || '5173'),
       strictPort: true,
+      allowedHosts: true,
     },
-    envDir: path.resolve(__dirname, '..'),
+    define: {
+      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_BASE_URL),
+    },
+    envDir: process.env.VITE_API_BASE_URL ? '.' : path.resolve(__dirname, '..'), // Use current dir in Docker build
   }
 })
