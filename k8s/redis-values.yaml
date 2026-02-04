@@ -1,0 +1,11 @@
+# Custom values for docutok-redis Helm chart
+# Created to enforce minimal footprint (1 master, 0 replicas)
+# Apply with: helm upgrade docutok-redis oci://registry-1.docker.io/bitnami/charts/redis -f k8s/redis-values.yaml
+
+replica:
+  replicaCount: 0
+
+master:
+  persistence:
+    enabled: true
+    size: 8Gi
