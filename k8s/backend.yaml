@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:latest
+        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v11
         ports:
         - containerPort: 8000
         envFrom:
@@ -30,4 +30,10 @@ spec:
               key: POSTGRES_PASSWORD
         - name: DATABASE_URL
           value: "postgresql+asyncpg://docutok:$(POSTGRES_PASSWORD)@docutok-db-postgresql.default.svc.cluster.local:5432/docutok"
+        - name: POSTGRES_HOST
+          value: "docutok-db-postgresql.default.svc.cluster.local"
+        - name: POSTGRES_USER
+          value: "docutok"
+        - name: POSTGRES_DB
+          value: "docutok"
         # Add necessary mounts for uploads if not using S3

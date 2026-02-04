@@ -34,7 +34,7 @@ echo "   Hash generated."
 
 # SQL Command
 SQL="INSERT INTO users (uuid, email, password_hash, full_name, role, is_active, is_verified, created_at, updated_at) 
-VALUES (gen_random_uuid(), '$ADMIN_USERNAME', '$HASH', 'Admin User', 'admin', true, true, NOW(), NOW())
+VALUES (gen_random_uuid(), '$ADMIN_USERNAME', '$HASH', 'Andrew Ault, Admin User', 'superadmin', true, true, NOW(), NOW())
 ON CONFLICT (email) DO UPDATE 
 SET password_hash = '$HASH', role='admin', is_active=true, is_verified=true, updated_at=NOW();"
 

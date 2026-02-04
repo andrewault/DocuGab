@@ -22,7 +22,6 @@ import {
     useTheme,
     Card,
     CardContent,
-    Divider,
 } from '@mui/material';
 import {
     CloudUpload,
