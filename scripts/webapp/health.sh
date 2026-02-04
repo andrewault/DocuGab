@@ -11,7 +11,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo "🩺 Checking DocuTok health..."
+echo "🩺 DocuTok Health"
 echo ""
 
 # Container status
@@ -79,7 +79,7 @@ fi
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🌐 DocuTok URLs"
+echo "🌎 DocuTok URLs"
 echo ""
 echo "   Frontend:  http://localhost:5177"
 echo "   API:       http://localhost:8007"

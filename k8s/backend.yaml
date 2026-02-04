@@ -20,6 +20,8 @@ spec:
         envFrom:
         - configMapRef:
             name: docutok-config
+        - secretRef:
+            name: docutok-secrets
         env:
         - name: POSTGRES_PASSWORD
           valueFrom:

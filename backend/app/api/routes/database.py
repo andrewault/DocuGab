@@ -4,11 +4,14 @@ Database backup management endpoints.
 
 import os
 import subprocess
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
+import boto3
+from botocore.exceptions import ClientError
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -21,6 +24,36 @@ router = APIRouter()
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 BACKUP_DIR = PROJECT_ROOT / "dbbackups"
 BACKUP_SCRIPT = PROJECT_ROOT / "scripts" / "database" / "backup.sh"
+
+# AWS Configuration
+S3_BUCKET = os.getenv("AWS_S3_BACKUP_BUCKET")
+AWS_REGION = os.getenv("AWS_REGION", "us-west-2")
+
+
+def get_s3_client():
+    """Get S3 client if configured."""
+    if not S3_BUCKET:
+        return None
+    try:
+        return boto3.client("s3", region_name=AWS_REGION)
+    except Exception as e:
+        print(f"Failed to create S3 client: {e}")
+        return None
+
+
+@router.get("/config")
+async def get_backup_config(
+    current_user: User = Depends(get_superadmin_user),
+):
+    """
+    Get backup configuration status.
+    Requires superadmin role.
+    """
+    return {
+        "provider": "s3" if S3_BUCKET else "local",
+        "bucket": S3_BUCKET,
+        "region": AWS_REGION,
+    }
 
 
 @router.post("/vacuum")
@@ -42,6 +75,15 @@ async def vacuum_database(
 
         env = os.environ.copy()
         env["PGPASSWORD"] = db_password
+
+        # Check if psql is available
+        try:
+            subprocess.run(["psql", "--version"], check=True, capture_output=True)
+        except Exception:
+             # If running in a minimal container without psql, we might skip this
+             # But usually the backend image has client tools or we rely on them.
+             # If we moved to a light image without psql, this would fail.
+             pass
 
         result = subprocess.run(
             [
@@ -84,9 +126,18 @@ async def create_backup(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Create a new database backup using pg_dump.
-    Requires superadmin role.
+    Create a new database backup.
+    If S3 is configured, this endpoint might trigger a job (not implemented here) or fail.
+    For now, we keep local behavior or disable it if S3 is active.
     """
+    if S3_BUCKET:
+        # In AWS, we rely on CronJobs. Manual triggering via this API is complex 
+        # without k8s API access from the pod.
+        raise HTTPException(
+            status_code=400, 
+            detail="Manual backups via API not supported in S3 mode. Use Kubernetes CronJob."
+        )
+
     # Ensure backup directory exists
     BACKUP_DIR.mkdir(exist_ok=True)
 
@@ -184,23 +235,47 @@ async def list_backups(
     List all database backups.
     Requires superadmin role.
     """
-    # Ensure backup directory exists
-    BACKUP_DIR.mkdir(exist_ok=True)
-
     backups = []
-    for backup_file in BACKUP_DIR.glob("docutok-backup-*.sql.gz"):
-        stat = backup_file.stat()
-        backups.append(
-            {
-                "filename": backup_file.name,
-                "size": stat.st_size,
-                "created_at": datetime.fromtimestamp(
-                    stat.st_mtime, tz=timezone.utc
-                ).isoformat(),
-            }
-        )
+
+    if S3_BUCKET:
+        s3 = get_s3_client()
+        if not s3:
+            raise HTTPException(status_code=500, detail="S3 client configuration failed")
+        
+        try:
+            response = s3.list_objects_v2(Bucket=S3_BUCKET)
+            if "Contents" in response:
+                for obj in response["Contents"]:
+                    # Filter for our backup files if needed, but bucket might be dedicated
+                    if obj["Key"].endswith(".sql.gz"):
+                        backups.append({
+                            "filename": obj["Key"],
+                            "size": obj["Size"],
+                            "created_at": obj["LastModified"].isoformat(),
+                            "source": "s3"
+                        })
+        except ClientError as e:
+            raise HTTPException(status_code=500, detail=f"S3 list failed: {str(e)}")
+    else:
+        # Local listing
+        # Ensure backup directory exists
+        BACKUP_DIR.mkdir(exist_ok=True)
+
+        for backup_file in BACKUP_DIR.glob("docutok-backup-*.sql.gz"):
+            stat = backup_file.stat()
+            backups.append(
+                {
+                    "filename": backup_file.name,
+                    "size": stat.st_size,
+                    "created_at": datetime.fromtimestamp(
+                        stat.st_mtime
+                    ).isoformat(),
+                    "source": "local"
+                }
+            )
 
     # Sort by created_at descending (newest first)
+    # Using ISO format string sort works well
     backups.sort(key=lambda x: x["created_at"], reverse=True)
 
     return backups
@@ -215,28 +290,60 @@ async def download_backup(
     Download a database backup file.
     Requires superadmin role.
     """
-    # Security: validate filename to prevent directory traversal
-    if ".." in filename or "/" in filename or "\\" in filename:
-        raise HTTPException(status_code=400, detail="Invalid filename")
+    
+    if S3_BUCKET:
+        s3 = get_s3_client()
+        if not s3:
+            raise HTTPException(status_code=500, detail="S3 client configuration failed")
+        
+        try:
+            # Generate a presigned URL? Or stream it through backend?
+            # Streaming is safer for auth if we don't want to expose presigned URLs to frontend directly
+            # or if bucket is private.
+            # However, streaming large files via FastAPI can be memory intensive if not careful.
+            # But Boto3 + StreamingResponse is standard.
+            
+            # Verify file exists first
+            try:
+                s3.head_object(Bucket=S3_BUCKET, Key=filename)
+            except ClientError:
+                raise HTTPException(status_code=404, detail="Backup not found in S3")
 
-    # Only allow .sql.gz files
-    if not filename.endswith(".sql.gz"):
-        raise HTTPException(status_code=400, detail="Invalid file type")
+            file_stream = s3.get_object(Bucket=S3_BUCKET, Key=filename)["Body"]
+            
+            return StreamingResponse(
+                file_stream,
+                media_type="application/gzip",
+                headers={"Content-Disposition": f"attachment; filename={filename}"}
+            )
 
-    # Only allow files starting with docutok-backup-
-    if not filename.startswith("docutok-backup-"):
-        raise HTTPException(status_code=400, detail="Invalid backup file")
+        except ClientError as e:
+             raise HTTPException(status_code=500, detail=f"S3 download failed: {str(e)}")
 
-    backup_path = BACKUP_DIR / filename
+    else:
+        # Local download
+        # Security: validate filename to prevent directory traversal
+        if ".." in filename or "/" in filename or "\\" in filename:
+            raise HTTPException(status_code=400, detail="Invalid filename")
 
-    if not backup_path.exists():
-        raise HTTPException(status_code=404, detail="Backup not found")
+        # Only allow .sql.gz files
+        if not filename.endswith(".sql.gz"):
+            raise HTTPException(status_code=400, detail="Invalid file type")
 
-    return FileResponse(
-        path=backup_path,
-        filename=filename,
-        media_type="application/gzip",
-    )
+        # Only allow files starting with docutok-backup-
+        if not filename.startswith("docutok-backup-"):
+            raise HTTPException(status_code=400, detail="Invalid backup file")
+
+        backup_path = BACKUP_DIR / filename
+
+        if not backup_path.exists():
+            raise HTTPException(status_code=404, detail="Backup not found")
+
+        return FileResponse(
+            path=backup_path,
+            filename=filename,
+            media_type="application/gzip",
+        )
 
 
 @router.delete("/backups/{filename}")
@@ -248,28 +355,41 @@ async def delete_backup(
     Delete a database backup file.
     Requires superadmin role.
     """
-    # Security: validate filename to prevent directory traversal
-    if ".." in filename or "/" in filename or "\\" in filename:
-        raise HTTPException(status_code=400, detail="Invalid filename")
+    if S3_BUCKET:
+        s3 = get_s3_client()
+        if not s3:
+            raise HTTPException(status_code=500, detail="S3 client configuration failed")
+        
+        try:
+             s3.delete_object(Bucket=S3_BUCKET, Key=filename)
+             return {"message": f"Backup {filename} deleted from S3"}
+        except ClientError as e:
+            raise HTTPException(status_code=500, detail=f"S3 delete failed: {str(e)}")
 
-    # Only allow .sql.gz files
-    if not filename.endswith(".sql.gz"):
-        raise HTTPException(status_code=400, detail="Invalid file type")
+    else:
+        # Local delete
+        # Security: validate filename to prevent directory traversal
+        if ".." in filename or "/" in filename or "\\" in filename:
+            raise HTTPException(status_code=400, detail="Invalid filename")
 
-    # Only allow files starting with docutok-backup-
-    if not filename.startswith("docutok-backup-"):
-        raise HTTPException(status_code=400, detail="Invalid backup file")
+        # Only allow .sql.gz files
+        if not filename.endswith(".sql.gz"):
+            raise HTTPException(status_code=400, detail="Invalid file type")
 
-    backup_path = BACKUP_DIR / filename
+        # Only allow files starting with docutok-backup-
+        if not filename.startswith("docutok-backup-"):
+            raise HTTPException(status_code=400, detail="Invalid backup file")
 
-    if not backup_path.exists():
-        raise HTTPException(status_code=404, detail="Backup not found")
+        backup_path = BACKUP_DIR / filename
 
-    try:
-        backup_path.unlink()
-        return {"message": f"Backup {filename} deleted successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Delete failed: {str(e)}")
+        if not backup_path.exists():
+            raise HTTPException(status_code=404, detail="Backup not found")
+
+        try:
+            backup_path.unlink()
+            return {"message": f"Backup {filename} deleted successfully"}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Delete failed: {str(e)}")
 
 
 @router.post("/restore")
@@ -282,6 +402,12 @@ async def restore_backup(
     Requires superadmin role.
     Note: This endpoint only uploads the file, it does not restore it to the database.
     """
+    if S3_BUCKET:
+         raise HTTPException(
+            status_code=400, 
+            detail="Manual update/restore via API not supported in S3 mode. Use S3 CLI directly."
+        )
+
     # Validate file extension
     if not file.filename or not file.filename.endswith(".sql.gz"):
         raise HTTPException(status_code=400, detail="Only .sql.gz files are allowed")

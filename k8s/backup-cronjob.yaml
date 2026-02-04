@@ -1,0 +1,77 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: docutok-db-backup
+spec:
+  schedule: "0 2 * * *" # Daily at 2:00 AM UTC
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: python:3.11-alpine
+            command:
+            - /bin/sh
+            - -c
+            - |
+              apk add --no-cache postgresql-client bash && \
+              pip install awscli && \
+              bash /scripts/backup_to_s3.sh
+            envFrom:
+            - configMapRef:
+                name: docutok-config
+            - secretRef:
+                name: docutok-secrets
+            env:
+            - name: AWS_S3_BACKUP_BUCKET
+              value: "docutok-db-backups"
+            - name: DB_HOST
+              value: "docutok-db-postgresql"
+            volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+          volumes:
+          - name: scripts
+            configMap:
+              name: docutok-backup-script
+              defaultMode: 0755
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docutok-backup-script
+data:
+  backup_to_s3.sh: |
+    #!/bin/bash
+    set -e
+    
+    BUCKET_NAME="${AWS_S3_BACKUP_BUCKET:-docutok-db-backups}"
+    TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
+    BACKUP_NAME="backup-${TIMESTAMP}.sql.gz"
+    S3_PATH="s3://${BUCKET_NAME}/${BACKUP_NAME}"
+    
+    echo "Starting backup to ${S3_PATH}..."
+    
+    if [ -z "$POSTGRES_PASSWORD" ]; then
+        echo "Error: POSTGRES_PASSWORD is not set"
+        exit 1
+    fi
+    
+    export PGPASSWORD="$POSTGRES_PASSWORD"
+    
+    # Check if we can connect
+    if ! pg_isready -h "$DB_HOST" -U "$POSTGRES_USER"; then
+        echo "Error: Database not ready"
+        exit 1
+    fi
+    
+    pg_dump -h "${DB_HOST}" -U "${POSTGRES_USER:-docutok}" "${POSTGRES_DB:-docutok}" \
+        | gzip \
+        | aws s3 cp - "${S3_PATH}"
+    
+    echo "Backup upload complete: ${S3_PATH}"

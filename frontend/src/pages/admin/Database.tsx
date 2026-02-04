@@ -20,6 +20,9 @@ import {
     DialogActions,
     Stack,
     useTheme,
+    Card,
+    CardContent,
+    Divider,
 } from '@mui/material';
 import {
     CloudUpload,
@@ -29,6 +32,8 @@ import {
     Refresh,
     CleaningServices,
     Storage,
+    Cloud,
+    Terminal,
 } from '@mui/icons-material';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { useAuth } from '../../context/AuthProvider';
@@ -39,11 +44,19 @@ interface BackupFile {
     filename: string;
     size: number;
     created_at: string;
+    source?: 's3' | 'local';
+}
+
+interface BackupConfig {
+    provider: 's3' | 'local';
+    bucket?: string;
+    region?: string;
 }
 
 export default function Database() {
     const { user: currentUser } = useAuth();
     const [backups, setBackups] = useState<BackupFile[]>([]);
+    const [config, setConfig] = useState<BackupConfig | null>(null);
     const [loading, setLoading] = useState(true);
     const [creating, setCreating] = useState(false);
     const [vacuuming, setVacuuming] = useState(false);
@@ -57,18 +70,26 @@ export default function Database() {
             setError(null);
 
             const token = localStorage.getItem('access_token');
-            const response = await fetch(`${API_BASE}/api/v1/admin/database/backups`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
+            const [backupsRes, configRes] = await Promise.all([
+                fetch(`${API_BASE}/api/v1/admin/database/backups`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                }),
+                fetch(`${API_BASE}/api/v1/admin/database/config`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                })
+            ]);
 
-            if (!response.ok) {
-                throw new Error('Failed to fetch backups');
+            if (!backupsRes.ok) throw new Error('Failed to fetch backups');
+            // Config might fail on old backend versions, treat as local if so? 
+            // Better to assume it works if we just deployed it.
+
+            const backupsData = await backupsRes.json();
+            setBackups(backupsData);
+
+            if (configRes.ok) {
+                const configData = await configRes.json();
+                setConfig(configData);
             }
-
-            const data = await response.json();
-            setBackups(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Unknown error');
         } finally {
@@ -95,7 +116,8 @@ export default function Database() {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to create backup');
+                const data = await response.json();
+                throw new Error(data.detail || 'Failed to create backup');
             }
 
             const data = await response.json();
@@ -211,6 +233,7 @@ export default function Database() {
 
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+    const isS3 = config?.provider === 's3';
 
     return (
         <Box
@@ -228,18 +251,24 @@ export default function Database() {
                 {/* Header with Title and Actions */}
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Storage sx={{ fontSize: 32, color: '#6366f1' }} />
+                        {isS3 ? (
+                            <Cloud sx={{ fontSize: 32, color: '#0ea5e9' }} /> // Sky blue for cloud
+                        ) : (
+                            <Storage sx={{ fontSize: 32, color: '#6366f1' }} />
+                        )}
                         <Typography
                             variant="h4"
                             sx={{
                                 fontWeight: 700,
-                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                background: isS3
+                                    ? 'linear-gradient(90deg, #0ea5e9, #3b82f6)'
+                                    : 'linear-gradient(90deg, #6366f1, #10b981)',
                                 backgroundClip: 'text',
                                 WebkitBackgroundClip: 'text',
                                 WebkitTextFillColor: 'transparent',
                             }}
                         >
-                            Database
+                            {isS3 ? 'Cloud Database' : 'Database'}
                         </Typography>
                     </Box>
 
@@ -261,60 +290,64 @@ export default function Database() {
                         >
                             VACUUM
                         </Button>
-                        <Button
-                            variant="outlined"
-                            component="label"
-                            startIcon={<CloudUpload />}
-                        >
-                            Upload Backup
-                            <input
-                                type="file"
-                                hidden
-                                accept=".sql.gz"
-                                onChange={async (e) => {
-                                    const file = e.target.files?.[0];
-                                    if (!file) return;
 
-                                    try {
-                                        setError(null);
-                                        setSuccess(null);
+                        {!isS3 && (
+                            <>
+                                <Button
+                                    variant="outlined"
+                                    component="label"
+                                    startIcon={<CloudUpload />}
+                                >
+                                    Upload Backup
+                                    <input
+                                        type="file"
+                                        hidden
+                                        accept=".sql.gz"
+                                        onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (!file) return;
 
-                                        const formData = new FormData();
-                                        formData.append('file', file);
+                                            try {
+                                                setError(null);
+                                                setSuccess(null);
 
-                                        const token = localStorage.getItem('access_token');
-                                        const response = await fetch(`${API_BASE}/api/v1/admin/database/restore`, {
-                                            method: 'POST',
-                                            headers: {
-                                                'Authorization': `Bearer ${token}`,
-                                            },
-                                            body: formData,
-                                        });
+                                                const formData = new FormData();
+                                                formData.append('file', file);
 
-                                        if (!response.ok) {
-                                            const data = await response.json();
-                                            throw new Error(data.detail || 'Failed to upload backup');
-                                        }
+                                                const token = localStorage.getItem('access_token');
+                                                const response = await fetch(`${API_BASE}/api/v1/admin/database/restore`, {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Authorization': `Bearer ${token}`,
+                                                    },
+                                                    body: formData,
+                                                });
 
-                                        const data = await response.json();
-                                        setSuccess(data.message);
-                                        await fetchBackups();
-                                    } catch (err) {
-                                        setError(err instanceof Error ? err.message : 'Unknown error');
-                                    }
-                                    // Reset the input so the same file can be selected again
-                                    e.target.value = '';
-                                }}
-                            />
-                        </Button>
-                        <Button
-                            variant="contained"
-                            startIcon={creating ? <CircularProgress size={20} /> : <BackupIcon />}
-                            onClick={handleCreateBackup}
-                            disabled={creating}
-                        >
-                            Create Backup
-                        </Button>
+                                                if (!response.ok) {
+                                                    const data = await response.json();
+                                                    throw new Error(data.detail || 'Failed to upload backup');
+                                                }
+
+                                                const data = await response.json();
+                                                setSuccess(data.message);
+                                                await fetchBackups();
+                                            } catch (err) {
+                                                setError(err instanceof Error ? err.message : 'Unknown error');
+                                            }
+                                            e.target.value = '';
+                                        }}
+                                    />
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    startIcon={creating ? <CircularProgress size={20} /> : <BackupIcon />}
+                                    onClick={handleCreateBackup}
+                                    disabled={creating}
+                                >
+                                    Create Backup
+                                </Button>
+                            </>
+                        )}
                     </Stack>
                 </Stack>
 
@@ -330,6 +363,42 @@ export default function Database() {
                     </Alert>
                 )}
 
+                {/* S3 Restoration Info */}
+                {isS3 && (
+                    <Card sx={{ mb: 4, bgcolor: isDark ? 'rgba(255,255,255,0.05)' : 'white' }}>
+                        <CardContent>
+                            <Stack direction="row" alignItems="center" gap={1} mb={2}>
+                                <Terminal color="warning" />
+                                <Typography variant="h6" color="text.primary">
+                                    Restoration Info
+                                </Typography>
+                            </Stack>
+                            <Typography variant="body2" color="text.secondary" paragraph>
+                                Automatic backups are stored in S3 bucket <strong>{config?.bucket}</strong>.
+                                Restoring directly via the web UI is disabled in cloud mode to prevent timeouts and connection issues.
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                To restore a backup, use the following CLI command from your terminal:
+                            </Typography>
+                            <Box
+                                component="pre"
+                                sx={{
+                                    p: 2,
+                                    bgcolor: 'background.paper',
+                                    borderRadius: 1,
+                                    border: '1px solid',
+                                    borderColor: 'divider',
+                                    overflowX: 'auto',
+                                    fontSize: '0.85rem',
+                                    fontFamily: 'monospace',
+                                }}
+                            >
+                                {`aws s3 cp s3://${config?.bucket}/<filename> - | gunzip | psql -h $DB_HOST -U $DB_USER -d $DB_NAME`}
+                            </Box>
+                        </CardContent>
+                    </Card>
+                )}
+
                 {/* Backups Table */}
                 <TableContainer component={Paper}>
                     <Table>
@@ -338,19 +407,20 @@ export default function Database() {
                                 <TableCell>Filename</TableCell>
                                 <TableCell align="right">Size</TableCell>
                                 <TableCell align="right">Created</TableCell>
+                                <TableCell align="right">Location</TableCell>
                                 <TableCell align="right">Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {loading ? (
                                 <TableRow>
-                                    <TableCell colSpan={4} align="center">
+                                    <TableCell colSpan={5} align="center">
                                         <CircularProgress />
                                     </TableCell>
                                 </TableRow>
                             ) : backups.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={4} align="center">
+                                    <TableCell colSpan={5} align="center">
                                         <Typography color="text.secondary">
                                             No backups found
                                         </Typography>
@@ -362,6 +432,9 @@ export default function Database() {
                                         <TableCell>{backup.filename}</TableCell>
                                         <TableCell align="right">{formatBytes(backup.size)}</TableCell>
                                         <TableCell align="right">{formatDate(backup.created_at)}</TableCell>
+                                        <TableCell align="right">
+                                            {backup.source === 's3' ? 'AWS S3' : 'Local Disk'}
+                                        </TableCell>
                                         <TableCell align="right">
                                             <IconButton
                                                 color="primary"

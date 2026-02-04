@@ -302,7 +302,9 @@ export function ProjectDocuments({ project, documents, currentUser, onRefresh }:
                                                             ? 'success'
                                                             : doc.status === 'processing'
                                                                 ? 'info'
-                                                                : 'default'
+                                                                : doc.status === 'error'
+                                                                    ? 'error'
+                                                                    : 'default'
                                                     }
                                                 />
                                             </TableCell>
