@@ -30,8 +30,7 @@ import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
 import AvatarUpload from '../../components/AvatarUpload';
 import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';
 import { getVoiceLabel } from '../../constants/voiceConstants';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+import { API_BASE } from '@/config/api';
 
 interface Project {
     id: number;
@@ -246,7 +245,6 @@ export default function CustomerProjectDetail() {
                     </Stack>
                 </Box>
 
-
                 {/* Tabs */}
                 <Paper
                     elevation={3}
@@ -363,7 +361,6 @@ export default function CustomerProjectDetail() {
                             </Stack>
                         </Box>
                     )}
-
 
                     {/* Branding Tab */}
                     {currentTab === 'branding' && (
@@ -529,7 +526,6 @@ export default function CustomerProjectDetail() {
                         </Box>
                     )
                     }
-
 
                     {/* Avatar Tab */}
                     {

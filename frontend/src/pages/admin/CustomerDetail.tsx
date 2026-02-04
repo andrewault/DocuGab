@@ -42,6 +42,7 @@ import { InfoSection } from '../../components/admin/InfoSection';
 import { DetailRow } from '../../components/admin/DetailRow';
 import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
+import { API_BASE } from '@/config/api';
 
 interface Customer {
     id: number;
@@ -77,8 +78,6 @@ interface User {
     customer_id: number | null;
     created_at: string;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function CustomerDetail() {
     const { user: currentUser } = useAuth();
@@ -126,7 +125,6 @@ export default function CustomerDetail() {
                 if (!projectsResponse.ok) {
                     throw new Error('Failed to fetch projects');
                 }
-
 
                 const projectsData = await projectsResponse.json();
                 setProjects(projectsData.projects || []);

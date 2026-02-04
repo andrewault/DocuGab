@@ -33,14 +33,13 @@ import {
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
+import { API_BASE } from '@/config/api';
 
 interface BackupFile {
     filename: string;
     size: number;
     created_at: string;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function Database() {
     const { user: currentUser } = useAuth();

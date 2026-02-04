@@ -13,6 +13,7 @@ import TalkingHeadAvatar from '../../components/TalkingHeadAvatar';
 import { getAuthHeader } from '../../utils/authUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
 import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';
+import { API_BASE } from '@/config/api';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -32,8 +33,6 @@ interface Project {
     customer_name: string;
     customer_id: number;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function CustomerTestChat() {
     const { uuid } = useParams<{ uuid: string }>();

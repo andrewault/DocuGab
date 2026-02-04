@@ -32,8 +32,7 @@ import { ProjectLinkManager } from '../../components/admin/ProjectLinkManager';
 import { useAuth } from '../../context/AuthProvider';
 import usePageTitle from '../../hooks/usePageTitle';
 import type { Project, Document } from '../../types/project';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+import { API_BASE } from '@/config/api';
 
 export default function ProjectDetail() {
     const { user: currentUser } = useAuth();

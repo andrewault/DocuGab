@@ -22,6 +22,7 @@ import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
+import { API_BASE } from '@/config/api';
 
 interface FAQItem {
     id: number;
@@ -33,8 +34,6 @@ interface FAQItem {
     created_at: string;
     updated_at: string;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function FAQDetail() {
     const { uuid } = useParams<{ uuid: string }>();

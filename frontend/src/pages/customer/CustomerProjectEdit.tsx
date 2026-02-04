@@ -31,6 +31,7 @@ import { getAuthHeader } from '../../utils/authUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
 import { VOICE_OPTIONS, VOICE_TEST_TEXT } from '../../constants/voiceConstants';
 import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';
+import { API_BASE } from '@/config/api';
 
 interface Project {
     id: number;
@@ -66,8 +67,6 @@ function TabPanel(props: TabPanelProps) {
         </div>
     );
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function CustomerProjectEdit() {
     const { uuid } = useParams<{ uuid: string }>();

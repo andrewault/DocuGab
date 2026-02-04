@@ -17,6 +17,7 @@ import {
 import { Save, Business } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { API_BASE } from '@/config/api';
 
 interface Customer {
     id: number;
@@ -37,8 +38,6 @@ interface CustomerFormData {
     is_active: boolean;
     is_docutok_customer: boolean;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function CustomerEdit() {
     const { uuid } = useParams<{ uuid: string }>();

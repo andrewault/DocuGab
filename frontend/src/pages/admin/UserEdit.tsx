@@ -26,6 +26,7 @@ import {
 import { Save, Delete, Person } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { API_BASE } from '@/config/api';
 
 interface User {
     id: number;
@@ -45,8 +46,6 @@ interface Customer {
     uuid: string;
     name: string;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function UserEdit() {
     const { uuid } = useParams<{ uuid: string }>();
@@ -254,7 +253,6 @@ export default function UserEdit() {
                     { label: 'Edit' }
                 ]} />
 
-
                 {/* Header */}
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -300,7 +298,6 @@ export default function UserEdit() {
                         </Button>
                     </Stack>
                 </Stack>
-
 
                 <Paper
                     elevation={3}

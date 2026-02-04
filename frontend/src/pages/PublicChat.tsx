@@ -8,13 +8,12 @@ import ReactMarkdown from 'react-markdown';
 import { useProject } from '../context/ProjectContext';
 import BrandedChatWrapper from '../components/BrandedChatWrapper';
 import TalkingHeadAvatar from '../components/TalkingHeadAvatar';
+import { API_BASE } from '@/config/api';
 
 interface Message {
     role: 'user' | 'assistant';
     content: string;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function PublicChat() {
     const { project } = useProject();

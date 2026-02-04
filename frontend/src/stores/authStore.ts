@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { API_BASE } from '@/config/api';
 
 interface User {
     uuid: string;
@@ -38,7 +39,6 @@ interface AuthState {
 }
 
 // Use empty string (relative path) by default in production if var is missing
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export const useAuthStore = create<AuthState>()(
     persist(

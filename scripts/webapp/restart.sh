@@ -24,7 +24,7 @@ echo "   Ollama started"
 # Start Docker services
 echo ""
 echo "🚀 Starting DocuTok..."
-docker compose up -d
+docker compose up -d --build
 
 echo ""
 echo "⏳ Waiting for services to be healthy..."

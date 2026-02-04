@@ -27,8 +27,7 @@ import { Description, CloudUpload, Delete } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 import type { Project, Document } from '../../types/project';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+import { API_BASE } from '@/config/api';
 
 interface ProjectDocumentsProps {
     project: Project;
@@ -48,7 +47,6 @@ export function ProjectDocuments({ project, documents, currentUser, onRefresh }:
     const [documentsOrderBy, setDocumentsOrderBy] = useState<keyof Document>('filename');
     const [documentsOrder, setDocumentsOrder] = useState<'asc' | 'desc'>('asc');
     const [deleting, setDeleting] = useState(false);
-
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;

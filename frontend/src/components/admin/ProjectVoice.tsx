@@ -3,8 +3,7 @@ import { Box, Typography, Paper, Stack, Divider, Button } from '@mui/material';
 import { VolumeUp } from '@mui/icons-material';
 import { getVoiceLabel, VOICE_TEST_TEXT } from '../../constants/voiceConstants';
 import type { Project } from '../../types/project';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+import { API_BASE } from '@/config/api';
 
 interface ProjectVoiceProps {
     project: Project;

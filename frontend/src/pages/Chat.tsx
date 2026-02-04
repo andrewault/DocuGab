@@ -12,6 +12,7 @@ import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../context/AuthProvider';
 import TalkingHeadAvatar from '../components/TalkingHeadAvatar';
 import { VOICE_OPTIONS } from '../constants/voiceConstants';
+import { API_BASE } from '@/config/api';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -40,7 +41,6 @@ interface AncillaryContent {
     links?: AncillaryLink[];
 }
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 const CHAT_STORAGE_KEY = 'docutok_chat_messages';
 const SESSION_ID_KEY = 'docutok_chat_session_id';
 

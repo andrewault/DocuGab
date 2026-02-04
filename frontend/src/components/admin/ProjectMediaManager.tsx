@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 import {
     Box,
     Paper,
@@ -26,6 +25,7 @@ import { Add, Delete, Edit, Image as ImageIcon, YouTube as YouTubeIcon } from '@
 import { ancillaryApi } from '../../api/ancillary';
 import type { ProjectMedia } from '../../api/ancillary';
 import type { Project } from '../../types/project';
+import { API_BASE } from '@/config/api';
 
 interface ProjectMediaManagerProps {
     project: Project;

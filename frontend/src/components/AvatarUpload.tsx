@@ -13,8 +13,7 @@ import { Upload, Delete, Download, CheckCircle } from '@mui/icons-material';
 import { useAuth } from '../context/AuthProvider';
 import { getAuthHeader } from '../utils/authUtils';
 import { formatInUserTimezone } from '../utils/timezoneUtils';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+import { API_BASE } from '@/config/api';
 
 interface Avatar {
     id: number;

@@ -4,8 +4,7 @@ import { Group, QuestionAnswer, Business, Folder, RecordVoiceOver, Dashboard, St
 import { Link } from 'react-router-dom';
 import { getAuthHeader } from '../../utils/authUtils';
 import usePageTitle from '../../hooks/usePageTitle';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+import { API_BASE } from '@/config/api';
 
 interface AdminStats {
     total_users: number;

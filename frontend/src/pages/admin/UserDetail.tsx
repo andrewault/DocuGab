@@ -32,6 +32,7 @@ import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
+import { API_BASE } from '@/config/api';
 
 interface User {
     id: number;
@@ -48,8 +49,6 @@ interface User {
     updated_at: string;
     last_login_at: string | null;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function UserDetail() {
     const { user: currentUser } = useAuth();
