@@ -34,6 +34,7 @@ import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 import usePageTitle from '../../hooks/usePageTitle';
+import { API_BASE } from '@/config/api';
 
 interface Customer {
     id: number;
@@ -48,8 +49,6 @@ interface Customer {
     updated_at: string;
     projects_count: number;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function Customers() {
     const { user: currentUser } = useAuth();

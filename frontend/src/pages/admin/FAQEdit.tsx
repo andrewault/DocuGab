@@ -17,8 +17,7 @@ import {
 import { Save, HelpOutline } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+import { API_BASE } from '@/config/api';
 
 export default function FAQEdit() {
     const { uuid } = useParams<{ uuid: string }>();
@@ -156,7 +155,6 @@ export default function FAQEdit() {
                     ]}
                 />
 
-
                 {/* Header */}
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -193,7 +191,6 @@ export default function FAQEdit() {
                         </Button>
                     </Stack>
                 </Stack>
-
 
                 <Paper
                     elevation={3}

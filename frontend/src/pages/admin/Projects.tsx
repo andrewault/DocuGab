@@ -35,6 +35,7 @@ import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 import usePageTitle from '../../hooks/usePageTitle';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import { API_BASE } from '@/config/api';
 
 interface Project {
     id: number;
@@ -69,8 +70,6 @@ interface Customer {
     id: number;
     name: string;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export default function Projects() {
     const { user: currentUser } = useAuth();
@@ -152,7 +151,6 @@ export default function Projects() {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
-
 
     const handleDeleteClick = (id: number) => {
         setProjectToDelete(id);

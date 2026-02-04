@@ -27,6 +27,7 @@ import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
 import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';
 import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
+import { API_BASE } from '@/config/api';
 
 interface AccountUser {
     id: number;
@@ -41,8 +42,6 @@ interface AccountUser {
     last_login_at: string | null;
     customer_role: string | null;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function CustomerUserDetail() {
     const { user: currentUser } = useAuth();

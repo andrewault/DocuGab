@@ -14,7 +14,9 @@
 // For now, we'll export a placeholder and document the pattern.
 // The actual generated exports will be available after generation.
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+import { API_BASE } from '@/config/api';
+
+export const API_BASE_URL = API_BASE;
 
 /**
  * Fetch wrapper with automatic auth token injection

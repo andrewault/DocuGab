@@ -10,6 +10,7 @@ import {
     CircularProgress,
 } from '@mui/material';
 import { ExpandMore } from '@mui/icons-material';
+import { API_BASE } from '@/config/api';
 
 interface FAQItem {
     id: number;
@@ -17,8 +18,6 @@ interface FAQItem {
     answer: string;
     order: number;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function FAQ() {
     const [faqs, setFaqs] = useState<FAQItem[]>([]);

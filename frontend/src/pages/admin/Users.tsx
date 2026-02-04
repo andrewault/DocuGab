@@ -34,6 +34,7 @@ import { useAuth } from '../../context/AuthProvider';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 import { getAuthHeader } from '../../utils/authUtils';
 import usePageTitle from '../../hooks/usePageTitle';
+import { API_BASE } from '@/config/api';
 
 interface Stats {
     total_users: number;
@@ -56,8 +57,6 @@ interface User {
     created_at: string;
     updated_at: string;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function Users() {
     const { user: currentUser } = useAuth();

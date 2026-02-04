@@ -16,8 +16,7 @@ import {
 } from '@mui/material';
 import { Person, Edit, Lock } from '@mui/icons-material';
 import { useAuth } from '../context/AuthProvider';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+import { API_BASE } from '@/config/api';
 
 export default function Profile() {
     const { user, refreshUser } = useAuth();

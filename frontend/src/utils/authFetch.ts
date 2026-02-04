@@ -1,8 +1,7 @@
+import { API_BASE } from '@/config/api';
 /**
  * Authenticated fetch wrapper with automatic token refresh on 401 errors.
  */
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 let isRefreshing = false;
 let refreshPromise: Promise<string> | null = null;

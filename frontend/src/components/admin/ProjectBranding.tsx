@@ -1,8 +1,7 @@
 import { Box, Typography, Paper, Stack, Divider } from '@mui/material';
 import { Palette } from '@mui/icons-material';
 import type { Project } from '../../types/project';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+import { API_BASE } from '@/config/api';
 
 interface ProjectBrandingProps {
     project: Project;

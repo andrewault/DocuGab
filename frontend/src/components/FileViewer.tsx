@@ -14,6 +14,7 @@ import { ArrowBack, Download } from '@mui/icons-material';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import mermaid from 'mermaid';
+import { API_BASE } from '@/config/api';
 
 // Mermaid diagram component
 function MermaidDiagram({ chart }: { chart: string }) {
@@ -72,8 +73,6 @@ interface DocumentData {
     created_at: string;
     updated_at?: string;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 interface FileViewerProps {
     uuid: string;

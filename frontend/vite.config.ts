@@ -9,14 +9,22 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    envDir: process.env.VITE_API_BASE_URL ? '.' : path.resolve(__dirname, '..'), // Use current dir in Docker build
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+      },
+    },
     server: {
       port: parseInt(env.VITE_PORT || '5173'),
       strictPort: true,
       allowedHosts: true,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:8000',
+          changeOrigin: true,
+        },
+      },
     },
-    define: {
-      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_BASE_URL),
-    },
-    envDir: process.env.VITE_API_BASE_URL ? '.' : path.resolve(__dirname, '..'), // Use current dir in Docker build
   }
 })

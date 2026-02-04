@@ -4,6 +4,7 @@ import {
     List, ListItem, ListItemText, Chip
 } from '@mui/material';
 import { CloudUpload, CheckCircle, Error as ErrorIcon, HourglassEmpty } from '@mui/icons-material';
+import { API_BASE } from '@/config/api';
 
 interface UploadedDoc {
     id: number;
@@ -15,8 +16,6 @@ interface DocumentUploadProps {
     onUploadComplete?: () => void;
     projectId?: number;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function DocumentUpload({ onUploadComplete, projectId }: DocumentUploadProps) {
     const [uploading, setUploading] = useState(false);

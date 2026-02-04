@@ -21,8 +21,7 @@ import { ancillaryApi } from '../../api/ancillary';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { StatusBanner } from '../../components/admin/StatusBanner';
 import type { Project } from '../../types/project';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+import { API_BASE } from '@/config/api';
 
 export default function NewProjectMedia() {
     const { uuid } = useParams<{ uuid: string }>();
@@ -313,7 +312,6 @@ export default function NewProjectMedia() {
         </Box>
     );
 }
-
 
 function ImageDropzone({ onUpload, disabled }: { onUpload: (file: File) => void, disabled: boolean }) {
     const theme = useTheme();

@@ -20,6 +20,7 @@ import { Save } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
 import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';
+import { API_BASE } from '@/config/api';
 
 interface AccountUser {
     id: number;
@@ -28,8 +29,6 @@ interface AccountUser {
     full_name: string | null;
     customer_role: string | null;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
 
 export default function CustomerUserEdit() {
     const { uuid } = useParams<{ uuid: string }>();
@@ -259,8 +258,6 @@ export default function CustomerUserEdit() {
                                 </Typography>
                             )}
                         </FormControl>
-
-
 
                         <Button
                             variant="contained"

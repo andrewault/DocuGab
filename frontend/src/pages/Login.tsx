@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { API_BASE } from '@/config/api';
 import {
     Box,
     Container,
@@ -44,7 +45,8 @@ export default function Login() {
             // Get the user data from localStorage to determine role
             const accessToken = localStorage.getItem('access_token');
             if (accessToken) {
-                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007'}/api/v1/auth/me`, {
+                // ... inside component ...
+                const response = await fetch(`${API_BASE}/api/v1/auth/me`, {
                     headers: { Authorization: `Bearer ${accessToken}` },
                 });
                 if (response.ok) {

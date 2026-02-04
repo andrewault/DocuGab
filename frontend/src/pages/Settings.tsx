@@ -23,8 +23,7 @@ import { useThemeMode } from '../context/ThemeContext';
 import { getAllTimezones, getTimezoneLabel } from '../utils/timezoneUtils';
 import { getAuthHeader } from '../utils/authUtils';
 import { useAuth } from '../context/AuthProvider';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8007';
+import { API_BASE } from '@/config/api';
 
 export default function Settings() {
     const { themeMode, setThemeMode } = useThemeMode();
