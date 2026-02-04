@@ -344,15 +344,37 @@ export default function CustomerTestChat() {
 
                         {messages.map((msg, i) => {
                             const isUser = msg.role === 'user';
-                            const splitContent = !isUser ? msg.content.split('\n\n**Sources:**\n') : [msg.content];
-                            const mainContent = splitContent[0];
-                            const sourcesContent = splitContent.length > 1 ? splitContent[1] : null;
+
+                            // Parse Content
+                            let mainContent = msg.content;
+                            let sourcesContent: string | null = null;
+                            let ancillaryContent: { media: any[], links: any[] } | null = null;
+
+                            if (!isUser) {
+                                // 1. Split Ancillary
+                                const ancillarySplit = mainContent.split('\n\n**Ancillary:**\n');
+                                if (ancillarySplit.length > 1) {
+                                    mainContent = ancillarySplit[0];
+                                    try {
+                                        ancillaryContent = JSON.parse(ancillarySplit[1]);
+                                    } catch (e) {
+                                        console.error('Failed to parse ancillary JSON', e);
+                                    }
+                                }
+
+                                // 2. Split Sources (from the remaining mainContent)
+                                const sourcesSplit = mainContent.split('\n\n**Sources:**\n');
+                                if (sourcesSplit.length > 1) {
+                                    mainContent = sourcesSplit[0];
+                                    sourcesContent = sourcesSplit[1];
+                                }
+                            }
 
                             return (
                                 <Box key={i} sx={{ mb: 2, display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start' }}>
                                     <Paper sx={{
                                         p: 2, maxWidth: '80%', borderRadius: 2,
-                                        bgcolor: isUser ? 'primary.main' : (isDark ? 'grey.800' : 'grey.100'),
+                                        bgcolor: isUser ? 'primary.main' : (isDark ? '#1e3a8a' : 'grey.100'),
                                         color: isUser ? '#fff' : 'text.primary',
                                         '& a': { color: isDark ? '#f97316' : '#2563eb', textDecoration: 'underline', cursor: 'pointer' },
                                         '& code': { bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)', px: 0.5, borderRadius: 0.5, fontFamily: 'monospace' },
@@ -380,50 +402,95 @@ export default function CustomerTestChat() {
                                         )}
                                     </Paper>
 
-                                    {/* Sources Bubble */}
-                                    {sourcesContent && (
-                                        <Paper
-                                            elevation={1}
-                                            sx={{
-                                                mt: 1,
-                                                p: 2,
-                                                maxWidth: '80%',
-                                                bgcolor: 'secondary.main',
-                                                color: 'white',
-                                                borderRadius: 2,
-                                            }}
-                                        >
-                                            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
-                                                Sources
-                                            </Typography>
-                                            <Box
-                                                sx={{
-                                                    '& a': { color: 'white', textDecoration: 'underline', cursor: 'pointer' },
-                                                    '& p': { m: 0, mb: 0.5 },
-                                                    '& ul, & ol': { pl: 3, my: 0 },
-                                                    '& li': { mb: 0.5 },
-                                                }}
-                                            >
-                                                <ReactMarkdown components={{
-                                                    a: ({ href, children }) => {
-                                                        if (href?.startsWith('/documents/')) {
-                                                            return (
-                                                                <Link
-                                                                    component={RouterLink}
-                                                                    to={href}
-                                                                    sx={{ cursor: 'pointer', color: 'white', fontWeight: 500 }}
-                                                                >
-                                                                    {children}
+                                    {/* Extras Container (Sources + Ancillary) */}
+                                    {(sourcesContent || (ancillaryContent && (ancillaryContent.media?.length > 0 || ancillaryContent.links?.length > 0))) && (
+                                        <Box sx={{ display: 'flex', gap: 2, mt: 1, maxWidth: '80%', flexDirection: 'row', flexWrap: 'wrap' }}>
+                                            {/* Sources Bubble */}
+                                            {sourcesContent && (
+                                                <Paper
+                                                    elevation={1}
+                                                    sx={{
+                                                        p: 2,
+                                                        flex: 1,
+                                                        minWidth: '250px',
+                                                        bgcolor: 'secondary.main',
+                                                        color: 'white',
+                                                        borderRadius: 2,
+                                                    }}
+                                                >
+                                                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
+                                                        Sources
+                                                    </Typography>
+                                                    <Box
+                                                        sx={{
+                                                            '& a': { color: 'white', textDecoration: 'underline', cursor: 'pointer' },
+                                                            '& p': { m: 0, mb: 0.5 },
+                                                            '& ul, & ol': { pl: 3, my: 0 },
+                                                            '& li': { mb: 0.5 },
+                                                        }}
+                                                    >
+                                                        <ReactMarkdown components={{
+                                                            a: ({ href, children }) => {
+                                                                if (href?.startsWith('/documents/')) {
+                                                                    return (
+                                                                        <Link
+                                                                            component={RouterLink}
+                                                                            to={href}
+                                                                            sx={{ cursor: 'pointer', color: 'white', fontWeight: 500 }}
+                                                                        >
+                                                                            {children}
+                                                                        </Link>
+                                                                    );
+                                                                }
+                                                                return <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>;
+                                                            }
+                                                        }}>
+                                                            {sourcesContent}
+                                                        </ReactMarkdown>
+                                                    </Box>
+                                                </Paper>
+                                            )}
+
+                                            {/* Ancillary Bubble */}
+                                            {ancillaryContent && (ancillaryContent.media?.length > 0 || ancillaryContent.links?.length > 0) && (
+                                                <Paper
+                                                    elevation={1}
+                                                    sx={{
+                                                        p: 2,
+                                                        flex: 1,
+                                                        minWidth: '250px',
+                                                        bgcolor: isDark ? 'rgba(56, 189, 248, 0.1)' : 'rgba(56, 189, 248, 0.1)',
+                                                        border: '1px solid',
+                                                        borderColor: isDark ? 'rgba(56, 189, 248, 0.3)' : 'rgba(56, 189, 248, 0.3)',
+                                                        borderRadius: 2,
+                                                    }}
+                                                >
+                                                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'text.primary' }}>
+                                                        Related
+                                                    </Typography>
+                                                    <Stack spacing={1}>
+                                                        {ancillaryContent.links?.map((link: any, idx: number) => (
+                                                            <Box key={`link-${idx}`}>
+                                                                <Link href={link.url} target="_blank" rel="noopener noreferrer" sx={{ fontWeight: 600 }}>
+                                                                    {link.name} ↗
                                                                 </Link>
-                                                            );
-                                                        }
-                                                        return <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>;
-                                                    }
-                                                }}>
-                                                    {sourcesContent}
-                                                </ReactMarkdown>
-                                            </Box>
-                                        </Paper>
+                                                            </Box>
+                                                        ))}
+                                                        {ancillaryContent.media?.map((media: any, idx: number) => (
+                                                            <Box key={`media-${idx}`}>
+                                                                <Typography variant="body2" fontWeight={600}>{media.description}</Typography>
+                                                                {media.type === 'image' && (
+                                                                    <Box component="img" src={media.url} alt={media.description} sx={{ maxWidth: '100%', borderRadius: 1, mt: 0.5 }} />
+                                                                )}
+                                                                {media.type === 'video' && (
+                                                                    <Box component="video" src={media.url} controls sx={{ maxWidth: '100%', borderRadius: 1, mt: 0.5 }} />
+                                                                )}
+                                                            </Box>
+                                                        ))}
+                                                    </Stack>
+                                                </Paper>
+                                            )}
+                                        </Box>
                                     )}
                                 </Box>
                             );

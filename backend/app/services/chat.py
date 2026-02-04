@@ -1,5 +1,5 @@
 from typing import AsyncGenerator
-from langchain_ollama import ChatOllama
+from langchain_aws import ChatBedrock
 from langchain_core.messages import HumanMessage, SystemMessage
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,18 +9,21 @@ from app.models.media import ProjectMedia
 from app.models.link import ProjectLink
 import json
 import re
+import boto3
 
 # Initialize LLM (lazy loading)
 _llm = None
 
 
-def get_llm() -> ChatOllama:
+def get_llm() -> ChatBedrock:
     """Get or create the LLM instance."""
     global _llm
     if _llm is None:
-        _llm = ChatOllama(
-            model=settings.llm_model,
-            base_url=settings.ollama_base_url,
+        client = boto3.client("bedrock-runtime", region_name=settings.aws_region)
+        _llm = ChatBedrock(
+            client=client,
+            model_id=settings.bedrock_llm_model,
+            streaming=True
         )
     return _llm
 

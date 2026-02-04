@@ -20,8 +20,8 @@ class Chunk(Base):
     page_number: Mapped[int | None]
     chunk_index: Mapped[int]
 
-    # Vector embedding (768 dimensions for Ollama nomic-embed-text)
-    embedding = mapped_column(Vector(768), nullable=True)
+    # Vector embedding (1024 dimensions for Amazon Titan Embeddings v2)
+    embedding = mapped_column(Vector(1024), nullable=True)
 
     # Relationships
     document: Mapped["Document"] = relationship(back_populates="chunks")

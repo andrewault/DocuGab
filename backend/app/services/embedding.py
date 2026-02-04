@@ -1,17 +1,20 @@
 import asyncio
-from langchain_ollama import OllamaEmbeddings
+from langchain_aws import BedrockEmbeddings
 from app.core.config import settings
+import boto3
 
 # Initialize embeddings model (lazy loading)
 _embeddings_model = None
 
 
-def get_embeddings_model() -> OllamaEmbeddings:
+def get_embeddings_model() -> BedrockEmbeddings:
     """Get or create the embeddings model instance."""
     global _embeddings_model
     if _embeddings_model is None:
-        _embeddings_model = OllamaEmbeddings(
-            model=settings.embedding_model, base_url=settings.ollama_base_url
+        client = boto3.client("bedrock-runtime", region_name=settings.aws_region)
+        _embeddings_model = BedrockEmbeddings(
+            client=client,
+            model_id=settings.bedrock_embedding_model
         )
     return _embeddings_model
 
@@ -29,7 +32,7 @@ def _generate_embedding_sync(text: str) -> list[float]:
 
 
 async def generate_embeddings(texts: list[str]) -> list[list[float]]:
-    """Generate embeddings for a list of texts using Ollama (async wrapper)."""
+    """Generate embeddings for a list of texts using Bedrock (async wrapper)."""
     return await asyncio.to_thread(_generate_embeddings_sync, texts)
 
 

@@ -26,10 +26,13 @@ class Settings(BaseSettings):
     # CORS
     cors_origins: str = "http://localhost:5177"  # Match .env default
 
-    # Ollama Configuration
-    ollama_base_url: str = "http://localhost:11434"
-    embedding_model: str = "nomic-embed-text"
-    llm_model: str = "llama3.2"
+    # Bedrock Configuration
+    aws_region: str = "us-west-2"
+    bedrock_llm_model: str = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
+    bedrock_embedding_model: str = "amazon.titan-embed-text-v2:0"
+    
+    # Vector Search Config
+    embedding_model: str = "amazon.titan-embed-text-v2:0" # Keep for compatibility if needed, or remove
     chunk_size: int = 500
     chunk_overlap: int = 50
 
