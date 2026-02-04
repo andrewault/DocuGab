@@ -200,7 +200,7 @@ export default function Settings() {
                             </Typography>
                             <Autocomplete
                                 value={selectedTimezone}
-                                onChange={(event, newValue) => {
+                                onChange={(_, newValue) => {
                                     if (newValue) {
                                         setSelectedTimezone(newValue);
                                     }

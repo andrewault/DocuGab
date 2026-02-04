@@ -1,0 +1,32 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: docutok-cluster
+  region: us-west-2
+
+nodeGroups:
+  - name: standard-workers
+    instanceType: t3.medium
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 4
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+
+  - name: gpu-workers
+    instanceType: g4dn.xlarge
+    desiredCapacity: 1
+    minSize: 0
+    maxSize: 2
+    labels:
+      role: gpu
+    taints:
+      - key: nvidia.com/gpu
+        value: "true"
+        effect: NoSchedule
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+        cloudWatch: true

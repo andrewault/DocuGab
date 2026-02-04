@@ -32,7 +32,6 @@ export default function ProjectMediaDetail() {
     const [project, setProject] = useState<Project | null>(null);
     const [media, setMedia] = useState<any>(null); // TODO: Type properly
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -52,7 +51,6 @@ export default function ProjectMediaDetail() {
                 setMedia(mediaData);
             } catch (err) {
                 console.error('Failed to load data:', err);
-                setError('Failed to load project or media details');
             } finally {
                 setLoading(false);
             }
@@ -144,7 +142,7 @@ export default function ProjectMediaDetail() {
 
                 <Grid container spacing={4}>
                     {/* Left Column: Preview */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <Paper
                             elevation={3}
                             sx={{
@@ -179,7 +177,7 @@ export default function ProjectMediaDetail() {
                     </Grid>
 
                     {/* Right Column: Details */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <Paper
                             elevation={3}
                             sx={{

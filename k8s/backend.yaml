@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docutok-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: docutok-backend
+  template:
+    metadata:
+      labels:
+        app: docutok-backend
+    spec:
+      containers:
+      - name: backend
+        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:latest
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: docutok-config
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: docutok-secrets
+              key: POSTGRES_PASSWORD
+        # Add necessary mounts for uploads if not using S3

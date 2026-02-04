@@ -1,0 +1,3 @@
+credentials are stored in '/Users/andrewault/.docker/config.json'
+Configure a credential helper to remove this warning. See https://docs.docker.com/go/credential-store/
+

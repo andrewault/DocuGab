@@ -1,0 +1,16 @@
+{
+    "repository": {
+        "repositoryArn": "arn:aws:ecr:us-west-2:932380677908:repository/docutok-frontend",
+        "registryId": "932380677908",
+        "repositoryName": "docutok-frontend",
+        "repositoryUri": "932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-frontend",
+        "createdAt": "2026-02-03T15:02:36.986000-08:00",
+        "imageTagMutability": "MUTABLE",
+        "imageScanningConfiguration": {
+            "scanOnPush": false
+        },
+        "encryptionConfiguration": {
+            "encryptionType": "AES256"
+        }
+    }
+}

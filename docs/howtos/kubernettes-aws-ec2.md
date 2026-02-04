@@ -17,54 +17,86 @@ Ensure you have the following tools installed locally:
 
 Kubernetes needs to pull your container images from a registry. We will use Amazon Elastic Container Registry (ECR).
 
-1.  **Create Repositories**:
-    ```bash
-    aws ecr create-repository --repository-name docutok-backend
-    aws ecr create-repository --repository-name docutok-frontend
-    aws ecr create-repository --repository-name docutok-celery
+1.  **Create Repositories**: DONE
+    aws ecr create-repository --repository-name docutok-backend --region us-west-2
+    aws ecr create-repository --repository-name docutok-frontend --region us-west-2
+    aws ecr create-repository --repository-name docutok-celery --region us-west-2
     ```
 
-2.  **Authenticate Docker to ECR**:
+2.  **Authenticate Docker to ECR**: DONE
+    
+    *Tip: Run `aws sts get-caller-identity --query Account --output text` to get your Account ID.*
+
     ```bash
-    aws ecr get-login-password --region <your-region> | docker login --username AWS --password-stdin <your-account-id>.dkr.ecr.<your-region>.amazonaws.com
+    aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 932380677908.dkr.ecr.us-west-2.amazonaws.com
     ```
 
 3.  **Build and Push Images**:
     
-    *Replace `<ecr-uri>` with your specific repository URI (e.g., `123456789012.dkr.ecr.us-west-2.amazonaws.com`).*
+    *Replace `<ecr-uri>` with your specific repository URI (e.g., `932380677908.dkr.ecr.us-west-2.amazonaws.com`).*
 
-    **Backend:**
+    **Backend:** DONE
     ```bash
     docker build -t docutok-backend ./backend
-    docker tag docutok-backend:latest <ecr-uri>/docutok-backend:latest
-    docker push <ecr-uri>/docutok-backend:latest
+    docker tag docutok-backend:latest 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:latest
+    docker push 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:latest
     ```
 
-    **Frontend:**
+    **Frontend:** DONE
     ```bash
     docker build -t docutok-frontend ./frontend
-    docker tag docutok-frontend:latest <ecr-uri>/docutok-frontend:latest
-    docker push <ecr-uri>/docutok-frontend:latest
+    docker tag docutok-frontend:latest 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-frontend:latest
+    docker push 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-frontend:latest
     ```
     *(Note: Repeat similar steps for Celery using the backend Dockerfile context).*
 
 ## Step 2: Create the EKS Cluster
 
-Use `eksctl` to provision a cluster backed by EC2 nodes.
+Use `eksctl` to provision a cluster. For DocuTok, we need a standard node group for the web/app servers and a **GPU node group** for Ollama.
 
-```bash
-eksctl create cluster \
-  --name docutok-cluster \
-  --region us-west-2 \
-  --nodegroup-name standard-workers \
-  --node-type t3.medium \
-  --nodes 3 \
-  --nodes-min 1 \
-  --nodes-max 4 \
-  --managed
-```
+1.  **Create a `cluster.yaml` file**: DONE
 
-*This process takes about 15-20 minutes.* It provisions a VPC, Subnets, and Auto Scaling Groups for your EC2 instances.
+    ```yaml
+    apiVersion: eksctl.io/v1alpha5
+    kind: ClusterConfig
+
+    metadata:
+      name: docutok-cluster
+      region: us-west-2
+
+    nodeGroups:
+      - name: standard-workers
+        instanceType: t3.medium
+        desiredCapacity: 2
+        minSize: 1
+        maxSize: 4
+        iam:
+          withAddonPolicies:
+            autoScaler: true
+
+      - name: gpu-workers
+        instanceType: g4dn.xlarge
+        desiredCapacity: 1
+        minSize: 0
+        maxSize: 2
+        labels:
+          role: gpu
+        taints:
+          - key: nvidia.com/gpu
+            value: "true"
+            effect: NoSchedule
+        iam:
+          withAddonPolicies:
+            autoScaler: true
+            cloudWatch: true
+    ```
+
+2.  **Create the Cluster**: DONE
+    ```bash
+    eksctl create cluster -f cluster.yaml
+    ```
+
+*This process takes about 15-20 minutes.* It provisions a VPC, Subnets, and two Node Groups (CPU and GPU).
 
 ## Step 3: Configure Persistence (Database & Redis)
 
@@ -75,7 +107,7 @@ For production, it is **highly recommended** to use managed services:
 
 However, for a self-contained content in Kubernetes, you can use Helm charts.
 
-### Option A: In-Cluster (via Helm)
+### Option A: In-Cluster (via Helm) DONE
 ```bash
 # PostgreSQL
 helm repo add bitnami https://charts.bitnami.com/bitnami
@@ -88,7 +120,7 @@ helm install docutok-db bitnami/postgresql \
 helm install docutok-redis bitnami/redis
 ```
 
-## Step 4: Kubernetes Manifests
+## Step 4: Kubernetes Manifests DONE
 
 Create a directory `k8s/` and save the following files.
 
@@ -147,7 +179,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: <your-ecr-uri>/docutok-backend:latest
+        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:latest
         ports:
         - containerPort: 8000
         envFrom:
@@ -198,7 +230,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: <your-ecr-uri>/docutok-frontend:latest
+        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-frontend:latest
         ports:
         - containerPort: 5173
         env:
@@ -206,7 +238,7 @@ spec:
           value: "/api" # Handled by Ingress rewrite usually, or public LB URL
 ```
 
-### 6. Exposing the App (Load Balancer)
+### 6. Exposing the App (Load Balancer) (`k8s/frontend-service.yaml`)
 
 For simplicity, we can use a LoadBalancer service for the frontend.
 
@@ -225,15 +257,73 @@ spec:
   type: LoadBalancer
 ```
 
-## Step 5: Deploy
+### 7. Ollama Deployment (`k8s/ollama.yaml`)
 
-1.  **Apply Manifests**:
+This deployment targets the **GPU nodes** using tolerations and requests NVIDIA GPU resources.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docutok-ollama
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docutok-ollama
+  template:
+    metadata:
+      labels:
+        app: docutok-ollama
+    spec:
+      containers:
+      - name: ollama
+        image: ollama/ollama:latest
+        ports:
+        - containerPort: 11434
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - name: ollama-data
+          mountPath: /root/.ollama
+      volumes:
+      - name: ollama-data
+        emptyDir: {} # For production, use a PersistentVolumeClaim
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      nodeSelector:
+        role: gpu
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama-service
+spec:
+  selector:
+    app: docutok-ollama
+  ports:
+    - protocol: TCP
+      port: 11434
+      targetPort: 11434
+  type: ClusterIP
+```
+
+
+## Step 5: Deploy 
+
+1.  **Apply Manifests**: DONE
     ```bash
     kubectl apply -f k8s/secrets.yaml
     kubectl apply -f k8s/configmap.yaml
     kubectl apply -f k8s/backend.yaml
     kubectl apply -f k8s/backend-service.yaml
     kubectl apply -f k8s/frontend.yaml
+    kubectl apply -f k8s/frontend-service.yaml
+    kubectl apply -f k8s/ollama.yaml
     ```
 
 2.  **Verify**:
@@ -247,13 +337,57 @@ spec:
     ```bash
     kubectl get svc docutok-frontend-lb
     ```
+    Output:
+    ```shell
+    NAME                  TYPE           CLUSTER-IP     EXTERNAL-IP                                                               PORT(S)        AGE
+    docutok-frontend-lb   LoadBalancer   10.100.93.19   aa601044b65294e63861ea2e52a40739-1671173697.us-west-2.elb.amazonaws.com   80:31999/TCP   84s
+    ```
+
+## Maintenance: Turning Off & On
+
+### Option A: Pause (Fast)
+To stop the application but keep the underlying infrastructure (Cluster, Nodes, LoadBalancer) running. You **will still be charged** for the EC2 nodes and EKS Control Plane.
+
+**Turn Off:**
+```bash
+# Scale deployments to 0
+kubectl scale deployment docutok-backend --replicas=0
+kubectl scale deployment docutok-frontend --replicas=0
+kubectl scale deployment docutok-ollama --replicas=0
+```
+
+**Turn On:**
+```bash
+# Scale back up
+kubectl scale deployment docutok-backend --replicas=2
+kubectl scale deployment docutok-frontend --replicas=2
+kubectl scale deployment docutok-ollama --replicas=1
+```
+
+### Option B: Full Shutdown (Saves Money)
+To completely stop all AWS charges, you must delete the cluster. This destroys everything (including data on the nodes!).
+
+**Turn Off:**
+```bash
+eksctl delete cluster --name docutok-cluster
+```
+
+**Turn On:**
+Re-run **Step 2** (Create Cluster) and **Step 5** (Deploy Manifests).
 
 ## Important Considerations
 
-*   **Ollama**: The current configuration expects an Ollama service. Running LLMs on standard CPU EC2 instances (like `t3.medium`) will be **extremely slow**. You should consider:
-    *   Adding a GPU Node Group to your EKS cluster.
-    *   Deploying Ollama to that node group using Kubernetes Taints and Tolerations.
-    *   Or, switching to an external API provider (e.g., OpenAI) for the production environment.
+*   **Ollama**: We have provisioned a GPU Node Group (`g4dn.xlarge`) specifically for Ollama.
+    *   Ensure your Ollama deployment definition includes the necessary **tolerations** to schedule on these tainted nodes.
+    *   Example toleration:
+        ```yaml
+        tolerations:
+        - key: "nvidia.com/gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+        ```
+    *   Alternatively, you can switch to an external API provider (e.g., OpenAI) for production to save costs.
 *   **Database Migrations**: You can run Alembic migrations as a Kubernetes **Job** or part of an initContainer in the backend pod.
 
 ## Cleaning Up

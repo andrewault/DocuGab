@@ -64,6 +64,7 @@ Thumbs.db
 .env.local
 .env.*.local
 !.env.example
+.env.production
 
 # Logs
 logs/
@@ -116,6 +117,8 @@ alembic/versions/__pycache__/
 
 # Credentials
 credentials
+andrewault-aws_credentials.csv
+aws-key.txt
 
 # Google Cloud credentials
 credentials/

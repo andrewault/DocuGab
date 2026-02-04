@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port: parseInt(env.VITE_PORT || '5173'),
       strictPort: true,
+      allowedHosts: true,
     },
     envDir: path.resolve(__dirname, '..'),
   }

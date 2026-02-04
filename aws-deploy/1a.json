@@ -1,0 +1,22 @@
+{
+    "repository": {
+        "repositoryArn": "arn:aws:ecr:us-east-1:932380677908:repository/docutok-backend",
+        "registryId": "932380677908",
+        "repositoryName": "docutok-backend",
+        "repositoryUri": "932380677908.dkr.ecr.us-east-1.amazonaws.com/docutok-backend",
+        "createdAt": "2026-02-03T14:52:38.417000-08:00",
+        "imageTagMutability": "MUTABLE",
+        "imageScanningConfiguration": {
+            "scanOnPush": false
+        },
+        "encryptionConfiguration": {
+            "encryptionType": "AES256"
+        }
+    }
+}
+
+# aws ecr create-repository --repository-name docutok-backend --region us-west-2
+# An error occurred (RepositoryAlreadyExistsException) when calling the CreateRepository operation: The repository with name 'docutok-backend'
+# already exists in the registry with id '932380677908'
+
+# 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend

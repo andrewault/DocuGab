@@ -10,6 +10,10 @@ interface User {
     customer_uuid: string | null;
     timezone?: string;
     is_active: boolean;
+    theme?: string;
+    avatar_url?: string | null;
+    is_verified?: boolean;
+    customer_is_active?: boolean | null;
 }
 
 interface AuthState {
@@ -27,6 +31,7 @@ interface AuthState {
     register: (email: string, password: string, fullName: string) => Promise<void>;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
+    updateUser: (user: User) => void;
     setUser: (user: User | null) => void;
     refreshToken: () => Promise<void>;
     setLoading: (loading: boolean) => void;
@@ -184,6 +189,8 @@ export const useAuthStore = create<AuthState>()(
 
                 set({ accessToken: data.access_token });
             },
+
+            updateUser: (user: User) => set({ user }),
 
             setUser: (user: User | null) => set({
                 user,

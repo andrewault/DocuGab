@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docutok-config
+data:
+  POSTGRES_USER: "docutok"
+  POSTGRES_DB: "docutok"
+  # If using in-cluster DB:
+  DATABASE_URL: "postgresql+asyncpg://docutok:$(POSTGRES_PASSWORD)@docutok-db-postgresql.default.svc.cluster.local:5432/docutok"
+  # If using in-cluster Redis:
+  REDIS_URL: "redis://docutok-redis-master.default.svc.cluster.local:6379/0"
+  CELERY_BROKER_URL: "redis://docutok-redis-master.default.svc.cluster.local:6379/1"
+  BACKEND_PORT: "8000"
+  # Update with your Ollama Setup (External or Sidecar)
+  OLLAMA_BASE_URL: "http://ollama-service:11434"

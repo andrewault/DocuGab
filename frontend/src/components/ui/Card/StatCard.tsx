@@ -1,5 +1,6 @@
-import { Paper, Typography, Box, SxProps, Theme } from '@mui/material';
-import { ReactNode } from 'react';
+import { Paper, Typography, Box } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material';
+import type { ReactNode } from 'react';
 import { TrendingUp, TrendingDown } from '@mui/icons-material';
 
 export interface StatCardProps {
