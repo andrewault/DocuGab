@@ -8,12 +8,12 @@ export interface VoiceOption {
 }
 
 export const VOICE_OPTIONS: VoiceOption[] = [
-    { value: 'en-US-Neural2-F', label: 'Female (Neural)' },
-    { value: 'en-US-Neural2-D', label: 'Male (Neural)' },
-    { value: 'en-US-Wavenet-F', label: 'Female (Wavenet)' },
-    { value: 'en-US-Wavenet-D', label: 'Male (Wavenet)' },
-    { value: 'en-US-Studio-O', label: 'Female (Studio)' },
-    { value: 'en-US-Studio-M', label: 'Male (Studio)' },
+    { value: 'Joanna', label: 'Joanna (Female)' },
+    { value: 'Matthew', label: 'Matthew (Male)' },
+    { value: 'Salli', label: 'Salli (Female)' },
+    { value: 'Ivy', label: 'Ivy (Child)' },
+    { value: 'Justin', label: 'Justin (Male)' },
+    { value: 'Kevin', label: 'Kevin (Male)' },
 ];
 
 /**

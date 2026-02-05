@@ -53,7 +53,14 @@ class Settings(BaseSettings):
     admin_password: str | None = None
 
     # Speech Configuration
-    tts_voice: str = "en-US-Neural2-F"  # Google Cloud TTS voice
+    tts_engine: str = "neural"
+    tts_voice_id: str = "Joanna"
+    aws_region: str = "us-west-2"
+    s3_tts_bucket: str = "dokutok-text-to-speech"
+    
+    # AWS Credentials (Optional, for local dev)
+    aws_access_key_id: str | None = None
+    aws_secret_access_key: str | None = None
 
     # Redis Configuration
     redis_url: str = "redis://redis:6379/0"

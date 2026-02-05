@@ -19,3 +19,4 @@ data:
   # Storage Configuration
   STORAGE_BACKEND: "s3"
   S3_PROJECT_DOCUMENTS_BUCKET: "dokutok-project-documents"
+  S3_TTS_BUCKET: "dokutok-text-to-speech"

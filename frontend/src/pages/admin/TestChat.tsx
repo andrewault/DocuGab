@@ -234,9 +234,37 @@ export default function TestChat() {
         setPlayingMessageIndex(index);
         setPlayingMessageText(text);
 
-        // Always assume animation enabled for Test Chat if avatar is present?
-        // Let's use TalkingHeadAvatar
-        setIsSynthesizing(false);
+        // If animation is disabled, play audio directly
+        if (!project?.show_animation) {
+            setIsSynthesizing(true);
+            try {
+                const res = await fetch(`${API_BASE}/api/v1/speech/synthesize`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, voice: project?.voice }),
+                });
+
+                if (!res.ok) throw new Error('Synthesis failed');
+
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                audioRef.current = audio;
+
+                audio.onended = () => {
+                    setPlayingMessageIndex(null);
+                    setPlayingMessageText('');
+                    URL.revokeObjectURL(url);
+                };
+
+                await audio.play();
+            } catch (error) {
+                console.error('Audio playback error:', error);
+                setPlayingMessageIndex(null);
+            } finally {
+                setIsSynthesizing(false);
+            }
+        }
     };
 
     if (loadingProject) {
