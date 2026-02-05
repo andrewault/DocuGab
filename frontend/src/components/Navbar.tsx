@@ -186,18 +186,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
                         >
                             Sign In
                         </Button>
-                        <Button
-                            variant="contained"
-                            onClick={() => navigate('/register')}
-                            sx={{
-                                background: 'linear-gradient(90deg, #6366f1, #4f46e5)',
-                                '&:hover': {
-                                    background: 'linear-gradient(90deg, #4f46e5, #4338ca)',
-                                },
-                            }}
-                        >
-                            Sign Up
-                        </Button>
+
                     </>
                 )}
             </Toolbar>

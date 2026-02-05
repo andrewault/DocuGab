@@ -14,6 +14,7 @@ import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import usePageTitle from '../../hooks/usePageTitle';
 import { API_BASE } from '@/config/api';
+import MediaBubble, { type AncillaryMedia } from '../../components/MediaBubble';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -434,7 +435,7 @@ export default function TestChat() {
                                                     <Stack spacing={1}>
                                                         {ancillaryContent.links.map((link: any, idx: number) => (
                                                             <Box key={`link-${idx}`}>
-                                                                <Link href={link.url} target="_blank" rel="noopener noreferrer" sx={{ fontWeight: 600 }}>
+                                                                <Link href={link.url} target="_blank" rel="noopener noreferrer" sx={{ fontWeight: 600, color: 'white' }}>
                                                                     {link.name} ↗
                                                                 </Link>
                                                             </Box>
@@ -461,32 +462,8 @@ export default function TestChat() {
                                                         Media
                                                     </Typography>
                                                     <Stack spacing={2}>
-                                                        {ancillaryContent.media.map((media: any, idx: number) => (
-                                                            <Box key={`media-${idx}`}>
-                                                                <Typography variant="body2" fontWeight={600} gutterBottom={!!media.description}>{media.description}</Typography>
-                                                                {(media.type === 'image' || media.type === 'photo') && (
-                                                                    <Box
-                                                                        component="img"
-                                                                        src={media.url.startsWith('/') ? `${API_BASE}${media.url}` : media.url}
-                                                                        alt={media.description}
-                                                                        sx={{ maxWidth: '100%', borderRadius: 1, mt: 0.5 }}
-                                                                    />
-                                                                )}
-                                                                {(media.type === 'video' || media.type === 'youtube') && (
-                                                                    <>
-                                                                        {(media.url.includes('youtube.com') || media.url.includes('youtu.be')) ? (
-                                                                            <Box
-                                                                                component="iframe"
-                                                                                src={media.url.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
-                                                                                sx={{ width: '100%', aspectRatio: '16/9', border: 0, borderRadius: 1, mt: 0.5 }}
-                                                                                allowFullScreen
-                                                                            />
-                                                                        ) : (
-                                                                            <Box component="video" src={media.url} controls sx={{ maxWidth: '100%', borderRadius: 1, mt: 0.5 }} />
-                                                                        )}
-                                                                    </>
-                                                                )}
-                                                            </Box>
+                                                        {ancillaryContent.media.map((media: AncillaryMedia, idx: number) => (
+                                                            <MediaBubble key={`media-${idx}`} media={media} />
                                                         ))}
                                                     </Stack>
                                                 </Paper>
@@ -496,13 +473,15 @@ export default function TestChat() {
                                 </Box>
                             );
                         })}
-                        {isLoading && messages[messages.length - 1]?.content === '' && (
-                            <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
-                                <CircularProgress size={20} />
-                            </Box>
-                        )}
+                        {
+                            isLoading && messages[messages.length - 1]?.content === '' && (
+                                <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
+                                    <CircularProgress size={20} />
+                                </Box>
+                            )
+                        }
                         <div ref={messagesEndRef} />
-                    </Box>
+                    </Box >
 
                     <Divider />
                     <Box sx={{ p: 2 }}>
@@ -525,8 +504,8 @@ export default function TestChat() {
                             }}
                         />
                     </Box>
-                </Paper>
-            </Box>
-        </Box>
+                </Paper >
+            </Box >
+        </Box >
     );
 }

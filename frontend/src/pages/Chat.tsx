@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthProvider';
 import TalkingHeadAvatar from '../components/TalkingHeadAvatar';
 import { VOICE_OPTIONS } from '../constants/voiceConstants';
 import { API_BASE } from '@/config/api';
+import MediaBubble, { type AncillaryMedia } from '../components/MediaBubble';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -25,11 +26,7 @@ interface Document {
     status: string;
 }
 
-interface AncillaryMedia {
-    type: 'photo' | 'youtube' | 'image' | 'video';
-    url: string;
-    description?: string;
-}
+
 
 interface AncillaryLink {
     name: string;
@@ -771,31 +768,7 @@ export default function Chat() {
                                                     </Typography>
                                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                                         {ancillaryContent.media.map((media: AncillaryMedia, idx: number) => (
-                                                            <Box key={idx} sx={{ borderRadius: 1, overflow: 'hidden' }}>
-                                                                {(media.type === 'photo' || media.type === 'image') ? (
-                                                                    <img
-                                                                        src={media.url.startsWith('/') ? `${API_BASE}${media.url}` : media.url}
-                                                                        alt={media.description || 'Reference image'}
-                                                                        style={{ width: '100%', maxHeight: 300, objectFit: 'contain', backgroundColor: 'black' }}
-                                                                    />
-                                                                ) : (
-                                                                    <Box sx={{ position: 'relative', pb: '56.25%', height: 0 }}>
-                                                                        <iframe
-                                                                            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                                                                            src={media.url.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
-                                                                            title="YouTube video player"
-                                                                            frameBorder="0"
-                                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                                            allowFullScreen
-                                                                        />
-                                                                    </Box>
-                                                                )}
-                                                                {media.description && (
-                                                                    <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.9 }}>
-                                                                        {media.description}
-                                                                    </Typography>
-                                                                )}
-                                                            </Box>
+                                                            <MediaBubble key={idx} media={media} />
                                                         ))}
                                                     </Box>
                                                 </Paper>
