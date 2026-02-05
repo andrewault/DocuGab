@@ -82,7 +82,7 @@ async def get_document_content(uuid: UUID, db: AsyncSession = Depends(get_db)):
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    file_path = get_file_path(document.filename)
+    file_path = await get_file_path(document.filename)
     if not file_path.exists():
         with open("debug_log.txt", "a") as log:
             log.write(f"UUID: {uuid}\n")
@@ -209,9 +209,8 @@ async def delete_document(uuid: UUID, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Document not found")
 
     # Delete physical file
-    file_path = get_file_path(document.filename)
-    if file_path.exists():
-        file_path.unlink()
+    from app.services.storage import delete_file
+    await delete_file(document.filename)
 
     # Delete from database (cascades to chunks)
     await db.delete(document)

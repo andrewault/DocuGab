@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-frontend:v11
+        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-frontend:v17
         imagePullPolicy: Always
         ports:
         - containerPort: 80

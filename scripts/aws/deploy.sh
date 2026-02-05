@@ -21,7 +21,8 @@ if [ ! -z "$1" ]; then
 fi
 
 echo "🚀 Applying Manifests..."
-kubectl apply -f k8s/
+# Apply all yaml files in k8s/ EXCEPT redis-values.yaml (which is for Helm)
+find k8s -maxdepth 1 -name "*.yaml" ! -name "redis-values.yaml" -exec kubectl apply -f {} \;
 
 echo "🔄 Restarting deployments to ensure new config/images are picked up..."
 kubectl rollout restart deployment docutok-frontend

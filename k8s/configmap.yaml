@@ -16,3 +16,6 @@ data:
   # Allow LoadBalancer and internal domains
   CORS_ORIGINS: "http://aa601044b65294e63861ea2e52a40739-1671173697.us-west-2.elb.amazonaws.com,http://localhost:5173"
   AWS_S3_BACKUP_BUCKET: "docutok-db-backups"
+  # Storage Configuration
+  STORAGE_BACKEND: "s3"
+  S3_PROJECT_DOCUMENTS_BUCKET: "dokutok-project-documents"

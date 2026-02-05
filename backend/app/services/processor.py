@@ -22,7 +22,7 @@ async def process_document(document_id: int, db: AsyncSession):
 
     try:
         # Extract text from file
-        file_path = get_file_path(document.filename)
+        file_path = await get_file_path(document.filename)
         pages = extract_text(file_path)
 
         if not pages:

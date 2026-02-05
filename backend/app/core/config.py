@@ -36,6 +36,13 @@ class Settings(BaseSettings):
     chunk_size: int = 500
     chunk_overlap: int = 50
 
+    # Storage Configuration
+    storage_backend: str = "local"  # local or s3
+    s3_project_documents_bucket: str = "dokutok-project-documents"
+
+    # Context Configuration
+    context_window: int = 200000  # Claude 3.5 Haiku context window
+
     # Auth Configuration
     secret_key: str = "change-me-in-production-min-32-chars"
     access_token_expire_minutes: int = 1800  # 30 hours
