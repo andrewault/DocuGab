@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
@@ -19,6 +19,7 @@ router = APIRouter()
 class ChatRequest(BaseModel):
     query: str
     project_id: int | None = None  # For multi-tenant isolation
+    project_uuid: UUID | None = None  # For public chat access
     document_id: int | None = None
     session_id: str | None = None  # Optional session grouping
 
@@ -132,11 +133,24 @@ async def chat(
     Retrieves relevant chunks from uploaded documents and generates
     a response using the local LLM (Ollama).
     """
+    # Resolve project_uuid to project_id if provided
+    project_id = request.project_id
+    if not project_id and request.project_uuid:
+        from app.models.project import Project
+        result = await db.execute(select(Project).where(Project.uuid == request.project_uuid))
+        project = result.scalar_one_or_none()
+        if project:
+            # For public access via UUID, ensure project is active
+            if not current_user and (not project.is_active or not project.is_enabled):
+                 raise HTTPException(status_code=404, detail="Project not found")
+            
+            project_id = project.id
+
     return StreamingResponse(
         generate_response(
             request.query,
             db,
-            project_id=request.project_id,
+            project_id=project_id,
             document_id=request.document_id,
         ),
         media_type="text/event-stream",
@@ -151,11 +165,23 @@ async def chat_query(request: ChatRequest, db: AsyncSession = Depends(get_db)):
     For multi-tenant security, pass project_id to scope retrieval.
     Returns the complete response after generation.
     """
+    # Resolve project_uuid to project_id for query endpoint too
+    project_id = request.project_id
+    if not project_id and request.project_uuid:
+        from app.models.project import Project
+        result = await db.execute(select(Project).where(Project.uuid == request.project_uuid))
+        project = result.scalar_one_or_none()
+        if project:
+             # Sanity check for public access
+             if not project.is_active or not project.is_enabled:
+                raise HTTPException(status_code=404, detail="Project not found")
+             project_id = project.id
+
     response_parts = []
     async for chunk in generate_response(
         request.query,
         db,
-        project_id=request.project_id,
+        project_id=project_id,
         document_id=request.document_id,
     ):
         response_parts.append(chunk)

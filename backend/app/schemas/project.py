@@ -115,3 +115,13 @@ class ProjectListResponse(BaseModel):
     total: int
     page: int
     per_page: int
+
+
+class PublicProjectResponse(ProjectBase):
+    """Schema for public project response (no internal IDs)."""
+
+    uuid: UUID
+    logo: Optional[str]
+    is_ready: bool = True
+    documents_count: Optional[int] = 0
+

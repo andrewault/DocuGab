@@ -26,8 +26,6 @@ interface Document {
     status: string;
 }
 
-
-
 interface AncillaryLink {
     name: string;
     url: string;
@@ -56,7 +54,31 @@ function getToken(): string | null {
     return localStorage.getItem('access_token');
 }
 
-export default function Chat() {
+export interface ChatProps {
+    sessionId?: string;
+    projectUuid?: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+    backgroundColor?: string;
+    hideSidebar?: boolean;
+    height?: string | number;
+    showAnimation?: boolean;
+    voice?: string;
+    avatar?: string;
+}
+
+export default function Chat({
+    sessionId: propSessionId,
+    projectUuid,
+    primaryColor,
+    secondaryColor,
+    backgroundColor,
+    hideSidebar = false,
+    height = 'calc(100vh - 64px)',
+    showAnimation: propShowAnimation,
+    voice: propVoice,
+    avatar: propAvatar
+}: ChatProps = {}) {
     const { user } = useAuth();
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
@@ -67,10 +89,15 @@ export default function Chat() {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
     const [showClearConfirm, setShowClearConfirm] = useState(false);
-    const sessionId = getSessionId();
+
+    // Use prop sessionId or generate default
+    const sessionId = useRef(propSessionId || getSessionId()).current;
 
     // Load messages - from API if authenticated, localStorage otherwise
     useEffect(() => {
+        // Skip for public chat (ephemeral)
+        if (projectUuid) return;
+
         const loadMessages = async () => {
             const token = getToken();
 
@@ -101,7 +128,7 @@ export default function Chat() {
         };
 
         loadMessages();
-    }, [user]);
+    }, [user, projectUuid]);
 
     // Save message to API
     const saveMessageToApi = async (role: string, content: string) => {
@@ -152,13 +179,15 @@ export default function Chat() {
 
     // Persist messages to localStorage (as backup)
     useEffect(() => {
-        if (messages.length > 0) {
+        if (messages.length > 0 && !projectUuid) {
             localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
         }
-    }, [messages]);
+    }, [messages, projectUuid]);
 
     // Fetch available documents
     useEffect(() => {
+        if (projectUuid) return; // Public chat doesn't fetch user's docs
+
         const fetchDocs = async () => {
             try {
                 const res = await fetch(`${API_BASE}/api/documents/`);
@@ -171,14 +200,12 @@ export default function Chat() {
             }
         };
         fetchDocs();
-    }, []);
+    }, [projectUuid]);
 
     // Auto-scroll to bottom
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
-
-
 
     // Text-to-Speech state
     const [playingMessageIndex, setPlayingMessageIndex] = useState<number | null>(null);
@@ -188,6 +215,7 @@ export default function Chat() {
 
     // Animation state (talking head avatar)
     const [animationEnabled, setAnimationEnabled] = useState(() => {
+        if (propShowAnimation !== undefined) return propShowAnimation;
         return localStorage.getItem('docutok_animation_enabled') === 'true';
     });
 
@@ -198,6 +226,7 @@ export default function Chat() {
     };
 
     const [selectedVoice, setSelectedVoice] = useState(() => {
+        if (propVoice) return propVoice;
         return localStorage.getItem('docutok_tts_voice') || 'en-US-Neural2-F';
     });
 
@@ -207,13 +236,13 @@ export default function Chat() {
     };
 
     // Avatar selection
-    // Available avatars in /assets/avatars/ directory
     const AVATAR_OPTIONS = [
         { value: '/assets/avatars/avatar.glb', label: 'Default Avatar' },
         { value: '/assets/avatars/character.glb', label: 'Character' }
     ];
 
     const [selectedAvatar, setSelectedAvatar] = useState(() => {
+        if (propAvatar) return propAvatar;
         return localStorage.getItem('docutok_avatar_selection') || '/assets/avatars/avatar.glb';
     });
 
@@ -221,8 +250,6 @@ export default function Chat() {
         setSelectedAvatar(value);
         localStorage.setItem('docutok_avatar_selection', value);
     };
-
-
 
     // Play assistant message as audio
     const playAssistantAudio = async (text: string, messageIndex: number) => {
@@ -291,7 +318,7 @@ export default function Chat() {
         setInput('');
         setIsLoading(true);
 
-        // Save user message to API
+        // Save user message to API (only if authenticated)
         saveMessageToApi('user', userContent);
 
         // Add placeholder for assistant response
@@ -303,7 +330,8 @@ export default function Chat() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     query: userContent,
-                    document_id: selectedDoc || null
+                    document_id: selectedDoc || null,
+                    project_uuid: projectUuid || null,
                 })
             });
 
@@ -328,7 +356,7 @@ export default function Chat() {
                 ]);
             }
 
-            // Save assistant message to API
+            // Save assistant message to API (only if authenticated)
             saveMessageToApi('assistant', assistantContent);
         } catch (error) {
             console.error('Chat error:', error);
@@ -347,129 +375,133 @@ export default function Chat() {
         <>
             <Box
                 sx={{
-                    height: 'calc(100vh - 64px)',
+                    height: height,
                     overflow: 'hidden',
-                    background: isDark
+                    background: backgroundColor || (isDark
                         ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
-                        : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
+                        : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)'),
                     pt: 1,
                     pb: 1,
                 }}
             >
                 <Box sx={{ display: 'flex', px: 3, gap: 3, height: 'calc(100% - 76px)' }}>
                     {/* Left Sidebar */}
-                    <Paper
-                        sx={{
-                            width: 280,
-                            flexShrink: 0,
-                            p: 3,
-                            bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 2,
-                            borderRadius: 2,
-                            overflow: 'hidden',
-                        }}
-                    >
-                        {/* Title */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Forum sx={{ fontSize: 28, color: '#6366f1' }} />
-                            <Typography
-                                variant="h6"
-                                sx={{
-                                    fontWeight: 700,
-                                    background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                                    backgroundClip: 'text',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
-                                }}
-                            >
-                                Chat
-                            </Typography>
-                        </Box>
-
-                        {/* Message count */}
-                        <Typography variant="body2" color="text.secondary">
-                            {messages.length} message{messages.length !== 1 ? 's' : ''}
-                        </Typography>
-
-                        {/* Document Filter */}
-                        <FormControl size="small" fullWidth>
-                            <InputLabel>Filter by document</InputLabel>
-                            <Select
-                                value={selectedDoc}
-                                label="Filter by document"
-                                onChange={(e) => setSelectedDoc(e.target.value as number | '')}
-                            >
-                                <MenuItem value="">All documents</MenuItem>
-                                {documents.map((doc) => (
-                                    <MenuItem key={doc.id} value={doc.id}>
-                                        {doc.filename}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-
-                        {/* Animation Toggle */}
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={animationEnabled}
-                                    onChange={toggleAnimation}
-                                    size="small"
-                                />
-                            }
-                            label="Animation"
-                            sx={{ mt: 1 }}
-                        />
-
-                        {/* Voice Selection - Always visible */}
-                        <FormControl size="small" fullWidth sx={{ mt: 1 }}>
-                            <InputLabel>Voice</InputLabel>
-                            <Select
-                                value={selectedVoice}
-                                label="Voice"
-                                onChange={(e) => handleVoiceChange(e.target.value)}
-                            >
-                                {VOICE_OPTIONS.map((voice) => (
-                                    <MenuItem key={voice.value} value={voice.value}>
-                                        {voice.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-
-                        {/* Avatar Selection - shown when animation enabled */}
-                        {animationEnabled && (
-                            <FormControl size="small" fullWidth sx={{ mt: 2 }}>
-                                <InputLabel>Avatar</InputLabel>
-                                <Select
-                                    value={selectedAvatar}
-                                    label="Avatar"
-                                    onChange={(e) => handleAvatarChange(e.target.value)}
+                    {!hideSidebar && (
+                        <Paper
+                            sx={{
+                                width: 280,
+                                flexShrink: 0,
+                                p: 3,
+                                bgcolor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'background.paper',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2,
+                                borderRadius: 2,
+                                overflow: 'hidden',
+                            }}
+                        >
+                            {/* Title */}
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Forum sx={{ fontSize: 28, color: '#6366f1' }} />
+                                <Typography
+                                    variant="h6"
+                                    sx={{
+                                        fontWeight: 700,
+                                        background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                                        backgroundClip: 'text',
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                    }}
                                 >
-                                    {AVATAR_OPTIONS.map((avatar) => (
-                                        <MenuItem key={avatar.value} value={avatar.value}>
-                                            {avatar.label}
+                                    Chat
+                                </Typography>
+                            </Box>
+
+                            {/* Message count */}
+                            <Typography variant="body2" color="text.secondary">
+                                {messages.length} message{messages.length !== 1 ? 's' : ''}
+                            </Typography>
+
+                            {/* Document Filter */}
+                            {!projectUuid && (
+                                <FormControl size="small" fullWidth>
+                                    <InputLabel>Filter by document</InputLabel>
+                                    <Select
+                                        value={selectedDoc}
+                                        label="Filter by document"
+                                        onChange={(e) => setSelectedDoc(e.target.value as number | '')}
+                                    >
+                                        <MenuItem value="">All documents</MenuItem>
+                                        {documents.map((doc) => (
+                                            <MenuItem key={doc.id} value={doc.id}>
+                                                {doc.filename}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            )}
+
+                            {/* Animation Toggle */}
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={animationEnabled}
+                                        onChange={toggleAnimation}
+                                        size="small"
+                                    />
+                                }
+                                label="Animation"
+                                sx={{ mt: 1 }}
+                            />
+
+                            {/* Voice Selection - Always visible */}
+                            <FormControl size="small" fullWidth sx={{ mt: 1 }}>
+                                <InputLabel>Voice</InputLabel>
+                                <Select
+                                    value={selectedVoice}
+                                    label="Voice"
+                                    onChange={(e) => handleVoiceChange(e.target.value)}
+                                >
+                                    {VOICE_OPTIONS.map((voice) => (
+                                        <MenuItem key={voice.value} value={voice.value}>
+                                            {voice.label}
                                         </MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
-                        )}
 
-                        <Box sx={{ flexGrow: 1 }} />
+                            {/* Avatar Selection - shown when animation enabled */}
+                            {animationEnabled && (
+                                <FormControl size="small" fullWidth sx={{ mt: 2 }}>
+                                    <InputLabel>Avatar</InputLabel>
+                                    <Select
+                                        value={selectedAvatar}
+                                        label="Avatar"
+                                        onChange={(e) => handleAvatarChange(e.target.value)}
+                                    >
+                                        {AVATAR_OPTIONS.map((avatar) => (
+                                            <MenuItem key={avatar.value} value={avatar.value}>
+                                                {avatar.label}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            )}
 
-                        <Button
-                            variant="outlined"
-                            color="error"
-                            startIcon={<Delete />}
-                            onClick={() => setShowClearConfirm(true)}
-                            fullWidth
-                            disabled={messages.length === 0}
-                        >
-                            Clear Chat
-                        </Button>
-                    </Paper>
+                            <Box sx={{ flexGrow: 1 }} />
+
+                            <Button
+                                variant="outlined"
+                                color="error"
+                                startIcon={<Delete />}
+                                onClick={() => setShowClearConfirm(true)}
+                                fullWidth
+                                disabled={messages.length === 0}
+                            >
+                                Clear Chat
+                            </Button>
+                        </Paper>
+                    )}
 
                     {/* Main Content Area - Avatar Panel + Chat */}
                     <Box
@@ -517,7 +549,9 @@ export default function Chat() {
                                 width: animationEnabled ? { xs: '100%', md: '72%' } : '100%',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                overflow: 'hidden'
+                                overflow: 'hidden',
+                                border: '2px solid #424242',
+                                borderRadius: 2,
                             }}
                         >
 
@@ -526,10 +560,10 @@ export default function Chat() {
                                 {messages.length === 0 && (
                                     <Box sx={{ textAlign: 'center', color: 'text.secondary', mt: 4 }}>
                                         <Typography variant="h6" gutterBottom>
-                                            Ask a question about your documents
+                                            {projectUuid ? 'Welcome!' : 'Ask a question about your documents'}
                                         </Typography>
                                         <Typography variant="body2">
-                                            Upload documents first, then ask questions here.
+                                            {projectUuid ? 'Start chatting below.' : 'Upload documents first, then ask questions here.'}
                                         </Typography>
                                     </Box>
                                 )}
@@ -578,7 +612,7 @@ export default function Chat() {
                                                     p: 2,
                                                     maxWidth: '80%',
                                                     bgcolor: isUser
-                                                        ? 'primary.main'
+                                                        ? (primaryColor || 'primary.main')
                                                         : isDark ? 'grey.800' : 'grey.100',
                                                     borderRadius: 2,
                                                 }}
@@ -677,7 +711,7 @@ export default function Chat() {
                                                         mt: 1,
                                                         p: 2,
                                                         maxWidth: '80%',
-                                                        bgcolor: 'secondary.main',
+                                                        bgcolor: secondaryColor || 'secondary.main',
                                                         color: 'white',
                                                         borderRadius: 2,
                                                     }}
@@ -725,7 +759,7 @@ export default function Chat() {
                                                         mt: 1,
                                                         p: 2,
                                                         maxWidth: '80%',
-                                                        bgcolor: '#1e3a8a', // Dark Blue
+                                                        bgcolor: secondaryColor || '#1e3a8a',
                                                         color: 'white',
                                                         borderRadius: 2,
                                                     }}
@@ -758,7 +792,7 @@ export default function Chat() {
                                                         mt: 1,
                                                         p: 2,
                                                         maxWidth: '80%',
-                                                        bgcolor: '#1e3a8a', // Dark Blue
+                                                        bgcolor: secondaryColor || '#1e3a8a',
                                                         color: 'white',
                                                         borderRadius: 2,
                                                     }}
@@ -814,7 +848,7 @@ export default function Chat() {
                                                     aria-label="Send message"
                                                     disabled={isLoading || !input.trim()}
                                                     sx={{
-                                                        bgcolor: isDark ? '#1e3a5f' : 'primary.main',
+                                                        bgcolor: isDark ? '#1e3a5f' : (primaryColor || 'primary.main'),
                                                         color: isDark ? '#fff' : '#fff',
                                                         '&:hover': { bgcolor: isDark ? '#2d4a6f' : 'primary.dark' },
                                                         '&.Mui-disabled': { bgcolor: 'grey.700', color: 'grey.500' },

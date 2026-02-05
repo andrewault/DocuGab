@@ -44,10 +44,30 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
             if (!containerRef.current) return;
 
             try {
-                // Dynamically import TalkingHead
-                // @ts-expect-error TalkingHead is loaded dynamically
-                const module = await import('../libs/talkinghead.mjs');
+                // Fetch and load talkinghead.mjs as a Blob to bypass Vite's public directory restriction
+                // Add cache-busting parameter to ensure fresh fetch
+                const libPath = `/libs/talkinghead.mjs?v=${Date.now()}`;
+                const response = await fetch(libPath);
+                if (!response.ok) throw new Error(`Failed to load ${libPath}`);
+                let code = await response.text();
+
+                // Rewrite relative imports to use absolute URLs (required for Blob URL context)
+                const origin = window.location.origin;
+                code = code.replace(/from '\.\/retargeter\.mjs'/g, `from '${origin}/libs/retargeter.mjs'`);
+                code = code.replace(/from '\.\/dynamicbones\.mjs'/g, `from '${origin}/libs/dynamicbones.mjs'`);
+
+                // Fix worklet URL construction
+                code = code.replace(/new URL\('\.\/playback-worklet\.js', import\.meta\.url\)/g, `new URL('${origin}/libs/playback-worklet.js')`);
+
+                // Fix dynamic lipsync imports
+                code = code.replace(/import\("\.\/lipsync-"/g, `import("${origin}/libs/lipsync-"`);
+
+                // Create Blob URL and import
+                const blob = new Blob([code], { type: 'text/javascript' });
+                const blobUrl = URL.createObjectURL(blob);
+                const module = await import(/* @vite-ignore */ blobUrl);
                 const TalkingHead: TalkingHeadClass = module.TalkingHead;
+                URL.revokeObjectURL(blobUrl);
 
                 if (!mounted) return;
 
@@ -55,7 +75,7 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
                 const head = new TalkingHead(containerRef.current, {
                     ttsEndpoint: `${API_BASE}/api/v1/speech/synthesize-avatar`,
                     cameraView: 'full', // "full", "mid", "upper" and "head"
-                    cameraDistance: 0.5,
+                    cameraDistance: 0.4,
                     cameraX: 0,
                     cameraY: 0,
                     cameraRotateX: 0,
@@ -69,8 +89,31 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
                 });
 
                 // Load avatar
+                // If avatarUrl is just a name (e.g., "male"), construct full path
+                // If it's already a path (starts with / or http), use as-is
+                // Map known avatar names to available files
+                const avatarNameMap: Record<string, string> = {
+                    'default': 'avatar.glb',
+                    'male': 'avatar.glb',
+                    'female': 'avatar.glb',
+                    'character': 'character.glb',
+                    'avatar': 'avatar.glb',
+                };
+
+                let resolvedAvatarUrl = '/assets/avatars/avatar.glb'; // default
+                if (avatarUrl) {
+                    if (avatarUrl.startsWith('/') || avatarUrl.startsWith('http')) {
+                        resolvedAvatarUrl = avatarUrl;
+                    } else {
+                        // Map avatar name to available file, or use the name directly
+                        const avatarName = avatarUrl.replace('.glb', '');
+                        const mappedFile = avatarNameMap[avatarName] || `${avatarName}.glb`;
+                        resolvedAvatarUrl = `/assets/avatars/${mappedFile}`;
+                    }
+                }
+                console.log('Loading avatar from:', resolvedAvatarUrl);
                 await head.showAvatar({
-                    url: avatarUrl || '/assets/avatar.glb',
+                    url: resolvedAvatarUrl,
                     body: 'M',
                     lipsyncLang: 'en',
                 });

@@ -19,7 +19,7 @@ import {
     DialogActions,
     IconButton,
 } from '@mui/material';
-import { Edit, Forum, HelpOutline } from '@mui/icons-material';
+import { Edit, Forum, HelpOutline, Visibility } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { StatusBanner } from '../../components/admin/StatusBanner';
@@ -270,6 +270,13 @@ export default function ProjectDetail() {
                         )}
                     </Stack>
                     <Stack direction="row" spacing={2}>
+                        <Button
+                            variant="outlined"
+                            startIcon={<Visibility />}
+                            onClick={() => window.open(`/chats/${project.slug}`, '_blank')}
+                        >
+                            View Chatbot
+                        </Button>
                         <Button
                             variant="outlined"
                             startIcon={<Forum />}

@@ -130,7 +130,7 @@ export default function ProjectEdit() {
         color_primary: '#1976d2',
         color_secondary: '#dc004e',
         color_background: '#ffffff',
-        avatar: 'male',
+        avatar: 'default',
         voice: 'alloy',
         show_animation: true,
         return_link: '',
@@ -688,8 +688,7 @@ export default function ProjectEdit() {
                                     label="Avatar"
                                     disabled={saving}
                                 >
-                                    <MenuItem value="male">Male</MenuItem>
-                                    <MenuItem value="female">Female</MenuItem>
+                                    <MenuItem value="default">Default</MenuItem>
                                 </Select>
                             </FormControl>
 

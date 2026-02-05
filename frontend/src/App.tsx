@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { Box, Toolbar } from '@mui/material';
 import Navbar from './components/Navbar';
 import AdminSidebar from './components/AdminSidebar';
 import CustomerSidebar from './components/CustomerSidebar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import PublicChat from './pages/PublicChat';
 import Home from './pages/Home';
 import DocumentViewer from './pages/DocumentViewer';
 import Chat from './pages/Chat';
@@ -54,10 +55,20 @@ import { useAuth } from './context/AuthProvider';
 export default function App() {
   const { isAdmin, isCustomer } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const location = useLocation();
 
   const handleToggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
+
+  // If we are on a public chat route, render standalone layout
+  if (location.pathname.startsWith('/chats/')) {
+    return (
+      <Routes>
+        <Route path="/chats/:slug" element={<PublicChat />} />
+      </Routes>
+    );
+  }
 
   // Normal app routes for main domain
   return (

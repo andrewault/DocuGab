@@ -1,0 +1,76 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select, func
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.database import get_db
+from app.models.project import Project
+from app.models.document import Document
+from app.schemas.project import PublicProjectResponse
+
+router = APIRouter(prefix="/public", tags=["public"])
+
+
+@router.get("/projects/{slug}", response_model=PublicProjectResponse)
+async def get_public_project(
+    slug: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Get public project details by slug.
+    Only returns active and enabled projects.
+    """
+    # Query project by slug
+    query = select(Project).where(
+        Project.slug == slug,
+        Project.is_active == True,
+        Project.is_enabled == True
+    )
+    result = await db.execute(query)
+    project = result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+
+    # Count active documents
+    docs_query = select(func.count(Document.id)).where(
+        Document.project_id == project.id
+    )
+    docs_result = await db.execute(docs_query)
+    documents_count = docs_result.scalar() or 0
+
+    # Determine readiness (matches logic in frontend/ProjectEdit showing animation toggle note)
+    is_ready = documents_count > 0
+    if not project.show_animation:
+        # If animation is disabled, we consider it ready if documents exist
+        # If animation is enabled, maybe we need other checks?
+        # For now, simplistic logic: >0 docs = ready.
+        pass
+    
+    # We will just return the project data mapped to the schema
+    # Pydantic will extract fields from the ORM object where names match
+    # For computed fields, we add them explicitly
+    
+    return PublicProjectResponse(
+        uuid=project.uuid,
+        name=project.name,
+        slug=project.slug,
+        title=project.title,
+        subtitle=project.subtitle,
+        body=project.body,
+        color_primary=project.color_primary,
+        color_secondary=project.color_secondary,
+        color_background=project.color_background,
+        avatar=project.avatar,
+        voice=project.voice,
+        show_animation=project.show_animation,
+        return_link=project.return_link,
+        return_link_text=project.return_link_text,
+        is_demo=project.is_demo,
+        is_enabled=project.is_enabled,
+        logo=project.logo,
+        is_ready=is_ready,
+        documents_count=documents_count
+    )

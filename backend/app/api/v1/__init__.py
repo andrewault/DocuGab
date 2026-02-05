@@ -15,6 +15,7 @@ from app.api.routes import (
     avatars,
     images,
 )
+from app.api.routes import public
 from app.api.routes.admin_routes import projects as admin_projects
 from app.api.routes.admin_routes import media as admin_media
 from app.api.routes.admin_routes import links as admin_links
@@ -50,3 +51,4 @@ router.include_router(
     avatars.customer_router, prefix="/customer/avatars", tags=["Customer Avatars"]
 )
 router.include_router(images.router, prefix="/images", tags=["Images"])
+router.include_router(public.router)

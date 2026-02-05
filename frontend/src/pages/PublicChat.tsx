@@ -1,195 +1,158 @@
-import { useState, useRef, useEffect } from 'react';
-import {
-    Box, Paper, TextField, IconButton,
-    Typography, CircularProgress,
-} from '@mui/material';
-import { Send } from '@mui/icons-material';
-import ReactMarkdown from 'react-markdown';
-import { useProject } from '../context/ProjectContext';
-import BrandedChatWrapper from '../components/BrandedChatWrapper';
-import TalkingHeadAvatar from '../components/TalkingHeadAvatar';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { Box, Typography, CircularProgress, Alert } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { API_BASE } from '@/config/api';
+import Chat from './Chat';
+import { darkTheme } from '../theme';
 
-interface Message {
-    role: 'user' | 'assistant';
-    content: string;
+interface PublicProject {
+    uuid: string;
+    name: string;
+    slug: string;
+    title: string;
+    subtitle?: string;
+    logo?: string;
+    color_primary: string;
+    color_secondary: string;
+    color_background: string;
+    avatar: string;
+    voice: string;
+    show_animation: boolean;
+    is_ready: boolean;
 }
 
-export default function PublicChat() {
-    const { project } = useProject();
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [input, setInput] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-
-    // Auto-scroll to bottom
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
-
-    const handleSend = async () => {
-        if (!input.trim() || !project) return;
-
-        const userMessage: Message = { role: 'user', content: input };
-        setMessages(prev => [...prev, userMessage]);
-        setInput('');
-        setIsLoading(true);
-
-        try {
-            const response = await fetch(`${API_BASE}/api/v1/chat`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+// Create a custom theme based on darkTheme but with specific overrides for Public Chat
+const publicTheme = createTheme(darkTheme, {
+    components: {
+        MuiOutlinedInput: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: '#ffffff', // White background for input
+                    color: '#000000',          // Black text
+                    '&:hover': {
+                        backgroundColor: '#ffffff',
+                    },
+                    '&.Mui-focused': {
+                        backgroundColor: '#ffffff',
+                    },
                 },
-                body: JSON.stringify({
-                    message: input,
-                    project_id: project.id,
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to get response');
+                input: {
+                    color: '#000000',          // Black text input
+                    '&::placeholder': {
+                        color: '#666666',      // Dark gray placeholder
+                        opacity: 1,
+                    },
+                },
+                notchedOutline: {
+                    border: 'none',            // Remove border if desired for cleaner look
+                }
             }
-
-            const data = await response.json();
-            const assistantMessage: Message = {
-                role: 'assistant',
-                content: data.response || 'No response received',
-            };
-
-            setMessages(prev => [...prev, assistantMessage]);
-        } catch {
-            const errorMessage: Message = {
-                role: 'assistant',
-                content: 'Sorry, I encountered an error. Please try again.',
-            };
-            setMessages(prev => [...prev, errorMessage]);
-        } finally {
-            setIsLoading(false);
+        },
+        MuiInputBase: {
+            styleOverrides: {
+                root: {
+                    color: '#000000',
+                }
+            }
         }
-    };
+    }
+});
 
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
-        }
-    };
+export default function PublicChat() {
+    const { slug } = useParams<{ slug: string }>();
+    const [project, setProject] = useState<PublicProject | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchProject = async () => {
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/public/projects/${slug}`);
+
+                // Check if response is JSON
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    console.error("Received non-JSON response:", await response.text());
+                    throw new Error("Unable to connect to chat service (Invalid response format).");
+                }
+
+                if (!response.ok) {
+                    if (response.status === 404) throw new Error('Chat not found.');
+                    throw new Error('Failed to load chat.');
+                }
+                const data = await response.json();
+                setProject(data);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Unknown error');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (slug) fetchProject();
+    }, [slug]);
+
+    if (loading) return (
+        <ThemeProvider theme={publicTheme}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', bgcolor: '#424242', color: 'text.primary' }}>
+                <CircularProgress />
+            </Box>
+        </ThemeProvider>
+    );
+
+    if (error || !project) return (
+        <ThemeProvider theme={publicTheme}>
+            <Box sx={{ p: 4, display: 'flex', justifyContent: 'center', minHeight: '100vh', bgcolor: '#424242' }}>
+                <Alert severity="error">{error || 'Project not found'}</Alert>
+            </Box>
+        </ThemeProvider>
+    );
 
     return (
-        <BrandedChatWrapper>
-            <Box
-                sx={{
-                    height: 'calc(100vh - 200px)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    maxWidth: 1200,
-                    mx: 'auto',
-                    p: 3,
-                }}
-            >
-                {/* Avatar */}
-                {project && (
-                    <Box
-                        sx={{
-                            height: '75vh',
-                            maxHeight: 600,
-                            mb: 2,
-                        }}
-                    >
-                        <TalkingHeadAvatar
-                            avatarUrl={project.avatar}
-                            voice={project.voice}
+        <ThemeProvider theme={publicTheme}>
+            <Box sx={{
+                minHeight: '100vh',
+                bgcolor: project.color_background, // Use project's background color
+                color: project.color_primary, // Keep branded text color for headers
+                display: 'flex',
+                flexDirection: 'column',
+            }}>
+                {/* Header */}
+                <Box sx={{ p: 3, pb: 0, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    {project.logo && (
+                        <img src={project.logo.startsWith('http') ? project.logo : `${API_BASE}${project.logo}`}
+                            alt="Logo"
+                            style={{ height: 48, objectFit: 'contain' }}
                         />
-                    </Box>
-                )}
-
-                {/* Messages */}
-                <Paper
-                    elevation={2}
-                    sx={{
-                        flex: 1,
-                        overflow: 'auto',
-                        p: 2,
-                        mb: 2,
-                        bgcolor: 'background.paper',
-                    }}
-                >
-                    {messages.length === 0 ? (
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                            height="100%"
-                        >
-                            <Typography color="text.secondary">
-                                Start a conversation...
-                            </Typography>
-                        </Box>
-                    ) : (
-                        <>
-                            {messages.map((msg, idx) => (
-                                <Box
-                                    key={idx}
-                                    sx={{
-                                        mb: 2,
-                                        display: 'flex',
-                                        justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                                    }}
-                                >
-                                    <Paper
-                                        elevation={1}
-                                        sx={{
-                                            p: 2,
-                                            maxWidth: '70%',
-                                            bgcolor: msg.role === 'user' ? 'primary.main' : 'grey.100',
-                                            color: msg.role === 'user' ? 'primary.contrastText' : 'text.primary',
-                                        }}
-                                    >
-                                        {msg.role === 'assistant' ? (
-                                            <ReactMarkdown>{msg.content}</ReactMarkdown>
-                                        ) : (
-                                            <Typography>{msg.content}</Typography>
-                                        )}
-                                    </Paper>
-                                </Box>
-                            ))}
-                            <div ref={messagesEndRef} />
-                        </>
                     )}
-                </Paper>
+                    <Box>
+                        <Typography variant="h5" fontWeight="bold" sx={{ color: project.color_primary }}>
+                            {project.title}
+                        </Typography>
+                        {project.subtitle && (
+                            <Typography variant="body2" sx={{ color: project.color_secondary }}>
+                                {project.subtitle}
+                            </Typography>
+                        )}
+                    </Box>
+                </Box>
 
-                {/* Input */}
-                <Paper
-                    elevation={2}
-                    sx={{
-                        p: 2,
-                        display: 'flex',
-                        gap: 1,
-                        bgcolor: 'background.paper',
-                    }}
-                >
-                    <TextField
-                        fullWidth
-                        multiline
-                        maxRows={4}
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder="Type your message..."
-                        disabled={isLoading}
-                        variant="outlined"
+                {/* Chat Component */}
+                <Box sx={{ flex: 1, p: { xs: 1, md: 3 } }}>
+                    <Chat
+                        projectUuid={project.uuid}
+                        primaryColor={project.color_primary}
+                        secondaryColor={project.color_secondary}
+                        backgroundColor="transparent" // Allow parent gray to show through
+                        hideSidebar={true}
+                        height="calc(100vh - 120px)"
+                        showAnimation={project.show_animation}
+                        voice={project.voice}
+                        avatar={project.avatar}
                     />
-                    <IconButton
-                        color="primary"
-                        onClick={handleSend}
-                        disabled={!input.trim() || isLoading}
-                        sx={{ alignSelf: 'flex-end' }}
-                    >
-                        {isLoading ? <CircularProgress size={24} /> : <Send />}
-                    </IconButton>
-                </Paper>
+                </Box>
             </Box>
-        </BrandedChatWrapper>
+        </ThemeProvider>
     );
 }
