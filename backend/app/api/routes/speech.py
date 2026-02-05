@@ -5,7 +5,6 @@ from fastapi.responses import Response, JSONResponse
 from pydantic import BaseModel
 
 from app.services.speech import (
-    transcribe_audio,
     synthesize_speech,
     synthesize_for_avatar,
 )
@@ -14,39 +13,11 @@ from app.services.speech import (
 router = APIRouter()
 
 
-class TranscribeResponse(BaseModel):
-    text: str
-
-
 class SynthesizeRequest(BaseModel):
     text: str
     voice: str | None = None
 
 
-@router.post("/transcribe", response_model=TranscribeResponse)
-async def transcribe(
-    audio: UploadFile = File(..., description="Audio file to transcribe"),
-):
-    """
-    Transcribe audio to text using Google Cloud Speech-to-Text.
-
-    Accepts audio files in various formats (wav, mp3, webm, etc.)
-    Returns the transcribed text.
-    """
-    # Validate file type
-    content_type = audio.content_type or ""
-    if content_type and not any(t in content_type for t in ["audio", "video/webm"]):
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid file type: {content_type}. Expected audio file.",
-        )
-
-    try:
-        audio_bytes = await audio.read()
-        text = await transcribe_audio(audio_bytes, mime_type=content_type)
-        return TranscribeResponse(text=text)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")
 
 
 @router.post("/synthesize")

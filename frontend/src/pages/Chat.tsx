@@ -6,7 +6,7 @@ import {
     Button, Dialog, DialogTitle, DialogContent, DialogActions,
     Checkbox, FormControlLabel
 } from '@mui/material';
-import { Send, Forum, Delete, Mic, Stop, VolumeUp } from '@mui/icons-material';
+import { Send, Forum, Delete, Stop, VolumeUp } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../context/AuthProvider';
@@ -181,11 +181,7 @@ export default function Chat() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    // Speech-to-Text state
-    const [isRecording, setIsRecording] = useState(false);
-    const [isTranscribing, setIsTranscribing] = useState(false);
-    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-    const audioChunksRef = useRef<Blob[]>([]);
+
 
     // Text-to-Speech state
     const [playingMessageIndex, setPlayingMessageIndex] = useState<number | null>(null);
@@ -229,92 +225,7 @@ export default function Chat() {
         localStorage.setItem('docutok_avatar_selection', value);
     };
 
-    // Start recording audio
-    const startRecording = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-            // Try different mimeTypes for compatibility
-            let mimeType = 'audio/webm';
-            if (!MediaRecorder.isTypeSupported('audio/webm')) {
-                if (MediaRecorder.isTypeSupported('audio/mp4')) {
-                    mimeType = 'audio/mp4';
-                } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
-                    mimeType = 'audio/ogg';
-                }
-            }
-
-            const mediaRecorder = new MediaRecorder(stream, { mimeType });
-            mediaRecorderRef.current = mediaRecorder;
-            audioChunksRef.current = [];
-
-            mediaRecorder.ondataavailable = (event) => {
-                console.log('Audio data available:', event.data.size, 'bytes');
-                if (event.data.size > 0) {
-                    audioChunksRef.current.push(event.data);
-                }
-            };
-
-            mediaRecorder.onstop = async () => {
-                console.log('Recording stopped, chunks:', audioChunksRef.current.length);
-                const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-                console.log('Audio blob size:', audioBlob.size);
-                stream.getTracks().forEach(track => track.stop());
-                if (audioBlob.size > 0) {
-                    await transcribeAudio(audioBlob);
-                } else {
-                    console.error('No audio data recorded');
-                }
-            };
-
-            // Start recording with timeslice to get data periodically
-            mediaRecorder.start(1000);  // Get data every second
-            setIsRecording(true);
-            console.log('Recording started with mimeType:', mimeType);
-        } catch (error) {
-            console.error('Failed to start recording:', error);
-            alert('Failed to access microphone. Please check permissions.');
-        }
-    };
-
-    // Stop recording and transcribe
-    const stopRecording = () => {
-        if (mediaRecorderRef.current && isRecording) {
-            // Request any remaining data before stopping
-            if (mediaRecorderRef.current.state === 'recording') {
-                mediaRecorderRef.current.requestData();
-            }
-            mediaRecorderRef.current.stop();
-            setIsRecording(false);
-        }
-    };
-
-    // Send audio to backend for transcription
-    const transcribeAudio = async (audioBlob: Blob) => {
-        setIsTranscribing(true);
-        try {
-            const formData = new FormData();
-            formData.append('audio', audioBlob, 'recording.webm');
-
-            const res = await fetch(`${API_BASE}/api/v1/speech/transcribe`, {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                if (data.text) {
-                    setInput(prev => prev + (prev ? ' ' : '') + data.text);
-                }
-            } else {
-                console.error('Transcription failed:', await res.text());
-            }
-        } catch (error) {
-            console.error('Transcription error:', error);
-        } finally {
-            setIsTranscribing(false);
-        }
-    };
 
     // Play assistant message as audio
     const playAssistantAudio = async (text: string, messageIndex: number) => {
@@ -918,29 +829,7 @@ export default function Chat() {
                                     InputProps={{
                                         endAdornment: (
                                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                {/* Microphone button */}
-                                                <IconButton
-                                                    onClick={isRecording ? stopRecording : startRecording}
-                                                    disabled={isTranscribing}
-                                                    sx={{
-                                                        color: isRecording ? 'error.main' : (isDark ? '#aaa' : 'grey.600'),
-                                                        animation: isRecording ? 'pulse 1.5s infinite' : 'none',
-                                                        '@keyframes pulse': {
-                                                            '0%': { opacity: 1 },
-                                                            '50%': { opacity: 0.5 },
-                                                            '100%': { opacity: 1 },
-                                                        },
-                                                    }}
-                                                    title={isRecording ? 'Stop recording' : 'Start voice input'}
-                                                >
-                                                    {isTranscribing ? (
-                                                        <CircularProgress size={24} />
-                                                    ) : isRecording ? (
-                                                        <Stop />
-                                                    ) : (
-                                                        <Mic />
-                                                    )}
-                                                </IconButton>
+
                                                 {/* Send button */}
                                                 <IconButton
                                                     onClick={sendMessage}

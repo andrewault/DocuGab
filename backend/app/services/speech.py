@@ -18,53 +18,7 @@ def get_polly_client():
     return boto3.client("polly", **kwargs)
 
 
-async def transcribe_audio(
-    audio_bytes: bytes, language: Optional[str] = None, mime_type: str = "audio/webm"
-) -> str:
-    """
-    Transcribe audio to text using Google Cloud Speech-to-Text.
 
-    Args:
-        audio_bytes: Raw audio data (webm, wav, etc.)
-        language: Optional language code (default: en-US)
-        mime_type: MIME type of the audio file
-
-    Returns:
-        Transcribed text
-    """
-    from google.cloud import speech
-
-    client = speech.SpeechClient()
-    audio = speech.RecognitionAudio(content=audio_bytes)
-
-    # Determine encoding based on mime type
-    encoding = speech.RecognitionConfig.AudioEncoding.WEBM_OPUS  # Default
-    if "ogg" in mime_type:
-        encoding = speech.RecognitionConfig.AudioEncoding.OGG_OPUS
-    elif "mp3" in mime_type or "mpeg" in mime_type:
-        encoding = speech.RecognitionConfig.AudioEncoding.MP3
-    elif "wav" in mime_type or "x-wav" in mime_type:
-        encoding = speech.RecognitionConfig.AudioEncoding.LINEAR16
-
-    # Note: MP4/AAC is not directly supported by standard RecognitionConfig without ffmpeg conversion
-    # unless using V2 API. For now, we default to WEBM_OPUS which covers most modern browsers.
-
-    config = speech.RecognitionConfig(
-        encoding=encoding,
-        # sample_rate_hertz is optional for WEBM_OPUS/OGG_OPUS and retrieved from header
-        language_code=language or "en-US",
-        enable_automatic_punctuation=True,
-    )
-
-    response = client.recognize(config=config, audio=audio)
-
-    # Combine all transcription results
-    transcripts = []
-    for result in response.results:
-        if result.alternatives:
-            transcripts.append(result.alternatives[0].transcript)
-
-    return " ".join(transcripts)
 
 
 async def synthesize_speech(text: str, voice: Optional[str] = None) -> bytes:
