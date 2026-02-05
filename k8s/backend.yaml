@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v27
+        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v28
         ports:
         - containerPort: 8000
         envFrom:
