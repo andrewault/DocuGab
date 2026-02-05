@@ -88,7 +88,7 @@ export default function ProjectMediaDetail() {
                 <StatusBanner
                     message={
                         project.is_demo
-                            ? 'Demo Project • Internal use only, not billed'
+                            ? 'Demo Project'
                             : !project.is_active
                                 ? 'Project Inactive'
                                 : !project.is_enabled
