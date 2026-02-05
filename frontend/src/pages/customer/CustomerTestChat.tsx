@@ -267,7 +267,11 @@ export default function CustomerTestChat() {
                         <TalkingHeadAvatar
                             text={playingMessageText}
                             voice={project.voice}
-                            avatarUrl={project.avatar || '/assets/avatars/avatar.glb'}
+                            avatarUrl={
+                                project.avatar === 'male' || project.avatar === 'female'
+                                    ? '/assets/avatars/avatar.glb'
+                                    : (project.avatar || '/assets/avatars/avatar.glb')
+                            }
                             isPlaying={playingMessageIndex !== null}
                         />
                     </Paper>

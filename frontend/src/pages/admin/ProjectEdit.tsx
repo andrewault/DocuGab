@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
     Box,
     Container,
@@ -103,6 +103,19 @@ function TabPanel(props: TabPanelProps) {
 export default function ProjectEdit() {
     const { uuid } = useParams<{ uuid: string }>();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+
+    // Map tab query param to tab index
+    const getInitialTab = () => {
+        const tabParam = searchParams.get('tab');
+        const tabMap: Record<string, number> = {
+            'basic': 0,
+            'branding': 1,
+            'voice': 2,
+        };
+        return tabParam && tabParam in tabMap ? tabMap[tabParam] : 0;
+    };
+
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [logoModalOpen, setLogoModalOpen] = useState(false);
@@ -117,7 +130,7 @@ export default function ProjectEdit() {
     const [saveError, setSaveError] = useState<string | null>(null);
     const [project, setProject] = useState<Project | null>(null);
     const [customers, setCustomers] = useState<Customer[]>([]);
-    const [tabValue, setTabValue] = useState(0);
+    const [tabValue, setTabValue] = useState(getInitialTab());
     const [formData, setFormData] = useState<ProjectFormData>({
         customer_id: '',
         name: '',
@@ -528,23 +541,7 @@ export default function ProjectEdit() {
                             </Typography>
                         </Box>
 
-                        <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-                            <FormControlLabel
-                                control={
-                                    <Switch
-                                        checked={formData.show_animation}
-                                        onChange={(e) => setFormData({ ...formData, show_animation: e.target.checked })}
-                                        disabled={saving}
-                                        color="primary"
-                                    />
-                                }
-                                label="Show Animation"
-                            />
-                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
-                                When disabled, projects don't require animations to be marked as ready.
-                                Only documents will be required.
-                            </Typography>
-                        </Box>
+
                     </Stack>
                 </TabPanel>
 
@@ -718,6 +715,24 @@ export default function ProjectEdit() {
                                 Test
                             </Button>
                         </Stack>
+
+                        <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={formData.show_animation}
+                                        onChange={(e) => setFormData({ ...formData, show_animation: e.target.checked })}
+                                        disabled={saving}
+                                        color="primary"
+                                    />
+                                }
+                                label="Show Animation"
+                            />
+                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+                                When disabled, projects don't require animations to be marked as ready.
+                                Only documents will be required.
+                            </Typography>
+                        </Box>
                     </Stack>
                 </TabPanel>
             </Paper>

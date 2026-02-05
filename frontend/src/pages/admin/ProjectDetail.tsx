@@ -280,7 +280,19 @@ export default function ProjectDetail() {
                         <Button
                             variant="contained"
                             startIcon={<Edit />}
-                            onClick={() => navigate(`/admin/projects/${uuid}/edit`)}
+                            onClick={() => {
+                                // Map detail tabs to edit tabs
+                                const tabMap: Record<string, string> = {
+                                    'overview': 'basic',
+                                    'branding': 'branding',
+                                    'voice': 'voice',
+                                };
+                                const editTab = tabMap[currentTab];
+                                const url = editTab
+                                    ? `/admin/projects/${uuid}/edit?tab=${editTab}`
+                                    : `/admin/projects/${uuid}/edit`;
+                                navigate(url);
+                            }}
                         >
                             Edit
                         </Button>

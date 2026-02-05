@@ -54,7 +54,7 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
                 // Create TalkingHead instance with our TTS endpoint
                 const head = new TalkingHead(containerRef.current, {
                     ttsEndpoint: `${API_BASE}/api/v1/speech/synthesize-avatar`,
-                    cameraView: 'upper',
+                    cameraView: 'full', // "full", "mid", "upper" and "head"
                     cameraDistance: 0.5,
                     cameraX: 0,
                     cameraY: 0,
