@@ -26,7 +26,7 @@ interface Document {
 }
 
 interface AncillaryMedia {
-    type: 'photo' | 'youtube';
+    type: 'photo' | 'youtube' | 'image' | 'video';
     url: string;
     description?: string;
 }
@@ -720,8 +720,8 @@ export default function Chat() {
                                                 </Paper>
                                             )}
 
-                                            {/* Ancillary Bubble */}
-                                            {ancillaryContent && (
+                                            {/* Related Links Bubble */}
+                                            {ancillaryContent?.links && ancillaryContent.links.length > 0 && (
                                                 <Paper
                                                     elevation={1}
                                                     sx={{
@@ -733,66 +733,71 @@ export default function Chat() {
                                                         borderRadius: 2,
                                                     }}
                                                 >
-                                                    {/* Media Section */}
-                                                    {ancillaryContent.media && ancillaryContent.media.length > 0 && (
-                                                        <Box mb={ancillaryContent.links?.length && ancillaryContent.links.length > 0 ? 2 : 0}>
-                                                            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
-                                                                Media
-                                                            </Typography>
-                                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                                                {ancillaryContent.media.map((media: AncillaryMedia, idx: number) => (
-                                                                    <Box key={idx} sx={{ borderRadius: 1, overflow: 'hidden' }}>
-                                                                        {media.type === 'photo' ? (
-                                                                            <img
-                                                                                src={media.url}
-                                                                                alt={media.description || 'Reference image'}
-                                                                                style={{ width: '100%', maxHeight: 300, objectFit: 'contain', backgroundColor: 'black' }}
-                                                                            />
-                                                                        ) : (
-                                                                            <Box sx={{ position: 'relative', pb: '56.25%', height: 0 }}>
-                                                                                <iframe
-                                                                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                                                                                    src={media.url.replace('watch?v=', 'embed/')}
-                                                                                    title="YouTube video player"
-                                                                                    frameBorder="0"
-                                                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                                                    allowFullScreen
-                                                                                />
-                                                                            </Box>
-                                                                        )}
-                                                                        {media.description && (
-                                                                            <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.9 }}>
-                                                                                {media.description}
-                                                                            </Typography>
-                                                                        )}
-                                                                    </Box>
-                                                                ))}
-                                                            </Box>
-                                                        </Box>
-                                                    )}
+                                                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
+                                                        Related Links
+                                                    </Typography>
+                                                    <Box component="ul" sx={{ m: 0, pl: 2 }}>
+                                                        {ancillaryContent.links.map((link: AncillaryLink, idx: number) => (
+                                                            <li key={idx}>
+                                                                <Link
+                                                                    href={link.url}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    sx={{ color: 'white', textDecoration: 'underline' }}
+                                                                >
+                                                                    {link.name}
+                                                                </Link>
+                                                            </li>
+                                                        ))}
+                                                    </Box>
+                                                </Paper>
+                                            )}
 
-                                                    {/* Links Section */}
-                                                    {ancillaryContent.links && ancillaryContent.links.length > 0 && (
-                                                        <Box>
-                                                            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
-                                                                Related Links
-                                                            </Typography>
-                                                            <Box component="ul" sx={{ m: 0, pl: 2 }}>
-                                                                {ancillaryContent.links.map((link: AncillaryLink, idx: number) => (
-                                                                    <li key={idx}>
-                                                                        <Link
-                                                                            href={link.url}
-                                                                            target="_blank"
-                                                                            rel="noopener noreferrer"
-                                                                            sx={{ color: 'white', textDecoration: 'underline' }}
-                                                                        >
-                                                                            {link.name}
-                                                                        </Link>
-                                                                    </li>
-                                                                ))}
+                                            {/* Media Bubble */}
+                                            {ancillaryContent?.media && ancillaryContent.media.length > 0 && (
+                                                <Paper
+                                                    elevation={1}
+                                                    sx={{
+                                                        mt: 1,
+                                                        p: 2,
+                                                        maxWidth: '80%',
+                                                        bgcolor: '#1e3a8a', // Dark Blue
+                                                        color: 'white',
+                                                        borderRadius: 2,
+                                                    }}
+                                                >
+                                                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'white' }}>
+                                                        Media
+                                                    </Typography>
+                                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                                        {ancillaryContent.media.map((media: AncillaryMedia, idx: number) => (
+                                                            <Box key={idx} sx={{ borderRadius: 1, overflow: 'hidden' }}>
+                                                                {(media.type === 'photo' || media.type === 'image') ? (
+                                                                    <img
+                                                                        src={media.url.startsWith('/') ? `${API_BASE}${media.url}` : media.url}
+                                                                        alt={media.description || 'Reference image'}
+                                                                        style={{ width: '100%', maxHeight: 300, objectFit: 'contain', backgroundColor: 'black' }}
+                                                                    />
+                                                                ) : (
+                                                                    <Box sx={{ position: 'relative', pb: '56.25%', height: 0 }}>
+                                                                        <iframe
+                                                                            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                                                                            src={media.url.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                                                                            title="YouTube video player"
+                                                                            frameBorder="0"
+                                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                            allowFullScreen
+                                                                        />
+                                                                    </Box>
+                                                                )}
+                                                                {media.description && (
+                                                                    <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.9 }}>
+                                                                        {media.description}
+                                                                    </Typography>
+                                                                )}
                                                             </Box>
-                                                        </Box>
-                                                    )}
+                                                        ))}
+                                                    </Box>
                                                 </Paper>
                                             )}
                                         </Box>

@@ -415,8 +415,7 @@ export default function TestChat() {
                                                 </Paper>
                                             )}
 
-                                            {/* Ancillary Bubble */}
-                                            {ancillaryContent && (ancillaryContent.media?.length > 0 || ancillaryContent.links?.length > 0) && (
+                                            {ancillaryContent && ancillaryContent.links?.length > 0 && (
                                                 <Paper
                                                     elevation={1}
                                                     sx={{
@@ -433,21 +432,59 @@ export default function TestChat() {
                                                         Related
                                                     </Typography>
                                                     <Stack spacing={1}>
-                                                        {ancillaryContent.links?.map((link: any, idx: number) => (
+                                                        {ancillaryContent.links.map((link: any, idx: number) => (
                                                             <Box key={`link-${idx}`}>
                                                                 <Link href={link.url} target="_blank" rel="noopener noreferrer" sx={{ fontWeight: 600 }}>
                                                                     {link.name} ↗
                                                                 </Link>
                                                             </Box>
                                                         ))}
-                                                        {ancillaryContent.media?.map((media: any, idx: number) => (
+                                                    </Stack>
+                                                </Paper>
+                                            )}
+
+                                            {/* Media Bubble */}
+                                            {ancillaryContent && ancillaryContent.media?.length > 0 && (
+                                                <Paper
+                                                    elevation={1}
+                                                    sx={{
+                                                        p: 2,
+                                                        flex: 1,
+                                                        minWidth: '250px',
+                                                        bgcolor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.1)', // Slightly different color (Indigo tint)
+                                                        border: '1px solid',
+                                                        borderColor: isDark ? 'rgba(99, 102, 241, 0.3)' : 'rgba(99, 102, 241, 0.3)',
+                                                        borderRadius: 2,
+                                                    }}
+                                                >
+                                                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'text.primary' }}>
+                                                        Media
+                                                    </Typography>
+                                                    <Stack spacing={2}>
+                                                        {ancillaryContent.media.map((media: any, idx: number) => (
                                                             <Box key={`media-${idx}`}>
-                                                                <Typography variant="body2" fontWeight={600}>{media.description}</Typography>
-                                                                {media.type === 'image' && (
-                                                                    <Box component="img" src={media.url} alt={media.description} sx={{ maxWidth: '100%', borderRadius: 1, mt: 0.5 }} />
+                                                                <Typography variant="body2" fontWeight={600} gutterBottom={!!media.description}>{media.description}</Typography>
+                                                                {(media.type === 'image' || media.type === 'photo') && (
+                                                                    <Box
+                                                                        component="img"
+                                                                        src={media.url.startsWith('/') ? `${API_BASE}${media.url}` : media.url}
+                                                                        alt={media.description}
+                                                                        sx={{ maxWidth: '100%', borderRadius: 1, mt: 0.5 }}
+                                                                    />
                                                                 )}
-                                                                {media.type === 'video' && (
-                                                                    <Box component="video" src={media.url} controls sx={{ maxWidth: '100%', borderRadius: 1, mt: 0.5 }} />
+                                                                {(media.type === 'video' || media.type === 'youtube') && (
+                                                                    <>
+                                                                        {(media.url.includes('youtube.com') || media.url.includes('youtu.be')) ? (
+                                                                            <Box
+                                                                                component="iframe"
+                                                                                src={media.url.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                                                                                sx={{ width: '100%', aspectRatio: '16/9', border: 0, borderRadius: 1, mt: 0.5 }}
+                                                                                allowFullScreen
+                                                                            />
+                                                                        ) : (
+                                                                            <Box component="video" src={media.url} controls sx={{ maxWidth: '100%', borderRadius: 1, mt: 0.5 }} />
+                                                                        )}
+                                                                    </>
                                                                 )}
                                                             </Box>
                                                         ))}
