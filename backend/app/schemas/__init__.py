@@ -21,6 +21,12 @@ from app.schemas.project import (
     ProjectResponse,
     ProjectListResponse,
 )
+from app.schemas.chat_parameter import (
+    ChatParameterCreate,
+    ChatParameterUpdate,
+    ChatParameterResponse,
+    ChatParameterListResponse,
+)
 
 __all__ = [
     "UserRegister",
@@ -38,4 +44,8 @@ __all__ = [
     "ProjectUpdate",
     "ProjectResponse",
     "ProjectListResponse",
+    "ChatParameterCreate",
+    "ChatParameterUpdate",
+    "ChatParameterResponse",
+    "ChatParameterListResponse",
 ]
