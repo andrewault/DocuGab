@@ -9,7 +9,10 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+<<<<<<< HEAD
     TableSortLabel,
+=======
+>>>>>>> da66e6f27bf697c8cdb8d3ea8a709cb9ebe119e4
     Button,
     Chip,
     IconButton,
@@ -43,6 +46,7 @@ export default function ChatParameters() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [activating, setActivating] = useState<string | null>(null);
+<<<<<<< HEAD
     const [orderBy, setOrderBy] = useState<keyof ChatParameter>('is_active');
     const [order, setOrder] = useState<'asc' | 'desc'>('desc');
 
@@ -67,6 +71,8 @@ export default function ChatParameters() {
         if (aVal > bVal) return order === 'asc' ? 1 : -1;
         return 0;
     });
+=======
+>>>>>>> da66e6f27bf697c8cdb8d3ea8a709cb9ebe119e4
 
     const fetchParameters = async () => {
         try {
@@ -171,6 +177,7 @@ export default function ChatParameters() {
                 <Table>
                     <TableHead>
                         <TableRow>
+<<<<<<< HEAD
                             <TableCell>
                                 <TableSortLabel
                                     active={orderBy === 'name'}
@@ -207,11 +214,21 @@ export default function ChatParameters() {
                                     Created
                                 </TableSortLabel>
                             </TableCell>
+=======
+                            <TableCell>Name</TableCell>
+                            <TableCell>Temperature</TableCell>
+                            <TableCell>Status</TableCell>
+                            <TableCell>Created</TableCell>
+>>>>>>> da66e6f27bf697c8cdb8d3ea8a709cb9ebe119e4
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
+<<<<<<< HEAD
                         {sortedParameters.map((param) => (
+=======
+                        {parameters.map((param) => (
+>>>>>>> da66e6f27bf697c8cdb8d3ea8a709cb9ebe119e4
                             <TableRow
                                 key={param.uuid}
                                 hover

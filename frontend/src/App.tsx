@@ -53,7 +53,10 @@ import Database from './pages/admin/Database';
 import ChatParameters from './pages/admin/ChatParameters';
 import ChatParameterEdit from './pages/admin/ChatParameterEdit';
 import ChatParameterDetail from './pages/admin/ChatParameterDetail';
+<<<<<<< HEAD
 import DemoProjects from './pages/admin/DemoProjects';
+=======
+>>>>>>> da66e6f27bf697c8cdb8d3ea8a709cb9ebe119e4
 import { useAuth } from './context/AuthProvider';
 
 export default function App() {
@@ -318,11 +321,14 @@ export default function App() {
                 <ChatParameterEdit />
               </ProtectedRoute>
             } />
+<<<<<<< HEAD
             <Route path="/admin/demo-projects" element={
               <ProtectedRoute requireAdmin>
                 <DemoProjects />
               </ProtectedRoute>
             } />
+=======
+>>>>>>> da66e6f27bf697c8cdb8d3ea8a709cb9ebe119e4
           </Routes>
         </Box>
       </Box>

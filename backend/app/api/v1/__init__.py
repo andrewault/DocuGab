@@ -20,7 +20,10 @@ from app.api.routes.admin_routes import projects as admin_projects
 from app.api.routes.admin_routes import media as admin_media
 from app.api.routes.admin_routes import links as admin_links
 from app.api.routes.admin_routes import chat_parameters as admin_chat_parameters
+<<<<<<< HEAD
 from app.api.routes.admin_routes import demo_projects as admin_demo_projects
+=======
+>>>>>>> da66e6f27bf697c8cdb8d3ea8a709cb9ebe119e4
 from app.api.routes.customer_routes import projects as customer_projects
 from app.api.routes.customer_routes import account as customer_account
 
@@ -42,9 +45,12 @@ router.include_router(
     admin_chat_parameters.router, prefix="/admin/chat-parameters", tags=["Chat Parameters"]
 )
 router.include_router(
+<<<<<<< HEAD
     admin_demo_projects.router, prefix="/admin/demo-projects", tags=["Demo Projects"]
 )
 router.include_router(
+=======
+>>>>>>> da66e6f27bf697c8cdb8d3ea8a709cb9ebe119e4
     customer_projects.router, prefix="/customer/projects", tags=["Customer Projects"]
 )
 router.include_router(
