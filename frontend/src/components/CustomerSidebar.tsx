@@ -23,7 +23,7 @@ export default function CustomerSidebar({ isOpen }: CustomerSidebarProps) {
     return (
         <Box
             sx={{
-                width: isOpen ? 280 : 0,
+                width: isOpen ? 224 : 0,
                 flexShrink: 0,
                 background: isDark
                     ? 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)'
@@ -37,7 +37,7 @@ export default function CustomerSidebar({ isOpen }: CustomerSidebarProps) {
                 transition: 'width 225ms cubic-bezier(0.4, 0, 0.6, 1)',
             }}
         >
-            <Box sx={{ p: 2, minWidth: 280 }}>
+            <Box sx={{ p: 2, minWidth: 224 }}>
                 <Typography
                     variant="h6"
                     sx={{
@@ -52,8 +52,8 @@ export default function CustomerSidebar({ isOpen }: CustomerSidebarProps) {
                     Customer Portal
                 </Typography>
             </Box>
-            <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)', minWidth: 280 }} />
-            <List sx={{ minWidth: 280 }}>
+            <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)', minWidth: 224 }} />
+            <List sx={{ minWidth: 224 }}>
                 {customerNavItems.map((item) => (
                     <ListItem key={item.path} disablePadding>
                         <ListItemButton
