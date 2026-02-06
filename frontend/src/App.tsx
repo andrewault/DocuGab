@@ -50,6 +50,9 @@ import ProjectEdit from './pages/admin/ProjectEdit';
 import TestChat from './pages/admin/TestChat';
 import AdminDocumentViewer from './pages/admin/AdminDocumentViewer';
 import Database from './pages/admin/Database';
+import ChatParameters from './pages/admin/ChatParameters';
+import ChatParameterEdit from './pages/admin/ChatParameterEdit';
+import ChatParameterDetail from './pages/admin/ChatParameterDetail';
 import { useAuth } from './context/AuthProvider';
 
 export default function App() {
@@ -297,6 +300,21 @@ export default function App() {
             <Route path="/admin/database" element={
               <ProtectedRoute requireAdmin>
                 <Database />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/chat-parameters" element={
+              <ProtectedRoute requireAdmin>
+                <ChatParameters />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/chat-parameters/:uuid" element={
+              <ProtectedRoute requireAdmin>
+                <ChatParameterDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/chat-parameters/:uuid/edit" element={
+              <ProtectedRoute requireAdmin>
+                <ChatParameterEdit />
               </ProtectedRoute>
             } />
           </Routes>

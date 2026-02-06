@@ -10,6 +10,7 @@ from app.models.avatar import Avatar
 from app.models.image import Image
 from app.models.media import ProjectMedia
 from app.models.link import ProjectLink
+from app.models.chat_parameter import ChatParameter
 
 __all__ = [
     "Document",
@@ -24,4 +25,5 @@ __all__ = [
     "Image",
     "ProjectMedia",
     "ProjectLink",
+    "ChatParameter",
 ]
