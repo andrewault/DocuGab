@@ -9,10 +9,7 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-<<<<<<< HEAD
     TableSortLabel,
-=======
->>>>>>> da66e6f27bf697c8cdb8d3ea8a709cb9ebe119e4
     Button,
     Chip,
     IconButton,
@@ -46,7 +43,6 @@ export default function ChatParameters() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [activating, setActivating] = useState<string | null>(null);
-<<<<<<< HEAD
     const [orderBy, setOrderBy] = useState<keyof ChatParameter>('is_active');
     const [order, setOrder] = useState<'asc' | 'desc'>('desc');
 
@@ -71,8 +67,6 @@ export default function ChatParameters() {
         if (aVal > bVal) return order === 'asc' ? 1 : -1;
         return 0;
     });
-=======
->>>>>>> da66e6f27bf697c8cdb8d3ea8a709cb9ebe119e4
 
     const fetchParameters = async () => {
         try {
@@ -177,7 +171,6 @@ export default function ChatParameters() {
                 <Table>
                     <TableHead>
                         <TableRow>
-<<<<<<< HEAD
                             <TableCell>
                                 <TableSortLabel
                                     active={orderBy === 'name'}
@@ -214,21 +207,11 @@ export default function ChatParameters() {
                                     Created
                                 </TableSortLabel>
                             </TableCell>
-=======
-                            <TableCell>Name</TableCell>
-                            <TableCell>Temperature</TableCell>
-                            <TableCell>Status</TableCell>
-                            <TableCell>Created</TableCell>
->>>>>>> da66e6f27bf697c8cdb8d3ea8a709cb9ebe119e4
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-<<<<<<< HEAD
                         {sortedParameters.map((param) => (
-=======
-                        {parameters.map((param) => (
->>>>>>> da66e6f27bf697c8cdb8d3ea8a709cb9ebe119e4
                             <TableRow
                                 key={param.uuid}
                                 hover
@@ -254,14 +237,16 @@ export default function ChatParameters() {
                                     )}
                                 </TableCell>
                                 <TableCell>
-                                    {new Date(param.created_at).toLocaleDateString()}
+                                    {param.created_at
+                                        ? new Date(param.created_at).toLocaleDateString()
+                                        : '—'}
                                 </TableCell>
                                 <TableCell align="right">
                                     <Stack direction="row" spacing={1} justifyContent="flex-end">
                                         {!param.is_active && (
                                             <Button
                                                 size="small"
-                                                variant="outlined"
+                                                variant="contained"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleActivate(param.uuid);
@@ -291,14 +276,6 @@ export default function ChatParameters() {
                     </TableBody>
                 </Table>
             </TableContainer>
-
-            {parameters.length === 0 && (
-                <Box textAlign="center" py={4}>
-                    <Typography color="text.secondary">
-                        No chat parameters configured. Create one to get started.
-                    </Typography>
-                </Box>
-            )}
         </Box>
     );
 }

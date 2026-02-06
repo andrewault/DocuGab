@@ -1,9 +1,5 @@
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Divider, useTheme } from '@mui/material';
-<<<<<<< HEAD
 import { Business, Group, QuestionAnswer, Storage, Dashboard, RecordVoiceOver, Tune, PlayCircle } from '@mui/icons-material';
-=======
-import { Business, Group, QuestionAnswer, Storage, Dashboard, RecordVoiceOver, Tune } from '@mui/icons-material';
->>>>>>> da66e6f27bf697c8cdb8d3ea8a709cb9ebe119e4
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface AdminSidebarProps {
@@ -23,10 +19,7 @@ export default function AdminSidebar({ isOpen }: AdminSidebarProps) {
         { label: 'Users', icon: <Group />, path: '/admin/users' },
         { label: 'FAQs', icon: <QuestionAnswer />, path: '/admin/faq' },
         { label: 'Chat Parameters', icon: <Tune />, path: '/admin/chat-parameters' },
-<<<<<<< HEAD
         { label: 'Demo Projects', icon: <PlayCircle />, path: '/admin/demo-projects' },
-=======
->>>>>>> da66e6f27bf697c8cdb8d3ea8a709cb9ebe119e4
         { label: 'Database', icon: <Storage />, path: '/admin/database' },
     ];
 
