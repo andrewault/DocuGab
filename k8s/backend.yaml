@@ -14,7 +14,7 @@ spec:
     spec:
       initContainers:
       - name: migrate
-        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v31
+        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v32
         command: ["uv", "run", "python", "-m", "alembic", "upgrade", "head"]
         envFrom:
         - configMapRef:
@@ -31,7 +31,7 @@ spec:
           value: "postgresql+asyncpg://docutok:$(POSTGRES_PASSWORD)@docutok-db-postgresql.default.svc.cluster.local:5432/docutok"
       containers:
       - name: backend
-        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v31
+        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v32
         ports:
         - containerPort: 8000
         envFrom:

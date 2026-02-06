@@ -58,6 +58,13 @@ export function ProjectOverview({ project, currentUser }: ProjectOverviewProps) 
                                             color={project.is_active ? 'success' : 'default'}
                                             size="small"
                                         />
+                                        <Chip
+                                            label={project.is_enabled ? 'Enabled' : 'Disabled'}
+                                            color={project.is_enabled ? 'success' : 'default'}
+                                            size="small"
+                                            variant="outlined"
+                                            sx={{ ml: 1 }}
+                                        />
                                         {project.is_demo && (
                                             <Chip
                                                 label="Demo Project"

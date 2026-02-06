@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
     Box,
     Container,
@@ -88,19 +88,18 @@ interface ProjectFormData {
 }
 
 export default function ProjectEdit() {
-    const { uuid } = useParams<{ uuid: string }>();
+    const { uuid, tab } = useParams<{ uuid: string; tab?: string }>();
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
 
-    // Map tab query param to tab index
+    // Map tab param to tab index
     const getInitialTab = () => {
-        const tabParam = searchParams.get('tab');
         const tabMap: Record<string, number> = {
             'basic': 0,
             'branding': 1,
             'voice': 2,
         };
-        return tabParam && tabParam in tabMap ? tabMap[tabParam] : 0;
+        // Default to 'basic' (0) if tab is missing or invalid
+        return tab && tab in tabMap ? tabMap[tab] : 0;
     };
 
     const [loading, setLoading] = useState(true);
@@ -427,7 +426,15 @@ export default function ProjectEdit() {
 
                 {/* Tabs */}
                 <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
-                    <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)}>
+                    <Tabs
+                        value={tabValue}
+                        onChange={(_, v) => {
+                            setTabValue(v);
+                            const tabNames = ['basic', 'branding', 'voice'];
+                            const newTab = tabNames[v];
+                            navigate(`/admin/projects/${uuid}/${newTab}/edit`, { replace: true });
+                        }}
+                    >
                         <Tab label="Basic Info" />
                         <Tab label="Branding" />
                         <Tab label="Avatar & Voice" />

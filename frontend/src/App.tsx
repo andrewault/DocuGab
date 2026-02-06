@@ -263,6 +263,11 @@ export default function App() {
                 <ProjectDetail />
               </ProtectedRoute>
             } />
+            <Route path="/admin/projects/:uuid/:tab/edit" element={
+              <ProtectedRoute requireAdmin>
+                <ProjectEdit />
+              </ProtectedRoute>
+            } />
             <Route path="/admin/projects/:uuid/edit" element={
               <ProtectedRoute requireAdmin>
                 <ProjectEdit />

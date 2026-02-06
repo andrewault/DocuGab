@@ -296,8 +296,8 @@ export default function ProjectDetail() {
                                 };
                                 const editTab = tabMap[currentTab];
                                 const url = editTab
-                                    ? `/admin/projects/${uuid}/edit?tab=${editTab}`
-                                    : `/admin/projects/${uuid}/edit`;
+                                    ? `/admin/projects/${uuid}/${editTab}/edit`
+                                    : `/admin/projects/${uuid}/basic/edit`;
                                 navigate(url);
                             }}
                         >
