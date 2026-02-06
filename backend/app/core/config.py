@@ -40,6 +40,7 @@ class Settings(BaseSettings):
     storage_backend: str = "local"  # local or s3
     s3_project_documents_bucket: str = "dokutok-project-documents"
     s3_avatars_bucket: str = "docutok-avatars"
+    s3_logos_bucket: str = "docutok-logos"
 
     # Context Configuration
     context_window: int = 200000  # Claude 3.5 Haiku context window

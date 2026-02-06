@@ -207,16 +207,35 @@ async def delete_avatar_file(file_path: str):
 
 async def save_logo_file(file: UploadFile, project_uuid: str) -> str:
     """Save uploaded PNG logo with project UUID filename."""
-    LOGO_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-
     stored_filename = f"{project_uuid}.png"
-    file_path = LOGO_UPLOAD_DIR / stored_filename
-
-    content = await file.read()
-    with open(file_path, "wb") as f:
-        f.write(content)
-
-    return stored_filename
+    
+    if settings.storage_backend == "s3":
+        # S3 Storage with Public Read Access (per recommendations)
+        s3 = get_s3_client()
+        content = await file.read()
+        s3_key = f"logos/{stored_filename}"
+        
+        s3.put_object(
+            Bucket=settings.s3_logos_bucket,
+            Key=s3_key,
+            Body=content,
+            ContentType="image/png",
+            # ACL="public-read", # ACLs might be disabled on bucket, rely on bucket policy or CloudFront
+            # Recommendation: Use public read via bucket policy, but we can try setting ACL if enabled.
+            # Safest is to just upload. If bucket is public, it works.
+        )
+        # Return full URL for S3
+        return f"https://{settings.s3_logos_bucket}.s3.{settings.aws_region}.amazonaws.com/{s3_key}"
+    else:
+        # Local Storage
+        LOGO_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+        file_path = LOGO_UPLOAD_DIR / stored_filename
+        
+        content = await file.read()
+        with open(file_path, "wb") as f:
+            f.write(content)
+            
+        return stored_filename
 
 
 def get_logo_path(filename: str) -> Path:
