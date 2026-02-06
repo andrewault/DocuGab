@@ -11,9 +11,53 @@ from app.core.deps import get_current_user_optional, get_current_user
 from app.services.chat import generate_response
 from app.models.chat_message import ChatMessage
 from app.models.user import User
+from app.models.project import Project
+from sqlalchemy.orm import selectinload
 
 
 router = APIRouter()
+
+
+@router.get("/demo-project")
+async def get_active_demo_project(db: AsyncSession = Depends(get_db)):
+    """Get the active demo project for public /chat page (no auth required)."""
+    result = await db.execute(
+        select(Project)
+        .where(Project.is_active_demo == True)
+        .where(Project.is_demo == True)
+        .where(Project.is_active == True)
+        .where(Project.is_enabled == True)
+        .options(selectinload(Project.avatar))
+        .limit(1)
+    )
+    project = result.scalar_one_or_none()
+
+    if not project:
+        return {
+            "active": False,
+            "message": "No demo chat currently available"
+        }
+
+    return {
+        "active": True,
+        "project": {
+            "uuid": str(project.uuid),
+            "name": project.name,
+            "slug": project.slug,
+            "title": project.title,
+            "subtitle": project.subtitle,
+            "body": project.body,
+            "logo": project.logo,
+            "color_primary": project.color_primary,
+            "color_secondary": project.color_secondary,
+            "color_background": project.color_background,
+            "voice": project.voice,
+            "show_animation": project.show_animation,
+            "avatar": project.avatar.glb_url if project.avatar else None,
+            "return_link": project.return_link,
+            "return_link_text": project.return_link_text,
+        }
+    }
 
 
 class ChatRequest(BaseModel):

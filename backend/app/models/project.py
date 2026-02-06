@@ -72,6 +72,9 @@ class Project(Base):
     is_demo: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default=sql.false(), nullable=False
     )
+    is_active_demo: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=sql.false(), nullable=False
+    )
 
     # Metadata
     is_active: Mapped[bool] = mapped_column(

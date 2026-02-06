@@ -90,6 +90,57 @@ export default function Chat({
     const isDark = theme.palette.mode === 'dark';
     const [showClearConfirm, setShowClearConfirm] = useState(false);
 
+    // Demo project state
+    const [demoProject, setDemoProject] = useState<{
+        uuid: string;
+        name: string;
+        title: string;
+        subtitle: string | null;
+        body: string | null;
+        logo: string | null;
+        color_primary: string;
+        color_secondary: string;
+        color_background: string;
+        voice: string;
+        show_animation: boolean;
+        avatar: string | null;
+        return_link: string | null;
+        return_link_text: string | null;
+    } | null>(null);
+    const [demoLoading, setDemoLoading] = useState(!projectUuid);
+    const [noDemoAvailable, setNoDemoAvailable] = useState(false);
+
+    // Fetch active demo project if no projectUuid provided
+    useEffect(() => {
+        if (projectUuid) return; // Skip if explicit project provided
+
+        const fetchActiveDemo = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/api/v1/chat/demo-project`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.active && data.project) {
+                        setDemoProject(data.project);
+                    } else {
+                        setNoDemoAvailable(true);
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to fetch demo project:', e);
+                setNoDemoAvailable(true);
+            } finally {
+                setDemoLoading(false);
+            }
+        };
+        fetchActiveDemo();
+    }, [projectUuid]);
+
+    // Resolve the effective project UUID (prop or demo)
+    const effectiveProjectUuid = projectUuid || demoProject?.uuid;
+    const effectivePrimaryColor = primaryColor || demoProject?.color_primary;
+    const effectiveSecondaryColor = secondaryColor || demoProject?.color_secondary;
+    const effectiveBackgroundColor = backgroundColor || demoProject?.color_background;
+
     // Use prop sessionId or generate default
     const sessionId = useRef(propSessionId || getSessionId()).current;
 
@@ -331,7 +382,7 @@ export default function Chat({
                 body: JSON.stringify({
                     query: userContent,
                     document_id: selectedDoc || null,
-                    project_uuid: projectUuid || null,
+                    project_uuid: effectiveProjectUuid || null,
                 })
             });
 
@@ -371,13 +422,58 @@ export default function Chat({
         }
     };
 
+    // Show loading state while fetching demo project
+    if (demoLoading) {
+        return (
+            <Box
+                sx={{
+                    height: height,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: isDark
+                        ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
+                        : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
+                }}
+            >
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    // Show no demo available message
+    if (noDemoAvailable && !projectUuid) {
+        return (
+            <Box
+                sx={{
+                    height: height,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: isDark
+                        ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
+                        : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)',
+                    gap: 2,
+                }}
+            >
+                <Typography variant="h5" color="text.secondary">
+                    No demo chat currently available
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                    Please contact an administrator for access.
+                </Typography>
+            </Box>
+        );
+    }
+
     return (
         <>
             <Box
                 sx={{
                     height: height,
                     overflow: 'hidden',
-                    background: backgroundColor || (isDark
+                    background: effectiveBackgroundColor || (isDark
                         ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
                         : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f8fafc 100%)'),
                     pt: 1,
@@ -612,7 +708,7 @@ export default function Chat({
                                                     p: 2,
                                                     maxWidth: '80%',
                                                     bgcolor: isUser
-                                                        ? (primaryColor || 'primary.main')
+                                                        ? (effectivePrimaryColor || 'primary.main')
                                                         : isDark ? 'grey.800' : 'grey.100',
                                                     borderRadius: 2,
                                                 }}
@@ -711,7 +807,7 @@ export default function Chat({
                                                         mt: 1,
                                                         p: 2,
                                                         maxWidth: '80%',
-                                                        bgcolor: secondaryColor || 'secondary.main',
+                                                        bgcolor: effectiveSecondaryColor || 'secondary.main',
                                                         color: 'white',
                                                         borderRadius: 2,
                                                     }}
@@ -759,7 +855,7 @@ export default function Chat({
                                                         mt: 1,
                                                         p: 2,
                                                         maxWidth: '80%',
-                                                        bgcolor: secondaryColor || '#1e3a8a',
+                                                        bgcolor: effectiveSecondaryColor || '#1e3a8a',
                                                         color: 'white',
                                                         borderRadius: 2,
                                                     }}
@@ -792,7 +888,7 @@ export default function Chat({
                                                         mt: 1,
                                                         p: 2,
                                                         maxWidth: '80%',
-                                                        bgcolor: secondaryColor || '#1e3a8a',
+                                                        bgcolor: effectiveSecondaryColor || '#1e3a8a',
                                                         color: 'white',
                                                         borderRadius: 2,
                                                     }}
@@ -848,7 +944,7 @@ export default function Chat({
                                                     aria-label="Send message"
                                                     disabled={isLoading || !input.trim()}
                                                     sx={{
-                                                        bgcolor: isDark ? '#1e3a5f' : (primaryColor || 'primary.main'),
+                                                        bgcolor: isDark ? '#1e3a5f' : (effectivePrimaryColor || 'primary.main'),
                                                         color: isDark ? '#fff' : '#fff',
                                                         '&:hover': { bgcolor: isDark ? '#2d4a6f' : 'primary.dark' },
                                                         '&.Mui-disabled': { bgcolor: 'grey.700', color: 'grey.500' },

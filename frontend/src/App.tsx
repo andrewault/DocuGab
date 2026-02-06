@@ -53,6 +53,7 @@ import Database from './pages/admin/Database';
 import ChatParameters from './pages/admin/ChatParameters';
 import ChatParameterEdit from './pages/admin/ChatParameterEdit';
 import ChatParameterDetail from './pages/admin/ChatParameterDetail';
+import DemoProjects from './pages/admin/DemoProjects';
 import { useAuth } from './context/AuthProvider';
 
 export default function App() {
@@ -315,6 +316,11 @@ export default function App() {
             <Route path="/admin/chat-parameters/:uuid/edit" element={
               <ProtectedRoute requireAdmin>
                 <ChatParameterEdit />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/demo-projects" element={
+              <ProtectedRoute requireAdmin>
+                <DemoProjects />
               </ProtectedRoute>
             } />
           </Routes>
