@@ -44,7 +44,7 @@ export function ProjectDocuments({ project, documents, currentUser, onRefresh }:
     const [isDragging, setIsDragging] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [documentToDelete, setDocumentToDelete] = useState<Document | null>(null);
-    const [documentsOrderBy, setDocumentsOrderBy] = useState<keyof Document>('filename');
+    const [documentsOrderBy, setDocumentsOrderBy] = useState<keyof Document>('original_filename');
     const [documentsOrder, setDocumentsOrder] = useState<'asc' | 'desc'>('asc');
     const [deleting, setDeleting] = useState(false);
 
@@ -188,12 +188,12 @@ export function ProjectDocuments({ project, documents, currentUser, onRefresh }:
                                 <TableRow>
                                     <TableCell>
                                         <TableSortLabel
-                                            active={documentsOrderBy === 'filename'}
-                                            direction={documentsOrderBy === 'filename' ? documentsOrder : 'asc'}
+                                            active={documentsOrderBy === 'original_filename'}
+                                            direction={documentsOrderBy === 'original_filename' ? documentsOrder : 'asc'}
                                             onClick={() => {
-                                                const isAsc = documentsOrderBy === 'filename' && documentsOrder === 'asc';
+                                                const isAsc = documentsOrderBy === 'original_filename' && documentsOrder === 'asc';
                                                 setDocumentsOrder(isAsc ? 'desc' : 'asc');
-                                                setDocumentsOrderBy('filename');
+                                                setDocumentsOrderBy('original_filename');
                                             }}
                                         >
                                             Filename

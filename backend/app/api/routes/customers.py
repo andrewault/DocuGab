@@ -20,7 +20,7 @@ from app.schemas.customer import (
 )
 
 
-router = APIRouter(tags=["admin", "customers"])
+router = APIRouter()
 
 
 def _build_customer_response(customer: Customer, projects_count: int = 0) -> dict:

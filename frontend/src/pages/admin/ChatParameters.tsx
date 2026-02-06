@@ -22,6 +22,7 @@ import {
 import { Edit, CheckCircle, Add, Tune } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider';
+import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
 interface ChatParameter {
     id: number;
@@ -115,6 +116,7 @@ export default function ChatParameters() {
 
     return (
         <Box sx={{ p: 3 }}>
+            <AdminBreadcrumbs items={[{ label: 'Chat Parameters' }]} />
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Tune sx={{ fontSize: 32, color: '#6366f1' }} />

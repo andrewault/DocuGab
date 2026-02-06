@@ -20,7 +20,7 @@ from app.services.storage import save_logo_file, get_logo_path
 from app.api.routes.project_utils import build_project_response
 
 
-router = APIRouter(tags=["customer", "projects"])
+router = APIRouter()
 
 
 @router.get("", response_model=ProjectListResponse)

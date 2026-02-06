@@ -21,8 +21,8 @@ from app.services.storage import (
 from app.schemas.avatar import AvatarResponse, AvatarListResponse, AvatarCreate
 
 
-router = APIRouter(tags=["admin", "avatars"])
-customer_router = APIRouter(tags=["customer", "avatars"])
+router = APIRouter()
+customer_router = APIRouter()
 
 
 async def _build_avatar_response(avatar: Avatar) -> dict:

@@ -18,6 +18,7 @@ import {
 import { CheckCircle, PlayCircle } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider';
+import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
 interface DemoProject {
     id: number;
@@ -103,6 +104,7 @@ export default function DemoProjects() {
 
     return (
         <Box sx={{ p: 3 }}>
+            <AdminBreadcrumbs items={[{ label: 'Demo Projects' }]} />
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <PlayCircle sx={{ fontSize: 32, color: '#6366f1' }} />

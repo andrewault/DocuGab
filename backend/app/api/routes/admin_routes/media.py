@@ -12,7 +12,7 @@ from app.models.image import Image
 from app.schemas.media import MediaCreate, MediaResponse, ImageMetadata
 import os
 
-router = APIRouter(tags=["admin", "projects"])
+router = APIRouter()
 
 
 @router.get("/projects/{project_uuid}/media", response_model=list[MediaResponse])

@@ -24,6 +24,7 @@ import {
 import { Info, Close, Tune } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider';
+import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 
 interface ChatParameter {
     id: number;
@@ -120,6 +121,14 @@ export default function ChatParameterEdit() {
 
     return (
         <Box sx={{ p: 3 }}>
+            <AdminBreadcrumbs items={isNew ? [
+                { label: 'Chat Parameters', path: '/admin/chat-parameters' },
+                { label: 'New' }
+            ] : [
+                { label: 'Chat Parameters', path: '/admin/chat-parameters' },
+                { label: name || 'Edit', path: `/admin/chat-parameters/${uuid}` },
+                { label: 'Edit' }
+            ]} />
             <Stack direction="row" alignItems="center" spacing={2} mb={3}>
                 <Tune sx={{ fontSize: 32, color: '#6366f1' }} />
                 <Typography

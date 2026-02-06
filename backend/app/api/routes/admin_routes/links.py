@@ -10,7 +10,7 @@ from app.models.project import Project
 from app.models.link import ProjectLink
 from app.schemas.link import LinkCreate, LinkResponse
 
-router = APIRouter(tags=["admin", "projects"])
+router = APIRouter()
 
 
 @router.get("/projects/{project_uuid}/links", response_model=list[LinkResponse])

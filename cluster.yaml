@@ -8,7 +8,7 @@ metadata:
 nodeGroups:
   - name: standard-workers
     instanceType: t3.medium
-    desiredCapacity: 2
+    desiredCapacity: 1
     minSize: 1
     maxSize: 4
     iam:

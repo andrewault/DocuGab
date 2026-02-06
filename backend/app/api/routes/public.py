@@ -8,7 +8,7 @@ from app.models.document import Document
 from app.models.avatar import Avatar
 from app.schemas.project import PublicProjectResponse, AvatarInfo
 
-router = APIRouter(prefix="/public", tags=["public"])
+router = APIRouter(prefix="/public", tags=["Public"])
 
 
 @router.get("/projects/{slug}", response_model=PublicProjectResponse)

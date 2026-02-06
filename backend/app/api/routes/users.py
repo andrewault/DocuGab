@@ -15,7 +15,7 @@ from app.schemas.auth import (
 )
 
 
-router = APIRouter(tags=["users"])
+router = APIRouter()
 
 
 @router.get("/me", response_model=UserResponse)

@@ -17,7 +17,7 @@ from app.models.project import Project
 from app.schemas.auth import UserResponse
 
 
-router = APIRouter(tags=["admin"])
+router = APIRouter()
 
 
 class AdminUserUpdate(BaseModel):

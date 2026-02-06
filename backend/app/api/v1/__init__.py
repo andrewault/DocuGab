@@ -30,7 +30,7 @@ router = APIRouter(prefix="/api/v1")
 # Include all route modules
 router.include_router(auth.router, prefix="/auth", tags=["Auth"])
 router.include_router(users.router, prefix="/users", tags=["Users"])
-router.include_router(admin.router, prefix="/admin", tags=["Admin"])
+router.include_router(admin.router, prefix="/admin", tags=["Admin Users"])
 router.include_router(database.router, prefix="/admin/database", tags=["Database"])
 router.include_router(customers.router, prefix="/admin/customers", tags=["Customers"])
 router.include_router(
