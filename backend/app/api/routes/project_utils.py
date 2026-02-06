@@ -36,7 +36,7 @@ async def build_project_response(project: Project, db: AsyncSession) -> dict:
     # If show_animation is True: requires avatar, voice, and at least 1 document
     # If show_animation is False: only requires at least 1 document
     if project.show_animation:
-        is_ready = bool(project.avatar and project.voice and documents_count > 0)
+        is_ready = bool(project.avatar_id and project.voice and documents_count > 0)
     else:
         is_ready = documents_count > 0
 
@@ -54,7 +54,7 @@ async def build_project_response(project: Project, db: AsyncSession) -> dict:
         "color_primary": project.color_primary,
         "color_secondary": project.color_secondary,
         "color_background": project.color_background,
-        "avatar": project.avatar,
+        "avatar_id": project.avatar_id,
         "voice": project.voice,
         "show_animation": project.show_animation,
         "return_link": project.return_link,

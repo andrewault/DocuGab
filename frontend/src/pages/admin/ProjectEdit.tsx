@@ -31,6 +31,7 @@ import { StatusBanner } from '../../components/admin/StatusBanner';
 import { VOICE_OPTIONS, VOICE_TEST_TEXT } from '../../constants/voiceConstants';
 import { API_BASE } from '@/config/api';
 import usePageTitle from '../../hooks/usePageTitle';
+import AvatarSelect from '../../components/AvatarUpload';
 
 interface Project {
     id: number;
@@ -46,7 +47,7 @@ interface Project {
     color_primary: string;
     color_secondary: string;
     color_background: string;
-    avatar: string;
+    avatar_id: number | null;
     voice: string;
     show_animation: boolean;
     return_link: string | null;
@@ -77,7 +78,7 @@ interface ProjectFormData {
     color_primary: string;
     color_secondary: string;
     color_background: string;
-    avatar: string;
+    avatar_id: number | null;
     voice: string;
     show_animation: boolean;
     return_link: string;
@@ -130,7 +131,7 @@ export default function ProjectEdit() {
         color_primary: '#1976d2',
         color_secondary: '#dc004e',
         color_background: '#ffffff',
-        avatar: 'default',
+        avatar_id: null,
         voice: 'alloy',
         show_animation: true,
         return_link: '',
@@ -167,7 +168,7 @@ export default function ProjectEdit() {
                     color_primary: projectData.color_primary,
                     color_secondary: projectData.color_secondary,
                     color_background: projectData.color_background,
-                    avatar: projectData.avatar,
+                    avatar_id: projectData.avatar_id,
                     voice: projectData.voice,
                     show_animation: projectData.show_animation ?? true,
                     return_link: projectData.return_link || '',
@@ -680,17 +681,12 @@ export default function ProjectEdit() {
                 {tabValue === 2 && (
                     <Paper elevation={2} sx={{ p: 3 }}>
                         <Stack spacing={3}>
-                            <FormControl fullWidth>
-                                <InputLabel>Avatar</InputLabel>
-                                <Select
-                                    value={formData.avatar}
-                                    onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
-                                    label="Avatar"
-                                    disabled={saving}
-                                >
-                                    <MenuItem value="default">Default</MenuItem>
-                                </Select>
-                            </FormControl>
+                            <AvatarSelect
+                                selectedAvatarId={formData.avatar_id}
+                                customerId={formData.customer_id || undefined}
+                                onSelect={(avatarId) => setFormData({ ...formData, avatar_id: avatarId })}
+                                disabled={saving}
+                            />
 
                             <Stack direction="row" spacing={2} alignItems="flex-start">
                                 <FormControl fullWidth>

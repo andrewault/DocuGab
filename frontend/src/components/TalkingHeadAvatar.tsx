@@ -59,8 +59,17 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
                 // Fix worklet URL construction
                 code = code.replace(/new URL\('\.\/playback-worklet\.js', import\.meta\.url\)/g, `new URL('${origin}/libs/playback-worklet.js')`);
 
-                // Fix dynamic lipsync imports
-                code = code.replace(/import\("\.\/lipsync-"/g, `import("${origin}/libs/lipsync-"`);
+                // Fix lipsync module path - the function uses path + 'lipsync-' + lang, so we need to fix the default path parameter
+                // lipsyncGetProcessor(lang, path = "./") -> lipsyncGetProcessor(lang, path = "origin/libs/")
+                code = code.replace(/lipsyncGetProcessor\(lang, path = "\.\/"\)/g, `lipsyncGetProcessor(lang, path = "${origin}/libs/")`);
+
+                // Also handle the call site that uses forEach without path argument
+                // this.opt.lipsyncModules.forEach(x => this.lipsyncGetProcessor(x));
+                // We need to pass the path explicitly, so replace the forEach call
+                code = code.replace(
+                    /this\.opt\.lipsyncModules\.forEach\(x => this\.lipsyncGetProcessor\(x\)\)/g,
+                    `this.opt.lipsyncModules.forEach(x => this.lipsyncGetProcessor(x, "${origin}/libs/"))`
+                );
 
                 // Create Blob URL and import
                 const blob = new Blob([code], { type: 'text/javascript' });

@@ -11,11 +11,14 @@ if [ ! -z "$1" ]; then
     TAG=$1
     echo "📝 Updating manifests to use image tag: $TAG"
     
-    # Update frontend.yaml
-    sed -i '' "s|image: .*/docutok-frontend:.*|image: $(grep -o '[0-9]*\.dkr\.ecr\.'$REGION'\.amazonaws\.com' k8s/frontend.yaml | head -n 1)/docutok-frontend:$TAG|g" k8s/frontend.yaml
+    # Get ECR registry from existing manifest
+    ECR_REGISTRY=$(grep -o '[0-9]*\.dkr\.ecr\.us-west-2\.amazonaws\.com' k8s/frontend.yaml | head -n 1)
     
-    # Update backend.yaml
-    sed -i '' "s|image: .*/docutok-backend:.*|image: $(grep -o '[0-9]*\.dkr\.ecr\.'$REGION'\.amazonaws\.com' k8s/frontend.yaml | head -n 1)/docutok-backend:$TAG|g" k8s/backend.yaml
+    # Update frontend.yaml
+    sed -i '' "s|image: .*/docutok-frontend:.*|image: $ECR_REGISTRY/docutok-frontend:$TAG|g" k8s/frontend.yaml
+    
+    # Update backend.yaml (both initContainers and containers)
+    sed -i '' "s|image: .*/docutok-backend:.*|image: $ECR_REGISTRY/docutok-backend:$TAG|g" k8s/backend.yaml
     
     echo "   Manifests updated."
 fi

@@ -5,7 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.models.project import Project
 from app.models.document import Document
-from app.schemas.project import PublicProjectResponse
+from app.models.avatar import Avatar
+from app.schemas.project import PublicProjectResponse, AvatarInfo
 
 router = APIRouter(prefix="/public", tags=["public"])
 
@@ -49,9 +50,21 @@ async def get_public_project(
         # For now, simplistic logic: >0 docs = ready.
         pass
     
-    # We will just return the project data mapped to the schema
-    # Pydantic will extract fields from the ORM object where names match
-    # For computed fields, we add them explicitly
+    # Load avatar if project has avatar_id
+    avatar_info = None
+    if project.avatar_id:
+        avatar_result = await db.execute(
+            select(Avatar).where(Avatar.id == project.avatar_id)
+        )
+        avatar = avatar_result.scalar_one_or_none()
+        if avatar:
+            avatar_info = AvatarInfo(
+                id=avatar.id,
+                uuid=avatar.uuid,
+                name=avatar.name,
+                file_path=avatar.file_path,
+                thumbnail_url=avatar.thumbnail_url
+            )
     
     return PublicProjectResponse(
         uuid=project.uuid,
@@ -63,7 +76,7 @@ async def get_public_project(
         color_primary=project.color_primary,
         color_secondary=project.color_secondary,
         color_background=project.color_background,
-        avatar=project.avatar,
+        avatar=avatar_info,
         voice=project.voice,
         show_animation=project.show_animation,
         return_link=project.return_link,
@@ -74,3 +87,4 @@ async def get_public_project(
         is_ready=is_ready,
         documents_count=documents_count
     )
+

@@ -12,9 +12,26 @@ spec:
       labels:
         app: docutok-backend
     spec:
+      initContainers:
+      - name: migrate
+        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v30
+        command: ["uv", "run", "python", "-m", "alembic", "upgrade", "head"]
+        envFrom:
+        - configMapRef:
+            name: docutok-config
+        - secretRef:
+            name: docutok-secrets
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: docutok-secrets
+              key: POSTGRES_PASSWORD
+        - name: DATABASE_URL
+          value: "postgresql+asyncpg://docutok:$(POSTGRES_PASSWORD)@docutok-db-postgresql.default.svc.cluster.local:5432/docutok"
       containers:
       - name: backend
-        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v28
+        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v30
         ports:
         - containerPort: 8000
         envFrom:
@@ -37,3 +54,4 @@ spec:
         - name: POSTGRES_DB
           value: "docutok"
         # Add necessary mounts for uploads if not using S3
+
