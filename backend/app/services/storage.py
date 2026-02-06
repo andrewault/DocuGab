@@ -11,6 +11,10 @@ DOCUMENT_UPLOAD_DIR = UPLOAD_DIR / "documents"
 AVATAR_UPLOAD_DIR = UPLOAD_DIR / "avatars"
 LOGO_UPLOAD_DIR = UPLOAD_DIR / "logos"
 
+# Allowed avatar file extensions
+ALLOWED_AVATAR_EXTENSIONS = {".glb", ".fbx"}
+MAX_AVATAR_FILE_SIZE = 50 * 1024 * 1024  # 50MB
+
 # S3 Client (Lazy initialization)
 _s3_client = None
 
@@ -103,25 +107,102 @@ async def delete_file(filename: str):
             print(f"Error deleting from S3: {e}")
 
 
+def validate_avatar_file(filename: str, file_size: int) -> tuple[bool, str]:
+    """Validate avatar file extension and size.
+    
+    Returns (is_valid, error_message).
+    """
+    if not filename:
+        return False, "Filename is required"
+    
+    ext = Path(filename).suffix.lower()
+    if ext not in ALLOWED_AVATAR_EXTENSIONS:
+        return False, f"Only {', '.join(ALLOWED_AVATAR_EXTENSIONS)} files are allowed"
+    
+    if file_size > MAX_AVATAR_FILE_SIZE:
+        return False, f"File size exceeds maximum of {MAX_AVATAR_FILE_SIZE // (1024 * 1024)}MB"
+    
+    return True, ""
 
-async def save_avatar_file(file: UploadFile) -> tuple[str, str]:
-    """Save uploaded GAB file with UUID filename."""
-    AVATAR_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-    avatar_uuid = uuid.uuid4()
-    stored_filename = f"{avatar_uuid}.gab"
-    file_path = AVATAR_UPLOAD_DIR / stored_filename
-
+async def save_avatar_file(file: UploadFile, avatar_uuid: str) -> tuple[str, str, int]:
+    """Save uploaded avatar file (GLB/FBX) to S3 or local storage.
+    
+    Returns (file_path, file_extension, file_size).
+    """
+    original_filename = file.filename or "avatar.glb"
+    ext = Path(original_filename).suffix.lower()
+    stored_filename = f"{avatar_uuid}{ext}"
+    
     content = await file.read()
-    with open(file_path, "wb") as f:
-        f.write(content)
+    file_size = len(content)
+    
+    # Validate
+    is_valid, error = validate_avatar_file(original_filename, file_size)
+    if not is_valid:
+        raise ValueError(error)
+    
+    if settings.storage_backend == "s3":
+        # S3 Storage
+        s3 = get_s3_client()
+        s3_key = f"avatars/{stored_filename}"
+        s3.put_object(
+            Bucket=settings.s3_avatars_bucket,
+            Key=s3_key,
+            Body=content,
+            ContentType="model/gltf-binary" if ext == ".glb" else "application/octet-stream"
+        )
+        file_path = s3_key
+    else:
+        # Local Storage
+        AVATAR_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+        local_path = AVATAR_UPLOAD_DIR / stored_filename
+        with open(local_path, "wb") as f:
+            f.write(content)
+        file_path = stored_filename
 
-    return stored_filename, file.filename or "unknown.gab"
+    return file_path, ext.lstrip("."), file_size
+
+
+def get_avatar_url(file_path: str) -> str:
+    """Get the URL to access an avatar file."""
+    if settings.storage_backend == "s3":
+        # Generate a pre-signed URL for S3
+        s3 = get_s3_client()
+        url = s3.generate_presigned_url(
+            "get_object",
+            Params={
+                "Bucket": settings.s3_avatars_bucket,
+                "Key": file_path,
+            },
+            ExpiresIn=3600  # 1 hour
+        )
+        return url
+    else:
+        # Local: return relative path
+        return f"/api/v1/avatars/file/{file_path}"
 
 
 def get_avatar_path(filename: str) -> Path:
-    """Get full path to avatar file."""
+    """Get full path to avatar file (local storage only)."""
     return AVATAR_UPLOAD_DIR / filename
+
+
+async def delete_avatar_file(file_path: str):
+    """Delete an avatar file from storage."""
+    if settings.storage_backend == "s3":
+        s3 = get_s3_client()
+        try:
+            s3.delete_object(
+                Bucket=settings.s3_avatars_bucket,
+                Key=file_path
+            )
+        except Exception as e:
+            print(f"Error deleting avatar from S3: {e}")
+    else:
+        local_path = AVATAR_UPLOAD_DIR / file_path
+        if local_path.exists():
+            local_path.unlink()
 
 
 async def save_logo_file(file: UploadFile, project_uuid: str) -> str:

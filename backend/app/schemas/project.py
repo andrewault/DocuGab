@@ -22,7 +22,7 @@ class ProjectBase(BaseModel):
     color_background: str = Field(
         min_length=7, max_length=7, pattern=r"^#[0-9a-fA-F]{6}$"
     )
-    avatar: str = Field(min_length=1, max_length=500)
+    avatar_id: Optional[int] = Field(None, description="ID of the avatar to use (NULL = Default)")
     voice: str = Field(min_length=1, max_length=100)
     show_animation: bool = True
     return_link: Optional[str] = Field(None, max_length=500)
@@ -68,7 +68,7 @@ class ProjectUpdate(BaseModel):
     color_background: Optional[str] = Field(
         None, min_length=7, max_length=7, pattern=r"^#[0-9a-fA-F]{6}$"
     )
-    avatar: Optional[str] = Field(None, min_length=1, max_length=500)
+    avatar_id: Optional[int] = Field(None, description="ID of the avatar to use")
     voice: Optional[str] = Field(None, min_length=1, max_length=100)
     show_animation: Optional[bool] = None
     return_link: Optional[str] = Field(None, max_length=500)
@@ -89,12 +89,37 @@ class ProjectUpdate(BaseModel):
         return v
 
 
-class ProjectResponse(ProjectBase):
+class AvatarInfo(BaseModel):
+    """Embedded avatar info for project responses."""
+    
+    id: int
+    uuid: UUID
+    name: str
+    file_path: str
+    thumbnail_url: Optional[str] = None
+
+
+class ProjectResponse(BaseModel):
     """Schema for project response."""
 
     id: int
     uuid: UUID
     customer_id: int
+    name: str
+    slug: str
+    title: str
+    subtitle: Optional[str]
+    body: Optional[str]
+    color_primary: str
+    color_secondary: str
+    color_background: str
+    avatar_id: Optional[int]
+    avatar: Optional[AvatarInfo] = None
+    voice: str
+    show_animation: bool
+    return_link: Optional[str]
+    return_link_text: Optional[str]
+    is_demo: bool
     logo: Optional[str]
     is_active: bool
     is_enabled: bool
@@ -117,11 +142,23 @@ class ProjectListResponse(BaseModel):
     per_page: int
 
 
-class PublicProjectResponse(ProjectBase):
+class PublicProjectResponse(BaseModel):
     """Schema for public project response (no internal IDs)."""
 
     uuid: UUID
+    name: str
+    slug: str
+    title: str
+    subtitle: Optional[str]
+    body: Optional[str]
+    color_primary: str
+    color_secondary: str
+    color_background: str
+    avatar: Optional[AvatarInfo] = None
+    voice: str
+    show_animation: bool
+    return_link: Optional[str]
+    return_link_text: Optional[str]
     logo: Optional[str]
     is_ready: bool = True
     documents_count: Optional[int] = 0
-

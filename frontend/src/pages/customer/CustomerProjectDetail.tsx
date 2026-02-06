@@ -27,7 +27,6 @@ import { useAuth } from '../../context/AuthProvider';
 import { getAuthHeader } from '../../utils/authUtils';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
 import CustomerBreadcrumbs from '../../components/CustomerBreadcrumbs';
-import AvatarUpload from '../../components/AvatarUpload';
 import InactiveCustomerBanner from '../../components/InactiveCustomerBanner';
 import { getVoiceLabel } from '../../constants/voiceConstants';
 import { API_BASE } from '@/config/api';
@@ -531,7 +530,12 @@ export default function CustomerProjectDetail() {
                     {
                         currentTab === 'avatar' && (
                             <Box sx={{ p: 4 }}>
-                                <AvatarUpload projectUuid={project.uuid} />
+                                <Typography variant="h6" fontWeight={600} mb={3}>
+                                    Avatar Settings
+                                </Typography>
+                                <Typography color="text.secondary">
+                                    Avatar settings are managed by your administrator. Contact support if you need to change the avatar.
+                                </Typography>
                             </Box>
                         )
                     }

@@ -141,7 +141,7 @@ async def create_project(
         color_primary=data.color_primary,
         color_secondary=data.color_secondary,
         color_background=data.color_background,
-        avatar=data.avatar,
+        avatar_id=data.avatar_id,
         voice=data.voice,
         return_link=data.return_link,
         return_link_text=data.return_link_text,

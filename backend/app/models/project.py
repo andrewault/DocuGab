@@ -53,7 +53,12 @@ class Project(Base):
     )  # Hex color
 
     # Avatar & Voice
-    avatar: Mapped[str] = mapped_column(String(500), nullable=False)
+    avatar_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("avatars.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
     voice: Mapped[str] = mapped_column(String(100), nullable=False)
     show_animation: Mapped[bool] = mapped_column(
         Boolean, default=True, server_default=sql.true(), nullable=False
@@ -87,9 +92,7 @@ class Project(Base):
     documents: Mapped[list["Document"]] = relationship(
         back_populates="project", cascade="all, delete-orphan"
     )
-    avatars: Mapped[list["Avatar"]] = relationship(
-        back_populates="project", cascade="all, delete-orphan"
-    )
+    avatar: Mapped["Avatar | None"] = relationship(back_populates="projects")
     media: Mapped[list["ProjectMedia"]] = relationship(
         back_populates="project", cascade="all, delete-orphan"
     )

@@ -12,6 +12,7 @@ from app.core.database import Base
 if TYPE_CHECKING:
     from app.models.project import Project
     from app.models.user import User
+    from app.models.avatar import Avatar
 
 
 class Customer(Base):
@@ -53,3 +54,6 @@ class Customer(Base):
         back_populates="customer", cascade="all, delete-orphan"
     )
     users: Mapped[list["User"]] = relationship(back_populates="customer")
+    avatars: Mapped[list["Avatar"]] = relationship(
+        back_populates="customer", cascade="all, delete-orphan"
+    )
