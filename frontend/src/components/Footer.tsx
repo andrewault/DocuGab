@@ -1,11 +1,9 @@
-import { Box, Container, Stack, Link, Typography, useTheme, IconButton, Tooltip } from '@mui/material';
+import { Box, Container, Stack, Link, Typography, IconButton, Tooltip } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { DarkMode, LightMode } from '@mui/icons-material';
 import { useThemeMode } from '../context/ThemeContext';
 
 export default function Footer() {
-    const theme = useTheme();
-    const isDark = theme.palette.mode === 'dark';
     const { effectiveTheme, setThemeMode } = useThemeMode();
 
     const toggleTheme = () => {
@@ -35,14 +33,10 @@ export default function Footer() {
                 left: 0,
                 right: 0,
                 zIndex: 1000,
-                py: 2,
+                py: 0.75,
                 px: 2,
-                background: isDark
-                    ? 'rgba(15, 23, 42, 0.95)'
-                    : 'rgba(248, 250, 252, 0.95)',
-                borderTop: isDark
-                    ? '1px solid rgba(255, 255, 255, 0.1)'
-                    : '1px solid rgba(0, 0, 0, 0.08)',
+                background: 'rgba(15, 23, 42, 0.95)',
+                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
                 backdropFilter: 'blur(10px)',
             }}
         >
@@ -53,14 +47,14 @@ export default function Footer() {
                     alignItems="center"
                     spacing={2}
                 >
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                         {getCopyrightYear()} DocuTok
                     </Typography>
                     <Stack direction="row" spacing={3} alignItems="center">
                         <Link
                             component={RouterLink}
                             to="/about"
-                            color="text.secondary"
+                            sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
                             underline="hover"
                             variant="body2"
                         >
@@ -69,7 +63,7 @@ export default function Footer() {
                         <Link
                             component={RouterLink}
                             to="/contact"
-                            color="text.secondary"
+                            sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
                             underline="hover"
                             variant="body2"
                         >
@@ -78,7 +72,7 @@ export default function Footer() {
                         <Link
                             component={RouterLink}
                             to="/faq"
-                            color="text.secondary"
+                            sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
                             underline="hover"
                             variant="body2"
                         >
@@ -88,13 +82,13 @@ export default function Footer() {
                             <IconButton
                                 onClick={toggleTheme}
                                 size="small"
-                                sx={{ color: 'text.secondary' }}
+                                sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
                             >
                                 {effectiveTheme === 'dark' ? <LightMode fontSize="small" /> : <DarkMode fontSize="small" />}
                             </IconButton>
                         </Tooltip>
                     </Stack>
-                    <Typography variant="caption" color="text.disabled">
+                    <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
                         v0.1.0
                     </Typography>
                 </Stack>

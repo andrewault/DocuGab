@@ -6,7 +6,6 @@ import {
     Button,
     Box,
     IconButton,
-    useTheme,
     Menu,
     MenuItem,
     Divider,
@@ -28,8 +27,6 @@ interface NavbarProps {
 export default function Navbar({ onToggleSidebar }: NavbarProps) {
     const navigate = useNavigate();
     const location = useLocation();
-    const theme = useTheme();
-    const isDark = theme.palette.mode === 'dark';
     const { user, isAuthenticated, isAdmin, logout } = useAuth();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -52,10 +49,10 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
             position="fixed"
             elevation={0}
             sx={{
-                bgcolor: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.95)',
-                color: isDark ? '#fff' : '#1e293b',
+                bgcolor: 'rgba(15, 23, 42, 0.95)',
+                color: '#fff',
                 backdropFilter: 'blur(10px)',
-                borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
                 zIndex: (theme) => theme.zIndex.drawer + 1,
             }}
         >

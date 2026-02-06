@@ -27,9 +27,9 @@ export default function CustomerSidebar({ isOpen }: CustomerSidebarProps) {
                 flexShrink: 0,
                 background: isDark
                     ? 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)'
-                    : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)',
+                    : '#202578',
                 borderRight: isOpen
-                    ? isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)'
+                    ? isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(255, 255, 255, 0.1)'
                     : 'none',
                 display: 'flex',
                 flexDirection: 'column',
@@ -52,7 +52,7 @@ export default function CustomerSidebar({ isOpen }: CustomerSidebarProps) {
                     Customer Portal
                 </Typography>
             </Box>
-            <Divider sx={{ borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', minWidth: 280 }} />
+            <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)', minWidth: 280 }} />
             <List sx={{ minWidth: 280 }}>
                 {customerNavItems.map((item) => (
                     <ListItem key={item.path} disablePadding>
@@ -70,7 +70,7 @@ export default function CustomerSidebar({ isOpen }: CustomerSidebarProps) {
                             <ListItemIcon sx={{ color: 'primary.main' }}>
                                 {item.icon}
                             </ListItemIcon>
-                            <ListItemText primary={item.label} />
+                            <ListItemText primary={item.label} sx={{ color: isDark ? 'inherit' : '#fff' }} />
                         </ListItemButton>
                     </ListItem>
                 ))}
