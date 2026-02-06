@@ -21,6 +21,7 @@ from app.api.routes.admin_routes import media as admin_media
 from app.api.routes.admin_routes import links as admin_links
 from app.api.routes.admin_routes import chat_parameters as admin_chat_parameters
 from app.api.routes.admin_routes import demo_projects as admin_demo_projects
+from app.api.routes.admin_routes import dashboard as admin_dashboard
 from app.api.routes.customer_routes import projects as customer_projects
 from app.api.routes.customer_routes import account as customer_account
 
@@ -31,6 +32,9 @@ router = APIRouter(prefix="/api/v1")
 router.include_router(auth.router, prefix="/auth", tags=["Auth"])
 router.include_router(users.router, prefix="/users", tags=["Users"])
 router.include_router(admin.router, prefix="/admin", tags=["Admin Users"])
+router.include_router(
+    admin_dashboard.router, prefix="/admin", tags=["Admin Dashboard"]
+)
 router.include_router(database.router, prefix="/admin/database", tags=["Database"])
 router.include_router(customers.router, prefix="/admin/customers", tags=["Customers"])
 router.include_router(

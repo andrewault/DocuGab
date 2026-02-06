@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Box, Container, Typography, Paper, Stack, useTheme, Grid, Card, CardContent } from '@mui/material';
-import { Group, QuestionAnswer, Business, Folder, RecordVoiceOver, Dashboard, Storage } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Box, Container, Typography, Stack, useTheme, Grid, Paper } from '@mui/material';
+import { Dashboard } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import usePageTitle from '../../hooks/usePageTitle';
 import { API_BASE } from '@/config/api';
+import { QuickActions } from '../../components/admin/QuickActions';
+import { HealthWidget } from '../../components/admin/HealthWidget';
+import { RecentActivityWidget } from '../../components/admin/RecentActivityWidget';
+import { Link } from 'react-router-dom';
+import { Business, Group, QuestionAnswer, Storage, RecordVoiceOver } from '@mui/icons-material';
 
 interface AdminStats {
     total_users: number;
@@ -37,37 +41,33 @@ export default function AdminHome() {
     }, []);
 
     const adminLinks = [
-        {
-            title: 'Customers',
-            description: 'Manage customer organizations and their projects',
-            icon: <Business sx={{ fontSize: 48 }} />,
-            path: '/admin/customers',
-        },
-        {
-            title: 'Chatbot Projects',
-            description: 'Manage projects with branding and configuration',
-            icon: <RecordVoiceOver sx={{ fontSize: 48 }} />,
-            path: '/admin/projects',
-        },
-        {
-            title: 'Users',
-            description: 'Manage user accounts, roles, and permissions',
-            icon: <Group sx={{ fontSize: 48 }} />,
-            path: '/admin/users',
-        },
-        {
-            title: 'FAQs',
-            description: 'Create and manage frequently asked questions',
-            icon: <QuestionAnswer sx={{ fontSize: 48 }} />,
-            path: '/admin/faq',
-        },
-        {
-            title: 'Database',
-            description: 'View and manage database tables and records',
-            icon: <Storage sx={{ fontSize: 48 }} />,
-            path: '/admin/database',
-        },
+        { title: 'Customers', icon: <Business />, path: '/admin/customers' },
+        { title: 'Projects', icon: <RecordVoiceOver />, path: '/admin/projects' },
+        { title: 'Users', icon: <Group />, path: '/admin/users' },
+        { title: 'FAQs', icon: <QuestionAnswer />, path: '/admin/faq' },
+        { title: 'Database', icon: <Storage />, path: '/admin/database' },
     ];
+
+    const StatCard = ({ label, value }: { label: string, value: number }) => (
+        <Paper
+            elevation={0}
+            sx={{
+                p: 2,
+                bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'background.paper',
+                border: 1,
+                borderColor: 'divider',
+                borderRadius: 2,
+                textAlign: 'center'
+            }}
+        >
+            <Typography variant="h4" fontWeight={700} color="primary.main">
+                {value}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+                {label}
+            </Typography>
+        </Paper>
+    );
 
     return (
         <Box
@@ -79,164 +79,94 @@ export default function AdminHome() {
                     : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)',
             }}
         >
-            <Container maxWidth={false} sx={{ px: 3 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Dashboard sx={{ fontSize: 32, color: '#6366f1' }} />
-                        <Typography
-                            variant="h4"
-                            sx={{
-                                fontWeight: 700,
-                                background: 'linear-gradient(90deg, #6366f1, #10b981)',
-                                backgroundClip: 'text',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                            }}
-                        >
-                            Admin Dashboard
-                        </Typography>
-                    </Box>
+            <Container maxWidth="xl" sx={{ px: 3 }}>
+                {/* Header */}
+                <Stack direction="row" alignItems="center" spacing={2} mb={4}>
+                    <Dashboard sx={{ fontSize: 32, color: '#6366f1' }} />
+                    <Typography
+                        variant="h4"
+                        sx={{
+                            fontWeight: 700,
+                            background: 'linear-gradient(90deg, #6366f1, #10b981)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}
+                    >
+                        Admin Dashboard
+                    </Typography>
                 </Stack>
 
-                {stats && (
-                    <Grid container spacing={3} mb={6}>
-                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                            <Card
-                                sx={{
-                                    bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'background.paper',
-                                    height: '100%',
-                                }}
-                            >
-                                <CardContent>
-                                    <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-                                        <Box>
-                                            <Typography color="textSecondary" gutterBottom variant="overline">
-                                                Total Customers
-                                            </Typography>
-                                            <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                                                {stats.total_customers}
-                                            </Typography>
-                                        </Box>
-                                        <Business color="primary" sx={{ fontSize: 32, opacity: 0.8 }} />
-                                    </Box>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                            <Card
-                                sx={{
-                                    bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'background.paper',
-                                    height: '100%',
-                                }}
-                            >
-                                <CardContent>
-                                    <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-                                        <Box>
-                                            <Typography color="textSecondary" gutterBottom variant="overline">
-                                                Total Chatbot Projects
-                                            </Typography>
-                                            <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                                                {stats.total_projects}
-                                            </Typography>
-                                        </Box>
-                                        <Folder color="secondary" sx={{ fontSize: 32, opacity: 0.8 }} />
-                                    </Box>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                            <Card
-                                sx={{
-                                    bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'background.paper',
-                                    height: '100%',
-                                }}
-                            >
-                                <CardContent>
-                                    <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-                                        <Box>
-                                            <Typography color="textSecondary" gutterBottom variant="overline">
-                                                Total Documents
-                                            </Typography>
-                                            <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                                                {stats.total_documents}
-                                            </Typography>
-                                        </Box>
-                                        <Folder color="success" sx={{ fontSize: 32, opacity: 0.8 }} />
-                                    </Box>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                            <Card
-                                sx={{
-                                    bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'background.paper',
-                                    height: '100%',
-                                }}
-                            >
-                                <CardContent>
-                                    <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-                                        <Box>
-                                            <Typography color="textSecondary" gutterBottom variant="overline">
-                                                Total Users
-                                            </Typography>
-                                            <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                                                {stats.total_users}
-                                            </Typography>
-                                        </Box>
-                                        <Group color="info" sx={{ fontSize: 32, opacity: 0.8 }} />
-                                    </Box>
-                                </CardContent>
-                            </Card>
-                        </Grid>
+                <QuickActions />
+
+                {/* Main Dashboard Grid */}
+                <Grid container spacing={3}>
+                    {/* Left Column: Stats & Activity */}
+                    <Grid size={{ xs: 12, lg: 8 }}>
+                        <Stack spacing={3}>
+                            {/* Stats Row */}
+                            {stats && (
+                                <Grid container spacing={2}>
+                                    <Grid size={{ xs: 6, sm: 3 }}>
+                                        <StatCard label="Customers" value={stats.total_customers} />
+                                    </Grid>
+                                    <Grid size={{ xs: 6, sm: 3 }}>
+                                        <StatCard label="Projects" value={stats.total_projects} />
+                                    </Grid>
+                                    <Grid size={{ xs: 6, sm: 3 }}>
+                                        <StatCard label="Documents" value={stats.total_documents} />
+                                    </Grid>
+                                    <Grid size={{ xs: 6, sm: 3 }}>
+                                        <StatCard label="Users" value={stats.total_users} />
+                                    </Grid>
+                                </Grid>
+                            )}
+
+                            {/* Recent Activity */}
+                            <Box sx={{ height: 500 }}>
+                                <RecentActivityWidget />
+                            </Box>
+                        </Stack>
                     </Grid>
-                )}
 
-                <Stack spacing={3}>
-                    {adminLinks.map((link) => (
-                        <Paper
-                            key={link.path}
-                            component={Link}
-                            to={link.path}
-                            elevation={0}
-                            sx={{
-                                p: 3,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 3,
-                                textDecoration: 'none',
-                                color: 'inherit',
-                                background: isDark
-                                    ? 'rgba(255, 255, 255, 0.05)'
-                                    : 'rgba(255, 255, 255, 0.8)',
-                                backdropFilter: 'blur(10px)',
-                                border: isDark
-                                    ? '1px solid rgba(255, 255, 255, 0.1)'
-                                    : '1px solid rgba(0, 0, 0, 0.08)',
-                                borderRadius: 3,
-                                transition: 'all 0.3s ease',
-                                '&:hover': {
-                                    transform: 'translateY(-4px)',
-                                    boxShadow: isDark
-                                        ? '0 12px 40px rgba(99, 102, 241, 0.2)'
-                                        : '0 12px 40px rgba(99, 102, 241, 0.15)',
-                                    borderColor: 'primary.main',
-                                },
-                            }}
-                        >
-                            <Box sx={{ color: 'primary.main' }}>
-                                {link.icon}
-                            </Box>
-                            <Box>
-                                <Typography variant="h6" fontWeight={600}>
-                                    {link.title}
+                    {/* Right Column: Health & Links */}
+                    <Grid size={{ xs: 12, lg: 4 }}>
+                        <Stack spacing={3}>
+                            <HealthWidget />
+
+                            {/* Quick Links */}
+                            <Paper sx={{ p: 0, overflow: 'hidden' }}>
+                                <Typography variant="subtitle1" fontWeight={600} sx={{ p: 2, bgcolor: 'action.hover' }}>
+                                    Quick Links
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {link.description}
-                                </Typography>
-                            </Box>
-                        </Paper>
-                    ))}
-                </Stack>
+                                <Stack divider={<Box sx={{ borderBottom: 1, borderColor: 'divider' }} />}>
+                                    {adminLinks.map((link) => (
+                                        <Box
+                                            key={link.path}
+                                            component={Link}
+                                            to={link.path}
+                                            sx={{
+                                                p: 2,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 2,
+                                                textDecoration: 'none',
+                                                color: 'text.primary',
+                                                transition: 'background-color 0.2s',
+                                                '&:hover': { bgcolor: 'action.hover' }
+                                            }}
+                                        >
+                                            <Box sx={{ color: 'primary.main' }}>{link.icon}</Box>
+                                            <Typography variant="body2" fontWeight={500}>
+                                                {link.title}
+                                            </Typography>
+                                        </Box>
+                                    ))}
+                                </Stack>
+                            </Paper>
+                        </Stack>
+                    </Grid>
+                </Grid>
             </Container>
         </Box>
     );
