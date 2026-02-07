@@ -26,7 +26,7 @@ RUN_LINT=true
 RUN_FORMAT=true
 RUN_SECURITY=true
 RUN_COVERAGE=true
-FIX_ISSUES=false
+FIX_ISSUES=true
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -50,13 +50,13 @@ while [[ $# -gt 0 ]]; do
             RUN_COVERAGE=false
             shift
             ;;
-        --fix)
-            FIX_ISSUES=true
+        --no-fix)
+            FIX_ISSUES=false
             shift
             ;;
         *)
             echo "Unknown option: $1"
-            echo "Usage: $0 [--no-tests] [--no-lint] [--no-format] [--no-security] [--no-coverage] [--fix]"
+            echo "Usage: $0 [--no-tests] [--no-lint] [--no-format] [--no-security] [--no-coverage] [--no-fix]"
             exit 1
             ;;
     esac

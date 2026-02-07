@@ -75,9 +75,9 @@ async def create_project_media(
     return media
 
 
-
 @router.delete(
-    "/projects/{project_uuid}/media/{media_uuid}", status_code=status.HTTP_204_NO_CONTENT
+    "/projects/{project_uuid}/media/{media_uuid}",
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_project_media(
     project_uuid: UUID,
@@ -155,20 +155,20 @@ async def get_project_media(
             # Extract UUID from URL
             image_uuid_str = media.url.split("/api/v1/images/")[1]
             image_uuid = UUID(image_uuid_str)
-            
+
             # Look up Image
             img_result = await db.execute(select(Image).where(Image.uuid == image_uuid))
             image_record = img_result.scalar_one_or_none()
-            
+
             if image_record:
                 size_bytes = None
                 if os.path.exists(image_record.file_path):
                     size_bytes = os.path.getsize(image_record.file_path)
-                    
+
                 response.image_metadata = ImageMetadata(
                     filename=image_record.original_filename,
                     content_type=image_record.content_type,
-                    size_bytes=size_bytes
+                    size_bytes=size_bytes,
                 )
         except Exception as e:
             print(f"Error fetching image metadata: {e}")
@@ -177,9 +177,7 @@ async def get_project_media(
     return response
 
 
-@router.put(
-    "/projects/{project_uuid}/media/{media_uuid}", response_model=MediaResponse
-)
+@router.put("/projects/{project_uuid}/media/{media_uuid}", response_model=MediaResponse)
 async def update_project_media(
     project_uuid: UUID,
     media_uuid: UUID,

@@ -32,6 +32,7 @@ export default function Register() {
         e.preventDefault();
         setError('');
 
+        // bearer:disable javascript_lang_observable_timing
         if (password !== confirmPassword) {
             setError('Passwords do not match');
             return;

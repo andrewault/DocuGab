@@ -8,7 +8,9 @@ from pydantic import BaseModel, Field
 class AvatarBase(BaseModel):
     """Base avatar schema."""
 
-    name: str = Field(..., min_length=1, max_length=255, description="Avatar display name")
+    name: str = Field(
+        ..., min_length=1, max_length=255, description="Avatar display name"
+    )
 
 
 class AvatarCreate(AvatarBase):

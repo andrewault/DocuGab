@@ -1,5 +1,5 @@
 import { Paper, Stack, Button, Box, Typography, useTheme } from '@mui/material';
-import { Add, Business, RecordVoiceOver, PersonAdd } from '@mui/icons-material';
+import { Business, RecordVoiceOver, PersonAdd } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 export function QuickActions() {

@@ -21,7 +21,7 @@ async def list_demo_projects(
     """List all projects marked as demo."""
     result = await db.execute(
         select(Project)
-        .where(Project.is_demo == True)
+        .where(Project.is_demo)
         .options(selectinload(Project.customer))
         .order_by(Project.is_active_demo.desc(), Project.name)
     )
@@ -52,9 +52,7 @@ async def activate_demo_project(
 ):
     """Set a project as the active demo project."""
     # Find the project
-    result = await db.execute(
-        select(Project).where(Project.uuid == uuid)
-    )
+    result = await db.execute(select(Project).where(Project.uuid == uuid))
     project = result.scalar_one_or_none()
 
     if not project:
@@ -62,14 +60,11 @@ async def activate_demo_project(
 
     if not project.is_demo:
         raise HTTPException(
-            status_code=400,
-            detail="Project must be marked as demo to be activated"
+            status_code=400, detail="Project must be marked as demo to be activated"
         )
 
     # Deactivate all other demo projects
-    all_demos = await db.execute(
-        select(Project).where(Project.is_active_demo == True)
-    )
+    all_demos = await db.execute(select(Project).where(Project.is_active_demo))
     for demo in all_demos.scalars().all():
         demo.is_active_demo = False
 
@@ -87,9 +82,7 @@ async def deactivate_demo_project(
     current_user: User = Depends(get_admin_user),
 ):
     """Deactivate a demo project."""
-    result = await db.execute(
-        select(Project).where(Project.uuid == uuid)
-    )
+    result = await db.execute(select(Project).where(Project.uuid == uuid))
     project = result.scalar_one_or_none()
 
     if not project:

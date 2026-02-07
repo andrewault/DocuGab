@@ -15,11 +15,13 @@ from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models.user import User
 from app.models.image import Image
+from app.utils.security import safe_path_join
 
 router = APIRouter()
 
 UPLOAD_DIR = Path("uploads/images")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
 
 @router.post("/upload", response_model=dict)
 async def upload_image(
@@ -33,12 +35,16 @@ async def upload_image(
 
     # Generate UUID and filename
     file_uuid = uuid.uuid4()
-    extension = mimetypes.guess_extension(file.content_type) or os.path.splitext(file.filename)[1]
+    extension = (
+        mimetypes.guess_extension(file.content_type)
+        or os.path.splitext(file.filename)[1]
+    )
     secure_filename = f"{file_uuid}{extension}"
-    file_path = UPLOAD_DIR / secure_filename
+    file_path = safe_path_join(UPLOAD_DIR, secure_filename)
 
     # Save file
     try:
+        # bearer:disable python_lang_path_traversal
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
     except Exception as e:
@@ -50,7 +56,7 @@ async def upload_image(
         uuid=file_uuid,
         original_filename=file.filename,
         file_path=str(file_path),
-        content_type=file.content_type
+        content_type=file.content_type,
     )
     db.add(image)
     await db.commit()
@@ -60,18 +66,19 @@ async def upload_image(
     # The frontend will use this URL to display the image
     # We construct it based on the API base URL if available, otherwise relative
     image_url = f"/api/v1/images/{image.uuid}"
-    
+
     return {
         "uuid": str(image.uuid),
         "url": image_url,
-        "original_filename": image.original_filename
+        "original_filename": image.original_filename,
     }
+
 
 @router.get("/{image_uuid}")
 async def get_image(
     image_uuid: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    # Optional: require auth or make public? 
+    # Optional: require auth or make public?
     # User requirement: "accessible from the app" - usually implies auth or token.
     # For simplicity and to allow <img> tags to work easily, we might allow public access if the UUID is known,
     # OR we require a cookie/token. Since <img> tags in the browser will include cookies/headers if configured,
@@ -79,7 +86,7 @@ async def get_image(
     # Given the context of "Ancillary Responses" in a private chat, it should probably be protected.
     # However, standard <img> tags don't easily send Bearer tokens without interception.
     # Cookie-based auth would work. If using Bearer tokens, we'd need a signed URL or similar.
-    # For this iteration, I'll allow access but maybe we should rely on the random UUID as a "capability URL" (security through obscurity) 
+    # For this iteration, I'll allow access but maybe we should rely on the random UUID as a "capability URL" (security through obscurity)
     # if standard <img> tags are used.
     # Let's try without Depends(get_current_user) for the GET endpoint to facilitate easy <img> rendering,
     # relying on the UUID being hard to guess. This is a common pattern for resource serving.

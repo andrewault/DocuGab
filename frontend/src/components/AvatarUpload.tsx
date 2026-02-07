@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
     Box,
     Button,
@@ -57,7 +57,7 @@ export default function AvatarSelect({ selectedAvatarId, customerId, onSelect, d
     const [error, setError] = useState<string | null>(null);
     const [uploadModalOpen, setUploadModalOpen] = useState(false);
 
-    const fetchAvatars = async () => {
+    const fetchAvatars = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
@@ -81,11 +81,11 @@ export default function AvatarSelect({ selectedAvatarId, customerId, onSelect, d
         } finally {
             setLoading(false);
         }
-    };
+    }, [isAdmin, customerId]);
 
     useEffect(() => {
         fetchAvatars();
-    }, [customerId]);
+    }, [fetchAvatars]);
 
     const handleUploadSuccess = () => {
         fetchAvatars();

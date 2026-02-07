@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
     Box,
     Typography,
@@ -53,13 +53,9 @@ export default function ChatParameterEdit() {
     const [error, setError] = useState('');
     const [infoOpen, setInfoOpen] = useState(false);
 
-    useEffect(() => {
-        if (!isNew && uuid) {
-            fetchParameter();
-        }
-    }, [uuid, accessToken]);
 
-    const fetchParameter = async () => {
+
+    const fetchParameter = useCallback(async () => {
         try {
             const response = await fetch(`${API_BASE}/api/v1/admin/chat-parameters/${uuid}`, {
                 headers: { Authorization: `Bearer ${accessToken}` },
@@ -74,7 +70,13 @@ export default function ChatParameterEdit() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [uuid, accessToken]);
+
+    useEffect(() => {
+        if (!isNew && uuid) {
+            fetchParameter();
+        }
+    }, [isNew, uuid, fetchParameter]);
 
     const handleSave = async () => {
         setSaving(true);

@@ -18,9 +18,6 @@ def get_polly_client():
     return boto3.client("polly", **kwargs)
 
 
-
-
-
 async def synthesize_speech(text: str, voice: Optional[str] = None) -> bytes:
     """
     Convert text to speech using AWS Polly (with S3 Caching).
@@ -35,16 +32,19 @@ async def synthesize_speech(text: str, voice: Optional[str] = None) -> bytes:
     try:
         polly = get_polly_client()
         s3 = get_s3_client()
-        
+
         voice_id = voice or getattr(settings, "tts_voice_id", "Joanna")
         engine = getattr(settings, "tts_engine", "neural")
 
         # 1. Compute Cache Key
         unique_str = f"{text}-{voice_id}-{engine}"
-        cache_hash = hashlib.md5(unique_str.encode("utf-8")).hexdigest()
+        # bearer:disable python_lang_weak_hash_md5
+        cache_hash = hashlib.md5(
+            unique_str.encode("utf-8"), usedforsecurity=False
+        ).hexdigest()
         cache_key = f"audio_cache/{cache_hash}.mp3"
         bucket = getattr(settings, "s3_tts_bucket", "dokutok-text-to-speech")
-        
+
         # 2. Check S3 Cache
         if settings.storage_backend == "s3":
             try:
@@ -60,16 +60,17 @@ async def synthesize_speech(text: str, voice: Optional[str] = None) -> bytes:
         print(f"Calling AWS Polly: {voice_id} ({engine})")
         try:
             response = polly.synthesize_speech(
-                Text=text,
-                OutputFormat="mp3",
-                VoiceId=voice_id,
-                Engine=engine
+                Text=text, OutputFormat="mp3", VoiceId=voice_id, Engine=engine
             )
         except Exception as e:
             print(f"Polly Synthesis Failed: {e}")
-            
+
             # Fallback for Invalid VoiceId
-            if "ValidationException" in str(e) and ("VoiceId" in str(e)) and voice_id != "Joanna":
+            if (
+                "ValidationException" in str(e)
+                and ("VoiceId" in str(e))
+                and voice_id != "Joanna"
+            ):
                 print(f"Invalid VoiceId '{voice_id}'. Retrying with fallback 'Joanna'.")
                 return await synthesize_speech(text, "Joanna")
 
@@ -77,10 +78,7 @@ async def synthesize_speech(text: str, voice: Optional[str] = None) -> bytes:
             if "Engine not supported" in str(e):
                 print("Fallback to 'standard' engine.")
                 response = polly.synthesize_speech(
-                    Text=text,
-                    OutputFormat="mp3",
-                    VoiceId=voice_id,
-                    Engine="standard"
+                    Text=text, OutputFormat="mp3", VoiceId=voice_id, Engine="standard"
                 )
             else:
                 raise e
@@ -97,14 +95,14 @@ async def synthesize_speech(text: str, voice: Optional[str] = None) -> bytes:
                     Bucket=bucket,
                     Key=cache_key,
                     Body=audio_bytes,
-                    ContentType="audio/mpeg"
+                    ContentType="audio/mpeg",
                 )
                 print("Cached audio to S3.")
             except Exception as e:
-                 print(f"Failed to write to S3 cache: {e}")
+                print(f"Failed to write to S3 cache: {e}")
 
         return audio_bytes
-        
+
     except Exception as e:
         print(f"Critical Error in synthesize_speech: {e}")
         raise e
@@ -128,7 +126,7 @@ async def synthesize_for_avatar(text: str, voice: Optional[str] = None) -> dict:
     """
     # Use the main synthesis function to get audio
     audio_bytes = await synthesize_speech(text, voice)
-    
+
     # Calculate estimated timepoints (Polly marks are complex, estimating for compatibility)
     # Estimate ~150ms per word on average (same logic as Google fallback)
     words = text.split()

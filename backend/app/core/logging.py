@@ -1,4 +1,3 @@
-
 import logging
 import sys
 
@@ -9,7 +8,9 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)],
 )
 
+
 def get_logger(name: str):
     return logging.getLogger(name)
+
 
 doku_log = get_logger("docutok")

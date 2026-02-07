@@ -13,8 +13,7 @@ def get_embeddings_model() -> BedrockEmbeddings:
     if _embeddings_model is None:
         client = boto3.client("bedrock-runtime", region_name=settings.aws_region)
         _embeddings_model = BedrockEmbeddings(
-            client=client,
-            model_id=settings.bedrock_embedding_model
+            client=client, model_id=settings.bedrock_embedding_model
         )
     return _embeddings_model
 

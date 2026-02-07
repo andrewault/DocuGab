@@ -22,9 +22,7 @@ async def get_public_project(
     """
     # Query project by slug
     query = select(Project).where(
-        Project.slug == slug,
-        Project.is_active == True,
-        Project.is_enabled == True
+        Project.slug == slug, Project.is_active, Project.is_enabled
     )
     result = await db.execute(query)
     project = result.scalar_one_or_none()
@@ -49,7 +47,7 @@ async def get_public_project(
         # If animation is enabled, maybe we need other checks?
         # For now, simplistic logic: >0 docs = ready.
         pass
-    
+
     # Load avatar if project has avatar_id
     avatar_info = None
     if project.avatar_id:
@@ -63,9 +61,9 @@ async def get_public_project(
                 uuid=avatar.uuid,
                 name=avatar.name,
                 file_path=avatar.file_path,
-                thumbnail_url=avatar.thumbnail_url
+                thumbnail_url=avatar.thumbnail_url,
             )
-    
+
     return PublicProjectResponse(
         uuid=project.uuid,
         name=project.name,
@@ -85,6 +83,5 @@ async def get_public_project(
         is_enabled=project.is_enabled,
         logo=project.logo,
         is_ready=is_ready,
-        documents_count=documents_count
+        documents_count=documents_count,
     )
-

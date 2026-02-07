@@ -22,7 +22,9 @@ class ProjectBase(BaseModel):
     color_background: str = Field(
         min_length=7, max_length=7, pattern=r"^#[0-9a-fA-F]{6}$"
     )
-    avatar_id: Optional[int] = Field(None, description="ID of the avatar to use (NULL = Default)")
+    avatar_id: Optional[int] = Field(
+        None, description="ID of the avatar to use (NULL = Default)"
+    )
     voice: str = Field(min_length=1, max_length=100)
     show_animation: bool = True
     return_link: Optional[str] = Field(None, max_length=500)
@@ -91,7 +93,7 @@ class ProjectUpdate(BaseModel):
 
 class AvatarInfo(BaseModel):
     """Embedded avatar info for project responses."""
-    
+
     id: int
     uuid: UUID
     name: str

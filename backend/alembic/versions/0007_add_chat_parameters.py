@@ -9,7 +9,7 @@ Create Date: 2026-02-06
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
-from datetime import datetime
+
 from uuid import uuid4
 
 # revision identifiers, used by Alembic.
@@ -88,7 +88,9 @@ def upgrade() -> None:
         sa.Column("system_prompt", sa.Text(), nullable=False),
         sa.Column("temperature", sa.Float(), nullable=False, server_default="0.2"),
         sa.Column("is_active", sa.Boolean(), nullable=False, server_default="false"),
-        sa.Column("created_at", sa.DateTime(), nullable=False, server_default=sa.func.now()),
+        sa.Column(
+            "created_at", sa.DateTime(), nullable=False, server_default=sa.func.now()
+        ),
         sa.Column("updated_at", sa.DateTime(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -117,4 +119,3 @@ def downgrade() -> None:
     op.drop_index("ix_chat_parameters_uuid")
     op.drop_index("ix_chat_parameters_id")
     op.drop_table("chat_parameters")
-

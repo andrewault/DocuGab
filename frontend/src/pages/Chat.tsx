@@ -278,7 +278,7 @@ export default function Chat({
 
     const [selectedVoice, setSelectedVoice] = useState(() => {
         if (propVoice) return propVoice;
-        return localStorage.getItem('docutok_tts_voice') || 'en-US-Neural2-F';
+        return localStorage.getItem('docutok_tts_voice') || 'Joanna';
     });
 
     const handleVoiceChange = (voice: string) => {
@@ -442,7 +442,7 @@ export default function Chat({
     }
 
     // Show no demo available message
-    if (noDemoAvailable && !projectUuid) {
+    if (noDemoAvailable && !projectUuid && !user) {
         return (
             <Box
                 sx={{
