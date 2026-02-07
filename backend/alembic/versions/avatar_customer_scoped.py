@@ -22,21 +22,25 @@ depends_on = None
 
 def upgrade() -> None:
     conn = op.get_bind()
-    
+
     # Check if avatars table already exists
-    result = conn.execute(sa.text(
-        "SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name='avatars')"
-    ))
+    result = conn.execute(
+        sa.text(
+            "SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name='avatars')"
+        )
+    )
     avatars_exists = result.scalar()
-    
+
     if avatars_exists:
         # Avatars table exists from old schema - need to restructure it
         # First, check if it has the old schema (project_id column)
-        result = conn.execute(sa.text(
-            "SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='avatars' AND column_name='project_id')"
-        ))
+        result = conn.execute(
+            sa.text(
+                "SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='avatars' AND column_name='project_id')"
+            )
+        )
         has_old_schema = result.scalar()
-        
+
         if has_old_schema:
             # Old schema exists - drop and recreate
             op.drop_table("avatars")
@@ -47,16 +51,20 @@ def upgrade() -> None:
     else:
         # Fresh install - create the table
         _create_avatars_table()
-    
+
     # Step 2: Add avatar_id to projects table if not exists
-    result = conn.execute(sa.text(
-        "SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='projects' AND column_name='avatar_id')"
-    ))
+    result = conn.execute(
+        sa.text(
+            "SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='projects' AND column_name='avatar_id')"
+        )
+    )
     has_avatar_id = result.scalar()
-    
+
     if not has_avatar_id:
         op.add_column("projects", sa.Column("avatar_id", sa.Integer(), nullable=True))
-        op.create_index("ix_projects_avatar_id", "projects", ["avatar_id"], unique=False)
+        op.create_index(
+            "ix_projects_avatar_id", "projects", ["avatar_id"], unique=False
+        )
         op.create_foreign_key(
             "projects_avatar_id_fkey",
             "projects",
@@ -65,13 +73,13 @@ def upgrade() -> None:
             ["id"],
             ondelete="SET NULL",
         )
-    
+
     # Step 3: Seed the Default avatar if not exists
-    result = conn.execute(sa.text(
-        "SELECT EXISTS(SELECT 1 FROM avatars WHERE name='Default')"
-    ))
+    result = conn.execute(
+        sa.text("SELECT EXISTS(SELECT 1 FROM avatars WHERE name='Default')")
+    )
     has_default = result.scalar()
-    
+
     if not has_default:
         op.execute("""
             INSERT INTO avatars (uuid, name, file_path, file_extension, file_size, original_filename, is_active, created_at)
@@ -86,13 +94,15 @@ def upgrade() -> None:
                 now()
             )
         """)
-    
+
     # Step 4: Drop the old avatar string column from projects if exists
-    result = conn.execute(sa.text(
-        "SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='projects' AND column_name='avatar')"
-    ))
+    result = conn.execute(
+        sa.text(
+            "SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='projects' AND column_name='avatar')"
+        )
+    )
     has_avatar_column = result.scalar()
-    
+
     if has_avatar_column:
         op.drop_column("projects", "avatar")
 
@@ -103,7 +113,9 @@ def _create_avatars_table():
         "avatars",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("uuid", postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column("customer_id", sa.Integer(), nullable=True),  # NULL = global (Default avatar)
+        sa.Column(
+            "customer_id", sa.Integer(), nullable=True
+        ),  # NULL = global (Default avatar)
         sa.Column("name", sa.String(255), nullable=False),
         sa.Column("file_path", sa.String(500), nullable=False),
         sa.Column("file_extension", sa.String(10), nullable=False),
@@ -126,7 +138,7 @@ def _create_avatars_table():
     op.create_index(op.f("ix_avatars_id"), "avatars", ["id"], unique=False)
     op.create_index(op.f("ix_avatars_uuid"), "avatars", ["uuid"], unique=True)
     op.create_index("ix_avatars_customer_id", "avatars", ["customer_id"], unique=False)
-    
+
     # Partial unique index for Default avatar name
     op.execute(
         "CREATE UNIQUE INDEX ix_avatars_default_unique ON avatars (name) WHERE name = 'Default'"
@@ -136,7 +148,7 @@ def _create_avatars_table():
 def _ensure_avatar_columns():
     """Ensure all required columns exist on an existing avatars table."""
     conn = op.get_bind()
-    
+
     # Check and add missing columns
     columns_to_add = [
         ("customer_id", "INTEGER"),
@@ -145,27 +157,54 @@ def _ensure_avatar_columns():
         ("file_extension", "VARCHAR(10)"),
         ("thumbnail_url", "VARCHAR(500)"),
     ]
-    
+
     for col_name, col_type in columns_to_add:
-        result = conn.execute(sa.text(
-            f"SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='avatars' AND column_name='{col_name}')"
-        ))
+        result = conn.execute(
+            sa.text(
+                f"SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='avatars' AND column_name='{col_name}')"
+            )
+        )
         if not result.scalar():
             if col_name == "customer_id":
-                op.add_column("avatars", sa.Column("customer_id", sa.Integer(), nullable=True))
+                op.add_column(
+                    "avatars", sa.Column("customer_id", sa.Integer(), nullable=True)
+                )
             elif col_name == "name":
-                op.add_column("avatars", sa.Column("name", sa.String(255), nullable=False, server_default="Unnamed"))
+                op.add_column(
+                    "avatars",
+                    sa.Column(
+                        "name", sa.String(255), nullable=False, server_default="Unnamed"
+                    ),
+                )
             elif col_name == "file_path":
-                op.add_column("avatars", sa.Column("file_path", sa.String(500), nullable=False, server_default=""))
+                op.add_column(
+                    "avatars",
+                    sa.Column(
+                        "file_path", sa.String(500), nullable=False, server_default=""
+                    ),
+                )
             elif col_name == "file_extension":
-                op.add_column("avatars", sa.Column("file_extension", sa.String(10), nullable=False, server_default="glb"))
+                op.add_column(
+                    "avatars",
+                    sa.Column(
+                        "file_extension",
+                        sa.String(10),
+                        nullable=False,
+                        server_default="glb",
+                    ),
+                )
             elif col_name == "thumbnail_url":
-                op.add_column("avatars", sa.Column("thumbnail_url", sa.String(500), nullable=True))
+                op.add_column(
+                    "avatars", sa.Column("thumbnail_url", sa.String(500), nullable=True)
+                )
 
 
 def downgrade() -> None:
     # Add avatar string column back
-    op.add_column("projects", sa.Column("avatar", sa.String(500), nullable=False, server_default="default"))
+    op.add_column(
+        "projects",
+        sa.Column("avatar", sa.String(500), nullable=False, server_default="default"),
+    )
     op.alter_column("projects", "avatar", server_default=None)
 
     # Remove avatar_id from projects

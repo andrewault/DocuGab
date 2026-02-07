@@ -17,9 +17,36 @@ interface AdminStats {
     total_documents: number;
 }
 
-export default function AdminHome() {
+const StatCard = ({ label, value }: { label: string, value: number }) => {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+
+    return (
+        <Paper
+            elevation={0}
+            sx={{
+                p: 2,
+                bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'background.paper',
+                border: 1,
+                borderColor: 'divider',
+                borderRadius: 2,
+                textAlign: 'center'
+            }}
+        >
+            <Typography variant="h4" fontWeight={700} color="primary.main">
+                {value}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+                {label}
+            </Typography>
+        </Paper>
+    );
+};
+
+
+export default function AdminHome() {
+
+
     usePageTitle('Admin Dashboard');
     const [stats, setStats] = useState<AdminStats | null>(null);
 
@@ -48,26 +75,7 @@ export default function AdminHome() {
         { title: 'Database', icon: <Storage />, path: '/admin/database' },
     ];
 
-    const StatCard = ({ label, value }: { label: string, value: number }) => (
-        <Paper
-            elevation={0}
-            sx={{
-                p: 2,
-                bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'background.paper',
-                border: 1,
-                borderColor: 'divider',
-                borderRadius: 2,
-                textAlign: 'center'
-            }}
-        >
-            <Typography variant="h4" fontWeight={700} color="primary.main">
-                {value}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-                {label}
-            </Typography>
-        </Paper>
-    );
+
 
     return (
         <Box

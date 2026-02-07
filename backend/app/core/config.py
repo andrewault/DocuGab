@@ -30,9 +30,11 @@ class Settings(BaseSettings):
     aws_region: str = "us-west-2"
     bedrock_llm_model: str = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
     bedrock_embedding_model: str = "amazon.titan-embed-text-v2:0"
-    
+
     # Vector Search Config
-    embedding_model: str = "amazon.titan-embed-text-v2:0" # Keep for compatibility if needed, or remove
+    embedding_model: str = (
+        "amazon.titan-embed-text-v2:0"  # Keep for compatibility if needed, or remove
+    )
     chunk_size: int = 500
     chunk_overlap: int = 50
 
@@ -59,7 +61,7 @@ class Settings(BaseSettings):
     tts_voice_id: str = "Joanna"
     aws_region: str = "us-west-2"
     s3_tts_bucket: str = "dokutok-text-to-speech"
-    
+
     # AWS Credentials (Optional, for local dev)
     aws_access_key_id: str | None = None
     aws_secret_access_key: str | None = None

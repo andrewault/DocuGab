@@ -23,20 +23,17 @@ async def get_active_demo_project(db: AsyncSession = Depends(get_db)):
     """Get the active demo project for public /chat page (no auth required)."""
     result = await db.execute(
         select(Project)
-        .where(Project.is_active_demo == True)
-        .where(Project.is_demo == True)
-        .where(Project.is_active == True)
-        .where(Project.is_enabled == True)
+        .where(Project.is_active_demo)
+        .where(Project.is_demo)
+        .where(Project.is_active)
+        .where(Project.is_enabled)
         .options(selectinload(Project.avatar))
         .limit(1)
     )
     project = result.scalar_one_or_none()
 
     if not project:
-        return {
-            "active": False,
-            "message": "No demo chat currently available"
-        }
+        return {"active": False, "message": "No demo chat currently available"}
 
     return {
         "active": True,
@@ -56,7 +53,7 @@ async def get_active_demo_project(db: AsyncSession = Depends(get_db)):
             "avatar": project.avatar.glb_url if project.avatar else None,
             "return_link": project.return_link,
             "return_link_text": project.return_link_text,
-        }
+        },
     }
 
 
@@ -181,13 +178,16 @@ async def chat(
     project_id = request.project_id
     if not project_id and request.project_uuid:
         from app.models.project import Project
-        result = await db.execute(select(Project).where(Project.uuid == request.project_uuid))
+
+        result = await db.execute(
+            select(Project).where(Project.uuid == request.project_uuid)
+        )
         project = result.scalar_one_or_none()
         if project:
             # For public access via UUID, ensure project is active
             if not current_user and (not project.is_active or not project.is_enabled):
-                 raise HTTPException(status_code=404, detail="Project not found")
-            
+                raise HTTPException(status_code=404, detail="Project not found")
+
             project_id = project.id
 
     return StreamingResponse(
@@ -213,13 +213,16 @@ async def chat_query(request: ChatRequest, db: AsyncSession = Depends(get_db)):
     project_id = request.project_id
     if not project_id and request.project_uuid:
         from app.models.project import Project
-        result = await db.execute(select(Project).where(Project.uuid == request.project_uuid))
+
+        result = await db.execute(
+            select(Project).where(Project.uuid == request.project_uuid)
+        )
         project = result.scalar_one_or_none()
         if project:
-             # Sanity check for public access
-             if not project.is_active or not project.is_enabled:
+            # Sanity check for public access
+            if not project.is_active or not project.is_enabled:
                 raise HTTPException(status_code=404, detail="Project not found")
-             project_id = project.id
+            project_id = project.id
 
     response_parts = []
     async for chunk in generate_response(

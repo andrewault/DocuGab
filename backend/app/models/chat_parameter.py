@@ -15,7 +15,9 @@ class ChatParameter(Base):
     __tablename__ = "chat_parameters"
 
     id = Column(Integer, primary_key=True, index=True)
-    uuid = Column(UUID(as_uuid=True), default=uuid4, unique=True, nullable=False, index=True)
+    uuid = Column(
+        UUID(as_uuid=True), default=uuid4, unique=True, nullable=False, index=True
+    )
     name = Column(String(100), nullable=False)
     system_prompt = Column(Text, nullable=False)
     temperature = Column(Float, default=0.2, nullable=False)

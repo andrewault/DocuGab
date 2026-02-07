@@ -50,9 +50,8 @@ async def get_system_health(
     return status
 
 
-from sqlalchemy.orm import joinedload
-
 # ...
+
 
 @router.get("/recent-activity")
 async def get_recent_activity(
@@ -73,11 +72,7 @@ async def get_recent_activity(
     recent_projects = projects_result.scalars().all()
 
     # Recent Users (joined recently)
-    users_query = (
-        select(User)
-        .order_by(User.created_at.desc())
-        .limit(5)
-    )
+    users_query = select(User).order_by(User.created_at.desc()).limit(5)
     users_result = await db.execute(users_query)
     recent_users = users_result.scalars().all()
 
@@ -88,8 +83,9 @@ async def get_recent_activity(
                 "name": p.name,
                 "updated_at": p.updated_at,
                 "customer_name": p.customer.name if p.customer else "Unknown",
-                "slug": p.slug
-            } for p in recent_projects
+                "slug": p.slug,
+            }
+            for p in recent_projects
         ],
         "users": [
             {
@@ -97,7 +93,8 @@ async def get_recent_activity(
                 "email": u.email,
                 "full_name": u.full_name,
                 "created_at": u.created_at,
-                "is_active": u.is_active
-            } for u in recent_users
-        ]
+                "is_active": u.is_active,
+            }
+            for u in recent_users
+        ],
     }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
     Box,
     Typography,
@@ -41,7 +41,7 @@ export default function DemoProjects() {
     const [error, setError] = useState('');
     const [activating, setActivating] = useState<string | null>(null);
 
-    const fetchProjects = async () => {
+    const fetchProjects = useCallback(async () => {
         try {
             const response = await fetch(`${API_BASE}/api/v1/admin/demo-projects/`, {
                 headers: { Authorization: `Bearer ${accessToken}` },
@@ -54,11 +54,11 @@ export default function DemoProjects() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [accessToken]);
 
     useEffect(() => {
         fetchProjects();
-    }, [accessToken]);
+    }, [fetchProjects]);
 
     const handleActivate = async (uuid: string) => {
         setActivating(uuid);

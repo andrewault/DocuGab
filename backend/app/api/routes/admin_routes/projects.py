@@ -260,11 +260,12 @@ async def upload_project_logo(
     # Update project logo field
     # If S3, filename is already a full URL. If local, it's just the filename.
     from app.core.config import settings
+
     if settings.storage_backend == "s3":
         project.logo = filename
     else:
         project.logo = f"/api/v1/admin/projects/{project_uuid}/logo"
-    
+
     await db.commit()
 
     return {"message": "Logo uploaded successfully", "filename": filename}
@@ -291,14 +292,17 @@ async def get_project_logo(
     # But since the frontend uses the Project.logo field (which we updated to be the full S3 URL),
     # this endpoint is primarily for local dev or if the logo field was a relative path.
     from app.core.config import settings
+
     if settings.storage_backend == "s3":
         # Check if project.logo is already a URL
         if project.logo and project.logo.startswith("http"):
-             return RedirectResponse(project.logo)
-        
+            return RedirectResponse(project.logo)
+
         # Fallback if logo field is just filename or we want to generate fresh likely
         logo_filename = f"{project_uuid}.png"
-        return RedirectResponse(f"https://{settings.s3_logos_bucket}.s3.{settings.aws_region}.amazonaws.com/logos/{logo_filename}")
+        return RedirectResponse(
+            f"https://{settings.s3_logos_bucket}.s3.{settings.aws_region}.amazonaws.com/logos/{logo_filename}"
+        )
 
     # Get logo file path
     logo_filename = f"{project_uuid}.png"

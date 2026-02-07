@@ -1,7 +1,7 @@
 """Avatar model for customer-scoped 3D avatars."""
 
 from uuid import uuid4
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Index
+from sqlalchemy import Integer, String, Boolean, DateTime, ForeignKey, Index
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.sql import func
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 class Avatar(Base):
     """Avatar model for storing GLB/FBX 3D avatar files.
-    
+
     Avatars are customer-scoped, except for the "Default" avatar which
     is globally available (customer_id = NULL).
     """
@@ -27,7 +27,7 @@ class Avatar(Base):
     uuid: Mapped[uuid4] = mapped_column(
         UUID(as_uuid=True), default=uuid4, unique=True, index=True, nullable=False
     )
-    
+
     # Customer scoping (NULL = global/Default avatar)
     customer_id: Mapped[int | None] = mapped_column(
         Integer,
@@ -35,15 +35,17 @@ class Avatar(Base):
         nullable=True,
         index=True,
     )
-    
+
     # Avatar metadata
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    file_path: Mapped[str] = mapped_column(String(500), nullable=False)  # S3 key or local path
+    file_path: Mapped[str] = mapped_column(
+        String(500), nullable=False
+    )  # S3 key or local path
     file_extension: Mapped[str] = mapped_column(String(10), nullable=False)  # glb, fbx
     file_size: Mapped[int] = mapped_column(Integer, nullable=False)
     original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     thumbnail_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    
+
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

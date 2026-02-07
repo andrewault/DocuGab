@@ -1,6 +1,6 @@
 """Speech API routes for transcription (STT) and synthesis (TTS)."""
 
-from fastapi import APIRouter, UploadFile, File, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import Response, JSONResponse
 from pydantic import BaseModel
 
@@ -16,8 +16,6 @@ router = APIRouter()
 class SynthesizeRequest(BaseModel):
     text: str
     voice: str | None = None
-
-
 
 
 @router.post("/synthesize")

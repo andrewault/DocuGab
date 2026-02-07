@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Chat from './Chat';
-import { AuthContext } from '../context/AuthContext';
+
 
 // Mock scrollTo
 window.scrollTo = vi.fn();
@@ -13,7 +13,6 @@ Element.prototype.scrollTo = vi.fn();
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
-// Mock Auth Context
 const mockUser = {
     id: 1,
     uuid: 'test-uuid',
@@ -32,27 +31,30 @@ const mockUser = {
     customer_role: null,
 };
 
+// Mock useAuth from AuthProvider (which re-exports from store)
+vi.mock('../context/AuthProvider', () => ({
+    useAuth: () => ({
+        user: mockUser,
+        isAuthenticated: true,
+        isLoading: false,
+        isAdmin: false,
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        refreshUser: vi.fn(),
+        isCustomer: false,
+        updateUser: vi.fn(),
+    })
+}));
+
 const renderWithProviders = (component: React.ReactNode) => {
     const theme = createTheme();
     return render(
-        <AuthContext.Provider value={{
-            user: mockUser,
-            isAuthenticated: true,
-            isLoading: false,
-            isAdmin: false,
-            login: vi.fn(),
-            register: vi.fn(),
-            logout: vi.fn(),
-            refreshAuth: vi.fn(),
-            isCustomer: false,
-            updateUser: vi.fn(),
-        }}>
-            <ThemeProvider theme={theme}>
-                <MemoryRouter>
-                    {component}
-                </MemoryRouter>
-            </ThemeProvider>
-        </AuthContext.Provider>
+        <ThemeProvider theme={theme}>
+            <MemoryRouter>
+                {component}
+            </MemoryRouter>
+        </ThemeProvider>
     );
 };
 
@@ -84,13 +86,15 @@ describe('Chat Component', () => {
         });
     });
 
-    it('renders chat input', () => {
+    it('renders chat input', async () => {
         renderWithProviders(<Chat />);
+        await waitFor(() => expect(mockFetch).toHaveBeenCalled());
         expect(screen.getByPlaceholderText(/Ask a question about your documents/i)).toBeInTheDocument();
     });
 
-    it('allows typing in input', () => {
+    it('allows typing in input', async () => {
         renderWithProviders(<Chat />);
+        await waitFor(() => expect(mockFetch).toHaveBeenCalled());
         const input = screen.getByPlaceholderText(/Ask a question about your documents/i);
         fireEvent.change(input, { target: { value: 'Hello AI' } });
         expect(input).toHaveValue('Hello AI');
@@ -98,6 +102,7 @@ describe('Chat Component', () => {
 
     it('sends message when form is submitted', async () => {
         renderWithProviders(<Chat />);
+        await waitFor(() => expect(mockFetch).toHaveBeenCalled());
         const input = screen.getByPlaceholderText(/Ask a question about your documents/i);
         const button = screen.getByLabelText(/Send message/i);
 

@@ -33,7 +33,7 @@ def get_llm(temperature: float = 0.2) -> ChatBedrock:
             client=client,
             model_id=settings.bedrock_llm_model,
             streaming=True,
-            model_kwargs={"temperature": temperature}
+            model_kwargs={"temperature": temperature},
         )
     return _llm_cache[temperature]
 
@@ -48,22 +48,23 @@ def invalidate_chat_parameter_cache() -> None:
 async def get_active_chat_parameter(db: AsyncSession) -> Optional[ChatParameter]:
     """Get the currently active chat parameter with caching."""
     global _active_param_cache
-    
+
     now = time.time()
     # Return cached if valid
-    if _active_param_cache["param"] and (now - _active_param_cache["timestamp"]) < _active_param_cache["ttl"]:
+    if (
+        _active_param_cache["param"]
+        and (now - _active_param_cache["timestamp"]) < _active_param_cache["ttl"]
+    ):
         return _active_param_cache["param"]
-    
+
     # Fetch from database
-    result = await db.execute(
-        select(ChatParameter).where(ChatParameter.is_active == True)
-    )
+    result = await db.execute(select(ChatParameter).where(ChatParameter.is_active))
     param = result.scalar_one_or_none()
-    
+
     # Update cache
     _active_param_cache["param"] = param
     _active_param_cache["timestamp"] = now
-    
+
     return param
 
 

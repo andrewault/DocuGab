@@ -15,6 +15,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import mermaid from 'mermaid';
 import { API_BASE } from '@/config/api';
+import DOMPurify from 'dompurify';
 
 // Mermaid diagram component
 function MermaidDiagram({ chart }: { chart: string }) {
@@ -41,7 +42,7 @@ function MermaidDiagram({ chart }: { chart: string }) {
         renderChart();
     }, [chart, isDark]);
 
-    return <div dangerouslySetInnerHTML={{ __html: svg }} />;
+    return <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(svg) }} />;
 }
 
 // Custom code component for mermaid

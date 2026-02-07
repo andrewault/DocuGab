@@ -35,16 +35,18 @@ async def test_save_uploaded_file(mock_upload_file, mocker):
 @pytest.mark.asyncio
 async def test_save_avatar_file(mock_upload_file, mocker):
     """Test saving an avatar file."""
-    mock_upload_file.filename = "avatar.gab"
+    mock_upload_file.filename = "avatar.glb"
+    avatar_uuid = "123e4567-e89b-12d3-a456-426614174000"
     mocker.patch("pathlib.Path.mkdir")
     mock_file = mock_open()
     mocker.patch("builtins.open", mock_file)
 
-    stored_filename, original_filename = await storage.save_avatar_file(
-        mock_upload_file
+    file_path, ext, size = await storage.save_avatar_file(
+        mock_upload_file, avatar_uuid
     )
 
-    assert stored_filename.endswith(".gab")
+    assert file_path.endswith(".glb")
+    assert ext == "glb"
     mock_file().write.assert_called_once_with(b"test content")
 
 
@@ -62,9 +64,10 @@ async def test_save_logo_file(mock_upload_file, mocker):
     mock_file().write.assert_called_once_with(b"test content")
 
 
-def test_get_file_path(mocker):
+@pytest.mark.asyncio
+async def test_get_file_path(mocker):
     """Test getting file path."""
     expected_dir = storage.DOCUMENT_UPLOAD_DIR
     filename = "test.txt"
-    path = storage.get_file_path(filename)
+    path = await storage.get_file_path(filename)
     assert path == expected_dir / filename

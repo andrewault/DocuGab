@@ -40,9 +40,7 @@ async def get_active_chat_parameter(
     db: AsyncSession = Depends(get_db),
 ):
     """Get the currently active chat parameter."""
-    result = await db.execute(
-        select(ChatParameter).where(ChatParameter.is_active == True)
-    )
+    result = await db.execute(select(ChatParameter).where(ChatParameter.is_active))
     param = result.scalar_one_or_none()
     if not param:
         raise HTTPException(
@@ -52,7 +50,9 @@ async def get_active_chat_parameter(
     return param
 
 
-@router.post("/", response_model=ChatParameterResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/", response_model=ChatParameterResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_chat_parameter(
     data: ChatParameterCreate,
     admin: User = Depends(get_admin_user),
@@ -78,9 +78,7 @@ async def get_chat_parameter(
     db: AsyncSession = Depends(get_db),
 ):
     """Get a specific chat parameter by UUID."""
-    result = await db.execute(
-        select(ChatParameter).where(ChatParameter.uuid == uuid)
-    )
+    result = await db.execute(select(ChatParameter).where(ChatParameter.uuid == uuid))
     param = result.scalar_one_or_none()
     if not param:
         raise HTTPException(
@@ -98,9 +96,7 @@ async def update_chat_parameter(
     db: AsyncSession = Depends(get_db),
 ):
     """Update a chat parameter."""
-    result = await db.execute(
-        select(ChatParameter).where(ChatParameter.uuid == uuid)
-    )
+    result = await db.execute(select(ChatParameter).where(ChatParameter.uuid == uuid))
     param = result.scalar_one_or_none()
     if not param:
         raise HTTPException(
@@ -117,11 +113,11 @@ async def update_chat_parameter(
 
     await db.commit()
     await db.refresh(param)
-    
+
     # Invalidate cache if this was the active parameter
     if param.is_active:
         invalidate_chat_parameter_cache()
-    
+
     return param
 
 
@@ -132,9 +128,7 @@ async def delete_chat_parameter(
     db: AsyncSession = Depends(get_db),
 ):
     """Delete a chat parameter."""
-    result = await db.execute(
-        select(ChatParameter).where(ChatParameter.uuid == uuid)
-    )
+    result = await db.execute(select(ChatParameter).where(ChatParameter.uuid == uuid))
     param = result.scalar_one_or_none()
     if not param:
         raise HTTPException(
@@ -160,9 +154,7 @@ async def activate_chat_parameter(
 ):
     """Set a chat parameter as the active one."""
     # Get the parameter to activate
-    result = await db.execute(
-        select(ChatParameter).where(ChatParameter.uuid == uuid)
-    )
+    result = await db.execute(select(ChatParameter).where(ChatParameter.uuid == uuid))
     param = result.scalar_one_or_none()
     if not param:
         raise HTTPException(
@@ -181,9 +173,8 @@ async def activate_chat_parameter(
 
     await db.commit()
     await db.refresh(param)
-    
+
     # Invalidate cache so new activation is picked up immediately
     invalidate_chat_parameter_cache()
-    
-    return param
 
+    return param

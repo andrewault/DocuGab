@@ -210,6 +210,7 @@ async def delete_document(uuid: UUID, db: AsyncSession = Depends(get_db)):
 
     # Delete physical file
     from app.services.storage import delete_file
+
     await delete_file(document.filename)
 
     # Delete from database (cascades to chunks)

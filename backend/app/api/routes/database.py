@@ -6,7 +6,6 @@ import os
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 import boto3
 from botocore.exceptions import ClientError
@@ -80,10 +79,10 @@ async def vacuum_database(
         try:
             subprocess.run(["psql", "--version"], check=True, capture_output=True)
         except Exception:
-             # If running in a minimal container without psql, we might skip this
-             # But usually the backend image has client tools or we rely on them.
-             # If we moved to a light image without psql, this would fail.
-             pass
+            # If running in a minimal container without psql, we might skip this
+            # But usually the backend image has client tools or we rely on them.
+            # If we moved to a light image without psql, this would fail.
+            pass
 
         result = subprocess.run(
             [
@@ -131,11 +130,11 @@ async def create_backup(
     For now, we keep local behavior or disable it if S3 is active.
     """
     if S3_BUCKET:
-        # In AWS, we rely on CronJobs. Manual triggering via this API is complex 
+        # In AWS, we rely on CronJobs. Manual triggering via this API is complex
         # without k8s API access from the pod.
         raise HTTPException(
-            status_code=400, 
-            detail="Manual backups via API not supported in S3 mode. Use Kubernetes CronJob."
+            status_code=400,
+            detail="Manual backups via API not supported in S3 mode. Use Kubernetes CronJob.",
         )
 
     # Ensure backup directory exists
@@ -240,20 +239,24 @@ async def list_backups(
     if S3_BUCKET:
         s3 = get_s3_client()
         if not s3:
-            raise HTTPException(status_code=500, detail="S3 client configuration failed")
-        
+            raise HTTPException(
+                status_code=500, detail="S3 client configuration failed"
+            )
+
         try:
             response = s3.list_objects_v2(Bucket=S3_BUCKET)
             if "Contents" in response:
                 for obj in response["Contents"]:
                     # Filter for our backup files if needed, but bucket might be dedicated
                     if obj["Key"].endswith(".sql.gz"):
-                        backups.append({
-                            "filename": obj["Key"],
-                            "size": obj["Size"],
-                            "created_at": obj["LastModified"].isoformat(),
-                            "source": "s3"
-                        })
+                        backups.append(
+                            {
+                                "filename": obj["Key"],
+                                "size": obj["Size"],
+                                "created_at": obj["LastModified"].isoformat(),
+                                "source": "s3",
+                            }
+                        )
         except ClientError as e:
             raise HTTPException(status_code=500, detail=f"S3 list failed: {str(e)}")
     else:
@@ -267,10 +270,8 @@ async def list_backups(
                 {
                     "filename": backup_file.name,
                     "size": stat.st_size,
-                    "created_at": datetime.fromtimestamp(
-                        stat.st_mtime
-                    ).isoformat(),
-                    "source": "local"
+                    "created_at": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                    "source": "local",
                 }
             )
 
@@ -290,19 +291,21 @@ async def download_backup(
     Download a database backup file.
     Requires superadmin role.
     """
-    
+
     if S3_BUCKET:
         s3 = get_s3_client()
         if not s3:
-            raise HTTPException(status_code=500, detail="S3 client configuration failed")
-        
+            raise HTTPException(
+                status_code=500, detail="S3 client configuration failed"
+            )
+
         try:
             # Generate a presigned URL? Or stream it through backend?
             # Streaming is safer for auth if we don't want to expose presigned URLs to frontend directly
             # or if bucket is private.
             # However, streaming large files via FastAPI can be memory intensive if not careful.
             # But Boto3 + StreamingResponse is standard.
-            
+
             # Verify file exists first
             try:
                 s3.head_object(Bucket=S3_BUCKET, Key=filename)
@@ -310,15 +313,15 @@ async def download_backup(
                 raise HTTPException(status_code=404, detail="Backup not found in S3")
 
             file_stream = s3.get_object(Bucket=S3_BUCKET, Key=filename)["Body"]
-            
+
             return StreamingResponse(
                 file_stream,
                 media_type="application/gzip",
-                headers={"Content-Disposition": f"attachment; filename={filename}"}
+                headers={"Content-Disposition": f"attachment; filename={filename}"},
             )
 
         except ClientError as e:
-             raise HTTPException(status_code=500, detail=f"S3 download failed: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"S3 download failed: {str(e)}")
 
     else:
         # Local download
@@ -358,11 +361,13 @@ async def delete_backup(
     if S3_BUCKET:
         s3 = get_s3_client()
         if not s3:
-            raise HTTPException(status_code=500, detail="S3 client configuration failed")
-        
+            raise HTTPException(
+                status_code=500, detail="S3 client configuration failed"
+            )
+
         try:
-             s3.delete_object(Bucket=S3_BUCKET, Key=filename)
-             return {"message": f"Backup {filename} deleted from S3"}
+            s3.delete_object(Bucket=S3_BUCKET, Key=filename)
+            return {"message": f"Backup {filename} deleted from S3"}
         except ClientError as e:
             raise HTTPException(status_code=500, detail=f"S3 delete failed: {str(e)}")
 
@@ -403,9 +408,9 @@ async def restore_backup(
     Note: This endpoint only uploads the file, it does not restore it to the database.
     """
     if S3_BUCKET:
-         raise HTTPException(
-            status_code=400, 
-            detail="Manual update/restore via API not supported in S3 mode. Use S3 CLI directly."
+        raise HTTPException(
+            status_code=400,
+            detail="Manual update/restore via API not supported in S3 mode. Use S3 CLI directly.",
         )
 
     # Validate file extension

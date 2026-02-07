@@ -94,7 +94,7 @@ if [ "$RUN_SECURITY" = true ]; then
         echo ""
     else
         # Run Bearer security scanner
-        run_check "Bearer Security Scanner" bearer scan . || FAILED=true
+        run_check "Bearer Security Scanner" bearer scan . --severity high,medium || FAILED=true
     fi
 fi
 

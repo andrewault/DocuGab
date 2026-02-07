@@ -3,22 +3,21 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
-from fastapi.responses import Response, FileResponse
+from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, or_
+from sqlalchemy import select, or_
 
 from app.core.database import get_db
 from app.core.deps import get_admin_user, get_current_user
 from app.models.user import User
 from app.models.avatar import Avatar
 from app.services.storage import (
-    save_avatar_file, 
-    get_avatar_path, 
-    get_avatar_url,
+    save_avatar_file,
+    get_avatar_path,
     delete_avatar_file,
     validate_avatar_file,
 )
-from app.schemas.avatar import AvatarResponse, AvatarListResponse, AvatarCreate
+from app.schemas.avatar import AvatarResponse, AvatarListResponse
 
 
 router = APIRouter()
@@ -45,6 +44,7 @@ async def _build_avatar_response(avatar: Avatar) -> dict:
 
 # ============== Admin Endpoints ==============
 
+
 @router.post(
     "/upload",
     response_model=AvatarResponse,
@@ -58,7 +58,7 @@ async def upload_avatar_admin(
     db: AsyncSession = Depends(get_db),
 ):
     """Upload a new avatar (admin only).
-    
+
     If customer_id is None and name is "Default", creates the global Default avatar.
     """
     # Validate file extension before reading
@@ -67,24 +67,22 @@ async def upload_avatar_admin(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Filename is required",
         )
-    
+
     # Check if trying to create Default avatar
     if name == "Default":
         # Check if Default already exists
-        existing = await db.execute(
-            select(Avatar).where(Avatar.name == "Default")
-        )
+        existing = await db.execute(select(Avatar).where(Avatar.name == "Default"))
         if existing.scalar_one_or_none():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Default avatar already exists",
             )
         customer_id = None  # Default is always global
-    
+
     # Read file content to check size
     content = await file.read()
     file_size = len(content)
-    
+
     # Validate
     is_valid, error = validate_avatar_file(file.filename, file_size)
     if not is_valid:
@@ -92,17 +90,20 @@ async def upload_avatar_admin(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error,
         )
-    
+
     # Reset file pointer
     await file.seek(0)
-    
+
     # Create avatar record first to get UUID
     import uuid as uuid_lib
+
     avatar_uuid = uuid_lib.uuid4()
-    
+
     # Save file
-    file_path, file_extension, file_size = await save_avatar_file(file, str(avatar_uuid))
-    
+    file_path, file_extension, file_size = await save_avatar_file(
+        file, str(avatar_uuid)
+    )
+
     # Create avatar record
     avatar = Avatar(
         uuid=avatar_uuid,
@@ -130,7 +131,7 @@ async def list_avatars_admin(
     db: AsyncSession = Depends(get_db),
 ):
     """List all avatars (admin only).
-    
+
     Optionally filter by customer_id. Always includes global avatars (customer_id=NULL).
     """
     if customer_id is not None:
@@ -143,7 +144,7 @@ async def list_avatars_admin(
     else:
         # Get all avatars
         query = select(Avatar).order_by(Avatar.name)
-    
+
     result = await db.execute(query)
     avatars = list(result.scalars().all())
 
@@ -186,7 +187,7 @@ async def delete_avatar_admin(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Avatar not found"
         )
-    
+
     # Prevent deletion of Default avatar
     if avatar.name == "Default":
         raise HTTPException(
@@ -205,6 +206,7 @@ async def delete_avatar_admin(
 
 
 # ============== Customer Endpoints ==============
+
 
 @customer_router.post(
     "/upload",
@@ -255,10 +257,13 @@ async def upload_avatar_customer(
 
     # Create avatar record first to get UUID
     import uuid as uuid_lib
+
     avatar_uuid = uuid_lib.uuid4()
 
     # Save file
-    file_path, file_extension, file_size = await save_avatar_file(file, str(avatar_uuid))
+    file_path, file_extension, file_size = await save_avatar_file(
+        file, str(avatar_uuid)
+    )
 
     # Create avatar record (scoped to customer)
     avatar = Avatar(
@@ -295,7 +300,9 @@ async def list_avatars_customer(
     # Get customer avatars + global avatars
     query = (
         select(Avatar)
-        .where(or_(Avatar.customer_id == user.customer_id, Avatar.customer_id.is_(None)))
+        .where(
+            or_(Avatar.customer_id == user.customer_id, Avatar.customer_id.is_(None))
+        )
         .order_by(Avatar.name)
     )
     result = await db.execute(query)
@@ -353,23 +360,24 @@ async def delete_avatar_customer(
 
 # ============== Public Endpoints ==============
 
+
 @router.get("/file/{file_path:path}")
 async def get_avatar_file(file_path: str):
     """Serve avatar file (local storage only)."""
     from app.core.config import settings
-    
+
     if settings.storage_backend == "s3":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Use S3 presigned URLs for S3 storage",
         )
-    
+
     local_path = get_avatar_path(file_path)
     if not local_path.exists():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Avatar file not found"
         )
-    
+
     return FileResponse(
         local_path,
         media_type="model/gltf-binary",

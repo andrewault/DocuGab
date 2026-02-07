@@ -53,7 +53,7 @@ async def search_similar_chunks(
         WHERE {where_clause}
         ORDER BY c.embedding <=> '{embedding_str}'::vector
         LIMIT :limit
-    """ # nosec B608
+    """  # nosec B608
     sql = text(query_sql)
 
     result = await db.execute(sql, params)

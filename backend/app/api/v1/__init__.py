@@ -32,9 +32,7 @@ router = APIRouter(prefix="/api/v1")
 router.include_router(auth.router, prefix="/auth", tags=["Auth"])
 router.include_router(users.router, prefix="/users", tags=["Users"])
 router.include_router(admin.router, prefix="/admin", tags=["Admin Users"])
-router.include_router(
-    admin_dashboard.router, prefix="/admin", tags=["Admin Dashboard"]
-)
+router.include_router(admin_dashboard.router, prefix="/admin", tags=["Admin Dashboard"])
 router.include_router(database.router, prefix="/admin/database", tags=["Database"])
 router.include_router(customers.router, prefix="/admin/customers", tags=["Customers"])
 router.include_router(
@@ -43,7 +41,9 @@ router.include_router(
 router.include_router(admin_media.router, prefix="/admin", tags=["Admin Projects"])
 router.include_router(admin_links.router, prefix="/admin", tags=["Admin Projects"])
 router.include_router(
-    admin_chat_parameters.router, prefix="/admin/chat-parameters", tags=["Chat Parameters"]
+    admin_chat_parameters.router,
+    prefix="/admin/chat-parameters",
+    tags=["Chat Parameters"],
 )
 router.include_router(
     admin_demo_projects.router, prefix="/admin/demo-projects", tags=["Demo Projects"]
