@@ -14,7 +14,7 @@ import {
     Divider,
     Grid,
 } from '@mui/material';
-import { Edit, Image as ImageIcon, YouTube as YouTubeIcon, ArrowBack } from '@mui/icons-material';
+import { Edit, Image as ImageIcon, YouTube as YouTubeIcon } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import { ancillaryApi } from '../../api/ancillary';
 import type { ProjectMedia } from '../../api/ancillary';
@@ -109,13 +109,7 @@ export default function ProjectMediaDetail() {
                 {/* Header */}
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Button
-                            startIcon={<ArrowBack />}
-                            onClick={() => navigate(`/admin/projects/${uuid}/media`)}
-                            sx={{ mr: 1 }}
-                        >
-                            Back
-                        </Button>
+
                         {media.type === 'photo' ? <ImageIcon sx={{ fontSize: 32, color: '#6366f1' }} /> : <YouTubeIcon sx={{ fontSize: 32, color: '#ff0000' }} />}
                         <Typography
                             variant="h4"
