@@ -21,8 +21,11 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    useTheme,
 } from '@mui/material';
 import { Edit, Tune, CheckCircle, Info, Close } from '@mui/icons-material';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
@@ -44,6 +47,8 @@ export default function ChatParameterDetail() {
     const navigate = useNavigate();
     const { uuid } = useParams<{ uuid: string }>();
     const { accessToken } = useAuth();
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
     const [parameter, setParameter] = useState<ChatParameter | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -198,21 +203,49 @@ export default function ChatParameterDetail() {
                     System Prompt
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
-                <Typography
-                    component="pre"
+                <Box
                     sx={{
-                        whiteSpace: 'pre-wrap',
-                        fontFamily: 'monospace',
-                        fontSize: '0.9rem',
                         backgroundColor: 'action.hover',
                         p: 2,
                         borderRadius: 1,
                         maxHeight: 400,
                         overflow: 'auto',
+                        '& pre': {
+                            bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'grey.100',
+                            p: 2,
+                            borderRadius: 1,
+                            overflow: 'auto',
+                        },
+                        '& code': {
+                            fontFamily: 'monospace',
+                        },
+                        '& h1, & h2, & h3': {
+                            mt: 3,
+                            mb: 1,
+                        },
+                        '& table': {
+                            borderCollapse: 'collapse',
+                            width: '100%',
+                            my: 2,
+                        },
+                        '& th, & td': {
+                            border: isDark ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.2)',
+                            p: 1,
+                            textAlign: 'left',
+                        },
+                        '& th': {
+                            bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'grey.100',
+                            fontWeight: 600,
+                        },
+                        '& a': {
+                            color: isDark ? '#f97316' : 'primary.main',
+                        },
                     }}
                 >
-                    {parameter.system_prompt}
-                </Typography>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {parameter.system_prompt}
+                    </ReactMarkdown>
+                </Box>
             </Paper>
 
             {/* Metadata */}
