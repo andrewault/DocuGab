@@ -41,7 +41,7 @@ export const lightTheme: Theme = createTheme({
       main: '#059669', // Emerald
     },
     background: {
-      default: '#f8fafc',
+      default: '#C7CCDC',
       paper: '#ffffff',
     },
   },

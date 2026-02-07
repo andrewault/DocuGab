@@ -28,11 +28,9 @@ export default function AdminSidebar({ isOpen }: AdminSidebarProps) {
             sx={{
                 width: isOpen ? 224 : 0,
                 flexShrink: 0,
-                background: isDark
-                    ? 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)'
-                    : '#202578',
+                background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
                 borderRight: isOpen
-                    ? isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(255, 255, 255, 0.1)'
+                    ? '1px solid rgba(255, 255, 255, 0.1)'
                     : 'none',
                 display: 'flex',
                 flexDirection: 'column',
@@ -64,13 +62,11 @@ export default function AdminSidebar({ isOpen }: AdminSidebarProps) {
                             selected={location.pathname === item.path}
                             sx={{
                                 '&.Mui-selected': {
-                                    backgroundColor: isDark
-                                        ? 'rgba(99, 102, 241, 0.2)'
-                                        : 'rgba(99, 102, 241, 0.1)',
+                                    backgroundColor: 'rgba(99, 102, 241, 0.2)',
                                 },
                             }}
                         >
-                            <ListItemIcon sx={{ color: 'primary.main' }}>
+                            <ListItemIcon sx={{ color: '#6366f1' }}>
                                 {item.icon}
                             </ListItemIcon>
                             <ListItemText primary={item.label} sx={{ color: isDark ? 'inherit' : '#fff' }} />

@@ -25,6 +25,7 @@ import {
     TextField,
     FormControlLabel,
     Switch,
+    Grid,
 } from '@mui/material';
 import {
     Business,
@@ -218,74 +219,81 @@ export default function CustomerDetail() {
 
             {/* Customer Details */}
             <InfoSection title="Customer Details" icon={<Business />}>
-                <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
-                    <Box sx={{ flex: 1 }}>
-                        <Stack spacing={2}>
-                            <DetailRow
-                                icon={<Business fontSize="small" />}
-                                label="Customer Name"
-                                value={customer.name}
-                                valueProps={{ fontWeight: 500 }}
-                            />
-                            <DetailRow
-                                icon={<Person fontSize="small" />}
-                                label="Contact Name"
-                                value={customer.contact_name}
-                            />
-                            <DetailRow
-                                icon={<Phone fontSize="small" />}
-                                label="Contact Phone"
-                                value={customer.contact_phone}
-                            />
-                            <DetailRow
-                                icon={<Person fontSize="small" />}
-                                label="Email"
-                                value={customer.email}
-                            />
-                        </Stack>
-                    </Box>
-
-                    <Box sx={{ flex: 1 }}>
-                        <Stack spacing={2}>
-                            <DetailRow
-                                label="Type"
-                                value={
-                                    <Chip
-                                        label={customer.is_docutok_customer ? 'Internal Organization' : 'Customer'}
-                                        color={customer.is_docutok_customer ? 'secondary' : 'default'}
-                                        size="small"
-                                        variant={customer.is_docutok_customer ? 'filled' : 'outlined'}
-                                    />
-                                }
-                            />
-                            <DetailRow
-                                label="Status"
-                                value={
-                                    <Chip
-                                        label={customer.is_active ? 'Active' : 'Inactive'}
-                                        color={customer.is_active ? 'success' : 'default'}
-                                        size="small"
-                                    />
-                                }
-                            />
-                            <DetailRow
-                                icon={<CalendarToday fontSize="small" />}
-                                label="Created"
-                                value={formatInUserTimezone(
-                                    customer.created_at,
-                                    currentUser?.timezone || 'America/Los_Angeles',
-                                    'PP'
-                                )}
-                            />
-                            <DetailRow
-                                icon={<Folder fontSize="small" />}
-                                label="Total Projects"
-                                value={customer.projects_count}
-                                valueProps={{ fontWeight: 500 }}
-                            />
-                        </Stack>
-                    </Box>
-                </Stack>
+                <Grid container spacing={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                        <DetailRow
+                            icon={<Business fontSize="small" />}
+                            label="Customer Name"
+                            value={customer.name}
+                            valueProps={{ fontWeight: 500 }}
+                        />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                        <DetailRow
+                            icon={<Person fontSize="small" />}
+                            label="Contact"
+                            value={customer.contact_name || '-'}
+                        />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                        <DetailRow
+                            icon={<Phone fontSize="small" />}
+                            label="Phone"
+                            value={customer.contact_phone || '-'}
+                        />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                        <DetailRow
+                            icon={<Person fontSize="small" />}
+                            label="Email"
+                            value={customer.email || '-'}
+                        />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                        <DetailRow
+                            label="Type"
+                            value={
+                                <Chip
+                                    label={customer.is_docutok_customer ? 'Internal' : 'Customer'}
+                                    color={customer.is_docutok_customer ? 'secondary' : 'default'}
+                                    size="small"
+                                    variant={customer.is_docutok_customer ? 'filled' : 'outlined'}
+                                />
+                            }
+                        />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                        <DetailRow
+                            label="Status"
+                            value={
+                                <Chip
+                                    label={customer.is_active ? 'Active' : 'Inactive'}
+                                    color={customer.is_active ? 'success' : 'default'}
+                                    size="small"
+                                />
+                            }
+                        />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                        <DetailRow
+                            icon={<CalendarToday fontSize="small" />}
+                            label="Created"
+                            value={formatInUserTimezone(
+                                customer.created_at,
+                                currentUser?.timezone || 'America/Los_Angeles',
+                                'PP'
+                            )}
+                        />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                        <DetailRow
+                            icon={<Folder fontSize="small" />}
+                            label="Projects"
+                            value={customer.projects_count}
+                            valueProps={{ fontWeight: 500 }}
+                        />
+                    </Grid>
+                </Grid>
             </InfoSection>
 
             {/* Projects List */}

@@ -74,9 +74,7 @@ export default function AdminHome() {
             sx={{
                 minHeight: '100vh',
                 py: 4,
-                background: isDark
-                    ? 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)'
-                    : 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)',
+                background: 'background.default',
             }}
         >
             <Container maxWidth="xl" sx={{ px: 3 }}>
