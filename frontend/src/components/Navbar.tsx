@@ -11,7 +11,6 @@ import {
     Divider,
 } from '@mui/material';
 import {
-    Forum,
     Settings,
     AccountCircle,
     Menu as MenuIcon,
@@ -108,22 +107,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
                 <Box sx={{ flexGrow: 1 }} />
 
                 {/* Navigation Links - Centered */}
-                {isAuthenticated && (
-                    <>
-                        <Button
-                            color="inherit"
-                            startIcon={<Forum />}
-                            onClick={() => navigate('/chat')}
-                            sx={{
-                                mx: 1,
-                                opacity: location.pathname === '/chat' ? 1 : 0.7,
-                                '&:hover': { opacity: 1 },
-                            }}
-                        >
-                            Chat
-                        </Button>
-                    </>
-                )}
+
 
                 {/* Right Spacer */}
                 <Box sx={{ flexGrow: 1 }} />

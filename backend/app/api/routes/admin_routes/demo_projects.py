@@ -63,11 +63,6 @@ async def activate_demo_project(
             status_code=400, detail="Project must be marked as demo to be activated"
         )
 
-    # Deactivate all other demo projects
-    all_demos = await db.execute(select(Project).where(Project.is_active_demo))
-    for demo in all_demos.scalars().all():
-        demo.is_active_demo = False
-
     # Activate the selected project
     project.is_active_demo = True
     await db.commit()

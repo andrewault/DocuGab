@@ -137,7 +137,7 @@ export default function Home() {
                 }}
             />
 
-            <Container maxWidth="lg" sx={{ flex: 1, pt: 2, pb: 30, position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <Container maxWidth="lg" sx={{ flex: 1, pt: 4, pb: 10, position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {/* Hero Section */}
                 <Box
                     textAlign="center"
@@ -179,15 +179,45 @@ export default function Home() {
                     <Typography variant="h5" color="text.secondary" mb={2}>
                         Transform your documents into intelligent conversations
                     </Typography>
+                    <Box sx={{ mt: 4 }}>
+                        <Paper
+                            component={Link}
+                            to="/demos"
+                            elevation={0}
+                            sx={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 1.5,
+                                px: 4,
+                                py: 2,
+                                bgcolor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.08)',
+                                color: '#f97316',
+                                borderRadius: 50,
+                                textDecoration: 'none',
+                                fontWeight: 700,
+                                fontSize: '1.25rem',
+                                border: '1px solid',
+                                borderColor: isDark ? 'rgba(99, 102, 241, 0.3)' : 'rgba(99, 102, 241, 0.2)',
+                                transition: 'all 0.2s',
+                                '&:hover': {
+                                    bgcolor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.15)',
+                                    transform: 'translateY(-2px)',
+                                    boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)'
+                                }
+                            }}
+                        >
+                            View Demo Chatbots
+                            <ArrowForward />
+                        </Paper>
+                    </Box>
                 </Box>
 
-                {/* Flowchart Steps */}
                 <Stack
                     direction={{ xs: 'column', md: 'row' }}
                     spacing={{ xs: 2, md: 0 }}
                     justifyContent="center"
                     alignItems="center"
-                    sx={{ mt: -12.5 }}
+                    sx={{ mt: 4 }}
                 >
                     {steps.map((step, index) => (
                         <Stack

@@ -56,6 +56,10 @@ import ChatParameterDetail from './pages/admin/ChatParameterDetail';
 import DemoProjects from './pages/admin/DemoProjects';
 import { useAuth } from './context/AuthProvider';
 
+import DemoList from './pages/public/DemoList';
+
+// ...
+
 export default function App() {
   const { isAdmin, isCustomer } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -65,11 +69,12 @@ export default function App() {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // If we are on a public chat route, render standalone layout
-  if (location.pathname.startsWith('/chats/')) {
+  // If we are on a public chat route (demo or legacy chat), render standalone layout
+  if (location.pathname.startsWith('/chats/') || location.pathname.startsWith('/demos/') && location.pathname.split('/').length > 2) {
     return (
       <Routes>
         <Route path="/chats/:slug" element={<PublicChat />} />
+        <Route path="/demos/:slug" element={<PublicChat />} />
       </Routes>
     );
   }
@@ -98,6 +103,7 @@ export default function App() {
         >
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/demos" element={<DemoList />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/faq" element={<FAQ />} />

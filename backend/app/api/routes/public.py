@@ -85,3 +85,65 @@ async def get_public_project(
         is_ready=is_ready,
         documents_count=documents_count,
     )
+
+
+@router.get("/demos", response_model=list[PublicProjectResponse])
+async def list_public_demos(
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    List all enabled demo projects.
+    Ordered by Featured (is_active_demo) DESC, then Created At DESC.
+    """
+    query = (
+        select(Project)
+        .where(Project.is_demo, Project.is_enabled, Project.is_active)
+        .order_by(Project.is_active_demo.desc(), Project.created_at.desc())
+    )
+    result = await db.execute(query)
+    projects = result.scalars().all()
+
+    response_list = []
+    for project in projects:
+        # Load avatar if present
+        avatar_info = None
+        if project.avatar_id:
+            avatar_result = await db.execute(
+                select(Avatar).where(Avatar.id == project.avatar_id)
+            )
+            avatar = avatar_result.scalar_one_or_none()
+            if avatar:
+                avatar_info = AvatarInfo(
+                    id=avatar.id,
+                    uuid=avatar.uuid,
+                    name=avatar.name,
+                    file_path=avatar.file_path,
+                    thumbnail_url=avatar.thumbnail_url,
+                )
+
+        # Simplified response for list
+        response_list.append(
+            PublicProjectResponse(
+                uuid=project.uuid,
+                name=project.name,
+                slug=project.slug,
+                title=project.title,
+                subtitle=project.subtitle,
+                body=project.body,
+                color_primary=project.color_primary,
+                color_secondary=project.color_secondary,
+                color_background=project.color_background,
+                avatar=avatar_info,
+                voice=project.voice,
+                show_animation=project.show_animation,
+                return_link=project.return_link,
+                return_link_text=project.return_link_text,
+                is_demo=project.is_demo,
+                is_enabled=project.is_enabled,
+                logo=project.logo,
+                is_ready=True,  # Assuming ready for list view
+                documents_count=0,  # Not needed for list
+            )
+        )
+
+    return response_list
