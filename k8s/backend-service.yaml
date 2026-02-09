@@ -7,6 +7,6 @@ spec:
     app: docutok-backend
   ports:
     - protocol: TCP
-      port: 80
+      port: 8007
       targetPort: 8000
   type: ClusterIP

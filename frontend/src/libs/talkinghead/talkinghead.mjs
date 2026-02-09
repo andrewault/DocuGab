@@ -140,7 +140,7 @@ class TalkingHead {
       mixerGainSpeech: null,
       mixerGainBackground: null,
       lipsyncLang: 'fi',
-      lipsyncModules: ['fi', 'en', 'lt'],
+      lipsyncModules: ['en'],
       pcmSampleRate: 22050,
       audioCtx: null,
       modelRoot: "Armature",
@@ -2851,11 +2851,19 @@ class TalkingHead {
   */
   lipsyncGetProcessor(lang, path = "./") {
     if (!this.lipsync.hasOwnProperty(lang)) {
-      const moduleName = path + 'lipsync-' + lang.toLowerCase() + '.mjs';
+      const modules = import.meta.glob('./lipsync-*.mjs');
+      const moduleName = `./lipsync-${lang.toLowerCase()}.mjs`;
       const className = 'Lipsync' + lang.charAt(0).toUpperCase() + lang.slice(1);
-      import(moduleName).then(module => {
-        this.lipsync[lang] = new module[className];
-      });
+
+      if (modules[moduleName]) {
+        modules[moduleName]().then(module => {
+          this.lipsync[lang] = new module[className];
+        }).catch(err => {
+          console.error(`Failed to load lipsync module: ${moduleName}`, err);
+        });
+      } else {
+        console.warn(`Lipsync module not found: ${moduleName}`);
+      }
     }
   }
 

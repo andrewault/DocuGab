@@ -7,6 +7,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Box, CircularProgress } from '@mui/material';
 import { API_BASE } from '@/config/api';
+// @ts-expect-error No declaration file for talkinghead.mjs
+import { TalkingHead } from '@/libs/talkinghead/talkinghead.mjs';
 
 interface TalkingHeadAvatarProps {
     text?: string;  // Text to speak and lip-sync
@@ -15,11 +17,7 @@ interface TalkingHeadAvatarProps {
     isPlaying?: boolean;
 }
 
-// TalkingHead class type (loaded dynamically)
-interface TalkingHeadClass {
-    new(container: HTMLElement, options: Record<string, unknown>): TalkingHeadInstance;
-}
-
+// TalkingHead instance interface based on usage
 interface TalkingHeadInstance {
     showAvatar: (options: Record<string, unknown>) => Promise<void>;
     speakText: (text: string, options?: Record<string, unknown>) => unknown;
@@ -44,42 +42,6 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
             if (!containerRef.current) return;
 
             try {
-                // Fetch and load talkinghead.mjs as a Blob to bypass Vite's public directory restriction
-                // Add cache-busting parameter to ensure fresh fetch
-                const libPath = `/libs/talkinghead.mjs?v=${Date.now()}`;
-                const response = await fetch(libPath);
-                if (!response.ok) throw new Error(`Failed to load ${libPath}`);
-                let code = await response.text();
-
-                // Rewrite relative imports to use absolute URLs (required for Blob URL context)
-                const origin = window.location.origin;
-                code = code.replace(/from '\.\/retargeter\.mjs'/g, `from '${origin}/libs/retargeter.mjs'`);
-                code = code.replace(/from '\.\/dynamicbones\.mjs'/g, `from '${origin}/libs/dynamicbones.mjs'`);
-
-                // Fix worklet URL construction
-                code = code.replace(/new URL\('\.\/playback-worklet\.js', import\.meta\.url\)/g, `new URL('${origin}/libs/playback-worklet.js')`);
-
-                // Fix lipsync module path - the function uses path + 'lipsync-' + lang, so we need to fix the default path parameter
-                // lipsyncGetProcessor(lang, path = "./") -> lipsyncGetProcessor(lang, path = "origin/libs/")
-                code = code.replace(/lipsyncGetProcessor\(lang, path = "\.\/"\)/g, `lipsyncGetProcessor(lang, path = "${origin}/libs/")`);
-
-                // Also handle the call site that uses forEach without path argument
-                // this.opt.lipsyncModules.forEach(x => this.lipsyncGetProcessor(x));
-                // We need to pass the path explicitly, so replace the forEach call
-                code = code.replace(
-                    /this\.opt\.lipsyncModules\.forEach\(x => this\.lipsyncGetProcessor\(x\)\)/g,
-                    `this.opt.lipsyncModules.forEach(x => this.lipsyncGetProcessor(x, "${origin}/libs/"))`
-                );
-
-                // Create Blob URL and import
-                const blob = new Blob([code], { type: 'text/javascript' });
-                const blobUrl = URL.createObjectURL(blob);
-                const module = await import(/* @vite-ignore */ blobUrl);
-                const TalkingHead: TalkingHeadClass = module.TalkingHead;
-                URL.revokeObjectURL(blobUrl);
-
-                if (!mounted) return;
-
                 // Create TalkingHead instance with our TTS endpoint
                 const head = new TalkingHead(containerRef.current, {
                     ttsEndpoint: `${API_BASE}/api/v1/speech/synthesize-avatar`,
@@ -125,6 +87,7 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
                     url: resolvedAvatarUrl,
                     body: 'M',
                     lipsyncLang: 'en',
+                    lipsyncModules: ['en'],
                 });
 
                 head.start();
@@ -159,11 +122,11 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
         const loadNewAvatar = async () => {
             setIsLoading(true);
             try {
-                // @ts-expect-error TalkingHead method
-                await headRef.current.showAvatar({
+                await headRef.current?.showAvatar({
                     url: avatarUrl,
                     body: 'M',
                     lipsyncLang: 'en',
+                    lipsyncModules: ['en'],
                 });
             } catch (err: unknown) {
                 console.error('Failed to change avatar:', err);
@@ -186,7 +149,7 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
                 // Use speakText - this will call our TTS endpoint and animate
                 const result = headRef.current.speakText(text, {
                     lipsyncLang: 'en',
-                    ttsVoice: voice || 'en-US-Neural2-F',
+                    ttsVoice: voice || 'Matthew',
                 });
                 if (result && typeof (result as Promise<void>).catch === 'function') {
                     (result as Promise<void>).catch(console.error);

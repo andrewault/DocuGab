@@ -67,7 +67,15 @@ class Settings(BaseSettings):
     aws_secret_access_key: str | None = None
 
     # Redis Configuration
-    redis_url: str = "redis://redis:6379/0"
+    redis_password: str | None = None
+    redis_host: str = "redis"
+    redis_port: int = 6379
+
+    @property
+    def redis_url(self) -> str:
+        if self.redis_password:
+            return f"redis://:{self.redis_password}@{self.redis_host}:{self.redis_port}/0"
+        return f"redis://{self.redis_host}:{self.redis_port}/0"
 
     # Rate Limiting
     rate_limit_default: str = "100/minute"
@@ -75,8 +83,17 @@ class Settings(BaseSettings):
     rate_limit_auth: str = "5/minute"
 
     # Celery Configuration
-    celery_broker_url: str = "redis://redis:6379/1"
-    celery_result_backend: str = "redis://redis:6379/2"
+    @property
+    def celery_broker_url(self) -> str:
+        if self.redis_password:
+            return f"redis://:{self.redis_password}@{self.redis_host}:{self.redis_port}/1"
+        return f"redis://{self.redis_host}:{self.redis_port}/1"
+
+    @property
+    def celery_result_backend(self) -> str:
+        if self.redis_password:
+            return f"redis://:{self.redis_password}@{self.redis_host}:{self.redis_port}/2"
+        return f"redis://{self.redis_host}:{self.redis_port}/2"
 
     @property
     def cors_origins_list(self) -> list[str]:

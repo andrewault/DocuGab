@@ -36,7 +36,7 @@ echo "   Hash generated."
 SQL="INSERT INTO users (uuid, email, password_hash, full_name, role, is_active, is_verified, created_at, updated_at) 
 VALUES (gen_random_uuid(), '$ADMIN_USERNAME', '$HASH', 'Andrew Ault, Admin User', 'superadmin', true, true, NOW(), NOW())
 ON CONFLICT (email) DO UPDATE 
-SET password_hash = '$HASH', role='admin', is_active=true, is_verified=true, updated_at=NOW();"
+SET password_hash = '$HASH', role='superadmin', is_active=true, is_verified=true, updated_at=NOW();"
 
 # Identify Postgres Pod
 # Identify Backend Pod (which has psql installed and network access to RDS)
@@ -45,6 +45,12 @@ if [ -z "$DB_POD" ]; then
     echo "❌ Error: Could not find backend pod (app=docutok-backend)"
     exit 1
 fi
+
+echo "⏳ Waiting for pod $DB_POD to be ready..."
+kubectl wait --for=condition=ready pod/$DB_POD --timeout=60s || {
+    echo "❌ Error: Pod $DB_POD is not ready. Check logs with: kubectl logs $DB_POD -c migrate"
+    exit 1
+}
 
 echo "🚀 Executing SQL on pod: $DB_POD"
 # Use -h docutok-db-postgresql because psql inside the container defaults to localhost (socket)

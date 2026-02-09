@@ -68,7 +68,7 @@ async def synthesize_speech(text: str, voice: Optional[str] = None) -> bytes:
             # Fallback for Invalid VoiceId
             if (
                 "ValidationException" in str(e)
-                and ("VoiceId" in str(e))
+                and ("voiceid" in str(e).lower())
                 and voice_id != "Joanna"
             ):
                 print(f"Invalid VoiceId '{voice_id}'. Retrying with fallback 'Joanna'.")

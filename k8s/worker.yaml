@@ -1,40 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: docutok-backend
+  name: docutok-worker
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: docutok-backend
+      app: docutok-worker
   template:
     metadata:
       labels:
-        app: docutok-backend
+        app: docutok-worker
     spec:
-      initContainers:
-      - name: migrate
-        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v37
-        command: ["uv", "run", "python", "-m", "alembic", "upgrade", "head"]
-        envFrom:
-        - configMapRef:
-            name: docutok-config
-        - secretRef:
-            name: docutok-secrets
-        env:
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: docutok-secrets
-              key: POSTGRES_PASSWORD
-        - name: DATABASE_URL
-          value: "postgresql+asyncpg://docutok:$(POSTGRES_PASSWORD)@docutok-db-postgresql.default.svc.cluster.local:5432/docutok"
       containers:
-      - name: backend
-        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v37
-        command: ["/bin/bash", "-c", "apt-get update && apt-get install -y ffmpeg && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000"]
-        ports:
-        - containerPort: 8000
+      - name: worker
+        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v32
+        command: ["/bin/bash", "-c", "apt-get update && apt-get install -y ffmpeg && /app/.venv/bin/celery -A app.core.celery_app worker --loglevel=info"]
         envFrom:
         - configMapRef:
             name: docutok-config
@@ -59,7 +40,6 @@ spec:
             secretKeyRef:
               name: docutok-redis
               key: redis-password
-        # Add necessary mounts for uploads if not using S3
         volumeMounts:
         - name: app-core-config
           mountPath: /app/app/core/config.py
@@ -68,4 +48,3 @@ spec:
       - name: app-core-config
         configMap:
           name: docutok-app-core-config
-
