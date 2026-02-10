@@ -21,11 +21,7 @@ interface Message {
     content: string;
 }
 
-interface Document {
-    id: number;
-    filename: string;
-    status: string;
-}
+
 
 interface AncillaryLink {
     name: string;
@@ -84,8 +80,7 @@ export default function Chat({
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [documents, setDocuments] = useState<Document[]>([]);
-    const [selectedDoc, setSelectedDoc] = useState<number | ''>('');
+    const [selectedDoc] = useState<number | ''>('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
@@ -236,23 +231,7 @@ export default function Chat({
         }
     }, [messages, projectUuid]);
 
-    // Fetch available documents
-    useEffect(() => {
-        if (projectUuid) return; // Public chat doesn't fetch user's docs
 
-        const fetchDocs = async () => {
-            try {
-                const res = await fetch(`${API_BASE}/api/documents/`);
-                if (res.ok) {
-                    const data = await res.json();
-                    setDocuments(data.documents.filter((d: Document) => d.status === 'ready'));
-                }
-            } catch (e) {
-                console.error('Failed to fetch documents:', e);
-            }
-        };
-        fetchDocs();
-    }, [projectUuid]);
 
     // Auto-scroll to bottom
     useEffect(() => {
@@ -287,21 +266,12 @@ export default function Chat({
         localStorage.setItem('docutok_tts_voice', voice);
     };
 
-    // Avatar selection
-    const AVATAR_OPTIONS = [
-        { value: '/assets/avatars/avatar.glb', label: 'Default Avatar' },
-        { value: '/assets/avatars/character.glb', label: 'Character' }
-    ];
 
-    const [selectedAvatar, setSelectedAvatar] = useState(() => {
+
+    const [selectedAvatar] = useState(() => {
         if (propAvatar) return propAvatar;
-        return localStorage.getItem('docutok_avatar_selection') || '/assets/avatars/avatar.glb';
+        return '/assets/avatars/avatar.glb';
     });
-
-    const handleAvatarChange = (value: string) => {
-        setSelectedAvatar(value);
-        localStorage.setItem('docutok_avatar_selection', value);
-    };
 
     // Play assistant message as audio
     const playAssistantAudio = async (text: string, messageIndex: number) => {
@@ -519,24 +489,7 @@ export default function Chat({
                                 {messages.length} message{messages.length !== 1 ? 's' : ''}
                             </Typography>
 
-                            {/* Document Filter */}
-                            {!projectUuid && (
-                                <FormControl size="small" fullWidth>
-                                    <InputLabel>Filter by document</InputLabel>
-                                    <Select
-                                        value={selectedDoc}
-                                        label="Filter by document"
-                                        onChange={(e) => setSelectedDoc(e.target.value as number | '')}
-                                    >
-                                        <MenuItem value="">All documents</MenuItem>
-                                        {documents.map((doc) => (
-                                            <MenuItem key={doc.id} value={doc.id}>
-                                                {doc.filename}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            )}
+
 
                             {/* Animation Toggle */}
                             <FormControlLabel
@@ -567,23 +520,7 @@ export default function Chat({
                                 </Select>
                             </FormControl>
 
-                            {/* Avatar Selection - shown when animation enabled */}
-                            {animationEnabled && (
-                                <FormControl size="small" fullWidth sx={{ mt: 2 }}>
-                                    <InputLabel>Avatar</InputLabel>
-                                    <Select
-                                        value={selectedAvatar}
-                                        label="Avatar"
-                                        onChange={(e) => handleAvatarChange(e.target.value)}
-                                    >
-                                        {AVATAR_OPTIONS.map((avatar) => (
-                                            <MenuItem key={avatar.value} value={avatar.value}>
-                                                {avatar.label}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            )}
+
 
                             <Box sx={{ flexGrow: 1 }} />
 

@@ -12,6 +12,7 @@ import DocumentViewer from './pages/DocumentViewer';
 import Chat from './pages/Chat';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
+import Documents from './pages/Documents';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import FAQ from './pages/FAQ';
@@ -109,6 +110,7 @@ export default function App() {
             <Route path="/faq" element={<FAQ />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/documents" element={<Documents />} />
             <Route path="/documents/:uuid" element={
               <ProtectedRoute>
                 <DocumentViewer />
