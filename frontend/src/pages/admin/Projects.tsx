@@ -442,30 +442,17 @@ export default function Projects() {
                                                         <TableCell>
                                                             <Stack direction="row" spacing={1}>
                                                                 <Chip
-                                                                    label={project.is_active ? 'Active' : 'Inactive'}
-                                                                    color={project.is_active ? 'success' : 'default'}
+                                                                    label={project.is_enabled ? 'Active' : 'Disabled'}
                                                                     size="small"
+                                                                    sx={{
+                                                                        backgroundColor: project.is_enabled ? '#4caf50' : '#f44336',
+                                                                        color: 'white',
+                                                                        fontWeight: 600
+                                                                    }}
                                                                 />
-                                                                <Chip
-                                                                    label={project.is_enabled ? 'Enabled' : 'Disabled'}
-                                                                    color={project.is_enabled ? 'primary' : 'default'}
-                                                                    size="small"
-                                                                    variant="outlined"
-                                                                />
-                                                                {project.is_ready && (
-                                                                    <Chip
-                                                                        label="Ready"
-                                                                        size="small"
-                                                                        sx={{
-                                                                            backgroundColor: '#4caf50',
-                                                                            color: 'white',
-                                                                            fontWeight: 600
-                                                                        }}
-                                                                    />
-                                                                )}
                                                                 {project.is_demo && (
                                                                     <Chip
-                                                                        label="Internal"
+                                                                        label="Demo"
                                                                         size="small"
                                                                         sx={{
                                                                             backgroundColor: '#1976d2',

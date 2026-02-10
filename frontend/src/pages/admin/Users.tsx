@@ -319,17 +319,21 @@ export default function Users() {
                                             <TableCell>{user.full_name || '-'}</TableCell>
                                             <TableCell>
                                                 <Chip
-                                                    label={user.role}
+                                                    label={user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                                                     size="small"
                                                     color={
                                                         user.role === 'superadmin'
                                                             ? 'error'
                                                             : user.role === 'admin'
                                                                 ? 'warning'
-                                                                : user.role === 'customer'
-                                                                    ? 'info'
-                                                                    : 'default'
+                                                                : 'default'
                                                     }
+                                                    sx={
+                                                        user.role === 'customer'
+                                                            ? { bgcolor: '#1976d2', color: 'white', fontWeight: 600 }
+                                                            : {}
+                                                    }
+
                                                 />
                                             </TableCell>
                                             <TableCell>
@@ -361,7 +365,11 @@ export default function Users() {
                                                 <Chip
                                                     label={user.is_active ? 'Active' : 'Inactive'}
                                                     size="small"
-                                                    color={user.is_active ? 'success' : 'default'}
+                                                    sx={{
+                                                        backgroundColor: user.is_active ? '#4caf50' : '#e0e0e0',
+                                                        color: user.is_active ? 'white' : 'text.primary',
+                                                        fontWeight: 600
+                                                    }}
                                                 />
                                             </TableCell>
                                             <TableCell align="right">

@@ -373,8 +373,12 @@ export default function Customers() {
                                                         <Stack direction="row" spacing={1}>
                                                             <Chip
                                                                 label={customer.is_active ? 'Active' : 'Inactive'}
-                                                                color={customer.is_active ? 'success' : 'default'}
                                                                 size="small"
+                                                                sx={{
+                                                                    backgroundColor: customer.is_active ? '#4caf50' : '#e0e0e0',
+                                                                    color: customer.is_active ? 'white' : 'text.primary',
+                                                                    fontWeight: 600
+                                                                }}
                                                             />
                                                             {customer.is_docutok_customer && (
                                                                 <Chip

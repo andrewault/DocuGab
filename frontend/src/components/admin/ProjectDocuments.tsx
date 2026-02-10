@@ -295,7 +295,7 @@ export function ProjectDocuments({ project, documents, currentUser, onRefresh }:
                                             </TableCell>
                                             <TableCell>
                                                 <Chip
-                                                    label={doc.status}
+                                                    label={doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
                                                     size="small"
                                                     color={
                                                         doc.status === 'processed' || doc.status === 'ready'
@@ -305,6 +305,11 @@ export function ProjectDocuments({ project, documents, currentUser, onRefresh }:
                                                                 : doc.status === 'error'
                                                                     ? 'error'
                                                                     : 'default'
+                                                    }
+                                                    sx={
+                                                        doc.status === 'ready'
+                                                            ? { bgcolor: '#4caf50', color: 'white', fontWeight: 600 }
+                                                            : {}
                                                     }
                                                 />
                                             </TableCell>

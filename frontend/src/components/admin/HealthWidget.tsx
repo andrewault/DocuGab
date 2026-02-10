@@ -60,11 +60,15 @@ export function HealthWidget() {
                 ) : (
                     <Tooltip title={error || (isHealthy ? 'Operational' : 'Issue Detected')}>
                         <Chip
-                            icon={isHealthy ? <CheckCircle /> : <ErrorIcon />}
-                            label={status}
-                            color={isHealthy ? 'success' : 'error'}
+                            icon={isHealthy ? <CheckCircle style={{ color: 'white' }} /> : <ErrorIcon style={{ color: 'white' }} />}
+                            label={status.charAt(0).toUpperCase() + status.slice(1)}
                             size="small"
-                            variant="outlined"
+                            sx={{
+                                bgcolor: isHealthy ? '#4caf50' : '#f44336',
+                                color: 'white',
+                                fontWeight: 600,
+                                '& .MuiChip-icon': { color: 'white' }
+                            }}
                         />
                     </Tooltip>
                 )}

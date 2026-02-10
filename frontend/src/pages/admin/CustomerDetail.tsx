@@ -64,6 +64,7 @@ interface Project {
     uuid: string;
     name: string;
     is_active: boolean;
+    is_enabled: boolean;
     is_demo: boolean;
     created_at: string;
     documents_count: number;
@@ -268,8 +269,12 @@ export default function CustomerDetail() {
                             value={
                                 <Chip
                                     label={customer.is_active ? 'Active' : 'Inactive'}
-                                    color={customer.is_active ? 'success' : 'default'}
                                     size="small"
+                                    sx={{
+                                        backgroundColor: customer.is_active ? '#4caf50' : '#e0e0e0',
+                                        color: customer.is_active ? 'white' : 'text.primary',
+                                        fontWeight: 600
+                                    }}
                                 />
                             }
                         />
@@ -407,13 +412,17 @@ export default function CustomerDetail() {
                                             <TableCell>
                                                 <Stack direction="row" spacing={1}>
                                                     <Chip
-                                                        label={project.is_active ? 'Active' : 'Inactive'}
-                                                        color={project.is_active ? 'success' : 'default'}
+                                                        label={project.is_enabled ? 'Active' : 'Disabled'}
                                                         size="small"
+                                                        sx={{
+                                                            backgroundColor: project.is_enabled ? '#4caf50' : '#f44336',
+                                                            color: 'white',
+                                                            fontWeight: 600
+                                                        }}
                                                     />
                                                     {project.is_demo && (
                                                         <Chip
-                                                            label="Internal"
+                                                            label="Demo"
                                                             size="small"
                                                             sx={{
                                                                 backgroundColor: '#1976d2',
@@ -545,22 +554,30 @@ export default function CustomerDetail() {
                                             </TableCell>
                                             <TableCell>
                                                 <Chip
-                                                    label={user.role}
+                                                    label={user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                                                     size="small"
                                                     color={
                                                         user.role === 'admin'
                                                             ? 'warning'
-                                                            : user.role === 'customer'
-                                                                ? 'info'
-                                                                : 'default'
+                                                            : 'default'
                                                     }
+                                                    sx={
+                                                        user.role === 'customer'
+                                                            ? { bgcolor: '#1976d2', color: 'white', fontWeight: 600 }
+                                                            : {}
+                                                    }
+
                                                 />
                                             </TableCell>
                                             <TableCell>
                                                 <Chip
                                                     label={user.is_active ? 'Active' : 'Inactive'}
-                                                    color={user.is_active ? 'success' : 'default'}
                                                     size="small"
+                                                    sx={{
+                                                        backgroundColor: user.is_active ? '#4caf50' : '#e0e0e0',
+                                                        color: user.is_active ? 'white' : 'text.primary',
+                                                        fontWeight: 600
+                                                    }}
                                                 />
                                             </TableCell>
                                             <TableCell>

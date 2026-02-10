@@ -228,6 +228,11 @@ export default function UserDetail() {
                                         label={user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                                         color={user.role === 'superadmin' ? 'error' : user.role === 'admin' ? 'warning' : 'default'}
                                         size="small"
+                                        sx={
+                                            user.role === 'customer'
+                                                ? { bgcolor: '#1976d2', color: 'white', fontWeight: 600 }
+                                                : {}
+                                        }
                                     />
                                 </Box>
                             </Box>
@@ -265,10 +270,15 @@ export default function UserDetail() {
                                 <Box mt={0.5}>
                                     <Stack direction="row" spacing={1}>
                                         <Chip
-                                            icon={user.is_active ? <CheckCircle /> : <Cancel />}
+                                            icon={user.is_active ? <CheckCircle style={{ color: 'white' }} /> : <Cancel />}
                                             label={user.is_active ? 'Active' : 'Inactive'}
-                                            color={user.is_active ? 'success' : 'default'}
                                             size="small"
+                                            sx={{
+                                                backgroundColor: user.is_active ? '#4caf50' : '#e0e0e0',
+                                                color: user.is_active ? 'white' : 'text.primary',
+                                                fontWeight: 600,
+                                                '& .MuiChip-icon': { color: user.is_active ? 'white' : 'inherit' }
+                                            }}
                                         />
                                         <Chip
                                             icon={user.is_verified ? <CheckCircle /> : <Cancel />}

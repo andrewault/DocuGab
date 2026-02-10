@@ -217,13 +217,9 @@ export default function ProjectDetail() {
                     message={
                         project.is_demo
                             ? 'Demo Project'
-                            : !project.is_active
-                                ? 'Project Inactive'
-                                : !project.is_enabled
-                                    ? 'Project Disabled'
-                                    : ''
+                            : ''
                     }
-                    visible={project.is_demo || !project.is_active || !project.is_enabled}
+                    visible={project.is_demo}
                 />
                 <AdminBreadcrumbs
                     items={[
@@ -249,9 +245,9 @@ export default function ProjectDetail() {
                         >
                             {project.name} • Chatbot Project
                         </Typography>
-                        {project.is_ready ? (
+                        {project.is_enabled ? (
                             <Chip
-                                label="Ready"
+                                label="Active"
                                 sx={{
                                     backgroundColor: '#4caf50',
                                     color: 'white',
@@ -260,7 +256,7 @@ export default function ProjectDetail() {
                             />
                         ) : (
                             <Chip
-                                label="Not Ready"
+                                label="Disabled"
                                 sx={{
                                     backgroundColor: '#f44336',
                                     color: 'white',

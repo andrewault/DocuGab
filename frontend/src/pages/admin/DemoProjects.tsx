@@ -186,9 +186,9 @@ export default function DemoProjects() {
                                         {project.is_active_demo ? (
                                             <Chip
                                                 label="Active Demo"
-                                                color="success"
                                                 size="small"
-                                                icon={<CheckCircle />}
+                                                icon={<CheckCircle style={{ color: 'white' }} />}
+                                                sx={{ bgcolor: '#4caf50', color: 'white', fontWeight: 600, '& .MuiChip-icon': { color: 'white' } }}
                                             />
                                         ) : !project.is_enabled ? (
                                             <Chip label="Disabled" color="default" size="small" />
