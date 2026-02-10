@@ -41,7 +41,7 @@ async def get_active_demo_project(db: AsyncSession = Depends(get_db)):
             "uuid": str(project.uuid),
             "name": project.name,
             "slug": project.slug,
-            "title": project.title,
+
             "subtitle": project.subtitle,
             "body": project.body,
             "logo": project.logo,

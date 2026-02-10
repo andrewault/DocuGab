@@ -104,23 +104,21 @@ export default function AvatarSelect({ selectedAvatarId, customerId, onSelect, d
                 <FormControl fullWidth disabled={disabled || loading}>
                     <InputLabel>Avatar</InputLabel>
                     <Select
-                        value={selectedAvatarId ?? 'default'}
+                        value={selectedAvatarId || ''}
                         onChange={(e) => {
                             const val = e.target.value;
-                            onSelect(val === 'default' ? null : Number(val));
+                            onSelect(val ? Number(val) : null);
                         }}
                         label="Avatar"
                         renderValue={(value) => {
-                            if (value === 'default') {
-                                return defaultAvatar ? `${defaultAvatar.name} (Global)` : 'Default';
-                            }
+                            if (!value) return 'Select Avatar';
                             const avatar = avatars.find(a => a.id === Number(value));
-                            return avatar ? avatar.name : 'Select Avatar';
+                            return avatar ? (avatar.name === 'Default' ? `${avatar.name} (Global)` : avatar.name) : 'Select Avatar';
                         }}
                     >
-                        {/* Default avatar option (null means use default) */}
+                        {/* Default avatar option */}
                         {defaultAvatar && (
-                            <MenuItem value="default">
+                            <MenuItem value={defaultAvatar.id}>
                                 <Stack direction="row" spacing={1} alignItems="center">
                                     <Person fontSize="small" />
                                     <span>{defaultAvatar.name} (Global)</span>

@@ -43,7 +43,7 @@ class Project(Base):
 
     # Branding
     logo: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    title: Mapped[str] = mapped_column(String(255), nullable=False)
+
     subtitle: Mapped[str | None] = mapped_column(String(500), nullable=True)
     body: Mapped[str | None] = mapped_column(Text, nullable=True)
     color_primary: Mapped[str] = mapped_column(String(7), nullable=False)  # Hex color

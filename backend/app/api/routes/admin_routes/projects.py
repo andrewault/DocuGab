@@ -135,7 +135,7 @@ async def create_project(
         name=data.name,
         slug=data.slug,
         logo=data.logo,
-        title=data.title,
+
         subtitle=data.subtitle,
         body=data.body,
         color_primary=data.color_primary,

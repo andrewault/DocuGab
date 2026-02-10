@@ -14,7 +14,7 @@ spec:
     spec:
       initContainers:
       - name: migrate
-        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v39
+        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v47
         command: ["uv", "run", "python", "-m", "alembic", "upgrade", "head"]
         envFrom:
         - configMapRef:
@@ -31,7 +31,7 @@ spec:
           value: "postgresql+asyncpg://docutok:$(POSTGRES_PASSWORD)@docutok-db-postgresql.default.svc.cluster.local:5432/docutok"
       containers:
       - name: backend
-        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v39
+        image: 932380677908.dkr.ecr.us-west-2.amazonaws.com/docutok-backend:v47
         command: ["/bin/bash", "-c", "apt-get update && apt-get install -y ffmpeg && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000"]
         ports:
         - containerPort: 8000

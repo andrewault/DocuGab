@@ -13,7 +13,9 @@ from app.api.routes import (
     customers,
     database,
     avatars,
+    avatars,
     images,
+    health,
 )
 from app.api.routes import public
 from app.api.routes.admin_routes import projects as admin_projects
@@ -63,4 +65,5 @@ router.include_router(
     avatars.customer_router, prefix="/customer/avatars", tags=["Customer Avatars"]
 )
 router.include_router(images.router, prefix="/images", tags=["Images"])
+router.include_router(health.router, tags=["Health"])
 router.include_router(public.router)

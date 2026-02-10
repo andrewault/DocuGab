@@ -45,7 +45,7 @@ interface Project {
     slug: string;
     description: string | null;
     logo: string | null;
-    title: string;
+
     subtitle: string | null;
     body: string | null;
     color_primary: string;
@@ -318,7 +318,7 @@ export default function Projects() {
                                                 </TableSortLabel>
                                             </TableCell>
                                             <TableCell>Customer</TableCell>
-                                            <TableCell>Title</TableCell>
+
                                             <TableCell>
                                                 <TableSortLabel
                                                     active={orderBy === 'documents_count'}
@@ -353,7 +353,7 @@ export default function Projects() {
                                     <TableBody>
                                         {projects.length === 0 ? (
                                             <TableRow>
-                                                <TableCell colSpan={9} align="center">
+                                                <TableCell colSpan={8} align="center">
                                                     <Typography color="textSecondary" py={4}>
                                                         No projects found
                                                     </Typography>
@@ -410,16 +410,11 @@ export default function Projects() {
                                                                 project.customer_name || '—'
                                                             )}
                                                         </TableCell>
+
                                                         <TableCell>
-                                                            {project.title}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <Chip
-                                                                label={project.documents_count}
-                                                                size="small"
-                                                                color="primary"
-                                                                variant="outlined"
-                                                            />
+                                                            <Typography variant="body2">
+                                                                {project.documents_count}
+                                                            </Typography>
                                                         </TableCell>
                                                         <TableCell>
                                                             <Typography variant="body2">

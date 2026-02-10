@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import {
     Box, Paper, TextField, IconButton,
     Typography, CircularProgress, Divider,
@@ -43,7 +44,7 @@ const SESSION_ID_KEY = 'docutok_chat_session_id';
 function getSessionId(): string {
     let sessionId = localStorage.getItem(SESSION_ID_KEY);
     if (!sessionId) {
-        sessionId = crypto.randomUUID();
+        sessionId = uuidv4();
         localStorage.setItem(SESSION_ID_KEY, sessionId);
     }
     return sessionId;

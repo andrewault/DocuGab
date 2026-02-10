@@ -34,16 +34,21 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
     const [error, setError] = useState<string | null>(null);
     const lastTextRef = useRef<string>('');
 
+    const avatarContainerRef = useRef<HTMLDivElement>(null);
+
     // Initialize TalkingHead
     useEffect(() => {
         let mounted = true;
 
         const initTalkingHead = async () => {
-            if (!containerRef.current) return;
+            if (!avatarContainerRef.current) return;
 
             try {
+                // Clear any existing content (safe because React controls the parent, not this inner div's children)
+                avatarContainerRef.current.innerHTML = '';
+
                 // Create TalkingHead instance with our TTS endpoint
-                const head = new TalkingHead(containerRef.current, {
+                const head = new TalkingHead(avatarContainerRef.current, {
                     ttsEndpoint: `${API_BASE}/api/v1/speech/synthesize-avatar`,
                     cameraView: 'full', // "full", "mid", "upper" and "head"
                     cameraDistance: 0.5,
@@ -105,10 +110,12 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
             }
         };
 
-        initTalkingHead();
+        // Small timeout to ensure DOM is ready and to prevent AudioContext warning on immediate load
+        const timer = setTimeout(initTalkingHead, 100);
 
         return () => {
             mounted = false;
+            clearTimeout(timer);
             if (headRef.current) {
                 headRef.current.stop();
             }
@@ -180,6 +187,9 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
                 position: 'relative',
             }}
         >
+            {/* Dedicated container for 3D content - Isolated from React updates */}
+            <div ref={avatarContainerRef} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} />
+
             {/* Loading Overlay */}
             {isLoading && (
                 <Box

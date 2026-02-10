@@ -68,7 +68,7 @@ async def get_public_project(
         uuid=project.uuid,
         name=project.name,
         slug=project.slug,
-        title=project.title,
+
         subtitle=project.subtitle,
         body=project.body,
         color_primary=project.color_primary,
@@ -105,6 +105,17 @@ async def list_public_demos(
 
     response_list = []
     for project in projects:
+        # Check document count to determine readiness
+        docs_query = select(func.count(Document.id)).where(
+            Document.project_id == project.id
+        )
+        docs_result = await db.execute(docs_query)
+        documents_count = docs_result.scalar() or 0
+        
+        # Filter out empty projects (not ready)
+        if documents_count == 0:
+            continue
+
         # Load avatar if present
         avatar_info = None
         if project.avatar_id:
@@ -127,7 +138,7 @@ async def list_public_demos(
                 uuid=project.uuid,
                 name=project.name,
                 slug=project.slug,
-                title=project.title,
+
                 subtitle=project.subtitle,
                 body=project.body,
                 color_primary=project.color_primary,
@@ -141,8 +152,8 @@ async def list_public_demos(
                 is_demo=project.is_demo,
                 is_enabled=project.is_enabled,
                 logo=project.logo,
-                is_ready=True,  # Assuming ready for list view
-                documents_count=0,  # Not needed for list
+                is_ready=True,  # Confirmed by docs check
+                documents_count=documents_count,
             )
         )
 

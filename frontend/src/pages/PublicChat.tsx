@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Box, Typography, CircularProgress, Alert } from '@mui/material';
+import { useParams, Link as RouterLink } from 'react-router-dom';
+import { Box, Typography, CircularProgress, Alert, Button } from '@mui/material';
+import { Home } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { API_BASE } from '@/config/api';
 import Chat from './Chat';
@@ -10,7 +11,7 @@ interface PublicProject {
     uuid: string;
     name: string;
     slug: string;
-    title: string;
+
     subtitle?: string;
     logo?: string;
     color_primary: string;
@@ -119,23 +120,41 @@ export default function PublicChat() {
                 flexDirection: 'column',
             }}>
                 {/* Header */}
-                <Box sx={{ p: 3, pb: 0, display: 'flex', alignItems: 'center', gap: 2 }}>
-                    {project.logo && (
-                        <img src={project.logo.startsWith('http') ? project.logo : `${API_BASE}${project.logo}`}
-                            alt="Logo"
-                            style={{ height: 48, objectFit: 'contain' }}
-                        />
-                    )}
-                    <Box>
-                        <Typography variant="h5" fontWeight="bold" sx={{ color: project.color_primary }}>
-                            {project.title}
-                        </Typography>
-                        {project.subtitle && (
-                            <Typography variant="body2" sx={{ color: project.color_secondary }}>
-                                {project.subtitle}
-                            </Typography>
+                <Box sx={{ p: 3, pb: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        {project.logo && (
+                            <img src={project.logo.startsWith('http') ? project.logo : `${API_BASE}${project.logo}`}
+                                alt="Logo"
+                                style={{ height: 48, objectFit: 'contain' }}
+                            />
                         )}
+                        <Box>
+                            <Typography variant="h5" fontWeight="bold" sx={{ color: project.color_primary }}>
+                                {project.name}
+                            </Typography>
+                            {project.subtitle && (
+                                <Typography variant="body2" sx={{ color: project.color_secondary }}>
+                                    {project.subtitle}
+                                </Typography>
+                            )}
+                        </Box>
                     </Box>
+                    <Button
+                        component={RouterLink}
+                        to="/demos"
+                        startIcon={<Home />}
+                        variant="outlined"
+                        sx={{
+                            borderColor: project.color_primary,
+                            color: project.color_primary,
+                            '&:hover': {
+                                borderColor: project.color_primary,
+                                bgcolor: 'rgba(255, 255, 255, 0.1)',
+                            }
+                        }}
+                    >
+                        Home
+                    </Button>
                 </Box>
 
                 {/* Chat Component */}

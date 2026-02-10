@@ -48,7 +48,7 @@ async def build_project_response(project: Project, db: AsyncSession) -> dict:
         "slug": project.slug,
         "description": project.description,
         "logo": project.logo,
-        "title": project.title,
+
         "subtitle": project.subtitle,
         "body": project.body,
         "color_primary": project.color_primary,

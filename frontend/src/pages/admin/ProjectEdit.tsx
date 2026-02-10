@@ -41,7 +41,6 @@ interface Project {
     description: string | null;
     subdomain: string;
     logo: string | null;
-    title: string;
     subtitle: string | null;
     body: string | null;
     color_primary: string;
@@ -72,7 +71,7 @@ interface ProjectFormData {
     description: string;
     subdomain: string;
     logo: string;
-    title: string;
+
     subtitle: string;
     body: string;
     color_primary: string;
@@ -124,7 +123,7 @@ export default function ProjectEdit() {
         description: '',
         subdomain: '',
         logo: '',
-        title: '',
+
         subtitle: '',
         body: '',
         color_primary: '#1976d2',
@@ -161,7 +160,7 @@ export default function ProjectEdit() {
                     description: projectData.description || '',
                     subdomain: projectData.subdomain,
                     logo: projectData.logo || '',
-                    title: projectData.title,
+
                     subtitle: projectData.subtitle || '',
                     body: projectData.body || '',
                     color_primary: projectData.color_primary,
@@ -557,19 +556,7 @@ export default function ProjectEdit() {
                 {tabValue === 1 && (
                     <Paper elevation={2} sx={{ p: 3 }}>
                         <Stack spacing={3}>
-                            <TextField
-                                label="Title"
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !e.shiftKey) {
-                                        e.preventDefault();
-                                        handleSave();
-                                    }
-                                }}
-                                fullWidth
-                                disabled={saving}
-                            />
+
 
                             <TextField
                                 label="Subtitle"

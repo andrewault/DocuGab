@@ -344,12 +344,9 @@ export default function Customers() {
                                                         {customer.contact_phone || '—'}
                                                     </TableCell>
                                                     <TableCell>
-                                                        <Chip
-                                                            label={customer.projects_count}
-                                                            size="small"
-                                                            color="primary"
-                                                            variant="outlined"
-                                                        />
+                                                        <Typography variant="body2">
+                                                            {customer.projects_count}
+                                                        </Typography>
                                                     </TableCell>
                                                     <TableCell>
                                                         <Typography variant="body2">

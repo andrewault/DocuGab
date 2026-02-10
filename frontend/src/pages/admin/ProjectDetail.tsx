@@ -328,7 +328,7 @@ export default function ProjectDetail() {
                                 </li>
                             )}
                             {/* Check Avatar */}
-                            {!project.avatar_id && (
+                            {project.show_animation && !project.avatar_id && (
                                 <li>
                                     <Typography variant="body2">
                                         Select an Avatar (Voice & Avatar tab)
@@ -336,7 +336,7 @@ export default function ProjectDetail() {
                                 </li>
                             )}
                             {/* Check Voice */}
-                            {!project.voice && (
+                            {project.show_animation && !project.voice && (
                                 <li>
                                     <Typography variant="body2">
                                         Select a Voice (Voice & Avatar tab)

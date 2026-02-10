@@ -38,7 +38,7 @@ class TestDocumentUpload:
                 "name": "Test Project",
                 "slug": "test-project",
                 "subdomain": "test-upload",
-                "title": "Test Title",
+
                 "subtitle": "Test Subtitle",
                 "body": "Test body",
                 "color_primary": "#1976d2",
@@ -85,7 +85,7 @@ class TestDocumentUpload:
                 "name": "Test Project",
                 "slug": "test-project",
                 "subdomain": "test-unsupported",
-                "title": "Test Title",
+
                 "subtitle": "Test Subtitle",
                 "body": "Test body",
                 "color_primary": "#1976d2",

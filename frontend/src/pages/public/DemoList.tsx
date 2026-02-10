@@ -22,7 +22,7 @@ interface DemoProject {
     uuid: string;
     name: string;
     slug: string;
-    title: string;
+
     subtitle: string;
     logo?: string;
     color_primary: string;
@@ -154,7 +154,7 @@ export default function DemoList() {
 
                                 <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                                     <Typography variant="h5" component="h2" gutterBottom fontWeight="bold">
-                                        {demo.title}
+                                        {demo.name}
                                     </Typography>
 
                                     <Typography

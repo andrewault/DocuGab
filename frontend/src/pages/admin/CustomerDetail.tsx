@@ -402,12 +402,9 @@ export default function CustomerDetail() {
                                                 </Stack>
                                             </TableCell>
                                             <TableCell>
-                                                <Chip
-                                                    label={project.documents_count}
-                                                    size="small"
-                                                    color="primary"
-                                                    variant="outlined"
-                                                />
+                                                <Typography variant="body2">
+                                                    {project.documents_count}
+                                                </Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Stack direction="row" spacing={1}>

@@ -11,7 +11,7 @@ export interface Project {
     description: string | null;
     subdomain: string;
     logo: string | null;
-    title: string;
+
     subtitle?: string;
     body?: string;
     color_primary: string;

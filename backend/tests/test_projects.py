@@ -10,7 +10,7 @@ VALID_PROJECT_DATA = {
     "customer_id": 1,
     "name": "Test Project",
     "slug": "test-proj",
-    "title": "Test Title",
+
     "subtitle": "Test Subtitle",
     "body": "Test body content",
     "color_primary": "#1976d2",
@@ -106,7 +106,7 @@ class TestProjectCreate:
         data = response.json()
         assert data["name"] == "Test Project"
         assert data["slug"] == "test-proj"
-        assert data["title"] == "Test Title"
+
         assert data["color_primary"] == "#1976d2"
         assert data["is_active"] is True
         assert "id" in data
@@ -275,7 +275,7 @@ class TestProjectUpdate:
 
         # Update project
         update_data = {
-            "title": "Updated Title",
+
             "color_primary": "#ff5722",
         }
         response = await client.patch(
@@ -285,7 +285,7 @@ class TestProjectUpdate:
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["title"] == "Updated Title"
+
         assert data["color_primary"] == "#ff5722"
         assert data["name"] == "Test Project"  # Unchanged
 

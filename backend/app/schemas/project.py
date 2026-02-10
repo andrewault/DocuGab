@@ -12,7 +12,7 @@ class ProjectBase(BaseModel):
 
     name: str = Field(min_length=1, max_length=255)
     slug: str = Field(min_length=1, max_length=100)
-    title: str = Field(min_length=1, max_length=255)
+
     subtitle: Optional[str] = Field(None, max_length=500)
     body: Optional[str] = None
     color_primary: str = Field(min_length=7, max_length=7, pattern=r"^#[0-9a-fA-F]{6}$")
@@ -58,7 +58,7 @@ class ProjectUpdate(BaseModel):
     slug: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = None
     logo: Optional[str] = Field(None, max_length=500)
-    title: Optional[str] = Field(None, min_length=1, max_length=255)
+
     subtitle: Optional[str] = Field(None, max_length=500)
     body: Optional[str] = None
     color_primary: Optional[str] = Field(
@@ -109,7 +109,7 @@ class ProjectResponse(BaseModel):
     customer_id: int
     name: str
     slug: str
-    title: str
+
     subtitle: Optional[str]
     body: Optional[str]
     color_primary: str
@@ -150,7 +150,7 @@ class PublicProjectResponse(BaseModel):
     uuid: UUID
     name: str
     slug: str
-    title: str
+
     subtitle: Optional[str]
     body: Optional[str]
     color_primary: str
