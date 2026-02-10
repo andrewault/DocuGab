@@ -54,7 +54,7 @@ export function ProjectVoice({ project }: ProjectVoiceProps) {
                                 Avatar
                             </Typography>
                             <Typography variant="body1" fontFamily="monospace">
-                                {project.avatar || 'Default (avatar.glb)'}
+                                {project.avatar?.name || 'Default (avatar.glb)'}
                             </Typography>
                         </Box>
 
