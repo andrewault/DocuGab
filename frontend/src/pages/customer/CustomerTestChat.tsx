@@ -26,7 +26,7 @@ interface Project {
     id: number;
     uuid: string;
     name: string;
-    avatar: string;
+    avatar: string | { file_path: string } | null;
     voice: string;
     color_primary: string;
     color_secondary: string;
@@ -269,9 +269,12 @@ export default function CustomerTestChat() {
                             text={playingMessageText}
                             voice={project.voice}
                             avatarUrl={
-                                project.avatar === 'male' || project.avatar === 'female'
-                                    ? '/assets/avatars/avatar.glb'
-                                    : (project.avatar || '/assets/avatars/avatar.glb')
+                                (() => {
+                                    const avatarPath = typeof project.avatar === 'string' ? project.avatar : project.avatar?.file_path;
+                                    return avatarPath === 'male' || avatarPath === 'female'
+                                        ? '/assets/avatars/avatar.glb'
+                                        : (avatarPath || '/assets/avatars/avatar.glb');
+                                })()
                             }
                             isPlaying={playingMessageIndex !== null}
                         />

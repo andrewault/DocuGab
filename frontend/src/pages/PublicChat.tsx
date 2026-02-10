@@ -17,7 +17,7 @@ interface PublicProject {
     color_primary: string;
     color_secondary: string;
     color_background: string;
-    avatar: string;
+    avatar: string | { file_path: string } | null;
     voice: string;
     show_animation: boolean;
     is_ready: boolean;
@@ -168,7 +168,7 @@ export default function PublicChat() {
                         height="calc(100vh - 120px)"
                         showAnimation={project.show_animation}
                         voice={project.voice}
-                        avatar={project.avatar}
+                        avatar={typeof project.avatar === 'string' ? project.avatar : project.avatar?.file_path}
                     />
                 </Box>
             </Box>

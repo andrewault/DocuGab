@@ -77,7 +77,7 @@ export default function TalkingHeadAvatar({ text, voice, avatarUrl, isPlaying }:
                 };
 
                 let resolvedAvatarUrl = '/assets/avatars/avatar.glb'; // default
-                if (avatarUrl) {
+                if (avatarUrl && typeof avatarUrl === 'string') {
                     if (avatarUrl.startsWith('/') || avatarUrl.startsWith('http')) {
                         resolvedAvatarUrl = avatarUrl;
                     } else {

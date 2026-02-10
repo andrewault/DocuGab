@@ -24,7 +24,7 @@ export function ProjectBranding({ project }: ProjectBrandingProps) {
                                 Chatbot Project Name
                             </Typography>
                             <Typography variant="body1" fontWeight={500}>
-                                {project.title}
+                                {project.name}
                             </Typography>
                         </Box>
 
