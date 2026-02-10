@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
     Box,
     Container,
@@ -27,6 +27,13 @@ import { API_BASE } from '@/config/api';
 
 export default function NewUser() {
     const navigate = useNavigate();
+    const { customerUuid: urlCustomerUuid } = useParams<{ customerUuid?: string }>();
+    const location = useLocation();
+    const state = location.state as { customerId?: number, customerUuid?: string, customerName?: string } | null;
+
+    const customerId = state?.customerId || null;
+    const customerUuid = urlCustomerUuid || state?.customerUuid || null;
+    const customerName = state?.customerName || null;
 
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
@@ -34,7 +41,7 @@ export default function NewUser() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [fullName, setFullName] = useState('');
-    const [role, setRole] = useState('admin');
+    const [role, setRole] = useState(customerId ? 'customer' : 'admin');
     const [isActive, setIsActive] = useState(true);
     const [isVerified, setIsVerified] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -103,7 +110,7 @@ export default function NewUser() {
                         role,
                         is_active: isActive,
                         is_verified: isVerified,
-                        customer_id: null,
+                        customer_id: customerId,
                         phone_number: phoneNumber || null,
                         company: company || null,
                         job_title: jobTitle || null,
@@ -117,7 +124,11 @@ export default function NewUser() {
                 }
             }
 
-            navigate(`/admin/admin-users/${newUser.uuid}`);
+            if (customerUuid) {
+                navigate(`/admin/customers/${customerUuid}/users/${newUser.uuid}`);
+            } else {
+                navigate(`/admin/admin-users/${newUser.uuid}`);
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to create user');
         } finally {
@@ -136,7 +147,11 @@ export default function NewUser() {
             }}
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
-                <AdminBreadcrumbs items={[
+                <AdminBreadcrumbs items={customerUuid ? [
+                    { label: 'Customers', path: '/admin/customers' },
+                    { label: customerName || 'Customer', path: `/admin/customers/${customerUuid}` },
+                    { label: 'New User' }
+                ] : [
                     { label: 'Admin Users', path: '/admin/admin-users' },
                     { label: 'New Admin User' }
                 ]} />
@@ -156,7 +171,7 @@ export default function NewUser() {
                                 WebkitTextFillColor: 'transparent',
                             }}
                         >
-                            New Admin User
+                            {customerUuid ? 'New Customer User' : 'New Admin User'}
                         </Typography>
                     </Box>
                     <Stack direction="row" spacing={2}>
@@ -172,7 +187,7 @@ export default function NewUser() {
                             onClick={handleSubmit}
                             disabled={saving}
                         >
-                            {saving ? 'Creating...' : 'Create Admin User'}
+                            {saving ? 'Creating...' : (customerUuid ? 'Create User' : 'Create Admin User')}
                         </Button>
                     </Stack>
                 </Stack>
@@ -257,8 +272,17 @@ export default function NewUser() {
                                 label="Role"
                                 onChange={(e) => setRole(e.target.value)}
                             >
-                                <MenuItem value="admin">Admin</MenuItem>
-                                <MenuItem value="superadmin">Superadmin</MenuItem>
+                                {customerId ? (
+                                    <>
+                                        <MenuItem value="customer">Customer Admin</MenuItem>
+                                        <MenuItem value="user">User</MenuItem>
+                                    </>
+                                ) : (
+                                    <>
+                                        <MenuItem value="admin">Admin</MenuItem>
+                                        <MenuItem value="superadmin">Superadmin</MenuItem>
+                                    </>
+                                )}
                             </Select>
                         </FormControl>
 

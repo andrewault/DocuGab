@@ -53,7 +53,7 @@ interface Customer {
 }
 
 export default function UserEdit() {
-    const { uuid } = useParams<{ uuid: string }>();
+    const { uuid, customerUuid } = useParams<{ uuid: string, customerUuid?: string }>();
     const navigate = useNavigate();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
@@ -179,7 +179,11 @@ export default function UserEdit() {
             const updatedUser = await response.json();
             setUser(updatedUser);
             // Navigate to detail page after successful save
-            navigate(`/admin/admin-users/${uuid}`);
+            if (customerUuid) {
+                navigate(`/admin/customers/${customerUuid}/users/${uuid}`);
+            } else {
+                navigate(`/admin/admin-users/${uuid}`);
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to update user');
         } finally {
@@ -206,7 +210,11 @@ export default function UserEdit() {
                 throw new Error(data.detail || 'Failed to delete user');
             }
 
-            navigate('/admin');
+            if (customerUuid) {
+                navigate(`/admin/customers/${customerUuid}`);
+            } else {
+                navigate('/admin/admin-users');
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to delete user');
             setSaving(false);
@@ -264,7 +272,12 @@ export default function UserEdit() {
             }}
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
-                <AdminBreadcrumbs items={[
+                <AdminBreadcrumbs items={customerUuid ? [
+                    { label: 'Customers', path: '/admin/customers' },
+                    { label: user.customer_name || 'Customer', path: `/admin/customers/${customerUuid}` },
+                    { label: user.email, path: `/admin/customers/${customerUuid}/users/${uuid}` },
+                    { label: 'Edit' }
+                ] : [
                     { label: 'Admin Users', path: '/admin/admin-users' },
                     { label: user.email, path: `/admin/admin-users/${uuid}` },
                     { label: 'Edit' }
@@ -291,7 +304,9 @@ export default function UserEdit() {
                     <Stack direction="row" spacing={2}>
                         <Button
                             variant="outlined"
-                            onClick={() => navigate(`/admin/admin-users/${uuid}`)}
+                            onClick={() => navigate(customerUuid
+                                ? `/admin/customers/${customerUuid}/users/${uuid}`
+                                : `/admin/admin-users/${uuid}`)}
                             disabled={saving}
                         >
                             Cancel

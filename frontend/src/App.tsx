@@ -190,6 +190,7 @@ export default function App() {
             <Route path="/admin/users/:uuid" element={<Navigate to="/admin/admin-users/:uuid" replace />} />
             <Route path="/admin/users/:uuid/edit" element={<Navigate to="/admin/admin-users/:uuid/edit" replace />} />
 
+            {/* Platform Admin Users (global) */}
             <Route path="/admin/admin-users" element={
               <ProtectedRoute requireAdmin>
                 <Users />
@@ -206,6 +207,23 @@ export default function App() {
               </ProtectedRoute>
             } />
             <Route path="/admin/admin-users/:uuid/edit" element={
+              <ProtectedRoute requireAdmin>
+                <UserEdit />
+              </ProtectedRoute>
+            } />
+
+            {/* Customer Specific Users */}
+            <Route path="/admin/customers/:customerUuid/users/new" element={
+              <ProtectedRoute requireAdmin>
+                <NewUser />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/customers/:customerUuid/users/:uuid" element={
+              <ProtectedRoute requireAdmin>
+                <UserDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/customers/:customerUuid/users/:uuid/edit" element={
               <ProtectedRoute requireAdmin>
                 <UserEdit />
               </ProtectedRoute>

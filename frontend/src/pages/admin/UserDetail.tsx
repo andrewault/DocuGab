@@ -57,7 +57,7 @@ interface User {
 
 export default function UserDetail() {
     const { user: currentUser } = useAuth();
-    const { uuid } = useParams<{ uuid: string }>();
+    const { uuid, customerUuid } = useParams<{ uuid: string, customerUuid?: string }>();
     const navigate = useNavigate();
     const location = useLocation();
     const [user, setUser] = useState<User | null>(null);
@@ -112,7 +112,11 @@ export default function UserDetail() {
                 throw new Error('Failed to delete user');
             }
 
-            navigate('/admin/admin-users');
+            if (customerUuid) {
+                navigate(`/admin/customers/${customerUuid}`);
+            } else {
+                navigate('/admin/admin-users');
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to delete user');
             setDeleteDialogOpen(false);
@@ -179,7 +183,9 @@ export default function UserDetail() {
                     <Button
                         variant="contained"
                         startIcon={<Edit />}
-                        onClick={() => navigate(`/admin/admin-users/${user.uuid}/edit`)}
+                        onClick={() => navigate(customerUuid
+                            ? `/admin/customers/${customerUuid}/users/${user.uuid}/edit`
+                            : `/admin/admin-users/${user.uuid}/edit`)}
                     >
                         Edit
                     </Button>
