@@ -12,12 +12,17 @@ export interface Project {
     subdomain: string;
     logo: string | null;
     title: string;
-    subtitle: string | null;
-    body: string | null;
+    subtitle?: string;
+    body?: string;
     color_primary: string;
     color_secondary: string;
     color_background: string;
-    avatar: string;
+    avatar_id?: number;
+    avatar?: {
+        id: number;
+        name: string;
+        thumbnail_url?: string;
+    };
     voice: string;
     show_animation: boolean;
     return_link: string | null;

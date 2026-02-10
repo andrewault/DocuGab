@@ -28,9 +28,7 @@ docker compose up -d --build
 
 echo ""
 echo "⏳ Waiting for services to be healthy..."
-sleep 5
-
-
+sleep 8
 
 echo ""
 # Run health check

@@ -306,6 +306,57 @@ export default function ProjectDetail() {
                     </Stack>
                 </Stack>
 
+                {/* Readiness Checklist */}
+                {!project.is_ready && (
+                    <Alert severity="warning" sx={{ mb: 4 }} icon={<HelpOutline fontSize="inherit" />}>
+                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                            Needed, be Ready:
+                        </Typography>
+                        <ul style={{ margin: 0, paddingLeft: 20 }}>
+                            {/* Check Documents */}
+                            {(project.documents_count || 0) === 0 && (
+                                <li>
+                                    <Typography variant="body2">
+                                        Upload at least one document (PDF, DOCX, TXT)
+                                    </Typography>
+                                </li>
+                            )}
+                            {/* Check Avatar */}
+                            {!project.avatar_id && (
+                                <li>
+                                    <Typography variant="body2">
+                                        Select an Avatar (Voice & Avatar tab)
+                                    </Typography>
+                                </li>
+                            )}
+                            {/* Check Voice */}
+                            {!project.voice && (
+                                <li>
+                                    <Typography variant="body2">
+                                        Select a Voice (Voice & Avatar tab)
+                                    </Typography>
+                                </li>
+                            )}
+                            {/* Check Description/Body */}
+                            {!project.body && (
+                                <li>
+                                    <Typography variant="body2">
+                                        Add a Project Description/Body text
+                                    </Typography>
+                                </li>
+                            )}
+                            {/* Check Subtitle */}
+                            {!project.subtitle && (
+                                <li>
+                                    <Typography variant="body2">
+                                        Add a Project Subtitle
+                                    </Typography>
+                                </li>
+                            )}
+                        </ul>
+                    </Alert>
+                )}
+
                 {/* Tabs */}
                 <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
                     <Tabs
