@@ -28,6 +28,10 @@ class AdminUserUpdate(BaseModel):
     is_active: Optional[bool] = None
     is_verified: Optional[bool] = None
     customer_id: Optional[int] = None
+    phone_number: Optional[str] = None
+    company: Optional[str] = None
+    job_title: Optional[str] = None
+    timezone: Optional[str] = None
 
 
 class UserListResponse(BaseModel):
@@ -85,6 +89,7 @@ async def list_users(
     search: Optional[str] = None,
     role: Optional[str] = None,
     is_active: Optional[bool] = None,
+    no_customer: Optional[bool] = None,
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -101,9 +106,16 @@ async def list_users(
         )
         filters.append(search_filter)
     if role:
-        filters.append(User.role == role)
+        if role == "admin":
+            filters.append(User.role.in_(["admin", "superadmin"]))
+        else:
+            filters.append(User.role == role)
     if is_active is not None:
         filters.append(User.is_active == is_active)
+    if no_customer is True:
+        filters.append(User.customer_id.is_(None))
+    elif no_customer is False:
+        filters.append(User.customer_id.is_not(None))
 
     if filters:
         query = query.where(and_(*filters))
@@ -231,6 +243,14 @@ async def update_user(
             user.customer_role = "owner"
         elif not user.customer_role:
             user.customer_role = "member"
+    if data.phone_number is not None:
+        user.phone_number = data.phone_number
+    if data.company is not None:
+        user.company = data.company
+    if data.job_title is not None:
+        user.job_title = data.job_title
+    if data.timezone is not None:
+        user.timezone = data.timezone
 
     await db.commit()
     await db.refresh(user)

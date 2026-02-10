@@ -19,6 +19,9 @@ export default function Register() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [fullName, setFullName] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [company, setCompany] = useState('');
+    const [jobTitle, setJobTitle] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -46,7 +49,7 @@ export default function Register() {
         setIsLoading(true);
 
         try {
-            await register(email, password, fullName);
+            await register(email, password, fullName, phoneNumber, company, jobTitle);
             navigate('/');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Registration failed');
@@ -106,6 +109,45 @@ export default function Register() {
                             label="Full Name"
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSubmit(e as React.FormEvent);
+                                }
+                            }}
+                            sx={{ mb: 2 }}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Phone Number"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSubmit(e as React.FormEvent);
+                                }
+                            }}
+                            sx={{ mb: 2 }}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Company"
+                            value={company}
+                            onChange={(e) => setCompany(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSubmit(e as React.FormEvent);
+                                }
+                            }}
+                            sx={{ mb: 2 }}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Job Title"
+                            value={jobTitle}
+                            onChange={(e) => setJobTitle(e.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                     e.preventDefault();

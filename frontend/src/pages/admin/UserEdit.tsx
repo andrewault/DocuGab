@@ -26,6 +26,7 @@ import {
 import { Save, Delete, Person } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { getAllTimezones, getTimezoneLabel } from '../../utils/timezoneUtils';
 import { API_BASE } from '@/config/api';
 
 interface User {
@@ -38,6 +39,10 @@ interface User {
     customer_id: number | null;
     customer_uuid: string | null;
     customer_name: string | null;
+    phone_number: string | null;
+    company: string | null;
+    job_title: string | null;
+    timezone: string;
     created_at: string;
 }
 
@@ -65,6 +70,10 @@ export default function UserEdit() {
     const [isActive, setIsActive] = useState(true);
     const [isVerified, setIsVerified] = useState(false);
     const [customerId, setCustomerId] = useState<number | null>(null);
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [company, setCompany] = useState('');
+    const [jobTitle, setJobTitle] = useState('');
+    const [timezone, setTimezone] = useState('America/Los_Angeles');
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -98,6 +107,10 @@ export default function UserEdit() {
             setIsActive(data.is_active);
             setIsVerified(data.is_verified);
             setCustomerId(data.customer_id || null);
+            setPhoneNumber(data.phone_number || '');
+            setCompany(data.company || '');
+            setJobTitle(data.job_title || '');
+            setTimezone(data.timezone || 'America/Los_Angeles');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load user');
         } finally {
@@ -151,6 +164,10 @@ export default function UserEdit() {
                     is_active: isActive,
                     is_verified: isVerified,
                     customer_id: customerId,
+                    phone_number: phoneNumber || null,
+                    company: company || null,
+                    job_title: jobTitle || null,
+                    timezone: timezone,
                 }),
             });
 
@@ -162,7 +179,7 @@ export default function UserEdit() {
             const updatedUser = await response.json();
             setUser(updatedUser);
             // Navigate to detail page after successful save
-            navigate(`/admin/users/${uuid}`);
+            navigate(`/admin/admin-users/${uuid}`);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to update user');
         } finally {
@@ -248,8 +265,8 @@ export default function UserEdit() {
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
                 <AdminBreadcrumbs items={[
-                    { label: 'Users', path: '/admin/users' },
-                    { label: user.email, path: `/admin/users/${uuid}` },
+                    { label: 'Admin Users', path: '/admin/admin-users' },
+                    { label: user.email, path: `/admin/admin-users/${uuid}` },
                     { label: 'Edit' }
                 ]} />
 
@@ -274,7 +291,7 @@ export default function UserEdit() {
                     <Stack direction="row" spacing={2}>
                         <Button
                             variant="outlined"
-                            onClick={() => navigate(`/admin/users/${uuid}`)}
+                            onClick={() => navigate(`/admin/admin-users/${uuid}`)}
                             disabled={saving}
                         >
                             Cancel
@@ -348,6 +365,42 @@ export default function UserEdit() {
                             </Select>
                         </FormControl>
 
+                        <TextField
+                            label="Phone Number"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            fullWidth
+                        />
+
+                        <TextField
+                            label="Company"
+                            value={company}
+                            onChange={(e) => setCompany(e.target.value)}
+                            fullWidth
+                        />
+
+                        <TextField
+                            label="Job Title"
+                            value={jobTitle}
+                            onChange={(e) => setJobTitle(e.target.value)}
+                            fullWidth
+                        />
+
+                        <FormControl fullWidth>
+                            <InputLabel>Timezone</InputLabel>
+                            <Select
+                                value={timezone}
+                                label="Timezone"
+                                onChange={(e) => setTimezone(e.target.value)}
+                            >
+                                {getAllTimezones().map((tz) => (
+                                    <MenuItem key={tz} value={tz}>
+                                        {getTimezoneLabel(tz)}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
                         <FormControl fullWidth>
                             <InputLabel>Customer</InputLabel>
                             <Select
@@ -355,7 +408,7 @@ export default function UserEdit() {
                                 label="Customer"
                                 onChange={(e) => setCustomerId(e.target.value ? Number(e.target.value) : null)}
                             >
-                                <MenuItem value="">None</MenuItem>
+                                <MenuItem value="">None (admin)</MenuItem>
                                 {customers.map((customer) => (
                                     <MenuItem key={customer.id} value={customer.id}>
                                         {customer.name}

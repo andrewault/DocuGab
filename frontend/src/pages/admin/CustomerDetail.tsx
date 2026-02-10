@@ -466,7 +466,7 @@ export default function CustomerDetail() {
                     <Button
                         variant="contained"
                         startIcon={<Add />}
-                        onClick={() => navigate('/admin/users/new', {
+                        onClick={() => navigate('/admin/admin-users/new', {
                             state: {
                                 customerId: customer.id,
                                 customerUuid: customer.uuid,
@@ -539,7 +539,7 @@ export default function CustomerDetail() {
                                             key={user.id}
                                             hover
                                             sx={{ cursor: 'pointer' }}
-                                            onClick={() => navigate(`/admin/users/${user.uuid}`)}
+                                            onClick={() => navigate(`/admin/admin-users/${user.uuid}`)}
                                         >
                                             <TableCell>
                                                 <Typography fontWeight={500}>
@@ -590,7 +590,7 @@ export default function CustomerDetail() {
                                                     color="primary"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        navigate(`/admin/users/${user.uuid}`);
+                                                        navigate(`/admin/admin-users/${user.uuid}`);
                                                     }}
                                                 >
                                                     <Edit fontSize="small" />

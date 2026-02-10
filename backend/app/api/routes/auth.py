@@ -26,6 +26,7 @@ router = APIRouter()
 )
 async def register(
     data: UserRegister,
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ):
     """Register a new user account."""
@@ -38,6 +39,11 @@ async def register(
         )
 
     user = await auth_service.create_user(db, data)
+    
+    # Update last login and IP
+    ip_address = request.client.host if request.client else None
+    await auth_service.update_last_login(db, user, ip_address)
+    
     return user
 
 
@@ -64,8 +70,8 @@ async def login(
         db, user.id, device_info, ip_address
     )
 
-    # Update last login
-    await auth_service.update_last_login(db, user)
+    # Update last login and IP
+    await auth_service.update_last_login(db, user, ip_address)
 
     return TokenResponse(
         access_token=access_token,

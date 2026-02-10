@@ -16,7 +16,7 @@ export default function AdminSidebar({ isOpen }: AdminSidebarProps) {
         { label: 'Dashboard', icon: <Dashboard />, path: '/admin' },
         { label: 'Customers', icon: <Business />, path: '/admin/customers' },
         { label: 'Chatbot Projects', icon: <RecordVoiceOver />, path: '/admin/projects' },
-        { label: 'Users', icon: <Group />, path: '/admin/users' },
+        { label: 'Admin Users', icon: <Group />, path: '/admin/admin-users' },
         { label: 'FAQs', icon: <QuestionAnswer />, path: '/admin/faq' },
         { label: 'Chat Parameters', icon: <Tune />, path: '/admin/chat-parameters' },
         { label: 'Demo Projects', icon: <PlayCircle />, path: '/admin/demo-projects' },

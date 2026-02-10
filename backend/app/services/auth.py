@@ -30,6 +30,9 @@ async def create_user(db: AsyncSession, data: UserRegister) -> User:
         email=data.email.lower(),
         password_hash=hash_password(data.password),
         full_name=data.full_name,
+        phone_number=data.phone_number,
+        company=data.company,
+        job_title=data.job_title,
     )
     db.add(user)
     await db.commit()
@@ -140,7 +143,9 @@ async def invalidate_all_sessions(db: AsyncSession, user_id: int) -> int:
     return result.rowcount  # type: ignore
 
 
-async def update_last_login(db: AsyncSession, user: User) -> None:
-    """Update the user's last login timestamp."""
+async def update_last_login(db: AsyncSession, user: User, ip_address: Optional[str] = None) -> None:
+    """Update the user's last login timestamp and IP address."""
     user.last_login_at = datetime.now(timezone.utc)
+    if ip_address:
+        user.last_ip_address = ip_address
     await db.commit()

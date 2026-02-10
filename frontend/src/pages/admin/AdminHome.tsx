@@ -70,7 +70,7 @@ export default function AdminHome() {
     const adminLinks = [
         { title: 'Customers', icon: <Business />, path: '/admin/customers' },
         { title: 'Projects', icon: <RecordVoiceOver />, path: '/admin/projects' },
-        { title: 'Users', icon: <Group />, path: '/admin/users' },
+        { title: 'Admin Users', icon: <Group />, path: '/admin/admin-users' },
         { title: 'FAQs', icon: <QuestionAnswer />, path: '/admin/faq' },
         { title: 'Database', icon: <Storage />, path: '/admin/database' },
     ];

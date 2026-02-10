@@ -126,7 +126,7 @@ export function RecentActivityWidget() {
                             <div key={user.uuid}>
                                 {index > 0 && <Divider component="li" />}
                                 <ListItem disablePadding>
-                                    <ListItemButton onClick={() => navigate(`/admin/users/${user.uuid}`)}>
+                                    <ListItemButton onClick={() => navigate(`/admin/admin-users/${user.uuid}`)}>
                                         <ListItemAvatar>
                                             <Avatar sx={{ bgcolor: 'info.main' }}>
                                                 <Person />

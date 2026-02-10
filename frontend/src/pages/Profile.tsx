@@ -26,6 +26,9 @@ export default function Profile() {
     const [editing, setEditing] = useState(false);
     const [fullName, setFullName] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [company, setCompany] = useState('');
+    const [jobTitle, setJobTitle] = useState('');
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
@@ -40,6 +43,9 @@ export default function Profile() {
         if (user) {
             setFullName(user.full_name || '');
             setAvatarUrl(user.avatar_url || '');
+            setPhoneNumber(user.phone_number || '');
+            setCompany(user.company || '');
+            setJobTitle(user.job_title || '');
         }
     }, [user]);
 
@@ -59,6 +65,9 @@ export default function Profile() {
                 body: JSON.stringify({
                     full_name: fullName || null,
                     avatar_url: avatarUrl || null,
+                    phone_number: phoneNumber || null,
+                    company: company || null,
+                    job_title: jobTitle || null,
                 }),
             });
 
@@ -183,6 +192,12 @@ export default function Profile() {
                                     {user.full_name || 'No name set'}
                                 </Typography>
                                 <Typography color="text.secondary">{user.email}</Typography>
+                                {user.phone_number && <Typography color="text.secondary">{user.phone_number}</Typography>}
+                                {user.job_title && user.company && (
+                                    <Typography color="text.secondary">
+                                        {user.job_title} at {user.company}
+                                    </Typography>
+                                )}
                                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                                     Role: {user.role} • {user.is_verified ? 'Verified' : 'Not verified'}
                                 </Typography>
@@ -204,6 +219,24 @@ export default function Profile() {
                                     label="Full Name"
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
+                                    fullWidth
+                                />
+                                <TextField
+                                    label="Phone Number"
+                                    value={phoneNumber}
+                                    onChange={(e) => setPhoneNumber(e.target.value)}
+                                    fullWidth
+                                />
+                                <TextField
+                                    label="Company"
+                                    value={company}
+                                    onChange={(e) => setCompany(e.target.value)}
+                                    fullWidth
+                                />
+                                <TextField
+                                    label="Job Title"
+                                    value={jobTitle}
+                                    onChange={(e) => setJobTitle(e.target.value)}
                                     fullWidth
                                 />
                                 <TextField

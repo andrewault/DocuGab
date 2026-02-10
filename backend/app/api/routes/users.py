@@ -37,6 +37,12 @@ async def update_profile(
         current_user.full_name = data.full_name
     if data.avatar_url is not None:
         current_user.avatar_url = data.avatar_url
+    if data.phone_number is not None:
+        current_user.phone_number = data.phone_number
+    if data.company is not None:
+        current_user.company = data.company
+    if data.job_title is not None:
+        current_user.job_title = data.job_title
 
     await db.commit()
     await db.refresh(current_user)

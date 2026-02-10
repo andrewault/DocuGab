@@ -12,6 +12,9 @@ class UserRegister(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, description="Minimum 8 characters")
     full_name: Optional[str] = None
+    phone_number: Optional[str] = None
+    company: Optional[str] = None
+    job_title: Optional[str] = None
 
 
 class UserLogin(BaseModel):
@@ -48,6 +51,10 @@ class UserResponse(BaseModel):
     is_verified: bool
     theme: str
     timezone: str
+    phone_number: Optional[str] = None
+    company: Optional[str] = None
+    job_title: Optional[str] = None
+    last_ip_address: Optional[str] = None
     customer_id: Optional[int] = None
     customer_uuid: Optional[UUID] = None
     customer_name: Optional[str] = None
@@ -66,6 +73,9 @@ class UserUpdate(BaseModel):
 
     full_name: Optional[str] = None
     avatar_url: Optional[str] = None
+    phone_number: Optional[str] = None
+    company: Optional[str] = None
+    job_title: Optional[str] = None
     customer_id: Optional[int] = None
 
 

@@ -41,6 +41,10 @@ class User(Base):
     timezone: Mapped[str] = mapped_column(
         String(50), default="America/Los_Angeles", nullable=False
     )
+    phone_number: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    company: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    job_title: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    last_ip_address: Mapped[str | None] = mapped_column(String(50), nullable=True)
     customer_id: Mapped[int | None] = mapped_column(
         Integer,
         ForeignKey("customers.id", ondelete="SET NULL"),

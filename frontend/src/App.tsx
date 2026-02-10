@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Box, Toolbar } from '@mui/material';
 import Navbar from './components/Navbar';
 import AdminSidebar from './components/AdminSidebar';
@@ -184,22 +184,28 @@ export default function App() {
                 <CustomerDocumentUpload />
               </ProtectedRoute>
             } />
-            <Route path="/admin/users" element={
+            {/* Redirect old admin users routes */}
+            <Route path="/admin/users" element={<Navigate to="/admin/admin-users" replace />} />
+            <Route path="/admin/users/new" element={<Navigate to="/admin/admin-users/new" replace />} />
+            <Route path="/admin/users/:uuid" element={<Navigate to="/admin/admin-users/:uuid" replace />} />
+            <Route path="/admin/users/:uuid/edit" element={<Navigate to="/admin/admin-users/:uuid/edit" replace />} />
+
+            <Route path="/admin/admin-users" element={
               <ProtectedRoute requireAdmin>
                 <Users />
               </ProtectedRoute>
             } />
-            <Route path="/admin/users/new" element={
+            <Route path="/admin/admin-users/new" element={
               <ProtectedRoute requireAdmin>
                 <NewUser />
               </ProtectedRoute>
             } />
-            <Route path="/admin/users/:uuid" element={
+            <Route path="/admin/admin-users/:uuid" element={
               <ProtectedRoute requireAdmin>
                 <UserDetail />
               </ProtectedRoute>
             } />
-            <Route path="/admin/users/:uuid/edit" element={
+            <Route path="/admin/admin-users/:uuid/edit" element={
               <ProtectedRoute requireAdmin>
                 <UserEdit />
               </ProtectedRoute>

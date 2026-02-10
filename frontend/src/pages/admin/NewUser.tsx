@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Container,
@@ -22,50 +22,31 @@ import {
 import { PersonAdd, Visibility, VisibilityOff } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
+import { getAllTimezones, getTimezoneLabel } from '../../utils/timezoneUtils';
 import { API_BASE } from '@/config/api';
 
 export default function NewUser() {
     const navigate = useNavigate();
-    const location = useLocation();
+
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [fullName, setFullName] = useState('');
-    const [role, setRole] = useState('user');
+    const [role, setRole] = useState('admin');
     const [isActive, setIsActive] = useState(true);
     const [isVerified, setIsVerified] = useState(false);
-    const [customerId, setCustomerId] = useState<number | null>(null);
-    const [customers, setCustomers] = useState<Array<{ id: number; uuid: string; name: string }>>([]);
     const [error, setError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [company, setCompany] = useState('');
+    const [jobTitle, setJobTitle] = useState('');
+    const [timezone, setTimezone] = useState('America/Los_Angeles');
+    const timezones = getAllTimezones();
 
-    const fetchCustomers = useCallback(async () => {
-        try {
-            const response = await fetch(`${API_BASE}/api/v1/admin/customers?page=1&per_page=100`, {
-                headers: getAuthHeader(),
-            });
-            if (!response.ok) throw new Error('Failed to fetch customers');
-            const data = await response.json();
-            setCustomers(data.customers || []);
-        } catch (err) {
-            console.error('Failed to load customers:', err);
-        }
-    }, []);
 
-    useEffect(() => {
-        fetchCustomers();
-
-        // Pre-populate customer from location state if provided
-        const state = location.state as { customerId?: number; customerUuid?: string; customerName?: string } | null;
-        if (state?.customerId) {
-            setCustomerId(state.customerId);
-            setRole('customer'); // Default to customer role when coming from customer page
-            setError(null);
-        }
-    }, [fetchCustomers, location.state]);
 
     const handleSubmit = async () => {
         if (!email || !password) {
@@ -92,6 +73,9 @@ export default function NewUser() {
                     email,
                     password,
                     full_name: fullName || email,
+                    phone_number: phoneNumber || null,
+                    company: company || null,
+                    job_title: jobTitle || null,
                 }),
             });
 
@@ -107,8 +91,8 @@ export default function NewUser() {
 
             const newUser = await response.json();
 
-            // Update the user's role, active status, verified status, and customer if needed
-            if (role !== 'user' || !isActive || isVerified || customerId !== null) {
+            // Update the user's role, active status, verified status if needed
+            if (role !== 'user' || !isActive || isVerified) {
                 const updateResponse = await fetch(`${API_BASE}/api/v1/admin/users/${newUser.uuid}`, {
                     method: 'PATCH',
                     headers: {
@@ -116,11 +100,14 @@ export default function NewUser() {
                         ...getAuthHeader(),
                     },
                     body: JSON.stringify({
-                        full_name: fullName || email,
                         role,
                         is_active: isActive,
                         is_verified: isVerified,
-                        customer_id: customerId,
+                        customer_id: null,
+                        phone_number: phoneNumber || null,
+                        company: company || null,
+                        job_title: jobTitle || null,
+                        timezone: timezone,
                     }),
                 });
 
@@ -130,13 +117,7 @@ export default function NewUser() {
                 }
             }
 
-            // Navigate back to customer page if user was created from customer context
-            const state = location.state as { customerId?: number; customerUuid?: string; customerName?: string } | null;
-            if (state?.customerUuid) {
-                navigate(`/admin/customers/${state.customerUuid}`);
-            } else {
-                navigate(`/admin/users/${newUser.uuid}`);
-            }
+            navigate(`/admin/admin-users/${newUser.uuid}`);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to create user');
         } finally {
@@ -156,8 +137,8 @@ export default function NewUser() {
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
                 <AdminBreadcrumbs items={[
-                    { label: 'Users', path: '/admin/users' },
-                    { label: 'New User' }
+                    { label: 'Admin Users', path: '/admin/admin-users' },
+                    { label: 'New Admin User' }
                 ]} />
 
                 {/* Header */}
@@ -175,10 +156,7 @@ export default function NewUser() {
                                 WebkitTextFillColor: 'transparent',
                             }}
                         >
-                            {(() => {
-                                const state = location.state as { customerId?: number; customerUuid?: string; customerName?: string } | null;
-                                return state?.customerName ? `New User for ${state.customerName}` : 'New User';
-                            })()}
+                            New Admin User
                         </Typography>
                     </Box>
                     <Stack direction="row" spacing={2}>
@@ -194,7 +172,7 @@ export default function NewUser() {
                             onClick={handleSubmit}
                             disabled={saving}
                         >
-                            {saving ? 'Creating...' : 'Create User'}
+                            {saving ? 'Creating...' : 'Create Admin User'}
                         </Button>
                     </Stack>
                 </Stack>
@@ -278,31 +256,49 @@ export default function NewUser() {
                                 value={role}
                                 label="Role"
                                 onChange={(e) => setRole(e.target.value)}
-                                disabled={!!(location.state as { customerId?: number } | null)?.customerId}
                             >
-                                <MenuItem value="user">User</MenuItem>
-                                <MenuItem value="customer">Customer</MenuItem>
                                 <MenuItem value="admin">Admin</MenuItem>
                                 <MenuItem value="superadmin">Superadmin</MenuItem>
                             </Select>
                         </FormControl>
 
+                        <TextField
+                            label="Phone Number"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            fullWidth
+                        />
+
+                        <TextField
+                            label="Company"
+                            value={company}
+                            onChange={(e) => setCompany(e.target.value)}
+                            fullWidth
+                        />
+
+                        <TextField
+                            label="Job Title"
+                            value={jobTitle}
+                            onChange={(e) => setJobTitle(e.target.value)}
+                            fullWidth
+                        />
+
                         <FormControl fullWidth>
-                            <InputLabel>Customer</InputLabel>
+                            <InputLabel>Timezone</InputLabel>
                             <Select
-                                value={customerId || ''}
-                                label="Customer"
-                                onChange={(e) => setCustomerId(e.target.value ? Number(e.target.value) : null)}
-                                disabled={!!(location.state as { customerId?: number } | null)?.customerId}
+                                value={timezone}
+                                label="Timezone"
+                                onChange={(e) => setTimezone(e.target.value)}
                             >
-                                <MenuItem value="">None</MenuItem>
-                                {customers.map((customer) => (
-                                    <MenuItem key={customer.id} value={customer.id}>
-                                        {customer.name}
+                                {timezones.map((tz) => (
+                                    <MenuItem key={tz} value={tz}>
+                                        {getTimezoneLabel(tz)}
                                     </MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
+
+
 
                         <FormControlLabel
                             control={

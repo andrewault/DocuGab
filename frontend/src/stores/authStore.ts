@@ -15,6 +15,9 @@ interface User {
     avatar_url?: string | null;
     is_verified?: boolean;
     customer_is_active?: boolean | null;
+    phone_number?: string | null;
+    company?: string | null;
+    job_title?: string | null;
 }
 
 interface AuthState {
@@ -29,7 +32,14 @@ interface AuthState {
 
     // Actions
     login: (email: string, password: string) => Promise<void>;
-    register: (email: string, password: string, fullName: string) => Promise<void>;
+    register: (
+        email: string,
+        password: string,
+        fullName: string,
+        phoneNumber?: string,
+        company?: string,
+        jobTitle?: string
+    ) => Promise<void>;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
     updateUser: (user: User) => void;
@@ -77,7 +87,14 @@ export const useAuthStore = create<AuthState>()(
                 await get().refreshUser();
             },
 
-            register: async (email: string, password: string, fullName: string) => {
+            register: async (
+                email: string,
+                password: string,
+                fullName: string,
+                phoneNumber?: string,
+                company?: string,
+                jobTitle?: string
+            ) => {
                 const response = await fetch(`${API_BASE}/api/v1/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -85,6 +102,9 @@ export const useAuthStore = create<AuthState>()(
                         email,
                         password,
                         full_name: fullName,
+                        phone_number: phoneNumber,
+                        company,
+                        job_title: jobTitle,
                     }),
                 });
 

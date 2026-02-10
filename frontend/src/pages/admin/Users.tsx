@@ -14,10 +14,6 @@ import {
     TableSortLabel,
     Chip,
     TextField,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
     Stack,
     Card,
     CardContent,
@@ -54,6 +50,10 @@ interface User {
     customer_id: number | null;
     customer_uuid: string | null;
     customer_name: string | null;
+    phone_number: string | null;
+    company: string | null;
+    job_title: string | null;
+    timezone: string;
     created_at: string;
     updated_at: string;
 }
@@ -66,7 +66,7 @@ export default function Users() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [search, setSearch] = useState('');
-    const [roleFilter, setRoleFilter] = useState('');
+    const [roleFilter] = useState('admin');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [orderBy, setOrderBy] = useState<keyof User>('full_name');
@@ -75,7 +75,7 @@ export default function Users() {
     const navigate = useNavigate();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
-    usePageTitle('Users');
+    usePageTitle('Admin Users');
 
     const fetchStats = async () => {
         try {
@@ -99,6 +99,7 @@ export default function Users() {
             });
             if (search) params.append('search', search);
             if (roleFilter) params.append('role', roleFilter);
+            params.append('no_customer', 'true');
 
             const response = await fetch(`${API_BASE}/api/v1/admin/users?${params}`, {
                 headers: getAuthHeader(),
@@ -151,7 +152,7 @@ export default function Users() {
             }}
         >
             <Container maxWidth={false} sx={{ px: 3 }}>
-                <AdminBreadcrumbs items={[{ label: 'Users' }]} />
+                <AdminBreadcrumbs items={[{ label: 'Admin Users' }]} />
 
                 {/* Header with Title */}
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
@@ -167,12 +168,12 @@ export default function Users() {
                                 WebkitTextFillColor: 'transparent',
                             }}
                         >
-                            Users
+                            Admin Users
                         </Typography>
                     </Box>
                     <Button
                         variant="contained"
-                        onClick={() => navigate('/admin/users/new')}
+                        onClick={() => navigate('/admin/admin-users/new')}
                     >
                         <Add />
                     </Button>
@@ -211,20 +212,7 @@ export default function Users() {
                             size="small"
                             sx={{ minWidth: 200 }}
                         />
-                        <FormControl size="small" sx={{ minWidth: 120 }}>
-                            <InputLabel>Role</InputLabel>
-                            <Select
-                                value={roleFilter}
-                                label="Role"
-                                onChange={(e) => setRoleFilter(e.target.value)}
-                            >
-                                <MenuItem value="">All</MenuItem>
-                                <MenuItem value="user">User</MenuItem>
-                                <MenuItem value="customer">Customer</MenuItem>
-                                <MenuItem value="admin">Admin</MenuItem>
-                                <MenuItem value="superadmin">Superadmin</MenuItem>
-                            </Select>
-                        </FormControl>
+                        {/* Role filter hidden as this page is for Admin Users */}
                     </Stack>
                 </Paper>
 
@@ -260,7 +248,8 @@ export default function Users() {
                                     </TableSortLabel>
                                 </TableCell>
                                 <TableCell>Role</TableCell>
-                                <TableCell>Customer</TableCell>
+
+                                <TableCell>Timezone</TableCell>
                                 <TableCell>
                                     <TableSortLabel
                                         active={orderBy === 'created_at'}
@@ -312,7 +301,7 @@ export default function Users() {
                                         <TableRow
                                             key={user.id}
                                             hover
-                                            onClick={() => navigate(`/admin/users/${user.uuid}`)}
+                                            onClick={() => navigate(`/admin/admin-users/${user.uuid}`)}
                                             sx={{ cursor: 'pointer' }}
                                         >
                                             <TableCell>{user.email}</TableCell>
@@ -336,12 +325,9 @@ export default function Users() {
 
                                                 />
                                             </TableCell>
+
                                             <TableCell>
-                                                {user.customer_name ? (
-                                                    <Typography variant="body2">{user.customer_name}</Typography>
-                                                ) : (
-                                                    <Typography variant="body2" color="text.secondary">-</Typography>
-                                                )}
+                                                <Typography variant="body2">{user.timezone}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="body2">
@@ -378,7 +364,7 @@ export default function Users() {
                                                     color="primary"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        navigate(`/admin/users/${user.uuid}/edit`);
+                                                        navigate(`/admin/admin-users/${user.uuid}/edit`);
                                                     }}
                                                 >
                                                     <Edit />

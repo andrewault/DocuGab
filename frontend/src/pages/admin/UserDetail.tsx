@@ -45,6 +45,11 @@ interface User {
     customer_id: number | null;
     customer_uuid: string | null;
     customer_name: string | null;
+    phone_number: string | null;
+    company: string | null;
+    job_title: string | null;
+    timezone: string;
+    last_ip_address: string | null;
     created_at: string;
     updated_at: string;
     last_login_at: string | null;
@@ -107,7 +112,7 @@ export default function UserDetail() {
                 throw new Error('Failed to delete user');
             }
 
-            navigate('/admin/users');
+            navigate('/admin/admin-users');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to delete user');
             setDeleteDialogOpen(false);
@@ -147,7 +152,7 @@ export default function UserDetail() {
                             { label: 'Customers', path: '/admin/customers' },
                             { label: user.customer_name, path: `/admin/customers/${user.customer_uuid}` },
                         ]
-                        : [{ label: 'Users', path: '/admin/users' }]),
+                        : [{ label: 'Admin Users', path: '/admin/admin-users' }]),
                     { label: user.email },
                 ]}
             />
@@ -174,7 +179,7 @@ export default function UserDetail() {
                     <Button
                         variant="contained"
                         startIcon={<Edit />}
-                        onClick={() => navigate(`/admin/users/${user.uuid}/edit`)}
+                        onClick={() => navigate(`/admin/admin-users/${user.uuid}/edit`)}
                     >
                         Edit
                     </Button>
@@ -259,7 +264,7 @@ export default function UserDetail() {
                                         {user.customer_name}
                                     </Typography>
                                 ) : (
-                                    <Typography variant="body1">—</Typography>
+                                    <Typography variant="body1">None (admin)</Typography>
                                 )}
                             </Box>
 
@@ -289,7 +294,6 @@ export default function UserDetail() {
                                     </Stack>
                                 </Box>
                             </Box>
-
                             <Box>
                                 <Typography variant="caption" color="text.secondary" display="flex" alignItems="center" gap={0.5}>
                                     <CalendarToday fontSize="small" />
@@ -301,7 +305,54 @@ export default function UserDetail() {
                                         : 'Never'}
                                 </Typography>
                             </Box>
+
+                            <Box>
+                                <Typography variant="caption" color="text.secondary">
+                                    Last IP Address
+                                </Typography>
+                                <Typography variant="body1">
+                                    {user.last_ip_address || '—'}
+                                </Typography>
+                            </Box>
+
+                            <Box>
+                                <Typography variant="caption" color="text.secondary">
+                                    Timezone
+                                </Typography>
+                                <Typography variant="body1">
+                                    {user.timezone}
+                                </Typography>
+                            </Box>
                         </Stack>
+                    </Box>
+                </Stack>
+
+                <Divider sx={{ my: 3 }} />
+
+                <Stack direction="row" spacing={4} flexWrap="wrap">
+                    <Box>
+                        <Typography variant="caption" color="text.secondary">
+                            Phone Number
+                        </Typography>
+                        <Typography variant="body2">
+                            {user.phone_number || '—'}
+                        </Typography>
+                    </Box>
+                    <Box>
+                        <Typography variant="caption" color="text.secondary">
+                            Company
+                        </Typography>
+                        <Typography variant="body2">
+                            {user.company || '—'}
+                        </Typography>
+                    </Box>
+                    <Box>
+                        <Typography variant="caption" color="text.secondary">
+                            Job Title
+                        </Typography>
+                        <Typography variant="body2">
+                            {user.job_title || '—'}
+                        </Typography>
                     </Box>
                 </Stack>
 
