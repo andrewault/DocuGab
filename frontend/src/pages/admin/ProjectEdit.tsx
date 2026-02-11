@@ -22,9 +22,10 @@ import {
     DialogActions,
     Switch,
     FormControlLabel,
-    Chip,
+
 } from '@mui/material';
 import { Save, CloudUpload, Image as ImageIcon, VolumeUp } from '@mui/icons-material';
+import { ReadinessBadge } from '../../components/admin/ReadinessBadge';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { StatusBanner } from '../../components/admin/StatusBanner';
@@ -378,25 +379,8 @@ export default function ProjectEdit() {
                         >
                             Edit {project.name} • Chatbot Project
                         </Typography>
-                        {project.is_ready ? (
-                            <Chip
-                                label="Ready"
-                                sx={{
-                                    backgroundColor: '#4caf50',
-                                    color: 'white',
-                                    fontWeight: 600,
-                                }}
-                            />
-                        ) : (
-                            <Chip
-                                label="Not Ready"
-                                sx={{
-                                    backgroundColor: '#f44336',
-                                    color: 'white',
-                                    fontWeight: 600,
-                                }}
-                            />
-                        )}
+
+                        <ReadinessBadge isReady={project?.is_ready ?? false} size="medium" />
                     </Stack>
                     <Stack direction="row" spacing={2}>
                         <Button
@@ -809,6 +793,6 @@ export default function ProjectEdit() {
                     </DialogActions>
                 </Dialog>
             </Container>
-        </Box>
+        </Box >
     );
 }
