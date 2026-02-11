@@ -266,6 +266,16 @@ export default function ProjectDetail() {
                                 }}
                             />
                         )}
+                        {project.is_demo && (
+                            <Chip
+                                label="Demo"
+                                sx={{
+                                    backgroundColor: '#1976d2',
+                                    color: 'white',
+                                    fontWeight: 600,
+                                }}
+                            />
+                        )}
                     </Stack>
                     <Stack direction="row" spacing={2}>
                         <Button
