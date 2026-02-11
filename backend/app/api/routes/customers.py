@@ -41,6 +41,7 @@ def _build_customer_response(customer: Customer, projects_count: int = 0) -> dic
         "contact_phone": customer.contact_phone,
         "email": customer.email,
         "is_docutok_customer": customer.is_docutok_customer,
+        "notes": customer.notes,
         "is_active": customer.is_active,
         "created_at": customer.created_at,
         "updated_at": customer.updated_at,
@@ -140,6 +141,7 @@ async def create_customer(
         contact_name=data.contact_name,
         contact_phone=data.contact_phone,
         email=data.email,
+        notes=data.notes,
         is_active=True,
         is_docutok_customer=data.is_docutok_customer,
     )
@@ -196,6 +198,8 @@ async def update_customer(
         customer.is_active = data.is_active
     if data.is_docutok_customer is not None:
         customer.is_docutok_customer = data.is_docutok_customer
+    if data.notes is not None:
+        customer.notes = data.notes
 
     await db.commit()
     await db.refresh(customer)

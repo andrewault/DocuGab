@@ -28,6 +28,7 @@ interface Customer {
     email: string | null;
     is_active: boolean;
     is_docutok_customer: boolean;
+    notes: string | null;
 }
 
 interface CustomerFormData {
@@ -37,6 +38,7 @@ interface CustomerFormData {
     email: string;
     is_active: boolean;
     is_docutok_customer: boolean;
+    notes: string;
 }
 
 export default function CustomerEdit() {
@@ -55,6 +57,7 @@ export default function CustomerEdit() {
         email: '',
         is_active: true,
         is_docutok_customer: false,
+        notes: '',
     });
 
     useEffect(() => {
@@ -77,6 +80,7 @@ export default function CustomerEdit() {
                     email: data.email || '',
                     is_active: data.is_active,
                     is_docutok_customer: data.is_docutok_customer,
+                    notes: data.notes || '',
                 });
                 setError(null);
             } catch (err) {
@@ -251,6 +255,16 @@ export default function CustomerEdit() {
                                     />
                                 }
                                 label="Internal DocuTok Customer"
+                            />
+
+                            <TextField
+                                fullWidth
+                                label="Notes"
+                                multiline
+                                rows={4}
+                                value={formData.notes}
+                                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                                placeholder="Internal notes..."
                             />
                         </Stack>
                     </form>

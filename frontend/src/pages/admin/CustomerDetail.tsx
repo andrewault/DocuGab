@@ -35,6 +35,7 @@ import {
     Add,
     Folder,
     Edit,
+    NoteAlt,
 } from '@mui/icons-material';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
@@ -57,6 +58,7 @@ interface Customer {
     updated_at: string;
     projects_count: number;
     is_docutok_customer: boolean;
+    notes: string | null;
 }
 
 interface Project {
@@ -99,6 +101,9 @@ export default function CustomerDetail() {
     const [projectsOrder, setProjectsOrder] = useState<'asc' | 'desc'>('asc');
     const [usersOrderBy, setUsersOrderBy] = useState<keyof User>('full_name');
     const [usersOrder, setUsersOrder] = useState<'asc' | 'desc'>('asc');
+    const [notesDialogOpen, setNotesDialogOpen] = useState(false);
+    const [notesForm, setNotesForm] = useState('');
+    const [savingNotes, setSavingNotes] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -208,6 +213,16 @@ export default function CustomerDetail() {
                     </Typography>
                 </Box>
                 <Stack direction="row" spacing={2}>
+                    <Button
+                        variant="outlined"
+                        startIcon={<NoteAlt />}
+                        onClick={() => {
+                            setNotesForm(customer.notes || '');
+                            setNotesDialogOpen(true);
+                        }}
+                    >
+                        Notes
+                    </Button>
                     <Button
                         variant="contained"
                         startIcon={<Edit />}
@@ -749,6 +764,83 @@ export default function CustomerDetail() {
                         disabled={saving}
                     >
                         {saving ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Customer Notes Dialog */}
+            <Dialog
+                open={notesDialogOpen}
+                onClose={() => !savingNotes && setNotesDialogOpen(false)}
+                maxWidth="md"
+                fullWidth
+            >
+                <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <NoteAlt color="primary" />
+                    Customer Notes: {customer.name}
+                </DialogTitle>
+                <DialogContent>
+                    <Box sx={{ mt: 2 }}>
+                        <TextField
+                            label="Notes"
+                            multiline
+                            rows={15}
+                            value={notesForm}
+                            onChange={(e) => setNotesForm(e.target.value)}
+                            fullWidth
+                            variant="outlined"
+                            disabled={savingNotes}
+                            placeholder="Add internal notes about this customer..."
+                            sx={{
+                                '& .MuiInputBase-root': {
+                                    fontFamily: 'monospace',
+                                    fontSize: '0.9rem'
+                                }
+                            }}
+                        />
+                    </Box>
+                </DialogContent>
+                <DialogActions sx={{ p: 3 }}>
+                    <Button onClick={() => setNotesDialogOpen(false)} disabled={savingNotes}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={async () => {
+                            setSavingNotes(true);
+                            try {
+                                const response = await fetch(
+                                    `${API_BASE}/api/v1/admin/customers/${uuid}`,
+                                    {
+                                        method: 'PATCH',
+                                        headers: {
+                                            ...getAuthHeader(),
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                            notes: notesForm,
+                                        }),
+                                    }
+                                );
+
+                                if (!response.ok) {
+                                    throw new Error('Failed to update notes');
+                                }
+
+                                const updatedCustomer = await response.json();
+                                setCustomer(updatedCustomer);
+                                setNotesDialogOpen(false);
+                            } catch (err) {
+                                console.error(err);
+                                alert('Failed to save notes');
+                            } finally {
+                                setSavingNotes(false);
+                            }
+                        }}
+                        disabled={savingNotes}
+                        startIcon={savingNotes ? <CircularProgress size={20} /> : null}
+                    >
+                        {savingNotes ? 'Saving...' : 'Save Notes'}
                     </Button>
                 </DialogActions>
             </Dialog>

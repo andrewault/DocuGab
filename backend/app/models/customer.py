@@ -39,6 +39,7 @@ class Customer(Base):
     is_docutok_customer: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default=sql.false(), nullable=False
     )
+    notes: Mapped[str | None] = mapped_column(String, nullable=True)
 
     # Metadata
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

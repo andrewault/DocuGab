@@ -10,7 +10,7 @@ export function QuickActions() {
     const actions = [
         { label: 'New Project', icon: <RecordVoiceOver />, path: '/admin/projects/new', color: 'primary' as const },
         { label: 'New Customer', icon: <Business />, path: '/admin/customers/new', color: 'success' as const },
-        { label: 'New User', icon: <PersonAdd />, path: '/admin/admin-users/new', color: 'info' as const },
+        { label: 'New Admin User', icon: <PersonAdd />, path: '/admin/admin-users/new', color: 'info' as const },
     ];
 
     return (
