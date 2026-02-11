@@ -28,6 +28,7 @@ import {
     useTheme,
 } from '@mui/material';
 import { Add, Edit, Delete, Folder, RecordVoiceOver } from '@mui/icons-material';
+import { ReadinessBadge } from '../../components/admin/ReadinessBadge';
 import { useNavigate } from 'react-router-dom';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
@@ -434,8 +435,10 @@ export default function Projects() {
                                                                 )}
                                                             </Typography>
                                                         </TableCell>
+
                                                         <TableCell>
                                                             <Stack direction="row" spacing={1}>
+                                                                <ReadinessBadge isReady={project.is_ready} />
                                                                 <Chip
                                                                     label={project.is_enabled ? 'Active' : 'Disabled'}
                                                                     size="small"

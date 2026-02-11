@@ -230,9 +230,14 @@ export default function ChatParameters() {
                                     {param.is_active ? (
                                         <Chip
                                             label="Active"
-                                            color="success"
                                             size="small"
-                                            icon={<CheckCircle />}
+                                            icon={<CheckCircle style={{ color: 'white' }} />}
+                                            sx={{
+                                                backgroundColor: '#4caf50',
+                                                color: 'white',
+                                                fontWeight: 600,
+                                                '& .MuiChip-icon': { color: 'white' }
+                                            }}
                                         />
                                     ) : (
                                         <Chip label="Inactive" size="small" variant="outlined" />

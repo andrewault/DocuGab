@@ -20,6 +20,7 @@ import {
     IconButton,
 } from '@mui/material';
 import { Edit, Forum, HelpOutline, Visibility } from '@mui/icons-material';
+import { ReadinessBadge } from '../../components/admin/ReadinessBadge';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { StatusBanner } from '../../components/admin/StatusBanner';
@@ -245,6 +246,7 @@ export default function ProjectDetail() {
                         >
                             {project.name} • Chatbot Project
                         </Typography>
+                        <ReadinessBadge isReady={project.is_ready} size="medium" />
                         {project.is_enabled ? (
                             <Chip
                                 label="Active"

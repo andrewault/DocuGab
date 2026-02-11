@@ -320,7 +320,9 @@ export default function Users() {
                                                     sx={
                                                         user.role === 'customer'
                                                             ? { bgcolor: '#1976d2', color: 'white', fontWeight: 600 }
-                                                            : {}
+                                                            : user.role === 'admin'
+                                                                ? { color: 'white', fontWeight: 600 }
+                                                                : {}
                                                     }
 
                                                 />

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Chip, Stack, Divider } from '@mui/material';
 import { Folder, Business, CalendarToday, Description } from '@mui/icons-material';
+import { ReadinessBadge } from '../../components/admin/ReadinessBadge';
 import { InfoSection } from '../../components/admin/InfoSection';
 import { DetailRow } from '../../components/admin/DetailRow';
 import { formatInUserTimezone } from '../../utils/timezoneUtils';
@@ -52,7 +53,8 @@ export function ProjectOverview({ project, currentUser }: ProjectOverviewProps) 
                             <DetailRow
                                 label="Status"
                                 value={
-                                    <Box>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <ReadinessBadge isReady={project.is_ready} />
                                         <Chip
                                             label={project.is_enabled ? 'Active' : 'Disabled'}
                                             size="small"
@@ -66,10 +68,10 @@ export function ProjectOverview({ project, currentUser }: ProjectOverviewProps) 
                                             <Chip
                                                 label="Demo"
                                                 size="small"
-                                                sx={{ backgroundColor: '#1976d2', color: 'white', fontWeight: 600, ml: 1 }}
+                                                sx={{ backgroundColor: '#1976d2', color: 'white', fontWeight: 600 }}
                                             />
                                         )}
-                                    </Box>
+                                    </Stack>
                                 }
                             />
                             <DetailRow

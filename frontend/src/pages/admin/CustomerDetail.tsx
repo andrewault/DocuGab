@@ -37,6 +37,7 @@ import {
     Edit,
     NoteAlt,
 } from '@mui/icons-material';
+import { ReadinessBadge } from '../../components/admin/ReadinessBadge';
 import { getAuthHeader } from '../../utils/authUtils';
 import AdminBreadcrumbs from '../../components/AdminBreadcrumbs';
 import { StatusBanner } from '../../components/admin/StatusBanner';
@@ -68,6 +69,7 @@ interface Project {
     is_active: boolean;
     is_enabled: boolean;
     is_demo: boolean;
+    is_ready: boolean;
     created_at: string;
     documents_count: number;
 }
@@ -423,6 +425,7 @@ export default function CustomerDetail() {
                                             </TableCell>
                                             <TableCell>
                                                 <Stack direction="row" spacing={1}>
+                                                    <ReadinessBadge isReady={project.is_ready} />
                                                     <Chip
                                                         label={project.is_enabled ? 'Active' : 'Disabled'}
                                                         size="small"
